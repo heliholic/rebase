@@ -4299,10 +4299,6 @@ void mspFcProcessReply(mspPacket_t *reply)
             UNUSED(batteryVoltage);
             UNUSED(amperage);
             UNUSED(mAhDrawn);
-
-#ifdef USE_MSP_CURRENT_METER
-            currentMeterMSPSet(amperage, mAhDrawn);
-#endif
         }
         break;
     }
