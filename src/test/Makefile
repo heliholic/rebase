@@ -47,6 +47,8 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/rc_controls.c
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c
 
 arming_prevention_unittest_DEFINES := \
 
@@ -326,7 +328,8 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/fc/rc_adjustments.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/pg/adjustments.c \
-		$(USER_DIR)/pg/rc_controls.c
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c
 
 rx_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
@@ -537,7 +540,8 @@ vtx_unittest_SRC := \
 		$(USER_DIR)/io/vtx_control.c \
 		$(USER_DIR)/io/vtx.c \
 		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/pg/rc_controls.c
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c
 
 vtx_unittest_DEFINES := \
 		USE_VTX_COMMON= \
