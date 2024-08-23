@@ -48,7 +48,8 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/rc_controls.c
 		$(USER_DIR)/pg/rc_controls.c \
-		$(USER_DIR)/pg/arming.c
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c
 
 arming_prevention_unittest_DEFINES := \
 
@@ -185,8 +186,18 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c \
-		$(USER_DIR)/pg/autopilot.c
+		$(USER_DIR)/pg/autopilot.c \
+		$(USER_DIR)/pg/modes.c
 
+flight_failsafe_unittest_DEFINES := \
+
+flight_failsafe_rescue_unittest_SRC := \
+		$(USER_DIR)/common/bitarray.c \
+		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/fc/runtime_config.c \
+		$(USER_DIR)/flight/failsafe.c \
+		$(USER_DIR)/pg/modes.c
+flight_failsafe_rescue_unittest_DEFINES := \
 
 flight_imu_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
@@ -197,7 +208,8 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/flight/position.c \
 		$(USER_DIR)/flight/imu.c \
-		$(USER_DIR)/pg/feature.c
+		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/modes.c
 
 
 flight_mixer_unittest :=  \
@@ -237,7 +249,8 @@ io_serial_unittest_SRC := \
 ledstrip_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/io/ledstrip.c
+		$(USER_DIR)/io/ledstrip.c \
+		$(USER_DIR)/pg/modes.c
 
 ledstrip_unittest_DEFINES := \
 		USE_LED_STRIP=
@@ -305,7 +318,8 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/pg/rx.c \
 		$(USER_DIR)/rx/rx.c \
 		$(USER_DIR)/rx/crsf.c \
-		$(USER_DIR)/pg/time.c
+		$(USER_DIR)/pg/time.c \
+		$(USER_DIR)/pg/modes.c
 
 link_quality_unittest_DEFINES := \
 		USE_OSD= \
@@ -329,7 +343,8 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/pg/adjustments.c \
 		$(USER_DIR)/pg/rc_controls.c \
-		$(USER_DIR)/pg/arming.c
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c
 
 rx_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
@@ -361,7 +376,8 @@ rx_ranges_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/rx/rx.c \
 		$(USER_DIR)/pg/pg.c \
-		$(USER_DIR)/pg/rx.c
+		$(USER_DIR)/pg/rx.c \
+		$(USER_DIR)/pg/modes.c
 
 
 rx_rx_unittest_SRC := \
@@ -371,7 +387,8 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/config/feature.c \
 		$(USER_DIR)/pg/rx.c \
-		$(USER_DIR)/pg/feature.c
+		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/modes.c
 
 rx_sumd_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
@@ -498,6 +515,7 @@ rcdevice_unittest_SRC := \
 		$(USER_DIR)/io/rcdevice.c \
 		$(USER_DIR)/io/rcdevice_cam.c \
 		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/modes.c
 
 pid_unittest_SRC :=  \
 		$(USER_DIR)/common/crc.c \
@@ -541,7 +559,8 @@ vtx_unittest_SRC := \
 		$(USER_DIR)/io/vtx.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/pg/rc_controls.c \
-		$(USER_DIR)/pg/arming.c
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c
 
 vtx_unittest_DEFINES := \
 		USE_VTX_COMMON= \
