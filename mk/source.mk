@@ -88,7 +88,10 @@ COMMON_SRC = \
             common/gps_conversion.c \
             common/huffman.c \
             common/huffman_table.c \
+            common/stddev.c \
             common/maths.c \
+            common/median.c \
+            common/trig.c \
             common/printf.c \
             common/pwl.c \
             common/sensor_alignment.c \
@@ -417,7 +420,10 @@ endif
 SPEED_OPTIMISED_SRC += \
             common/encoding.c \
             common/filter.c \
+            common/stddev.c \
             common/maths.c \
+            common/median.c \
+            common/trig.c \
             common/printf.c \
             common/pwl.c \
             common/stopwatch.c \
