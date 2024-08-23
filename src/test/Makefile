@@ -34,6 +34,8 @@ alignsensor_unittest_SRC := \
 		$(USER_DIR)/sensors/boardalignment.c \
 		$(USER_DIR)/common/sensor_alignment.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/pg/alignment.c
 
@@ -82,6 +84,8 @@ baro_bmp280_unittest_DEFINES := \
 
 baro_bmp388_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/drivers/barometer/barometer_bmp388.c
 
 baro_bmp388_unittest_DEFINES := \
@@ -117,6 +121,8 @@ accgyro_spi_icm426xx_unittest_DEFINES := \
 battery_profile_unittest_SRC := \
 		$(USER_DIR)/sensors/battery.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
@@ -130,6 +136,8 @@ blackbox_unittest_SRC :=  \
 		$(USER_DIR)/common/encoding.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
 		$(USER_DIR)/pg/gps.c \
@@ -147,6 +155,8 @@ cli_unittest_SRC := \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/gps_conversion.c \
 		$(USER_DIR)/config/feature.c \
 		$(USER_DIR)/io/gps.c \
@@ -172,7 +182,9 @@ cms_unittest_SRC := \
 
 common_filter_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
-		$(USER_DIR)/common/maths.c
+		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c
 
 
 encoding_unittest_SRC := \
@@ -191,6 +203,8 @@ flight_failsafe_unittest_SRC := \
 flight_imu_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/config/feature.c \
@@ -206,7 +220,9 @@ flight_imu_unittest_SRC := \
 flight_mixer_unittest :=  \
 		$(USER_DIR)/flight/mixer.c \
 		$(USER_DIR)/flight/servos.c \
-		$(USER_DIR)/common/maths.c
+		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c
 
 
 gps_conversion_unittest_SRC := \
@@ -251,7 +267,12 @@ ledstrip_unittest_DEFINES := \
 
 maths_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/vector.c
+
+trig_unittest_SRC := \
+		$(USER_DIR)/common/trig.c
 
 
 motor_output_unittest_SRC := \
@@ -276,6 +297,8 @@ osd_unittest_SRC := \
 		$(USER_DIR)/osd/osd_warnings.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/rtc.c \
 		$(USER_DIR)/common/typeconversion.c \
@@ -298,6 +321,8 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/rtc.c \
@@ -337,6 +362,8 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/fc/rc_adjustments.c \
 		$(USER_DIR)/fc/rc_modes.c \
@@ -371,6 +398,8 @@ rx_ranges_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/rx/rx.c \
@@ -384,6 +413,8 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/config/feature.c \
 		$(USER_DIR)/pg/rx.c \
 		$(USER_DIR)/pg/feature.c \
@@ -410,6 +441,8 @@ sensor_gyro_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/sensor_alignment.c \
 		$(USER_DIR)/common/vector.c \
@@ -431,6 +464,8 @@ telemetry_crsf_unittest_SRC := \
 		$(USER_DIR)/telemetry/crsf.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/gps_conversion.c \
 		$(USER_DIR)/common/printf.c \
@@ -522,6 +557,8 @@ pid_unittest_SRC :=  \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/pwl.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
@@ -534,11 +571,12 @@ pid_unittest_SRC :=  \
 
 pid_unittest_DEFINES := \
 
-
 position_estimator_unittest_SRC := \
 		$(USER_DIR)/flight/position_estimator.c \
 		$(USER_DIR)/flight/position_filter.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/vector.c
 
 position_estimator_unittest_DEFINES := \
