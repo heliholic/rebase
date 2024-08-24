@@ -44,14 +44,10 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c
 		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/pg/rc_controls.c
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/pg/modes.c
-
-arming_prevention_unittest_DEFINES := \
 
 atomic_unittest_SRC := \
 		$(USER_DIR)/build/atomic.c \
@@ -186,18 +182,9 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c \
-		$(USER_DIR)/pg/autopilot.c \
-		$(USER_DIR)/pg/modes.c
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/failsafe.c
 
-flight_failsafe_unittest_DEFINES := \
-
-flight_failsafe_rescue_unittest_SRC := \
-		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/failsafe.c \
-		$(USER_DIR)/pg/modes.c
-flight_failsafe_rescue_unittest_DEFINES := \
 
 flight_imu_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
