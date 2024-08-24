@@ -199,7 +199,8 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c \
 		$(USER_DIR)/pg/autopilot.c \
-		$(USER_DIR)/pg/modes.c
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/failsafe.c
 
 flight_failsafe_unittest_DEFINES := \
 		USE_GPS_RESCUE= \
@@ -211,7 +212,8 @@ flight_failsafe_rescue_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c \
 		$(USER_DIR)/pg/autopilot.c \
-		$(USER_DIR)/pg/modes.c
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/failsafe.c
 
 flight_failsafe_rescue_unittest_DEFINES := \
 		USE_GPS_RESCUE= \
