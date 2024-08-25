@@ -234,7 +234,8 @@ $(OBJECT_DIR)/dronecan_gnss_unittest/dronecan_gnss_unittest.o: \
 
 io_serial_unittest_SRC := \
 		$(USER_DIR)/io/serial.c \
-		$(USER_DIR)/io/serial_resource.c
+		$(USER_DIR)/io/serial_resource.c \
+		$(USER_DIR)/pg/serial.c
 
 
 ledstrip_unittest_SRC := \
