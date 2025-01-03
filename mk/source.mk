@@ -31,6 +31,7 @@ PG_SRC = \
             pg/msp.c \
             pg/osd_nav_map.c \
             pg/pg.c \
+            pg/pid.c \
             pg/pilot.c \
             pg/piniobox.c \
             pg/pinio.c \
