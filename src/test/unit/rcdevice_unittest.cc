@@ -902,26 +902,6 @@ extern "C" {
         return 0;
     }
 
-    void sbufAdvance(sbuf_t *buf, int size)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            buf->ptr += size;
-        }
-    }
-
-    int sbufBytesRemaining(sbuf_t *buf)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            return buf->end - buf->ptr;
-        }
-        return 0;
-    }
-
-    const uint8_t* sbufConstPtr(const sbuf_t *buf)
-    {
-        return buf->ptr;
-    }
-
     void sbufReadData(sbuf_t *src, void *data, int len)
     {
         if (testData.isAllowBufferReadWrite) {
@@ -941,12 +921,6 @@ extern "C" {
     {
         sbufWriteU8(dst, val >> 0);
         sbufWriteU8(dst, val >> 8);
-    }
-
-    void sbufWriteU16BigEndian(sbuf_t *dst, uint16_t val)
-    {
-        sbufWriteU8(dst, val >> 8);
-        sbufWriteU8(dst, (uint8_t)val);
     }
 
     bool featureIsEnabled(uint32_t) { return false; }
@@ -974,11 +948,6 @@ extern "C" {
     void closeSerialPort(serialPort_t *serialPort)
     {
         UNUSED(serialPort);
-    }
-
-    uint8_t* sbufPtr(sbuf_t *buf)
-    {
-        return buf->ptr;
     }
 
     uint32_t sbufReadU32(sbuf_t *src)
