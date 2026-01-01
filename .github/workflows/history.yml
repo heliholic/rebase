@@ -1,0 +1,96 @@
+name: History
+
+on:
+  push:
+    tags:
+      - 'history/*'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 500
+
+    - name: Delete tag
+      run: git push origin :${GITHUB_REF}
+
+    - name: Install ARM tools
+      run: make arm_sdk_install
+
+    - name: Git submodules
+      run: git submodule update --init --recursive
+
+    - name: Set build variables
+      run: |
+        echo "GIT_VER=${GITHUB_REF##*/}" >> ${GITHUB_ENV}
+        echo "GIT_TAG=${GITHUB_REF##refs/tags/}" >> ${GITHUB_ENV}
+        cat ${GITHUB_ENV}
+
+    - name: Machine details
+      run: |
+        free
+        cat /proc/cpuinfo  | grep -E '^(processor)|(vendor_id)|(model name)|(cpu MHz)|(cache size)'
+
+    - name: Build git history
+      run: |
+        testbuild()
+        {
+            echo "Building $1"
+            ( nice make $1 || echo '**FAILURE**' ) >$2.$1.out 2>&1
+            grep -E -H -i '(warning:)|(error:)' $2.$1.out || true
+            grep -E -H '( RAM:)|( ITCM_RAM:)|( DTCM_RAM:)|( FLASH1:)|( AXIM_FLASH1:)' $2.$1.out || true
+        }
+
+        unittest()
+        {
+            echo "Running unit tests"
+            ( nice make test || echo '**FAILURE**' ) >$1.UNIT.out 2>&1
+        }
+
+        M=${GIT_VER%%-*}
+        N=${GIT_VER##*-}
+
+        while [[ $N -ge $M ]]
+        do
+            RESULT=$(printf '%04d' $N)
+
+            git checkout ${GITHUB_REF}~$N --force --detach
+
+            testbuild STM32H750 ${RESULT} &
+            testbuild STM32H743 ${RESULT} &
+            testbuild STM32H735 ${RESULT} &
+            testbuild STM32H730 ${RESULT} &
+            testbuild STM32H725 ${RESULT} &
+            testbuild STM32H723 ${RESULT} &
+            testbuild STM32H563 ${RESULT} &
+            wait
+
+            testbuild STM32F745 ${RESULT} &
+            testbuild STM32F722 ${RESULT} &
+            testbuild STM32F411 ${RESULT} &
+            testbuild STM32F405 ${RESULT} &
+            testbuild MATEKH743 ${RESULT} &
+            testbuild MATEKF722 ${RESULT} &
+            testbuild MATEKF411 ${RESULT} &
+            wait
+
+            testbuild SITL ${RESULT}
+
+            unittest ${RESULT}
+
+            let N-=1
+        done
+
+        ! grep -F -H '**FAILURE**' *.out
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rotorflight-history-${{ env.GIT_VER }}
+        path: 0*.out
