@@ -1,0 +1,103 @@
+name: History
+
+on:
+  push:
+    tags:
+      - 'history/*'
+
+permissions:
+  contents: write
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 500
+
+    - name: Delete tag
+      run: git push origin :${GITHUB_REF}
+
+    - name: Machine details
+      run: |
+        free
+        cat /proc/cpuinfo  | grep -E '^(processor)|(vendor_id)|(model name)|(cpu MHz)|(cache size)'
+
+    - name: Install ARM tools
+      run: make arm_sdk_install
+
+    - name: Set build variables
+      run: |
+        echo "GIT_VER=${GITHUB_REF##*/}" >> ${GITHUB_ENV}
+        echo "GIT_TAG=${GITHUB_REF##refs/tags/}" >> ${GITHUB_ENV}
+        cat ${GITHUB_ENV}
+
+    - name: Build git history
+      run: |
+        log()
+        {
+            printf '%02d:%02d:%02d  %s\n' $((SECONDS/3600)) $((SECONDS/60%60)) $((SECONDS%60)) "$*"
+        }
+
+        build()
+        {
+            log "Building $2"
+            ( nice make $2 || echo '**FAILURE**' ) >$1.$2.out 2>&1
+            log "Done $2"
+        }
+
+        fwbuild()
+        {
+            build $1 $2
+            grep -E -H -i '(warning:)|(error:)' $1.$2.out || true
+            grep -E -H '( RAM:)|( ITCM_RAM:)|( DTCM_RAM:)|( FLASH1:)|( AXIM_FLASH1:)' $1.$2.out || true
+        }
+
+        fwgroup()
+        {
+            local RESULT=$1; shift
+            local TARGET
+            for TARGET
+            do
+                fwbuild ${RESULT} ${TARGET}
+            done
+        }
+
+        M=${GIT_VER%%-*}
+        N=${GIT_VER##*-}
+
+        while [[ $N -ge $M ]]
+        do
+            RESULT=$(printf '%04d' $N)
+
+            log "Checkout ${GITHUB_REF}~$N"
+
+            git checkout ${GITHUB_REF}~$N --force --detach
+            git submodule update --init --recursive
+
+            fwgroup ${RESULT} STM32H750 STM32H743 STM32H725 STM32H723 &
+            fwgroup ${RESULT} STM32H563 STM32F745 STM32F722 STM32F411 &
+            fwgroup ${RESULT} STM32F405 STM32G474 STM32C591 STM32C562 &
+            fwgroup ${RESULT} MATEKF722 MATEKH743 JHEF745   NEXUSXR   &
+
+            wait
+
+            fwbuild ${RESULT} SITL
+
+            build ${RESULT} test
+
+            N=$(( N - 1 ))
+        done
+
+        ! grep -F -H '**FAILURE**' *.out
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rotorflight-history-${{ env.GIT_VER }}
+        path: '*.out'
