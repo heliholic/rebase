@@ -95,7 +95,6 @@ extern "C" {
 
     // used by auto-disarm code
     float getMaxRcDeflectionAbs() { return fabsf(simulatedMaxRcDeflectionAbs); }
-    float mixerGetRcThrottle() { return fabsf(simulatedMixerGetRcThrottle); }
 
 
     bool isBelowLandingAltitude(void) { return false; }

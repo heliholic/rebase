@@ -289,7 +289,6 @@ void beeperOffClearAll(void) {}
 bool parseColor(int, const char *) {return false; }
 bool resetEEPROM(void) { return true; }
 void bufWriterFlush(bufWriter_t *) {}
-void mixerResetDisarmedMotors(void) {}
 
 typedef enum {
     DUMMY

@@ -610,10 +610,8 @@ void processRxModes(timeUs_t currentTimeUs)
 
     // When armed and motors aren't spinning, do beeps and then disarm
     // board after delay so users without buzzer won't lose fingers.
-    // mixTable constrains motor commands, so checking  throttleStatus is enough
     const timeUs_t autoDisarmDelayUs = armingConfig()->auto_disarm_delay * 1e6f;
     if (ARMING_FLAG(ARMED)
-        && !isFixedWing()
         && !FLIGHT_MODE(GPS_RESCUE_MODE)  // disable auto-disarm when GPS Rescue is active
     ) {
         if (isUsingSticksForArming()) {
@@ -831,6 +829,8 @@ void subTaskTelemetryPollSensors(timeUs_t currentTimeUs)
 
 static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
 {
+    UNUSED(currentTimeUs);
+
     uint32_t startTime = 0;
     if (debugMode == DEBUG_CYCLETIME) {
         startTime = micros();
@@ -843,13 +843,8 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
         startTime = micros();
     }
 
-    mixTable(currentTimeUs);
-
 #ifdef USE_SERVOS
-    // motor outputs are used as sources for servo mixing, so motors must be calculated using mixTable() before servos.
-    if (isMixerUsingServos()) {
-        writeServos();
-    }
+    writeServos();
 #endif
 
     writeMotors();
