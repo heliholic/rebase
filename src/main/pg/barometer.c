@@ -23,13 +23,13 @@
 
 #include "config/config_reset.h"
 
+#ifdef USE_BARO
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/barometer.h"
 
-#ifdef USE_BARO
 PG_REGISTER_WITH_RESET_FN(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 3);
-#else
-PG_REGISTER(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 3);
+
 #endif
