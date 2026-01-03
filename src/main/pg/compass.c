@@ -23,13 +23,13 @@
 
 #include "config/config_reset.h"
 
+#ifdef USE_MAG
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/compass.h"
 
-#ifdef USE_MAG
 PG_REGISTER_WITH_RESET_FN(compassConfig_t, compassConfig, PG_COMPASS_CONFIG, 4);
-#else
-PG_REGISTER(compassConfig_t, compassConfig, PG_COMPASS_CONFIG, 4);
+
 #endif
