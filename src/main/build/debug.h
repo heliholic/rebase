@@ -20,6 +20,8 @@
 #include "platform.h"
 #include "types.h"
 
+#include "platform/itm.h"
+
 #define DEBUG_VALUE_COUNT       8
 #define DEBUG16_VALUE_COUNT     8
 

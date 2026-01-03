@@ -22,7 +22,7 @@
 
 #include "build/build_config.h"
 
-uint8_t __ITM_SendU8(const size_t port, const uint8_t data)
+FAST_CODE uint8_t __ITM_SendU8(const size_t port, const uint8_t data)
 {
 #ifdef USE_NONBLOCKING_ITM_SEND
     if (ITM->PORT[port].u32 != 0UL)
@@ -37,7 +37,7 @@ uint8_t __ITM_SendU8(const size_t port, const uint8_t data)
     return data;
 }
 
-uint16_t __ITM_SendU16(const size_t port, const uint16_t data)
+FAST_CODE uint16_t __ITM_SendU16(const size_t port, const uint16_t data)
 {
 #ifdef USE_NONBLOCKING_ITM_SEND
     if (ITM->PORT[port].u32 != 0UL)
@@ -52,7 +52,7 @@ uint16_t __ITM_SendU16(const size_t port, const uint16_t data)
     return data;
 }
 
-uint32_t __ITM_SendU32(const size_t port, const uint32_t data)
+FAST_CODE uint32_t __ITM_SendU32(const size_t port, const uint32_t data)
 {
 #ifdef USE_NONBLOCKING_ITM_SEND
     if (ITM->PORT[port].u32 != 0UL)
