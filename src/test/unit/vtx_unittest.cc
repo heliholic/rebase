@@ -41,7 +41,7 @@ extern "C" {
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
     uint8_t cliMode = 0;
     uint8_t debugMode = 0;
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
     rxRuntimeState_t rxRuntimeState = {};
 }
 
