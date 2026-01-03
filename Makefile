@@ -47,6 +47,11 @@ DEBUG     ?=
 # releases should not be built with this flag as it does not disable pwm output
 DEBUG_HARDFAULTS ?=
 
+# Use printf for debugging:
+#    ITM - use ITM SWO channel 0 for printf
+#    SERIAL - use a serial port for printf
+USE_PRINTF ?=
+
 # Use ITM for realtime debugging
 USE_ITM_DEBUG ?=
 
@@ -225,6 +230,10 @@ OPTIMISE_SPEED        := -Ofast
 OPTIMISE_SIZE         := -Os
 
 LTO_FLAGS             := $(OPTIMISATION_BASE) $(OPTIMISE_SPEED)
+endif
+
+ifneq ($(USE_PRINTF),)
+DEBUG_FLAGS           += -DUSE_$(USE_PRINTF)_PRINTF
 endif
 
 ifeq ($(USE_ITM_DEBUG),yes)
