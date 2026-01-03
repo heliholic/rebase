@@ -28,6 +28,8 @@
 
 #include "pg/barometer.h"
 
+#ifdef USE_BARO
 PG_REGISTER_WITH_RESET_FN(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 3);
-
-void pgResetFn_barometerConfig(barometerConfig_t *barometerConfig);
+#else
+PG_REGISTER(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 3);
+#endif
