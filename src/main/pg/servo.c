@@ -24,13 +24,12 @@
 
 #include "platform.h"
 
+#ifdef USE_SERVOS
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/servo.h"
-
-
-#ifdef USE_SERVOS
 
 #include "config/config.h"
 #include "config/config_reset.h"
@@ -84,12 +83,6 @@ void pgResetFn_servoParams(servoParam_t *instance)
         );
     }
 }
-
-#else // USE_SERVOS
-
-PG_REGISTER(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
-
-PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
 
 #endif // USE_SERVOS
 
