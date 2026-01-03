@@ -24,12 +24,6 @@
 
 #include "drivers/servo_impl.h"
 
-#define PWM_SERVO_MIN   500       // minimum servo PWM pulse width which we can set from cli
-#define PWM_SERVO_MAX   2500      // maximum servo PWM pulse width which we can set from cli
-
-#define MAX_SERVO_SPEED UINT8_MAX
-#define MAX_SERVO_BOXES 3
-
 extern int16_t servo[MAX_SUPPORTED_SERVOS];
 
 void writeServos(void);

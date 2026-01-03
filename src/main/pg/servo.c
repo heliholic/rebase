@@ -24,15 +24,23 @@
 
 #include "platform.h"
 
-#include "config/config_reset.h"
-
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/servo.h"
 
 
+#ifdef USE_SERVOS
+
+#include "config/config.h"
+#include "config/config_reset.h"
+
+#include "drivers/io.h"
+
+
 PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
+
+PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
 
 void pgResetFn_servoConfig(servoConfig_t *servoConfig)
 {
@@ -65,9 +73,6 @@ void pgResetFn_servoConfig(servoConfig_t *servoConfig)
 #endif
 }
 
-
-PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
-
 void pgResetFn_servoParams(servoParam_t *instance)
 {
     for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
@@ -79,4 +84,13 @@ void pgResetFn_servoParams(servoParam_t *instance)
         );
     }
 }
+
+#else // USE_SERVOS
+
+PG_REGISTER(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
+
+PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
+
+#endif // USE_SERVOS
+
 
