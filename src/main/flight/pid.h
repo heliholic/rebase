@@ -67,8 +67,6 @@ typedef struct pidCoefficient_s {
 
 extern pidAxisData_t pidData[3];
 
-extern uint32_t targetPidLooptime;
-
 void resetPidProfile(pidProfile_t *profile);
 
 float pidGetPreviousSetpoint(int axis);
