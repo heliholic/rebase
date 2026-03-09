@@ -79,9 +79,7 @@ static inline void postProcessAccelerometer(void)
     for (unsigned axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
 
         // Apply anti-alias filter for attitude task (if enabled)
-        if (axis == gyro.gyroDebugAxis) {
-            DEBUG_SET(DEBUG_ACCELEROMETER, 0, lrintf(acc.accADC.v[axis]));
-        }
+        DEBUG_AXIS_SET(DEBUG_ACCELEROMETER, axis, 0, lrintf(acc.accADC.v[axis]));
 
         if (accelerationRuntime.accLpfCutHz) {
             acc.accADC.v[axis] = pt2FilterApply(&accelerationRuntime.accFilter[axis], acc.accADC.v[axis]);
@@ -91,10 +89,8 @@ static inline void postProcessAccelerometer(void)
         acc.jerk.v[axis] = (acc.accADC.v[axis] - accAdcPrev.v[axis]) * acc.sampleRateHz;
         accAdcPrev.v[axis] = acc.accADC.v[axis];
 
-        if (axis == gyro.gyroDebugAxis) {
-            DEBUG_SET(DEBUG_ACCELEROMETER, 1, lrintf(acc.accADC.v[axis]));
-            DEBUG_SET(DEBUG_ACCELEROMETER, 3, lrintf(acc.jerk.v[axis] * 1e-2f));
-        }
+        DEBUG_AXIS_SET(DEBUG_ACCELEROMETER, axis, 1, lrintf(acc.accADC.v[axis]));
+        DEBUG_AXIS_SET(DEBUG_ACCELEROMETER, axis, 3, lrintf(acc.jerk.v[axis] * 1e-2f));
     }
 
     acc.accMagnitude = vector3Norm(&acc.accADC) * acc.dev.acc_1G_rec;
