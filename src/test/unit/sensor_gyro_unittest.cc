@@ -51,6 +51,7 @@ extern "C" {
     STATIC_UNIT_TESTED bool virtualGyroRead(gyroDev_t *gyro);
 
     uint8_t debugMode;
+    uint8_t debugAxis = 0;
     int32_t debug[DEBUG_VALUE_COUNT];
 }
 
