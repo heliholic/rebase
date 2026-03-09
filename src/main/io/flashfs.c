@@ -683,12 +683,11 @@ bool flashfsVerifyEntireFlash(void)
     const uint32_t testLimit = flashfsGetSize();
 
     for (address = 0; address < testLimit; address += bufferSize) {
-        tfp_sprintf(buffer, "%08x >> **0123456789ABCDEF**", address);
+        tfp_sprintf(buffer, "%08x >> **0123456789ABCDEF**", (uint)address);
         flashfsWrite((uint8_t*)buffer, strlen(buffer), true);
         if ((address % 0x10000) == 0) {
             LED0_TOGGLE;
         }
-        // Don't overwrite the buffer if the FLASH is busy writing
         flashfsFlushSync();
     }
     flashfsClose();
@@ -699,7 +698,7 @@ bool flashfsVerifyEntireFlash(void)
 
     int verificationFailures = 0;
     for (address = 0; address < testLimit; address += bufferSize) {
-        tfp_sprintf(expectedBuffer, "%08x >> **0123456789ABCDEF**", address);
+        tfp_sprintf(expectedBuffer, "%08x >> **0123456789ABCDEF**", (uint)address);
 
         memset(buffer, 0, sizeof(buffer));
         int bytesRead = flashfsReadAbs(address, (uint8_t *)buffer, bufferSize);
