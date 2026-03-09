@@ -59,11 +59,10 @@
 typedef float (applyRatesFn)(const int axis, float rcCommandf, const float rcCommandfAbs);
 // note that rcCommand[] is an external float
 
-static float rawSetpoint[XYZ_AXIS_COUNT];
-
-static float setpointRate[3], rcDeflection[3], rcDeflectionAbs[3]; // deflection range -1 to 1
+static float rawSetpoint[4];
+static float setpointRate[4];
+static float rcDeflection[4], rcDeflectionAbs[4];
 static float maxRcDeflectionAbs;
-
 static applyRatesFn *applyRates;
 
 static uint16_t currentRxIntervalUs;  // packet interval in microseconds, constrained to above range
@@ -75,13 +74,6 @@ static bool isRxDataNew = false;
 static bool isRxRateValid = false;
 static float rcCommandDivider = 500.0f;
 static float rcCommandYawDivider = 500.0f;
-
-enum {
-    ROLL_FLAG = 1 << ROLL,
-    PITCH_FLAG = 1 << PITCH,
-    YAW_FLAG = 1 << YAW,
-    THROTTLE_FLAG = 1 << THROTTLE,
-};
 
 float getSetpointRate(int axis)
 {
@@ -112,31 +104,6 @@ float getRcDeflectionAbs(int axis)
 float getMaxRcDeflectionAbs(void)
 {
     return maxRcDeflectionAbs;
-}
-
-#ifndef THROTTLE_LOOKUP_LENGTH
-# define THROTTLE_LOOKUP_LENGTH 12
-#endif
-static int16_t lookupThrottleRC[THROTTLE_LOOKUP_LENGTH];    // lookup table for expo & mid THROTTLE
-
-static int16_t rcLookupThrottle(int32_t tmp)
-{
-    // tmp is 0…PWM_RANGE
-    // Spread that range evenly over THROTTLE_LOOKUP_LENGTH-1 steps
-    const int32_t steps  = THROTTLE_LOOKUP_LENGTH - 1;
-    const int32_t scaled = tmp * steps;                // 0…PWM_RANGE*steps
-    const int32_t idx    = scaled / PWM_RANGE;         // 0…steps
-    const int32_t rem    = scaled % PWM_RANGE;         // for interpolation
-
-    // If index goes outside the valid range, clamp it
-    if (idx >= steps) {
-        return lookupThrottleRC[steps];
-    } else if (idx < 0) {
-        return lookupThrottleRC[0];
-    }
-
-    // Otherwise linearly interpolate between lookupThrottleRC[idx] and [idx+1]
-    return scaleRange(rem, 0, PWM_RANGE, lookupThrottleRC[idx], lookupThrottleRC[idx + 1]);
 }
 
 #define SETPOINT_RATE_LIMIT_MIN -1998.0f
@@ -380,27 +347,19 @@ FAST_CODE_NOINLINE void updateRcCommands(void)
 {
     isRxDataNew = true;
 
-    for (int axis = 0; axis < 3; axis++) {
+    for (int axis = 0; axis < 4; axis++) {
         float rc = constrainf(rcData[axis] - rxConfig()->midrc, -500.0f, 500.0f); // -500 to 500
-        float rcDeadband = 0;
+        float deadband = 0;
         if (axis == ROLL || axis == PITCH) {
-            rcDeadband = rcControlsConfig()->deadband;
-        } else {
-            rcDeadband  = rcControlsConfig()->yaw_deadband;
+            deadband = rcControlsConfig()->deadband;
+        } else if (axis == YAW) {
+            deadband  = rcControlsConfig()->yaw_deadband;
             rc = -rc;  // Yaw direction reversed
         }
-        rcCommand[axis] = fapplyDeadband(rc, rcDeadband);
+        rcCommand[axis] = fapplyDeadband(rc, deadband);
     }
 
-    int32_t tmp;
-    tmp = constrain(rcData[THROTTLE], rxConfig()->mincheck, PWM_RANGE_MAX);
-    tmp = (uint32_t)(tmp - rxConfig()->mincheck) * PWM_RANGE_MIN / (PWM_RANGE_MAX - rxConfig()->mincheck);
-
-    if (getLowVoltageCutoff()->enabled) {
-        tmp = tmp * getLowVoltageCutoff()->percentage / 100;
-    }
-
-    rcCommand[THROTTLE] = rcLookupThrottle(tmp);
+    rcCommand[THROTTLE] = constrain(rcData[THROTTLE], PWM_RANGE_MIN, PWM_RANGE_MAX) - PWM_RANGE_MIN;
 }
 
 void resetYawAxis(void)

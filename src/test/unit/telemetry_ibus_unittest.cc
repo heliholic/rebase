@@ -50,7 +50,7 @@ extern "C" {
     uint8_t stateFlags = 0;
     uint16_t flightModeFlags = 0;
     uint8_t testBatteryCellCount =3;
-    float rcCommand[4] = {0, 0, 0, 0};
+    float rcCommand[5] = {0, 0, 0, 0, 0};
     telemetryConfig_t telemetryConfig_System;
     batteryConfig_t batteryConfig_System;
     attitudeEulerAngles_t attitude = EULER_INITIALIZE;

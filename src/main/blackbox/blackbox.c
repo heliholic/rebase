@@ -339,8 +339,8 @@ typedef struct blackboxMainState_s {
     int32_t axisPID_F[XYZ_AXIS_COUNT];
     int32_t axisPID_S[XYZ_AXIS_COUNT];
 
-    int16_t rcCommand[4];
-    int16_t setpoint[4];
+    int16_t rcCommand[5];
+    int16_t setpoint[5];
     int16_t gyroADC[XYZ_AXIS_COUNT];
     int16_t gyroUnfilt[XYZ_AXIS_COUNT];
 #ifdef USE_ACC
