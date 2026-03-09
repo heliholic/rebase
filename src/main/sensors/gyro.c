@@ -68,6 +68,7 @@ static FAST_DATA_ZERO_INIT float gyroFilteredDownsampled[XYZ_AXIS_COUNT];
 static FAST_DATA_ZERO_INIT int16_t gyroSensorTemperature;
 
 FAST_DATA uint8_t activePidLoopDenom = 1;
+FAST_DATA uint8_t activeFilterLoopDenom = 1;
 
 static bool firstArmingCalibrationWasStarted = false;
 

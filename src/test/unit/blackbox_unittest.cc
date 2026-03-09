@@ -63,14 +63,14 @@ TEST(BlackboxTest, TestInitIntervals)
 {
     blackboxConfigMutable()->sample_rate = 4; // sample_rate = PID loop frequency / 16
     // 250Hz PIDloop
-    targetPidLooptime = 4000;
+    gyro.targetLooptime = 4000;
     blackboxInit();
     EXPECT_EQ(8, blackboxIInterval);
     EXPECT_EQ(0, blackboxPInterval);
     EXPECT_EQ(2048, blackboxSInterval);
 
     // 500Hz PIDloop
-    targetPidLooptime = 2000;
+    gyro.targetLooptime = 2000;
     blackboxInit();
     EXPECT_EQ(16, blackboxIInterval);
     EXPECT_EQ(16, blackboxPInterval);
@@ -78,7 +78,7 @@ TEST(BlackboxTest, TestInitIntervals)
 
     blackboxConfigMutable()->sample_rate = 1; // sample_rate = PID loop frequency / 2
     // 2kHz PIDloop
-    targetPidLooptime = 500;
+    gyro.targetLooptime = 500;
     blackboxInit();
     EXPECT_EQ(64, blackboxIInterval);
     EXPECT_EQ(2, blackboxPInterval);
@@ -86,7 +86,7 @@ TEST(BlackboxTest, TestInitIntervals)
 
     blackboxConfigMutable()->sample_rate = 2;
     // 4kHz PIDloop
-    targetPidLooptime = 250;
+    gyro.targetLooptime = 250;
     blackboxInit();
     EXPECT_EQ(128, blackboxIInterval);
     EXPECT_EQ(4, blackboxPInterval);
@@ -94,7 +94,7 @@ TEST(BlackboxTest, TestInitIntervals)
 
     blackboxConfigMutable()->sample_rate = 3;
     // 8kHz PIDloop
-    targetPidLooptime = 125;
+    gyro.targetLooptime = 125;
     blackboxInit();
     EXPECT_EQ(256, blackboxIInterval);
     EXPECT_EQ(8, blackboxPInterval);
@@ -105,7 +105,7 @@ TEST(BlackboxTest, Test_500Hz)
 {
     blackboxConfigMutable()->sample_rate = 0;
     // 500Hz PIDloop
-    targetPidLooptime = 2000;
+    gyro.targetLooptime = 2000;
     blackboxInit();
     EXPECT_TRUE(blackboxShouldLogIFrame());
     EXPECT_TRUE(blackboxShouldLogPFrame());
@@ -123,7 +123,7 @@ TEST(BlackboxTest, Test_1kHz)
 {
     blackboxConfigMutable()->sample_rate = 0;
     // 1kHz PIDloop
-    targetPidLooptime = 1000;
+    gyro.targetLooptime = 1000;
     blackboxInit();
     EXPECT_TRUE(blackboxShouldLogIFrame());
     EXPECT_TRUE(blackboxShouldLogPFrame());
@@ -149,7 +149,7 @@ TEST(BlackboxTest, Test_2kHz)
 {
     blackboxConfigMutable()->sample_rate = 1;
     // 2kHz PIDloop
-    targetPidLooptime = 500;
+    gyro.targetLooptime = 500;
     blackboxInit();
     EXPECT_EQ(64, blackboxIInterval);
     EXPECT_EQ(2, blackboxPInterval);
@@ -182,7 +182,7 @@ TEST(BlackboxTest, Test_8kHz)
 {
     blackboxConfigMutable()->sample_rate = 3;
     // 8kHz PIDloop
-    targetPidLooptime = 125;
+    gyro.targetLooptime = 125;
     blackboxInit();
     EXPECT_TRUE(blackboxShouldLogIFrame());
     EXPECT_TRUE(blackboxShouldLogPFrame());
@@ -207,7 +207,7 @@ TEST(BlackboxTest, Test_zero_p_interval)
 {
     blackboxConfigMutable()->sample_rate = 4;
     // 250Hz PIDloop
-    targetPidLooptime = 4000;
+    gyro.targetLooptime = 4000;
     blackboxInit();
     EXPECT_EQ(8, blackboxIInterval);
     EXPECT_EQ(0, blackboxPInterval);
@@ -230,7 +230,7 @@ TEST(BlackboxTest, Test_CalculatePDenom)
     // note I-frame is logged every 32ms regardless of PIDloop rate
 
     // 1kHz PIDloop
-    targetPidLooptime = 1000;
+    gyro.targetLooptime = 1000;
     blackboxInit();
     EXPECT_EQ(32, blackboxIInterval);
     EXPECT_EQ(32, blackboxCalculatePDenom(1, 1)); // 1kHz logging
@@ -238,7 +238,7 @@ TEST(BlackboxTest, Test_CalculatePDenom)
     EXPECT_EQ(8, blackboxCalculatePDenom(1, 4));
 
     // 2kHz PIDloop
-    targetPidLooptime = 500;
+    gyro.targetLooptime = 500;
     blackboxInit();
     EXPECT_EQ(64, blackboxIInterval);
     EXPECT_EQ(64, blackboxCalculatePDenom(1, 1));
@@ -246,7 +246,7 @@ TEST(BlackboxTest, Test_CalculatePDenom)
     EXPECT_EQ(16, blackboxCalculatePDenom(1, 4));
 
     // 4kHz PIDloop
-    targetPidLooptime = 250;
+    gyro.targetLooptime = 250;
     blackboxInit();
     EXPECT_EQ(128, blackboxIInterval);
     EXPECT_EQ(128, blackboxCalculatePDenom(1, 1));
@@ -255,7 +255,7 @@ TEST(BlackboxTest, Test_CalculatePDenom)
     EXPECT_EQ(16, blackboxCalculatePDenom(1, 8));
 
     // 8kHz PIDloop
-    targetPidLooptime = 125;
+    gyro.targetLooptime = 125;
     blackboxInit();
     EXPECT_EQ(256, blackboxIInterval);
     EXPECT_EQ(256, blackboxCalculatePDenom(1, 1));
@@ -268,7 +268,7 @@ TEST(BlackboxTest, Test_CalculatePDenom)
 TEST(BlackboxTest, Test_CalculateRates)
 {
     // 1kHz PIDloop
-    targetPidLooptime = 1000;
+    gyro.targetLooptime = 1000;
     blackboxConfigMutable()->sample_rate = 0;
     blackboxInit();
     EXPECT_EQ(32, blackboxIInterval);
@@ -289,7 +289,7 @@ TEST(BlackboxTest, Test_CalculateRates)
 
 
     // 8kHz PIDloop
-    targetPidLooptime = 125;
+    gyro.targetLooptime = 125;
     blackboxConfigMutable()->sample_rate = 3; // 1kHz logging
     blackboxInit();
     EXPECT_EQ(256, blackboxIInterval);
@@ -321,7 +321,7 @@ TEST(BlackboxTest, Test_CalculateRates)
     EXPECT_EQ(1, blackboxGetRateDenom());
 
     // 0.126 PIDloop = 7.94kHz
-    targetPidLooptime = 126;
+    gyro.targetLooptime = 126;
     blackboxConfigMutable()->sample_rate = 3; // 0.992kHz logging
     blackboxInit();
     EXPECT_EQ(253, blackboxIInterval);
@@ -356,8 +356,6 @@ gyro_t gyro;
 float motor_disarmed[MAX_SUPPORTED_MOTORS];
 struct pidProfile_s;
 struct pidProfile_s *currentPidProfile;
-uint32_t targetPidLooptime;
-
 boxBitmask_t rcModeActivationMask;
 
 void mspSerialAllocatePorts(void) {}
