@@ -87,7 +87,7 @@
 displayPort_t *pCurrentDisplay;
 
 static displayPort_t *cmsDisplayPorts[CMS_MAX_DEVICE];
-static unsigned cmsDeviceCount;
+static unsigned cmsDeviceCount = 0;
 static int cmsCurrentDevice = -1;
 #ifdef USE_OSD
 static unsigned int osdProfileCursor = 1;
@@ -97,7 +97,7 @@ int menuChainBack;
 
 bool cmsDisplayPortRegister(displayPort_t *pDisplay)
 {
-    if (!pDisplay || cmsDeviceCount >= CMS_MAX_DEVICE) {
+    if (!featureIsEnabled(FEATURE_CMS) || !pDisplay || cmsDeviceCount >= CMS_MAX_DEVICE) {
         return false;
     }
 
