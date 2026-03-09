@@ -43,7 +43,7 @@ extern "C" {
     #include "sensors/acceleration.h"
     #include "sensors/sensors.h"
 
-    PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 0);
+    PG_REGISTER_WITH_RESET_FN(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 9);
 
     STATIC_UNIT_TESTED gyroHardware_e gyroDetect(gyroDev_t *dev);
     struct gyroSensor_s;
@@ -89,10 +89,9 @@ TEST(SensorGyro, Read)
 TEST(SensorGyro, Calibrate)
 {
     pgResetAll();
-    gyroInit();
-    gyroSetTargetLooptime(1);
-    // Use short calibration duration for faster test (0.01s -> ~80 cycles at 8kHz)
     gyroConfigMutable()->gyroCalibrationDuration = 1;
+    gyroInit();
+    gyroSetLooptime(1, 1);
     virtualGyroSet(gyroDevPtr, 5, 6, 7);
     const bool read = gyroDevPtr->readFn(gyroDevPtr);
     EXPECT_TRUE(read);
@@ -123,7 +122,7 @@ TEST(SensorGyro, Update)
     // Use short calibration duration for faster test
     gyroConfigMutable()->gyroCalibrationDuration = 1;
     gyroInit();
-    gyroSetTargetLooptime(1);
+    gyroSetLooptime(1, 1);
     gyroDevPtr->readFn = virtualGyroRead;
     gyroStartCalibration(false);
     EXPECT_FALSE(gyroIsCalibrationComplete());
