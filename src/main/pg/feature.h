@@ -48,6 +48,7 @@ typedef enum {
     FEATURE_BIT_LED_STRIP           = 16,
     FEATURE_BIT_DASHBOARD           = 17,
     FEATURE_BIT_OSD                 = 18,
+    FEATURE_BIT_CMS                 = 19,
     FEATURE_BIT_RX_SPI              = 25,
     FEATURE_BIT_ESC_SENSOR          = 27,
     FEATURE_BIT_COUNT               = 32
@@ -69,6 +70,7 @@ typedef enum {
     ENTRY(LED_STRIP),
     ENTRY(DASHBOARD),
     ENTRY(OSD),
+    ENTRY(CMS),
     ENTRY(RX_SPI),
     ENTRY(ESC_SENSOR),
 } features_e;
