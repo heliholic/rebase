@@ -232,7 +232,6 @@ static void setTargetLocationByAxis(const gpsLocation_t* newTargetLocation, axis
 
 bool positionControl(void)
 {
-    unsigned debugAxis = gyroConfig()->gyro_filter_debug_axis;
     static vector2_t debugGpsDistance = { 0 };     // keep last calculated distance for DEBUG
     static vector2_t debugPidSumEF = { 0 };        // and last pidsum in EF
     static uint16_t gpsStamp = 0;
