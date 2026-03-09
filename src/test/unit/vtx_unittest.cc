@@ -37,7 +37,7 @@ extern "C" {
 
     vtxSettingsConfig_t vtxGetSettings(void);
 
-    extern float rcCommand[4];
+    extern float rcCommand[5];
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
     uint8_t cliMode = 0;
     uint8_t debugMode = 0;

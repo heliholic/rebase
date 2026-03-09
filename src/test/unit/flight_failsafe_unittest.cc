@@ -716,7 +716,7 @@ TEST(FlightFailsafeTest, TestFailsafeNotActivatedWhenDisarmedAndRXLossIsDetected
 
 extern "C" {
 float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
-float rcCommand[4];
+float rcCommand[5];
     int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode = 0;
 bool isUsingSticksToArm = true;
