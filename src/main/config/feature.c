@@ -45,6 +45,7 @@ const char * const featureNames[FEATURE_BIT_COUNT] = {
     ENTRY(LED_STRIP),
     ENTRY(DASHBOARD),
     ENTRY(OSD),
+    ENTRY(CMS),
     ENTRY(RX_SPI),
     ENTRY(ESC_SENSOR),
 };
@@ -91,6 +92,9 @@ const uint32_t featuresSupportedByBuild = 0
 #endif
 #ifdef USE_OSD
     | FEATURE_OSD
+#endif
+#ifdef USE_CMS
+    | FEATURE_CMS
 #endif
 #ifdef USE_RX_SPI
     | FEATURE_RX_SPI
