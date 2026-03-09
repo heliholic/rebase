@@ -70,7 +70,7 @@
 static bool isUsingSticksToArm = true;
 static bool disarmUserRequested = false; // has the user requested a disarm, using either sticks or switches, whether armed or disarmed
 
-float rcCommand[4];           // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW
+float rcCommand[5];           // interval [-500;+500] for ROLL/PITCH/YAW/COLLECTIVE and [0;1000] for THROTTLE
 
 bool isUsingSticksForArming(void)
 {
