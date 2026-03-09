@@ -118,7 +118,7 @@ extern "C" {
     float getCosTiltAngle(void) { return 0.0f; }
     float getGpsDataIntervalSeconds(void) { return 0.01f; }
     float getGpsDataFrequencyHz(void) { return 10.0f; }
-    float rcCommand[4];
+    float rcCommand[5];
 
     bool gpsHasNewData(uint16_t* gpsStamp) {
         UNUSED(*gpsStamp);
