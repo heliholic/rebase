@@ -95,7 +95,6 @@ COMMON_SRC = \
             common/huffman_table.c \
             common/maths.c \
             common/printf.c \
-            common/printf_serial.c \
             common/pwl.c \
             common/sdft.c \
             common/sensor_alignment.c \
@@ -436,6 +435,7 @@ SPEED_OPTIMISED_SRC += \
             common/encoding.c \
             common/filter.c \
             common/maths.c \
+            common/printf.c \
             common/pwl.c \
             common/sdft.c \
             common/stopwatch.c \
