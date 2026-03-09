@@ -378,7 +378,7 @@ bool featureIsEnabled(uint32_t mask)
     return false;
 }
 
-void tfp_sprintf(char *, char*, ...) { }
+int tfp_sprintf(char *, const char *, ...) { return 0; }
 
 int scaleRange(int x, int srcMin, int srcMax, int destMin, int destMax)
 {
