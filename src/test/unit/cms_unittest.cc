@@ -28,6 +28,7 @@
 extern "C" {
     #include "unittest_platform.h"
     #include "target.h"
+    #include "config/feature.h"
     #include "cms/cms.h"
     #include "cms/cms_menu_quick.h"
     #include "cms/cms_types.h"
@@ -164,4 +165,5 @@ void unsetArmingDisabled(armingDisableFlags_e flag) { UNUSED(flag); }
 bool IS_RC_MODE_ACTIVE(boxId_e) { return false; }
 void setRebootRequired(void) {}
 bool getRebootRequired(void) { return false; }
+bool featureIsEnabled(uint32_t mask) { (void)mask; return true; }
 }
