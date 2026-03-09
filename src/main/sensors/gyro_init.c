@@ -78,7 +78,7 @@ static uint8_t gyroDetectedFlags = 0;
 
 static uint16_t calculateNyquistAdjustedNotchHz(uint16_t notchHz, uint16_t notchCutoffHz)
 {
-    const uint32_t gyroFrequencyNyquist = 1000000 / 2 / gyro.targetLooptime;
+    const uint32_t gyroFrequencyNyquist = 1000000 / 2 / gyro.filterLooptime;
     if (notchHz > gyroFrequencyNyquist) {
         if (notchCutoffHz < gyroFrequencyNyquist) {
             notchHz = gyroFrequencyNyquist;
@@ -100,7 +100,7 @@ static void gyroInitFilterNotch1(uint16_t notchHz, uint16_t notchCutoffHz)
         gyro.notchFilter1ApplyFn = (filterApplyFnPtr)biquadFilterApply;
         const float notchQ = filterGetNotchQ(notchHz, notchCutoffHz);
         for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
-            biquadFilterInit(&gyro.notchFilter1[axis], notchHz, gyro.targetLooptime, notchQ, FILTER_NOTCH, 1.0f);
+            biquadFilterInit(&gyro.notchFilter1[axis], notchHz, gyro.filterLooptime, notchQ, FILTER_NOTCH, 1.0f);
         }
     }
 }
@@ -115,7 +115,7 @@ static void gyroInitFilterNotch2(uint16_t notchHz, uint16_t notchCutoffHz)
         gyro.notchFilter2ApplyFn = (filterApplyFnPtr)biquadFilterApply;
         const float notchQ = filterGetNotchQ(notchHz, notchCutoffHz);
         for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
-            biquadFilterInit(&gyro.notchFilter2[axis], notchHz, gyro.targetLooptime, notchQ, FILTER_NOTCH, 1.0f);
+            biquadFilterInit(&gyro.notchFilter2[axis], notchHz, gyro.filterLooptime, notchQ, FILTER_NOTCH, 1.0f);
         }
     }
 }
@@ -196,7 +196,7 @@ void gyroInitFilters(void)
       FILTER_LPF1,
       gyroConfig()->gyro_lpf1_type,
       gyro_lpf1_init_hz,
-      gyro.targetLooptime
+      gyro.filterLooptime
     );
 
     gyro.downsampleFilterEnabled = gyroInitLowpassFilterLpf(
@@ -209,7 +209,7 @@ void gyroInitFilters(void)
     gyroInitFilterNotch1(gyroConfig()->gyro_soft_notch_hz_1, gyroConfig()->gyro_soft_notch_cutoff_1);
     gyroInitFilterNotch2(gyroConfig()->gyro_soft_notch_hz_2, gyroConfig()->gyro_soft_notch_cutoff_2);
 
-    const float k = pt1FilterGain(GYRO_IMU_DOWNSAMPLE_CUTOFF_HZ, gyro.targetLooptime * 1e-6f);
+    const float k = pt1FilterGain(GYRO_IMU_DOWNSAMPLE_CUTOFF_HZ, gyro.filterLooptime * 1e-6f);
     for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
         pt1FilterInit(&gyro.imuGyroFilter[axis], k);
     }
@@ -696,15 +696,23 @@ uint8_t getGyroDetectedFlags(void)
     return gyroDetectedFlags;
 }
 
-void gyroSetTargetLooptime(uint8_t pidDenom)
+void gyroSetLooptime(uint8_t pidDenom, uint8_t filterDenom)
 {
     activePidLoopDenom = pidDenom;
+    activeFilterLoopDenom = (filterDenom) ? filterDenom : pidDenom;
+
     if (gyro.sampleRateHz) {
-        gyro.sampleLooptime = 1e6f / gyro.sampleRateHz;
-        gyro.targetLooptime = activePidLoopDenom * 1e6f / gyro.sampleRateHz;
+        gyro.sampleLooptime = 1000000 / gyro.sampleRateHz;
+        gyro.filterLooptime = activePidLoopDenom * 1000000 / gyro.sampleRateHz;
+        gyro.targetLooptime = activeFilterLoopDenom * 1000000 / gyro.sampleRateHz;
+        gyro.filterRateHz = gyro.sampleRateHz / activeFilterLoopDenom;
+        gyro.targetRateHz = gyro.sampleRateHz / activePidLoopDenom;
     } else {
         gyro.sampleLooptime = 0;
+        gyro.filterLooptime = 0;
         gyro.targetLooptime = 0;
+        gyro.filterRateHz = 0;
+        gyro.targetRateHz = 0;
     }
 }
 
