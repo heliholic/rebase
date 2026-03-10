@@ -23,6 +23,8 @@ extern "C" {
     #include "build/debug.h"
     #include "common/maths.h"
 
+    #include "fc/rc_rates.h"
+    #include "fc/core.h"
     #include "fc/rc_controls.h"
     #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"

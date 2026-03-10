@@ -92,7 +92,7 @@ bool cliMode = false;
 #include "drivers/vtx_table.h"
 
 #include "fc/board_info.h"
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/core.h"
 #include "fc/rc.h"
 #include "fc/rc_adjustments.h"
