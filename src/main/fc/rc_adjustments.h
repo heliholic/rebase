@@ -22,7 +22,7 @@
 
 #include <stdbool.h>
 
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "pg/adjustments.h"
 
 typedef enum {

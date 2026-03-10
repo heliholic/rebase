@@ -72,7 +72,7 @@
 #include "drivers/rangefinder/rangefinder_lidarmt.h"
 
 #include "fc/board_info.h"
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/core.h"
 #include "fc/dispatch.h"
 #include "fc/rc.h"
@@ -1283,7 +1283,7 @@ case MSP_NAME:
         sbufWriteU8(dst, currentControlRateProfile->rcRates[FD_ROLL]);
         sbufWriteU8(dst, currentControlRateProfile->rcExpo[FD_ROLL]);
         for (int i = 0 ; i < 3; i++) {
-            sbufWriteU8(dst, currentControlRateProfile->rates[i]); // R,P,Y see flight_dynamics_index_t
+            sbufWriteU8(dst, currentControlRateProfile->sRates[i]); // R,P,Y see flight_dynamics_index_t
         }
         sbufWriteU8(dst, 0);   // was currentControlRateProfile->tpa_rate
         sbufWriteU8(dst, 0);   // currentControlRateProfile->thrMid8
@@ -1298,10 +1298,10 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);  // was currentControlRateProfile->throttle_limit_type
         sbufWriteU8(dst, 0);  // was currentControlRateProfile->throttle_limit_percent
 
-        // added in 1.42
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_ROLL]);
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_PITCH]);
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_YAW]);
+        // added in 1.42 - rate_limit removed, write stub for protocol compatibility
+        sbufWriteU16(dst, SETPOINT_RATE_LIMIT);
+        sbufWriteU16(dst, SETPOINT_RATE_LIMIT);
+        sbufWriteU16(dst, SETPOINT_RATE_LIMIT);
 
         // added in 1.43
         sbufWriteU8(dst, currentControlRateProfile->rates_type);
@@ -2372,7 +2372,7 @@ static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t cmdMSP, 
             currentControlRateProfile->rcExpo[FD_ROLL] = value;
 
             for (int i = 0; i < 3; i++) {
-                currentControlRateProfile->rates[i] = sbufReadU8(src);
+                currentControlRateProfile->sRates[i] = sbufReadU8(src);
             }
 
             sbufReadU8(src);    // tpa_rate is moved to PID profile
@@ -2402,11 +2402,11 @@ static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t cmdMSP, 
                 sbufReadU8(src);  // currentControlRateProfile->throttle_limit_percent
             }
 
-            // version 1.42
+            // version 1.42 - rate_limit removed, read stub for protocol compatibility
             if (sbufBytesRemaining(src) >= 6) {
-                currentControlRateProfile->rate_limit[FD_ROLL] = sbufReadU16(src);
-                currentControlRateProfile->rate_limit[FD_PITCH] = sbufReadU16(src);
-                currentControlRateProfile->rate_limit[FD_YAW] = sbufReadU16(src);
+                sbufReadU16(src);  // was rate_limit[FD_ROLL]
+                sbufReadU16(src);  // was rate_limit[FD_PITCH]
+                sbufReadU16(src);  // was rate_limit[FD_YAW]
             }
 
             // version 1.43

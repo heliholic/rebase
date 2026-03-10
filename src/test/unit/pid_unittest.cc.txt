@@ -54,7 +54,7 @@ extern "C" {
     #include "drivers/sound_beeper.h"
     #include "drivers/time.h"
 
-    #include "fc/controlrate_profile.h"
+    #include "fc/rc_rates.h"
     #include "fc/core.h"
     #include "fc/rc.h"
 

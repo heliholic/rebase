@@ -55,7 +55,7 @@
 #endif
 
 #include "fc/board_info.h"
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/parameter_names.h"
 #include "fc/rc.h"
 #include "fc/rc_controls.h"
@@ -1448,12 +1448,9 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE("rc_expo", "%d,%d,%d",                   currentControlRateProfile->rcExpo[ROLL],
                                                                             currentControlRateProfile->rcExpo[PITCH],
                                                                             currentControlRateProfile->rcExpo[YAW]);
-        BLACKBOX_PRINT_HEADER_LINE("rates", "%d,%d,%d",                     currentControlRateProfile->rates[ROLL],
-                                                                            currentControlRateProfile->rates[PITCH],
-                                                                            currentControlRateProfile->rates[YAW]);
-        BLACKBOX_PRINT_HEADER_LINE("rate_limits", "%d,%d,%d",               currentControlRateProfile->rate_limit[ROLL],
-                                                                            currentControlRateProfile->rate_limit[PITCH],
-                                                                            currentControlRateProfile->rate_limit[YAW]);
+        BLACKBOX_PRINT_HEADER_LINE("rates", "%d,%d,%d",                     currentControlRateProfile->sRates[ROLL],
+                                                                            currentControlRateProfile->sRates[PITCH],
+                                                                            currentControlRateProfile->sRates[YAW]);
 
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_DEADBAND, "%d",               rcControlsConfig()->deadband);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_YAW_DEADBAND, "%d",           rcControlsConfig()->yaw_deadband);

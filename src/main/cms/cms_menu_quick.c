@@ -36,7 +36,7 @@
 
 #include "drivers/motor_types.h"
 
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/core.h"
 #include "fc/runtime_config.h"
 #include "flight/pid.h"

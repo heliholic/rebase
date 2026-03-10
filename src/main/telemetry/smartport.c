@@ -48,7 +48,7 @@
 #include "drivers/dshot.h"
 
 #include "config/config.h"
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
@@ -815,9 +815,9 @@ void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clear
                             tmp2 += (currentPidProfile->pid[PID_YAW].D<<16);
                         break;
                         case 3:
-                            tmp2 = currentControlRateProfile->rates[FD_ROLL];
-                            tmp2 += (currentControlRateProfile->rates[FD_PITCH]<<8);
-                            tmp2 += (currentControlRateProfile->rates[FD_YAW]<<16);
+                            tmp2 = currentControlRateProfile->sRates[FD_ROLL];
+                            tmp2 += (currentControlRateProfile->sRates[FD_PITCH]<<8);
+                            tmp2 += (currentControlRateProfile->sRates[FD_YAW]<<16);
                         break;
                     }
                     tmp2 += t2Cnt<<24;
