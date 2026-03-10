@@ -33,27 +33,26 @@
 
 #include "pg/rates.h"
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(controlRateConfig_t, CONTROL_RATE_PROFILE_COUNT, controlRateProfiles, PG_CONTROL_RATE_PROFILES, 7);
+PG_REGISTER_ARRAY_WITH_RESET_FN(controlRateConfig_t, CONTROL_RATE_PROFILE_COUNT, controlRateProfiles, PG_CONTROL_RATE_PROFILES, 8);
 
 void pgResetFn_controlRateProfiles(controlRateConfig_t *controlRateConfig)
 {
     for (int i = 0; i < CONTROL_RATE_PROFILE_COUNT; i++) {
         RESET_CONFIG(controlRateConfig_t, &controlRateConfig[i],
-            .rates_type = RATES_TYPE_ACTUAL,
-            .rcRates[FD_ROLL] = 7,
-            .rcRates[FD_PITCH] = 7,
-            .rcRates[FD_YAW] = 7,
-            .rcExpo[FD_ROLL] = 0,
-            .rcExpo[FD_PITCH] = 0,
-            .rcExpo[FD_YAW] = 0,
-            .rates[FD_ROLL] = 67,
-            .rates[FD_PITCH] = 67,
-            .rates[FD_YAW] = 67,
-            .rate_limit[FD_ROLL] = CONTROL_RATE_CONFIG_RATE_LIMIT_MAX,
-            .rate_limit[FD_PITCH] = CONTROL_RATE_CONFIG_RATE_LIMIT_MAX,
-            .rate_limit[FD_YAW] = CONTROL_RATE_CONFIG_RATE_LIMIT_MAX,
-            .profileName = { 0 },
-            .quickRatesRcExpo = 0,
+            .profileName = "",
+            .rates_type = RATES_TYPE_ROTORFLIGHT,
+            .rcRates[FD_ROLL] = 50,
+            .rcRates[FD_PITCH] = 50,
+            .rcRates[FD_YAW] = 80,
+            .rcRates[FD_COLL] = 100,
+            .sRates[FD_ROLL] = 12,
+            .sRates[FD_PITCH] = 12,
+            .sRates[FD_YAW] = 12,
+            .sRates[FD_COLL] = 12,
+            .rcExpo[FD_ROLL] = 40,
+            .rcExpo[FD_PITCH] = 40,
+            .rcExpo[FD_YAW] = 50,
+            .rcExpo[FD_COLL] = 0,
         );
     }
 }

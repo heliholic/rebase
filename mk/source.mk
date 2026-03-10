@@ -165,7 +165,7 @@ COMMON_SRC = \
             sensors/voltage.c \
             target/config_helper.c \
             fc/init.c \
-            fc/controlrate_profile.c \
+            fc/rc_rates.c \
             drivers/accgyro/gyro_sync.c \
             drivers/rx/rx_spi.c \
             drivers/rx/rx_xn297.c \

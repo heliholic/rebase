@@ -26,7 +26,7 @@ extern "C" {
     #include "config/feature.h"
     #include "config/config.h"
 
-    #include "fc/controlrate_profile.h"
+    #include "fc/rc_rates.h"
     #include "fc/core.h"
     #include "fc/rc_controls.h"
     #include "fc/rc_modes.h"

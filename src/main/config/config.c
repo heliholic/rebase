@@ -41,7 +41,7 @@
 #include "drivers/motor.h"
 #include "drivers/system.h"
 
-#include "fc/controlrate_profile.h"
+#include "fc/rc_rates.h"
 #include "fc/core.h"
 #include "fc/rc.h"
 #include "fc/rc_adjustments.h"
@@ -173,7 +173,7 @@ static void validateAndFixRatesSettings(void)
         const ratesType_e ratesType = controlRateProfilesMutable(profileIndex)->rates_type;
         for (unsigned axis = FD_ROLL; axis <= FD_YAW; axis++) {
             controlRateProfilesMutable(profileIndex)->rcRates[axis] = constrain(controlRateProfilesMutable(profileIndex)->rcRates[axis], 0, ratesSettingLimits[ratesType].rc_rate_limit);
-            controlRateProfilesMutable(profileIndex)->rates[axis] = constrain(controlRateProfilesMutable(profileIndex)->rates[axis], 0, ratesSettingLimits[ratesType].srate_limit);
+            controlRateProfilesMutable(profileIndex)->sRates[axis] = constrain(controlRateProfilesMutable(profileIndex)->sRates[axis], 0, ratesSettingLimits[ratesType].srate_limit);
             controlRateProfilesMutable(profileIndex)->rcExpo[axis] = constrain(controlRateProfilesMutable(profileIndex)->rcExpo[axis], 0, ratesSettingLimits[ratesType].expo_limit);
         }
     }

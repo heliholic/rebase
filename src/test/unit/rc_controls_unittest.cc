@@ -46,7 +46,7 @@ extern "C" {
     #include "flight/pid.h"
 
     #include "config/config.h"
-    #include "fc/controlrate_profile.h"
+    #include "fc/rc_rates.h"
     #include "fc/rc_modes.h"
     #include "fc/rc_adjustments.h"
 
@@ -263,10 +263,8 @@ protected:
         .rates_type = RATES_TYPE_BETAFLIGHT,
         .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
         .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
-        .rates = {0, 0, 0},
-        .rate_limit = {0, 0, 0},
+        .sRates = {0, 0, 0},
         .profileName = "default",
-        .quickRatesRcExpo = 0,
     };
 
     channelRange_t fullRange = {
@@ -287,9 +285,9 @@ protected:
         controlRateConfig.rcExpo[FD_ROLL] = 0;
         controlRateConfig.rcExpo[FD_PITCH] = 0;
         controlRateConfig.rcExpo[FD_YAW] = 0;
-        controlRateConfig.rates[0] = 0;
-        controlRateConfig.rates[1] = 0;
-        controlRateConfig.rates[2] = 0;
+        controlRateConfig.sRates[0] = 0;
+        controlRateConfig.sRates[1] = 0;
+        controlRateConfig.sRates[2] = 0;
 
         PG_RESET(adjustmentRanges);
         adjustmentRangesIndex = 0;
@@ -362,10 +360,8 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
         .rates_type = RATES_TYPE_BETAFLIGHT,
         .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
         .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
-        .rates = {0, 0, 0},
-        .rate_limit = {0, 0, 0},
+        .sRates = {0, 0, 0},
         .profileName = "default",
-        .quickRatesRcExpo = 0,
     };
 
     // and
