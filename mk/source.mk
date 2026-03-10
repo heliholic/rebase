@@ -34,6 +34,7 @@ PG_SRC = \
             pg/ledstrip.c \
             pg/max7456.c \
             pg/mco.c \
+            pg/mixer.c \
             pg/modes.c \
             pg/motor.c \
             pg/msp.c \
