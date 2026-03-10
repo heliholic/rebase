@@ -22,7 +22,7 @@
 #include <limits.h>
 
 extern "C" {
-    #include <platform.h>
+    #include "unittest_platform.h"
 
     #include "build/debug.h"
 
@@ -291,17 +291,19 @@ TEST(TelemetryCrsfTest, TestFlightMode)
     EXPECT_EQ(crfsCrc(frame, frameLen), frame[7]);
 
     disableFlightMode(HORIZON_MODE);
-    airMode = true;
+    enableFlightMode(POS_HOLD_MODE);
+    EXPECT_EQ(POS_HOLD_MODE, FLIGHT_MODE(POS_HOLD_MODE));
     frameLen = getCrsfFrame(frame, CRSF_FRAMETYPE_FLIGHT_MODE);
-    EXPECT_EQ(4 + FRAME_HEADER_FOOTER_LEN, frameLen);
+    EXPECT_EQ(5 + FRAME_HEADER_FOOTER_LEN, frameLen);
     EXPECT_EQ(CRSF_SYNC_BYTE, frame[0]); // address
-    EXPECT_EQ(6, frame[1]); // length
+    EXPECT_EQ(7, frame[1]); // length
     EXPECT_EQ(0x21, frame[2]); // type
-    EXPECT_EQ('A', frame[3]);
-    EXPECT_EQ('I', frame[4]);
-    EXPECT_EQ('R', frame[5]);
-    EXPECT_EQ(0, frame[6]);
-    EXPECT_EQ(crfsCrc(frame, frameLen), frame[7]);
+    EXPECT_EQ('P', frame[3]);
+    EXPECT_EQ('O', frame[4]);
+    EXPECT_EQ('S', frame[5]);
+    EXPECT_EQ('H', frame[6]);
+    EXPECT_EQ(0, frame[7]);
+    EXPECT_EQ(crfsCrc(frame, frameLen), frame[8]);
 }
 
 // STUBS

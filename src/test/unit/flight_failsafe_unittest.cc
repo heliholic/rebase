@@ -21,12 +21,14 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "build/debug.h"
 
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
+    #include "pg/failsafe.h"
+    #include "pg/modes.h"
 
     #include "common/axis.h"
     #include "common/maths.h"
@@ -720,6 +722,8 @@ uint8_t debugMode = 0;
 bool isUsingSticksToArm = true;
 
 PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
+PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
+PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
 
 // Return system uptime in milliseconds (rollover in 49 days)
 uint32_t millis(void)

@@ -23,7 +23,7 @@
 #include <math.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "target.h"
     #include "build/version.h"
     #include "io/gps.h"
@@ -51,6 +51,8 @@ extern "C" {
     #include "pg/pg.h"
     #include "pg/gps_rescue.h"
     #include "pg/pg_ids.h"
+    #include "pg/mixer.h"
+    #include "pg/servo.h"
     #include "pg/beeper.h"
     #include "pg/gps.h"
     #include "pg/pilot.h"
@@ -86,9 +88,7 @@ extern "C" {
     PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG, 0);
     PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
     PG_REGISTER(mixerConfig_t, mixerConfig, PG_MIXER_CONFIG, 0);
-    PG_REGISTER_ARRAY(motorMixer_t, MAX_SUPPORTED_MOTORS, customMotorMixer, PG_MOTOR_MIXER, 0);
     PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
-    PG_REGISTER_ARRAY(servoMixer_t, MAX_SERVO_RULES, customServoMixers, PG_SERVO_MIXER, 0);
     PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG, 0);
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
     PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 0);
@@ -301,7 +301,7 @@ bool parseLedStripConfig(int, const char *){return false; }
 const char rcChannelLetters[] = "AERT12345678abcdefgh";
 
 void parseRcChannels(const char *, rxConfig_t *){}
-void mixerLoadMix(int, motorMixer_t *) {}
+void mixerLoadMix(int, void *) {}
 bool setModeColor(ledModeIndex_e, int, int) { return false; }
 float motorConvertFromExternal(uint16_t) { return 1.0; }
 void motorShutdown(void) { }
@@ -363,7 +363,7 @@ void writeUnmodifiedConfigToEEPROM(void) {}
 void changePidProfile(uint8_t) {}
 bool serialIsPortAvailable(serialPortIdentifier_e) { return false; }
 void generateLedConfig(ledConfig_t *, char *, size_t) {}
-//bool isSerialTransmitBufferEmpty(const serialPort_t *) {return true; }
+//bool isSerialTransmitBufferEmpty(const serialPort_t *) {return true;}
 //void serialWrite(serialPort_t *, uint8_t ch) { printf("%c", ch);}
 
 //void serialSetCtrlLineStateCb(serialPort_t *, void (*)(void *, uint16_t ), void *) {}
