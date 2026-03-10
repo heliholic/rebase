@@ -19,7 +19,7 @@
 #include <string.h>
 
 extern "C" {
-#include "platform.h"
+#include "unittest_platform.h"
 #include "common/utils.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
@@ -52,7 +52,7 @@ extern "C" {
     uint8_t testBatteryCellCount =3;
     float rcCommand[4] = {0, 0, 0, 0};
     telemetryConfig_t telemetryConfig_System;
-    batteryConfig_s batteryConfig_System;
+    batteryConfig_t batteryConfig_System;
     attitudeEulerAngles_t attitude = EULER_INITIALIZE;
     acc_t acc;
     baro_t baro;

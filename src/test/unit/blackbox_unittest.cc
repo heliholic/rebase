@@ -18,7 +18,7 @@
 #include <string.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "build/debug.h"
 
@@ -29,6 +29,7 @@ extern "C" {
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
     #include "pg/motor.h"
+    #include "pg/mixer.h"
 
     #include "drivers/accgyro/accgyro.h"
     #include "drivers/accgyro/gyro_sync.h"
@@ -333,6 +334,7 @@ TEST(BlackboxTest, Test_CalculateRates)
 // STUBS
 extern "C" {
 
+PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
 PG_REGISTER(mixerConfig_t, mixerConfig, PG_MIXER_CONFIG, 0);
 PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 0);
 PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);

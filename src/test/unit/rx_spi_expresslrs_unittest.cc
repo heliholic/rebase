@@ -26,7 +26,7 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "build/atomic.h"
 

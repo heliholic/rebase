@@ -21,7 +21,7 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "drivers/serial.h"
     #include "drivers/serial_softserial.h"
@@ -32,10 +32,12 @@ extern "C" {
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
+    #include "pg/serial.h"
 
     void serialInit(bool softserialEnabled);
 
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
+    PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 0);
     PG_REGISTER(serialPinConfig_t, serialPinConfig, PG_SERIAL_PIN_CONFIG, 0);
 }
 

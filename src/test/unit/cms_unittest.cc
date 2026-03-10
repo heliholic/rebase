@@ -26,7 +26,7 @@
 #define USE_BARO
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "target.h"
     #include "cms/cms.h"
     #include "cms/cms_menu_quick.h"

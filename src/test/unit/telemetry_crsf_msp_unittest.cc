@@ -23,7 +23,7 @@
 #include <algorithm>
 
 extern "C" {
-    #include <platform.h>
+    #include "unittest_platform.h"
 
     #include "build/debug.h"
     #include "build/atomic.h"

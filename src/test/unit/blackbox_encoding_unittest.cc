@@ -18,7 +18,7 @@
 #include <string.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "blackbox/blackbox.h"
     #include "blackbox/blackbox_encoding.h"
