@@ -21,7 +21,7 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "pg/rx.h"
     #include "build/debug.h"
@@ -36,6 +36,8 @@ extern "C" {
     #include "config/feature.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
+    #include "pg/modes.h"
+    #include "pg/feature.h"
     #include "io/beeper.h"
 
     extern boxBitmask_t rcModeActivationMask;
@@ -45,11 +47,9 @@ extern "C" {
 
     bool isPulseValid(uint16_t pulseDuration);
 
-    PG_RESET_TEMPLATE(featureConfig_t, featureConfig,
-        .enabledFeatures = 0
-    );
-
     PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
+    PG_REGISTER(featureConfig_t, featureConfig, PG_FEATURE_CONFIG, 0);
+    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
 }
 
 #include "unittest_macros.h"

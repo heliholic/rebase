@@ -22,7 +22,7 @@
 //#define DEBUG_LEDSTRIP
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "build/build_config.h"
 
     #include "common/axis.h"
@@ -32,6 +32,8 @@ extern "C" {
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
+    #include "pg/ledstrip.h"
+    #include "pg/modes.h"
 
     #include "drivers/io.h"
     #include "drivers/light_ws2811strip.h"
@@ -71,6 +73,9 @@ extern "C" {
     void reevaluateLedConfig();
 
     PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
+    PG_REGISTER(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 0);
+    PG_REGISTER(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG, 0);
+    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
 }
 
 TEST(LedStripTest, parseLedStripConfig)

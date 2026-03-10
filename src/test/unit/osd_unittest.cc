@@ -21,7 +21,7 @@
 #include <string.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "build/debug.h"
 
@@ -60,6 +60,8 @@ extern "C" {
     #include "pg/pg_ids.h"
     #include "pg/pilot.h"
     #include "pg/rx.h"
+    #include "pg/osd.h"
+    #include "pg/time.h"
 
     #include "sensors/acceleration.h"
     #include "sensors/battery.h"
@@ -83,7 +85,7 @@ extern "C" {
     uint32_t GPS_distanceFlownInCm;
     int32_t GPS_coord[2];
     gpsSolutionData_t gpsSol;
-    float motor[8];
+    float motor[MAX_SUPPORTED_MOTORS];
 
     linkQualitySource_e linkQualitySource;
 
@@ -96,6 +98,9 @@ extern "C" {
     PG_REGISTER(gpsRescueConfig_t, gpsRescueConfig, PG_GPS_RESCUE, 0);
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
+    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG, 0);
+    PG_REGISTER(osdElementConfig_t, osdElementConfig, PG_OSD_ELEMENT_CONFIG, 0);
+    PG_REGISTER(timeConfig_t, timeConfig, PG_TIME_CONFIG, 0);
 
     timeUs_t simulationTime = 0;
     batteryState_e simulationBatteryState;

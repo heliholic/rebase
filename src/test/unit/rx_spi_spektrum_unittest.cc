@@ -21,13 +21,14 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "drivers/io.h"
 
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx_spi.h"
+    #include "pg/rx_spektrum.h"
 
     #include "rx/rx_spi.h"
     #include "rx/cyrf6936_spektrum.h"
@@ -344,6 +345,8 @@ TEST(RxSpiSpektrumUnitTest, TestConvertDataPacket)
 // STUBS
 
 extern "C" {
+
+    PG_REGISTER(spektrumConfig_t, spektrumConfig, PG_RX_SPEKTRUM_SPI_CONFIG, 0);
 
     int16_t *debug;
     uint8_t debugMode;

@@ -21,11 +21,17 @@
 #include <limits.h>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "io/vtx.h"
     #include "io/vtx_msp.h"
+    #include "pg/pg.h"
+    #include "pg/pg_ids.h"
+    #include "pg/vtx.h"
     #include "pg/vtx_table.h"
+
+    PG_REGISTER(vtxConfig_t, vtxConfig, PG_VTX_CONFIG, 0);
+    PG_REGISTER(vtxSettingsConfig_t, vtxSettingsConfig, PG_VTX_SETTINGS_CONFIG, 0);
 
     static uint8_t mspFrame[15];
     extern mspVtxStatus_e mspVtxStatus;

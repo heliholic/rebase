@@ -21,7 +21,7 @@
 #include <cmath>
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "build/debug.h"
 
     #include "common/axis.h"
@@ -52,6 +52,10 @@ extern "C" {
     #include "rx/rx.h"
 
     #include "pg/autopilot.h"
+    #include "pg/feature.h"
+    #include "pg/imu.h"
+    #include "pg/modes.h"
+    #include "pg/position.h"
 
     #include "sensors/acceleration.h"
     #include "sensors/barometer.h"
@@ -76,10 +80,10 @@ extern "C" {
     PG_REGISTER(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
     PG_REGISTER(autopilotConfig_t, autopilotConfig, PG_AUTOPILOT, 0);
-
-    PG_RESET_TEMPLATE(featureConfig_t, featureConfig,
-        .enabledFeatures = 0
-    );
+    PG_REGISTER(featureConfig_t, featureConfig, PG_FEATURE_CONFIG, 0);
+    PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
+    PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION, 0);
+    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
 }
 
 #include "unittest_macros.h"
@@ -225,7 +229,7 @@ protected:
         dcmKp = .25;     // default dcm_kp
         dt = 1e-2;       // 100Hz update
 
-        imuConfigure(0, 0);
+        imuConfigure();
         // level, poiting north
         setOrientationAA(0, {{1,0,0}});        // identity
     }

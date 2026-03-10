@@ -23,7 +23,7 @@ extern "C" {
     #include <stdint.h>
     #include <ctype.h>
 
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "common/bitarray.h"
     #include "common/maths.h"
@@ -50,10 +50,13 @@ extern "C" {
     #include "pg/vcd.h"
     #include "pg/rx.h"
     #include "pg/rcdevice.h"
+    #include "pg/modes.h"
 
     #include "rx/rx.h"
 
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];     // interval [1000;2000]
+
+    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
 
     extern rcdeviceSwitchState_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
     extern runcamDevice_t *camDevice;

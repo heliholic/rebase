@@ -40,7 +40,7 @@ int16_t debug[DEBUG16_VALUE_COUNT];
 uint8_t debugMode;
 
 extern "C" {
-    #include "platform.h"
+    #include "unittest_platform.h"
 
     #include "build/debug.h"
 

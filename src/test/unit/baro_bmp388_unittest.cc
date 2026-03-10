@@ -18,7 +18,7 @@
 
 extern "C" {
 
-#include "platform.h"
+#include "unittest_platform.h"
 #include "target.h"
 #include "drivers/barometer/barometer.h"
 #include "drivers/bus.h"

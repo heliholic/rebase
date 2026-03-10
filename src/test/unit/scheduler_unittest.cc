@@ -19,7 +19,7 @@
 
 extern "C" {
     #include "drivers/accgyro/accgyro.h"
-    #include "platform.h"
+    #include "unittest_platform.h"
     #include "scheduler/scheduler.h"
     #include "scheduler_stubs.h"
 }
