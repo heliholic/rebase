@@ -20,7 +20,9 @@
 
 #pragma once
 
+#ifndef NOINLINE
 #define NOINLINE __attribute__((noinline))
+#endif
 
 #if !defined(UNIT_TEST) && !defined(SIMULATOR_BUILD) && !(USBD_DEBUG_LEVEL > 0)
 #pragma GCC poison sprintf snprintf
@@ -30,6 +32,12 @@
 #include "config.h"
 #endif
 
+#if defined(UNIT_TEST)
+
+#include "unittest_platform.h"
+
+#else
+
 #include "target/common_pre.h"
 
 // MCU specific platform from platform/X
@@ -38,3 +46,5 @@
 #include "target.h"
 #include "target/common_post.h"
 #include "target/common_defaults_post.h"
+
+#endif
