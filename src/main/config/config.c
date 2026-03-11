@@ -51,7 +51,7 @@
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
-#include "flight/servos.h"
+#include "fc/servos.h"
 #include "flight/position.h"
 
 #include "io/beeper.h"
@@ -209,6 +209,10 @@ static void validateAndFixConfig(void)
     }
 
     validateAndFixGyroConfig();
+
+#ifdef USE_SERVOS
+    validateAndFixServoConfig();
+#endif
 
 #if defined(USE_MAG)
     buildAlignmentFromStandardAlignment(&compassConfigMutable()->mag_customAlignment, compassConfig()->mag_alignment);

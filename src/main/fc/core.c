@@ -67,7 +67,7 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
-#include "flight/servos.h"
+#include "fc/servos.h"
 
 #include "io/beeper.h"
 #include "io/gps.h"
@@ -839,7 +839,7 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
     }
 
 #ifdef USE_SERVOS
-    writeServos();
+    servoUpdate();
 #endif
 
     writeMotors();

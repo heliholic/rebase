@@ -100,7 +100,7 @@
 #include "flight/pid.h"
 #include "flight/position.h"
 #include "flight/pos_hold.h"
-#include "flight/servos.h"
+#include "fc/servos.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
 #include "io/beeper.h"
@@ -688,8 +688,7 @@ void initPhase3(void)
     pidInit(currentPidProfile);
 
 #ifdef USE_SERVOS
-    servosInit();
-    servoDevInit(&servoConfig()->dev);
+    servoInit();
 #endif
 
 

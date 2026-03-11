@@ -1,19 +1,20 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,9 +33,6 @@
 #include "pg/motor.h"
 
 #define PWM_TIMER_1MHZ        MHZ_TO_HZ(1)
-
-// TODO: move the implementation defintions to impl header (platform)
-struct timerHardware_s;
 
 typedef struct {
     volatile timCCR_t *ccr;
@@ -60,3 +58,13 @@ void pwmOutConfig(timerChannel_t *channel, const timerHardware_t *timerHardware,
 pwmOutputPort_t *pwmGetMotors(void);
 bool pwmIsSynced(void);
 void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm);
+
+void servoDevInit(void);
+
+void servoWrite(uint8_t index, float value);
+
+int getServoCount(void);
+
+#define PWM_SERVO_PULSE_MIN   100    // minimum PWM servo output pulse width allowed
+#define PWM_SERVO_PULSE_MAX   2500   // maximum PWM servo output pulse width allowed
+
