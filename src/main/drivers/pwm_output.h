@@ -53,10 +53,9 @@ typedef struct {
 extern FAST_DATA_ZERO_INIT pwmOutputPort_t pwmMotors[MAX_SUPPORTED_MOTORS];
 extern FAST_DATA_ZERO_INIT uint8_t pwmMotorCount;
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig, uint16_t idlePulse);
+bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig);
 
 void pwmOutConfig(timerChannel_t *channel, const timerHardware_t *timerHardware, uint32_t hz, uint16_t period, uint16_t value, uint8_t inversion);
 
 pwmOutputPort_t *pwmGetMotors(void);
 bool pwmIsSynced(void);
-void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm);

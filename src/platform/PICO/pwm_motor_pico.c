@@ -35,6 +35,7 @@
 #include "drivers/io_impl.h"
 #include "drivers/pwm_output.h"
 #include "drivers/pwm_output_impl.h"
+#include "common/maths.h"
 #include "drivers/motor_types.h"
 
 #include "drivers/time.h"
@@ -63,10 +64,25 @@ void pwmDisableMotors(void)
     pwmShutdownPulsesForAllMotors();
 }
 
-static void pwmWriteStandard(uint8_t index, float value)
+static float pwmConvertToInternal(uint8_t index, float throttle)
 {
-    /* TODO: move value to be a number between 0-1 (i.e. percent throttle from mixer) */
-    pwm_set_chan_level(picoPwmMotors[index].slice, picoPwmMotors[index].channel, lrintf((value * pwmMotors[index].pulseScale) + pwmMotors[index].pulseOffset));
+    UNUSED(index);
+
+    float value = (float)motorConfig()->mincommand;
+
+    if (throttle >= 0) {
+        value = scaleRangef(throttle, 0, 1, (float)motorConfig()->mincommand, (float)motorConfig()->maxthrottle);
+    }
+
+    return value;
+}
+
+static void pwmWriteStandard(uint8_t index, float throttle)
+{
+    float value = pwmConvertToInternal(index, throttle);
+    float pulse = value * pwmMotors[index].pulseScale + pwmMotors[index].pulseOffset;
+
+    pwm_set_chan_level(picoPwmMotors[index].slice, picoPwmMotors[index].channel, lrintf(pulse));
 }
 
 static void pwmCompleteMotorUpdate(void)
@@ -80,24 +96,12 @@ static void pwmCompleteMotorUpdate(void)
     }
 }
 
-static float pwmConvertFromExternal(uint16_t externalValue)
-{
-    return (float)externalValue;
-}
-
-static uint16_t pwmConvertToExternal(float motorValue)
-{
-    return (uint16_t)motorValue;
-}
-
 static motorVTable_t motorPwmVTable = {
     .postInit = NULL,
     .enable = pwmEnableMotors,
     .disable = pwmDisableMotors,
     .isMotorEnabled = pwmIsMotorEnabled,
     .shutdown = pwmShutdownPulsesForAllMotors,
-    .convertExternalToMotor = pwmConvertFromExternal,
-    .convertMotorToExternal = pwmConvertToExternal,
     .write = pwmWriteStandard,
     .decodeTelemetry = NULL,
     .updateComplete = pwmCompleteMotorUpdate,
@@ -105,10 +109,8 @@ static motorVTable_t motorPwmVTable = {
     .isMotorIdle = NULL,
 };
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig, uint16_t idlePulse)
+bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
 {
-    UNUSED(idlePulse);
-
     if (!device) {
         return false;
     }

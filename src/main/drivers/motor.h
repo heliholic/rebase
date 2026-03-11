@@ -32,15 +32,11 @@ void motorPostInit(void);
 void motorWriteAll(float *values);
 void motorRequestTelemetry(unsigned index);
 
-void motorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm);
-
-float motorConvertFromExternal(uint16_t externalValue);
-uint16_t motorConvertToExternal(float motorValue);
-
 void motorDevInit(unsigned motorCount);
 unsigned motorDeviceCount(void);
 const motorVTable_t *motorGetVTable(void);
-bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig, bool *protocolIsDshot);
+bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig);
+bool checkMotorProtocolDshot(const motorDevConfig_t *motorConfig);
 
 motorProtocolFamily_e motorGetProtocolFamily(void);
 

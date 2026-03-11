@@ -57,8 +57,6 @@
 
 float FAST_DATA_ZERO_INIT motor[MAX_SUPPORTED_MOTORS];
 
-float motor_disarmed[MAX_SUPPORTED_MOTORS];
-
 
 void writeMotors(void)
 {
@@ -99,7 +97,6 @@ void mixerResetDisarmedMotors(void)
 
 void initEscEndpoints(void)
 {
-    //motorInitEndpoints(motorConfig(), 1, &mixerRuntime.motorOutputLow, &mixerRuntime.motorOutputHigh, &mixerRuntime.disarmMotorOutput);
 }
 
 float mixerGetThrottle(void)

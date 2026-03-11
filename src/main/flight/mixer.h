@@ -33,7 +33,6 @@
 #include "drivers/motor.h"
 
 extern float motor[MAX_SUPPORTED_MOTORS];
-extern float motor_disarmed[MAX_SUPPORTED_MOTORS];
 
 bool hasServos(void);
 uint8_t getMotorCount(void);

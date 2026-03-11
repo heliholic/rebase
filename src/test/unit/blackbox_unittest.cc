@@ -353,7 +353,6 @@ gpsLocation_t GPS_home_llh;
 
 gyro_t gyro;
 
-float motor_disarmed[MAX_SUPPORTED_MOTORS];
 struct pidProfile_s;
 struct pidProfile_s *currentPidProfile;
 boxBitmask_t rcModeActivationMask;
