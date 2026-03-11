@@ -109,6 +109,17 @@ float mixerGetRcThrottle(void)
     return 0;
 }
 
+float mixerGetServoOutput(uint8_t servo)
+{
+    UNUSED(servo);
+    return 0;
+}
+
+void mixerSaturateServoOutput(uint8_t servo)
+{
+    UNUSED(servo);
+}
+
 void mixerInit(void)
 {
     initEscEndpoints();

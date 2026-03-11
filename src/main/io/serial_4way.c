@@ -38,6 +38,7 @@
 #include "drivers/light_led.h"
 #include "drivers/motor.h"
 #include "flight/mixer.h"
+#include "flight/servos.h"
 
 #include "io/beeper.h"
 #include "io/serial_4way.h"
@@ -144,6 +145,9 @@ inline void setEscOutput(uint8_t selEsc)
 uint8_t esc4wayInit(void)
 {
     motorShutdown();
+#ifdef USE_SERVOS
+    servoShutdown();
+#endif
     uint8_t escIndex = 0;
 
     memset(&escHardware, 0, sizeof(escHardware));

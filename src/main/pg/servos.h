@@ -17,11 +17,20 @@
 
 #pragma once
 
+#include "types.h"
 #include "platform.h"
 
-#include "drivers/pwm_output.h"
+#include "drivers/io_types.h"
 
-#include "pg/servos.h"
+#include "pg/pg.h"
+
+#define DEFAULT_SERVO_FLAGS      0
+#define DEFAULT_SERVO_CENTER  1500
+#define DEFAULT_SERVO_MIN     -700
+#define DEFAULT_SERVO_MAX      700
+#define DEFAULT_SERVO_SCALE    500
+#define DEFAULT_SERVO_RATE     333
+#define DEFAULT_SERVO_SPEED      0
 
 #define SERVO_LIMIT_MIN      -1000
 #define SERVO_LIMIT_MAX       1000
@@ -35,14 +44,27 @@
 #define SERVO_OVERRIDE_MAX    2000
 #define SERVO_OVERRIDE_OFF   (SERVO_OVERRIDE_MAX + 1)
 
-void servoInit(void);
-void servoUpdate(void);
-void servoShutdown(void);
+enum {
+    SERVO_FLAG_REVERSED     = BIT(0),
+    SERVO_FLAG_GEO_CORR     = BIT(1),
+    SERVO_FLAGS_ALL         = BIT(2) - 1,
+};
 
-void validateAndFixServoConfig(void);
+typedef struct {
+    int16_t     mid;     // center (mid) point
+    int16_t     min;     // lower limit in us from the midpoint
+    int16_t     max;     // upper limit in us from the midpoint
+    uint16_t    rpos;    // positive scale (slope) in us
+    uint16_t    rneg;    // negative scale (slope) in us
+    uint16_t    rate;    // servo update rate Hz
+    uint16_t    speed;   // speed limit
+    uint16_t    flags;   // feature flags
+} servoParam_t;
 
-uint16_t getServoOutput(uint8_t servo);
+PG_DECLARE_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams);
 
-int16_t getServoOverride(uint8_t servo);
-int16_t setServoOverride(uint8_t servo, int16_t val);
-bool    hasServoOverride(uint8_t servo);
+typedef struct {
+    ioTag_t  ioTags[MAX_SUPPORTED_SERVOS];
+} servoConfig_t;
+
+PG_DECLARE(servoConfig_t, servoConfig);

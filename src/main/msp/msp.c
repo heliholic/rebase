@@ -356,6 +356,9 @@ static void mspRebootFn(serialPort_t *serialPort)
     UNUSED(serialPort);
 
     motorShutdown();
+#ifdef USE_SERVOS
+    servoShutdown();
+#endif
 
     switch (rebootMode) {
     case MSP_REBOOT_FIRMWARE:
@@ -1124,16 +1127,8 @@ case MSP_NAME:
 
 #ifdef USE_SERVOS
     case MSP_SERVO:
-        sbufWriteData(dst, &servo, MAX_SUPPORTED_SERVOS * 2);
-        break;
-    case MSP_SERVO_CONFIGURATIONS:
         for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
-            sbufWriteU16(dst, servoParams(i)->min);
-            sbufWriteU16(dst, servoParams(i)->max);
-            sbufWriteU16(dst, servoParams(i)->middle);
-            sbufWriteU8(dst, servoParams(i)->rate);
-            sbufWriteU8(dst, 0);
-            sbufWriteU32(dst, servoParams(i)->reversedSources);
+            sbufWriteU16(dst, getServoOutput(i));
         }
         break;
 #endif
@@ -2512,25 +2507,6 @@ static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t cmdMSP, 
         for (int i = 0; i < getMotorCount(); i++) {
             sbufReadU16(src);  // set motor output here
         }
-        break;
-
-    case MSP_SET_SERVO_CONFIGURATION:
-#ifdef USE_SERVOS
-        if (dataSize != 1 + 12) {
-            return MSP_RESULT_ERROR;
-        }
-        i = sbufReadU8(src);
-        if (i >= MAX_SUPPORTED_SERVOS) {
-            return MSP_RESULT_ERROR;
-        } else {
-            servoParamsMutable(i)->min = sbufReadU16(src);
-            servoParamsMutable(i)->max = sbufReadU16(src);
-            servoParamsMutable(i)->middle = sbufReadU16(src);
-            servoParamsMutable(i)->rate = sbufReadU8(src);
-            sbufReadU8(src);
-            servoParamsMutable(i)->reversedSources = sbufReadU32(src);
-        }
-#endif
         break;
 
     case MSP_SET_RC_DEADBAND:

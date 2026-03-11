@@ -847,7 +847,7 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
     //mixTable(currentTimeUs);
 
 #ifdef USE_SERVOS
-    writeServos();
+    servoUpdate();
 #endif
 
     writeMotors();

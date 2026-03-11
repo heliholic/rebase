@@ -688,8 +688,7 @@ void initPhase3(void)
     pidInit(currentPidProfile);
 
 #ifdef USE_SERVOS
-    servosInit();
-    servoDevInit(&servoConfig()->dev);
+    servoInit();
 #endif
 
 

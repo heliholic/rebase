@@ -47,3 +47,6 @@ float mixerGetThrottle(void);
 float mixerGetRcThrottle(void);
 float getMotorOutputLow(void);
 float getMotorOutputHigh(void);
+
+float mixerGetServoOutput(uint8_t servo);
+void mixerSaturateServoOutput(uint8_t servo);

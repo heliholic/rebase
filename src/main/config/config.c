@@ -210,6 +210,10 @@ static void validateAndFixConfig(void)
 
     validateAndFixGyroConfig();
 
+#ifdef USE_SERVOS
+    validateAndFixServoConfig();
+#endif
+
 #if defined(USE_MAG)
     buildAlignmentFromStandardAlignment(&compassConfigMutable()->mag_customAlignment, compassConfig()->mag_alignment);
 #endif

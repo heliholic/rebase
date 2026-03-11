@@ -731,12 +731,11 @@ static void writeIntraframe(void)
 
 #ifdef USE_SERVOS
     if (testBlackboxCondition(CONDITION(SERVOS))) {
-        int32_t out[ARRAYLEN(servo)];
-        for (unsigned x = 0; x < ARRAYLEN(servo); ++x) {
+        int32_t out[MAX_SUPPORTED_SERVOS];
+        for (unsigned x = 0; x < MAX_SUPPORTED_SERVOS; ++x) {
             out[x] = blackboxCurrent->servo[x] - 1500;
         }
-
-        blackboxWriteTag8_8SVB(out, ARRAYLEN(out));
+        blackboxWriteTag8_8SVB(out, MAX_SUPPORTED_SERVOS);
     }
 #endif
 
@@ -908,13 +907,12 @@ static void writeInterframe(void)
 
 #ifdef USE_SERVOS
     if (testBlackboxCondition(CONDITION(SERVOS))) {
-        STATIC_ASSERT(ARRAYLEN(servo) <= 8, "TAG8_8SVB supports at most 8 values");
-        int32_t out[ARRAYLEN(servo)];
-        for (unsigned x = 0; x < ARRAYLEN(servo); ++x) {
+        STATIC_ASSERT(MAX_SUPPORTED_SERVOS <= 8, "TAG8_8SVB supports at most 8 values");
+        int32_t out[MAX_SUPPORTED_SERVOS];
+        for (unsigned x = 0; x < MAX_SUPPORTED_SERVOS; ++x) {
             out[x] = blackboxCurrent->servo[x] - blackboxLast->servo[x];
         }
-
-        blackboxWriteTag8_8SVB(out, ARRAYLEN(out));
+        blackboxWriteTag8_8SVB(out, MAX_SUPPORTED_SERVOS);
     }
 #endif
 
@@ -1224,8 +1222,8 @@ static void loadMainState(timeUs_t currentTimeUs)
     blackboxCurrent->rssi = getRssi();
 
 #ifdef USE_SERVOS
-    for (unsigned i = 0; i < ARRAYLEN(blackboxCurrent->servo); i++) {
-        blackboxCurrent->servo[i] = servo[i];
+    for (unsigned i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
+        blackboxCurrent->servo[i] = getServoOutput(i);
     }
 #endif
 

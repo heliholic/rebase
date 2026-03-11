@@ -65,7 +65,7 @@ PG_SRC = \
             pg/serial.c \
             pg/serial_port.c \
             pg/serial_uart.c \
-            pg/servo.c \
+            pg/servos.c \
             pg/stats.c \
             pg/system.c \
             pg/telemetry.c \

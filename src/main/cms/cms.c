@@ -61,6 +61,7 @@
 #include "fc/runtime_config.h"
 
 #include "flight/mixer.h"
+#include "flight/servos.h"
 
 #include "io/rcdevice_cam.h"
 #include "io/usb_cdc_hid.h"
@@ -1010,6 +1011,9 @@ const void *cmsMenuExit(displayPort_t *pDisplay, const void *ptr)
 
         stopMotors();
         motorShutdown();
+#ifdef USE_SERVOS
+        servoShutdown();
+#endif
         delay(200);
 
         systemReset();
