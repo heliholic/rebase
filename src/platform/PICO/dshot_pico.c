@@ -355,8 +355,6 @@ bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
 
         IOInit(io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
-        // TODO: take account of motor reordering,
-        // cf. versions of  pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t motorIndex, uint8_t reorderedMotorIndex, motorProtocolTypes_e pwmProtocolType, uint8_t output)
         dshotMotors[motorIndex].pinIndex = pinIndex;
         dshotMotors[motorIndex].io = io;
         dshotMotors[motorIndex].pio = dshotPio;

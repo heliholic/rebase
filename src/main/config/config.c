@@ -36,7 +36,6 @@
 #include "config/config_eeprom.h"
 #include "config/feature.h"
 
-#include "drivers/dshot.h"
 #include "drivers/dshot_command.h"
 #include "drivers/motor.h"
 #include "drivers/system.h"
@@ -509,8 +508,6 @@ static void validateAndFixConfig(void)
         }
     }
 #endif
-
-    validateAndfixMotorOutputReordering(motorConfigMutable()->dev.motorOutputReordering, MAX_SUPPORTED_MOTORS);
 
     // validate that the minimum battery cell voltage is less than the maximum cell voltage
     // reset to defaults if not

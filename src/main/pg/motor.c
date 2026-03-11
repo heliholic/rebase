@@ -51,7 +51,7 @@
 #define DEFAULT_DSHOT_EDT DSHOT_EDT_OFF
 #endif
 
-PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 3);
+PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 4);
 
 void pgResetFn_motorConfig(motorConfig_t *motorConfig)
 {
@@ -103,10 +103,6 @@ void pgResetFn_motorConfig(motorConfig_t *motorConfig)
 #endif
 
     motorConfig->motorPoleCount = 14;   // Most brushless motors that we use are 14 poles
-
-    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        motorConfig->dev.motorOutputReordering[i] = i;
-    }
 
 #ifdef USE_DSHOT_DMAR
     motorConfig->dev.useBurstDshot = DEFAULT_DSHOT_BURST;
