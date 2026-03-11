@@ -117,7 +117,7 @@ static bool auxiliaryProcessingRequired = false;
 
 static bool rxSignalReceived = false;
 static bool rxFlightChannelsValid = false;
-static uint8_t rxChannelCount;
+static uint8_t rxChannelCount = 0;
 
 static timeUs_t needRxSignalBefore = 0;
 static timeUs_t suspendRxSignalUntil = 0;
@@ -279,6 +279,7 @@ void rxInit(void)
     rxRuntimeState.rcFrameStatusFn = nullFrameStatus;
     rxRuntimeState.rcProcessFrameFn = nullProcessFrame;
     rxRuntimeState.lastRcFrameTimeUs = 0;              // zero when driver does not provide timing info
+    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;  // RX_PROVIDER_NONE: ensure valid channel count
     rcSampleIndex = 0;
 
     uint32_t now = millis();
