@@ -185,17 +185,15 @@ bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
     }
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
-        const unsigned reorderedMotorIndex = motorConfig->motorOutputReordering[motorIndex];
-        const ioTag_t tag = motorConfig->ioTags[reorderedMotorIndex];
-        const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(reorderedMotorIndex));
+        const ioTag_t tag = motorConfig->ioTags[motorIndex];
+        const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
         if (timerHardware != NULL) {
             pwmMotors[motorIndex].io = IOGetByTag(tag);
-            IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(reorderedMotorIndex));
+            IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
             if (pwmDshotMotorHardwareConfig(timerHardware,
                 motorIndex,
-                reorderedMotorIndex,
                 motorConfig->motorProtocol,
                 motorConfig->motorInversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
                 pwmMotors[motorIndex].enabled = true;
