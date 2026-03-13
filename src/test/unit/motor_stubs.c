@@ -15,47 +15,16 @@
  * along with this software. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "platform.h"
 #include "fc/motors.h"
-#include "fc/servos.h"
-#include "pg/servo.h"
+#include "flight/mixer.h"
 
 void motorStop(void)
 {
 }
 
-int getServoCount(void)
+int getMotorOutput(uint8_t motor)
 {
-    return MAX_SUPPORTED_SERVOS;
-}
-
-void servoShutdown(void)
-{
-}
-
-int getServoOutput(uint8_t servo)
-{
-    UNUSED(servo);
-    return DEFAULT_SERVO_CENTER;
-}
-
-int getServoOverride(uint8_t servo)
-{
-    UNUSED(servo);
-    return SERVO_OVERRIDE_OFF;
-}
-
-int setServoOverride(uint8_t servo, int val)
-{
-    UNUSED(servo);
-    return val;
-}
-
-bool hasServoOverride(uint8_t servo)
-{
-    UNUSED(servo);
-    return false;
+    UNUSED(motor);
+    return 0;
 }

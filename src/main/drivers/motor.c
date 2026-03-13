@@ -50,21 +50,22 @@ static bool motorProtocolDshot = false;
 void motorShutdown(void)
 {
     uint32_t shutdownDelayUs = 1500;
+
     motorDevice.vTable->shutdown();
     motorDevice.enabled = false;
     motorDevice.motorEnableTimeMs = 0;
     motorDevice.initialized = false;
 
     switch (motorConfig()->dev.motorProtocol) {
-    case MOTOR_PROTOCOL_PWM :
-    case MOTOR_PROTOCOL_ONESHOT125:
-    case MOTOR_PROTOCOL_ONESHOT42:
-    case MOTOR_PROTOCOL_MULTISHOT:
-        // Delay 500ms will disarm esc which can prevent motor spin while reboot
-        shutdownDelayUs += 500 * 1000;
-        break;
-    default:
-        break;
+        case MOTOR_PROTOCOL_PWM:
+        case MOTOR_PROTOCOL_ONESHOT125:
+        case MOTOR_PROTOCOL_ONESHOT42:
+        case MOTOR_PROTOCOL_MULTISHOT:
+            // Delay 500ms will disarm esc which can prevent motor spin while reboot
+            shutdownDelayUs += 500 * 1000;
+            break;
+        default:
+            break;
     }
 
     delayMicroseconds(shutdownDelayUs);
@@ -128,12 +129,10 @@ void motorWriteAll(float *values)
 
 void motorRequestTelemetry(unsigned index)
 {
-    if (index >= motorDevice.count) {
-        return;
-    }
-
-    if (motorDevice.vTable->requestTelemetry) {
-        motorDevice.vTable->requestTelemetry(index);
+    if (index < motorDevice.count) {
+        if (motorDevice.vTable->requestTelemetry) {
+            motorDevice.vTable->requestTelemetry(index);
+        }
     }
 }
 
@@ -147,100 +146,64 @@ const motorVTable_t *motorGetVTable(void)
     return motorDevice.vTable;
 }
 
-bool checkMotorProtocolEnabled(const motorDevConfig_t *motorDevConfig, bool *isProtocolDshot)
+bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig)
 {
-    bool enabled = false;
-    bool isDshot = false;
-
-    switch (motorDevConfig->motorProtocol) {
-    case MOTOR_PROTOCOL_PWM :
-    case MOTOR_PROTOCOL_ONESHOT125:
-    case MOTOR_PROTOCOL_ONESHOT42:
-    case MOTOR_PROTOCOL_MULTISHOT:
-    case MOTOR_PROTOCOL_BRUSHED:
-        enabled = true;
-        break;
-
+    switch (motorConfig->motorProtocol) {
+        case MOTOR_PROTOCOL_PWM:
+        case MOTOR_PROTOCOL_ONESHOT125:
+        case MOTOR_PROTOCOL_ONESHOT42:
+        case MOTOR_PROTOCOL_MULTISHOT:
+        case MOTOR_PROTOCOL_BRUSHED:
 #ifdef USE_DSHOT
-    case MOTOR_PROTOCOL_DSHOT150:
-    case MOTOR_PROTOCOL_DSHOT300:
-    case MOTOR_PROTOCOL_DSHOT600:
-    case MOTOR_PROTOCOL_PROSHOT1000:
-        enabled = true;
-        isDshot = true;
-        break;
+        case MOTOR_PROTOCOL_DSHOT150:
+        case MOTOR_PROTOCOL_DSHOT300:
+        case MOTOR_PROTOCOL_DSHOT600:
+        case MOTOR_PROTOCOL_PROSHOT1000:
 #endif
-    default:
-        break;
+            return true;
+        default:
     }
+    return false;
+}
 
-    if (isProtocolDshot) {
-        *isProtocolDshot = isDshot;
+bool checkMotorProtocolDshot(const motorDevConfig_t *motorConfig)
+{
+#ifdef USE_DSHOT
+    switch (motorConfig->motorProtocol) {
+        case MOTOR_PROTOCOL_DSHOT150:
+        case MOTOR_PROTOCOL_DSHOT300:
+        case MOTOR_PROTOCOL_DSHOT600:
+        case MOTOR_PROTOCOL_PROSHOT1000:
+            return true;
+        default:
+            break;
     }
-
-    return enabled;
+#endif
+    return false;
 }
 
 motorProtocolFamily_e motorGetProtocolFamily(void)
 {
     switch (motorConfig()->dev.motorProtocol) {
 #ifdef USE_PWM_OUTPUT
-    case MOTOR_PROTOCOL_PWM :
-    case MOTOR_PROTOCOL_ONESHOT125:
-    case MOTOR_PROTOCOL_ONESHOT42:
-    case MOTOR_PROTOCOL_MULTISHOT:
-    case MOTOR_PROTOCOL_BRUSHED:
-        return MOTOR_PROTOCOL_FAMILY_PWM;
+        case MOTOR_PROTOCOL_PWM:
+        case MOTOR_PROTOCOL_ONESHOT125:
+        case MOTOR_PROTOCOL_ONESHOT42:
+        case MOTOR_PROTOCOL_MULTISHOT:
+        case MOTOR_PROTOCOL_BRUSHED:
+            return MOTOR_PROTOCOL_FAMILY_PWM;
 #endif
 #ifdef USE_DSHOT
-    case MOTOR_PROTOCOL_DSHOT150:
-    case MOTOR_PROTOCOL_DSHOT300:
-    case MOTOR_PROTOCOL_DSHOT600:
-    case MOTOR_PROTOCOL_PROSHOT1000:
-        return MOTOR_PROTOCOL_FAMILY_DSHOT;
-#endif
-    default:
-        return MOTOR_PROTOCOL_FAMILY_UNKNOWN;
-    }
-}
-
-static void checkMotorProtocol(const motorDevConfig_t *motorDevConfig)
-{
-    motorProtocolEnabled = checkMotorProtocolEnabled(motorDevConfig, &motorProtocolDshot);
-}
-
-// End point initialization is called from mixerInit before motorDevInit; can't use vtable...
-void motorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm)
-{
-    checkMotorProtocol(&motorConfig->dev);
-
-    if (isMotorProtocolEnabled()) {
-        switch (motorGetProtocolFamily()) {
-#ifdef USE_PWM_OUTPUT
-        case MOTOR_PROTOCOL_FAMILY_PWM:
-            analogInitEndpoints(motorConfig, outputLimit, outputLow, outputHigh, disarm);
-            break;
-#endif
-#ifdef USE_DSHOT
-        case MOTOR_PROTOCOL_FAMILY_DSHOT:
-            dshotInitEndpoints(motorConfig, outputLimit, outputLow, outputHigh, disarm);
-            break;
+        case MOTOR_PROTOCOL_DSHOT150:
+        case MOTOR_PROTOCOL_DSHOT300:
+        case MOTOR_PROTOCOL_DSHOT600:
+        case MOTOR_PROTOCOL_PROSHOT1000:
+            return MOTOR_PROTOCOL_FAMILY_DSHOT;
 #endif
         default:
-            // TODO: perhaps a failure mode here?
             break;
-        }
     }
-}
-
-float motorConvertFromExternal(uint16_t externalValue)
-{
-    return motorDevice.vTable->convertExternalToMotor(externalValue);
-}
-
-uint16_t motorConvertToExternal(float motorValue)
-{
-    return motorDevice.vTable->convertMotorToExternal(motorValue);
+    return MOTOR_PROTOCOL_FAMILY_UNKNOWN;
 }
 
 void motorPostInit(void)
@@ -267,26 +230,23 @@ bool isMotorProtocolBidirDshot(void)
 
 void motorNullDevInit(motorDevice_t *device);
 
-void motorDevInit(unsigned motorCount)
+void motorDevInit(void)
 {
 #if defined(USE_PWM_OUTPUT) || defined(USE_DSHOT)
     const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
 #endif
 
-#if defined(USE_PWM_OUTPUT)
-    uint16_t idlePulse = motorConfig()->mincommand;
-    if (motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_BRUSHED) {
-        idlePulse = 0; // brushed motors
-    }
-#endif
+    motorProtocolEnabled = checkMotorProtocolEnabled(&motorConfig()->dev);
+    motorProtocolDshot = checkMotorProtocolDshot(&motorConfig()->dev);
 
     bool success = false;
-    motorDevice.count = motorCount;
+    motorDevice.count = MAX_SUPPORTED_MOTORS;
+
     if (isMotorProtocolEnabled()) {
         do {
             if (!isMotorProtocolDshot()) {
 #ifdef USE_PWM_OUTPUT
-                success = motorPwmDevInit(&motorDevice, motorDevConfig, idlePulse);
+                success = motorPwmDevInit(&motorDevice, motorDevConfig);
 #endif
                 break;
             }
@@ -392,10 +352,10 @@ bool motorDecodeTelemetryNull(void)
     return true;
 }
 
-void motorWriteNull(uint8_t index, float value)
+void motorWriteNull(uint8_t index, float throttle)
 {
     UNUSED(index);
-    UNUSED(value);
+    UNUSED(throttle);
 }
 
 static void motorWriteIntNull(uint8_t index, uint16_t value)
@@ -404,24 +364,12 @@ static void motorWriteIntNull(uint8_t index, uint16_t value)
     UNUSED(value);
 }
 
-void motorUpdateCompleteNull(void)
+static void motorUpdateCompleteNull(void)
 {
 }
 
 static void motorShutdownNull(void)
 {
-}
-
-static float motorConvertFromExternalNull(uint16_t value)
-{
-    UNUSED(value);
-    return 0.0f ;
-}
-
-static uint16_t motorConvertToExternalNull(float value)
-{
-    UNUSED(value);
-    return 0;
 }
 
 static const motorVTable_t motorNullVTable = {
@@ -433,8 +381,6 @@ static const motorVTable_t motorNullVTable = {
     .write = motorWriteNull,
     .writeInt = motorWriteIntNull,
     .updateComplete = motorUpdateCompleteNull,
-    .convertExternalToMotor = motorConvertFromExternalNull,
-    .convertMotorToExternal = motorConvertToExternalNull,
     .shutdown = motorShutdownNull,
     .requestTelemetry = NULL,
     .isMotorIdle = NULL,

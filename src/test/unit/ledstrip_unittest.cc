@@ -71,6 +71,7 @@ extern "C" {
     extern ledCounts_t ledCounts;
 
     void reevaluateLedConfig();
+    void motorStop(void) {}
 
     PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
     PG_REGISTER(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 0);

@@ -30,10 +30,12 @@ typedef enum {
     MOTOR_PROTOCOL_FAMILY_UNKNOWN = 0,
     MOTOR_PROTOCOL_FAMILY_PWM,
     MOTOR_PROTOCOL_FAMILY_DSHOT,
+    MOTOR_PROTOCOL_FAMILY_COUNT
 } motorProtocolFamily_e;
 
 typedef enum {
-    MOTOR_PROTOCOL_PWM = 0,
+    MOTOR_PROTOCOL_DISABLED = 0,
+    MOTOR_PROTOCOL_PWM,
     MOTOR_PROTOCOL_ONESHOT125,
     MOTOR_PROTOCOL_ONESHOT42,
     MOTOR_PROTOCOL_MULTISHOT,
@@ -41,36 +43,20 @@ typedef enum {
     MOTOR_PROTOCOL_DSHOT150,
     MOTOR_PROTOCOL_DSHOT300,
     MOTOR_PROTOCOL_DSHOT600,
-/*  MOTOR_PROTOCOL_DSHOT1200, removed */
     MOTOR_PROTOCOL_PROSHOT1000,
-    MOTOR_PROTOCOL_DISABLED,
-    MOTOR_PROTOCOL_MAX
+    MOTOR_PROTOCOL_COUNT
 } motorProtocolTypes_e;
-
-// Legacy aliases kept for backward compatibility with older PWM_TYPE_* names
-#define PWM_TYPE_PWM              MOTOR_PROTOCOL_PWM
-#define PWM_TYPE_ONESHOT125       MOTOR_PROTOCOL_ONESHOT125
-#define PWM_TYPE_ONESHOT42        MOTOR_PROTOCOL_ONESHOT42
-#define PWM_TYPE_MULTISHOT        MOTOR_PROTOCOL_MULTISHOT
-#define PWM_TYPE_BRUSHED          MOTOR_PROTOCOL_BRUSHED
-#define PWM_TYPE_DSHOT150         MOTOR_PROTOCOL_DSHOT150
-#define PWM_TYPE_DSHOT300         MOTOR_PROTOCOL_DSHOT300
-#define PWM_TYPE_DSHOT600         MOTOR_PROTOCOL_DSHOT600
-#define PWM_TYPE_PROSHOT1000      MOTOR_PROTOCOL_PROSHOT1000
-#define PWM_TYPE_DISABLED         MOTOR_PROTOCOL_DISABLED
 
 typedef struct motorVTable_s {
     // Common
     void (*postInit)(void);
-    float (*convertExternalToMotor)(uint16_t externalValue);
-    uint16_t (*convertMotorToExternal)(float motorValue);
     bool (*enable)(void);
     void (*disable)(void);
     bool (*isMotorEnabled)(unsigned index);
     bool (*telemetryWait)(void);
     bool (*decodeTelemetry)(void);
     void (*updateInit)(void);
-    void (*write)(uint8_t index, float value);
+    void (*write)(uint8_t index, float throttle);
     void (*writeInt)(uint8_t index, uint16_t value);
     void (*updateComplete)(void);
     void (*shutdown)(void);

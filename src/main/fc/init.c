@@ -90,6 +90,8 @@
 #include "fc/runtime_config.h"
 #include "fc/stats.h"
 #include "fc/tasks.h"
+#include "fc/motors.h"
+#include "fc/servos.h"
 
 #include "flight/alt_hold.h"
 #include "flight/autopilot.h"
@@ -100,7 +102,6 @@
 #include "flight/pid.h"
 #include "flight/position.h"
 #include "flight/pos_hold.h"
-#include "fc/servos.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
 #include "io/beeper.h"
@@ -513,7 +514,7 @@ void initPhase2(void)
     /* Motors needs to be initialized soon as posible because hardware initialization
      * may send spurious pulses to esc's causing their early initialization. Also ppm
      * receiver may share timer with motors so motors MUST be initialized here. */
-    motorDevInit(getMotorCount());
+    motorInit();
     // TODO: add check here that motors actually initialised correctly
     systemState |= SYSTEM_STATE_MOTORS_READY;
 #endif

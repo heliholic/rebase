@@ -82,7 +82,6 @@ extern "C" {
     uint32_t GPS_distanceFlownInCm;
     int32_t GPS_coord[2];
     gpsSolutionData_t gpsSol;
-    float motor[MAX_SUPPORTED_MOTORS];
     acc_t acc;
 
     PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);

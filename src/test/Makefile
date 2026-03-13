@@ -231,7 +231,8 @@ osd_unittest_SRC := \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
-		$(USER_DIR)/fc/runtime_config.c
+		$(USER_DIR)/fc/runtime_config.c \
+		$(TEST_DIR)/motor_stubs.c
 
 osd_unittest_DEFINES := \
 		USE_OSD= \
@@ -259,7 +260,8 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/pg/rx.c \
 		$(USER_DIR)/rx/rx.c \
-		$(USER_DIR)/rx/crsf.c
+		$(USER_DIR)/rx/crsf.c \
+		$(TEST_DIR)/motor_stubs.c
 
 link_quality_unittest_DEFINES := \
 		USE_OSD= \
