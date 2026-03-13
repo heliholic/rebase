@@ -85,7 +85,6 @@ extern "C" {
     uint32_t GPS_distanceFlownInCm;
     int32_t GPS_coord[2];
     gpsSolutionData_t gpsSol;
-    float motor[MAX_SUPPORTED_MOTORS];
 
     linkQualitySource_e linkQualitySource;
 

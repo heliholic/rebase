@@ -26,7 +26,6 @@
 #ifdef USE_MOTOR
 
 #include "drivers/motor_types.h"
-
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/motor.h"

@@ -353,7 +353,6 @@ gpsLocation_t GPS_home_llh;
 
 gyro_t gyro;
 
-float motor_disarmed[MAX_SUPPORTED_MOTORS];
 struct pidProfile_s;
 struct pidProfile_s *currentPidProfile;
 boxBitmask_t rcModeActivationMask;
@@ -363,6 +362,7 @@ uint32_t getArmingBeepTimeMicros(void) {return 0;}
 uint16_t getBatteryVoltageLatest(void) {return 0;}
 uint8_t getMotorCount(void) {return 4;}
 bool areMotorsRunning(void) { return false; }
+void motorStop(void) {}
 bool IS_RC_MODE_ACTIVE(boxId_e) {return false;}
 bool isModeActivationConditionPresent(boxId_e) {return false;}
 uint32_t millis(void) {return 0;}

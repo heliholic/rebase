@@ -127,9 +127,9 @@ static void dshotWriteInt(uint8_t motorIndex, uint16_t value)
     outgoingPacket[motorIndex] = prepareDshotPacket(&motor->protocolControl);
 }
 
-static void dshotWrite(uint8_t motorIndex, float value)
+static void dshotWrite(uint8_t motorIndex, float throttle)
 {
-    dshotWriteInt(motorIndex, lrintf(value));
+    dshotWriteInt(motorIndex, dshotConvertToInternal(motorIndex, throttle));
 }
 
 static void dshotUpdateComplete(void)
@@ -242,8 +242,6 @@ static motorVTable_t dshotVTable = {
     .write = dshotWrite,
     .writeInt = dshotWriteInt,
     .updateComplete = dshotUpdateComplete,
-    .convertExternalToMotor = dshotConvertFromExternal,
-    .convertMotorToExternal = dshotConvertToExternal,
     .shutdown = dshotShutdown,
     .isMotorIdle = dshotIsMotorIdle,
     .requestTelemetry = dshotRequestTelemetry,

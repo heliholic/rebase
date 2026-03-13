@@ -842,7 +842,7 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
     servoUpdate();
 #endif
 
-    writeMotors();
+    motorUpdate(currentTimeUs);
 
 #ifdef USE_DSHOT_TELEMETRY_STATS
     if (debugMode == DEBUG_DSHOT_RPM_ERRORS && useDshotTelemetry) {
