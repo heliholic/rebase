@@ -365,7 +365,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                 } else {
                     failsafeState.active = true;
                     failsafeState.events++;
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
                     if (FLIGHT_MODE(AUTOPILOT_MODE) && flightPlanNavIsActive()
                         && flightPlanNavGetState() != FP_NAV_COMPLETE
                         && flightPlanNavGetState() != FP_NAV_ABORTED
@@ -438,7 +438,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                 }
                 break;
 #endif
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
             case FAILSAFE_AUTOPILOT:
                 if (receivingRxData) {
                     if (areSticksActive(failsafeConfig()->failsafe_stick_threshold) || failsafeState.boxFailsafeSwitchWasOn) {
