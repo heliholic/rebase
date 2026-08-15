@@ -31,7 +31,7 @@
 #endif
 
 #ifndef USBD_PRODUCT_STRING
-#define USBD_PRODUCT_STRING     "Betaflight - ESP32-P4"
+#define USBD_PRODUCT_STRING     "Rotorflight - ESP32-P4"
 #endif
 
 #define USE_UART0
