@@ -226,7 +226,6 @@ TEST_F(BasicMixerIntegrationTest, TestTricopterServo)
     axisPID[YAW] = 0;
 
     // when
-    mixTable();
     writeServos();
 
     // then
@@ -260,7 +259,6 @@ TEST_F(BasicMixerIntegrationTest, TestQuadMotors)
 
 
     // when
-    mixTable();
     writeMotors();
 
     // then
@@ -344,7 +342,6 @@ TEST_F(CustomMixerIntegrationTest, TestCustomMixer)
 
 
     // when
-    mixTable();
     writeMotors();
     writeServos();
 
