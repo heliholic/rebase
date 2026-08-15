@@ -54,7 +54,6 @@
 
 #undef USE_SOFTSERIAL1
 #undef USE_SOFTSERIAL2
-#undef USE_TRANSPONDER
 #undef USE_FLASH
 #undef USE_FLASH_CHIP
 #undef USE_RCC

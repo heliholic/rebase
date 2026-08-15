@@ -72,7 +72,6 @@
 
 #undef USE_SOFTSERIAL1
 #undef USE_SOFTSERIAL2
-#undef USE_TRANSPONDER
 #undef USE_TIMER
 #undef USE_RCC
 

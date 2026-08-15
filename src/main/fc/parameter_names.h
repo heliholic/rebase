@@ -306,7 +306,3 @@
 #define PARAM_NAME_TRUST_MAG "trust_mag"
 #endif
 
-#ifdef USE_TRANSPONDER
-#define PARAM_NAME_TRANSPONDER_PROVIDER "transponder_provider"
-#define PARAM_NAME_TRANSPONDER_DATA "transponder_data"
-#endif
