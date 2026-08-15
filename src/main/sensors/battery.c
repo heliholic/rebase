@@ -142,7 +142,6 @@ PG_RESET_TEMPLATE(batteryConfig_t, batteryConfig,
     .vbathysteresis = 1, // 0.01V
 
     .vbatDisplayLpfPeriod = 30,
-    .vbatSagLpfPeriod = 2,
     .ibatLpfPeriod = DEFAULT_IBAT_LPF_PERIOD,
     .vbatDurationForWarning = 0,
     .vbatDurationForCritical = 0,
@@ -623,13 +622,6 @@ uint16_t getBatteryAverageCellVoltage(void)
 {
     return (batteryCellCount ? voltageMeter.displayFiltered / batteryCellCount : 0);
 }
-
-#if defined(USE_BATTERY_VOLTAGE_SAG_COMPENSATION)
-uint16_t getBatterySagCellVoltage(void)
-{
-    return (batteryCellCount ? voltageMeter.sagFiltered / batteryCellCount : 0);
-}
-#endif
 
 bool isAmperageConfigured(void)
 {
