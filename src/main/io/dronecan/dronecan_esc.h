@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "pg/motor.h"
 

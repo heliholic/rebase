@@ -26,7 +26,7 @@
 #if ENABLE_FLIGHT_PLAN
 
 #include "common/printf.h"
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "drivers/time.h"
 

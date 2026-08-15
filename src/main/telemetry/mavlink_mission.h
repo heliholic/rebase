@@ -26,7 +26,7 @@
 
 #include "platform.h"
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #if ENABLE_TELEMETRY_MAVLINK_MISSION
 

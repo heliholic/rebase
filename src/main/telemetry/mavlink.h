@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #define MIN_MAVLINK_TELEMETRY_UPDATE_INTERVAL_MS 20
 

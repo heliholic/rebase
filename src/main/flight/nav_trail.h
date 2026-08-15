@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #ifdef USE_OSD_NAV_MAP
 
