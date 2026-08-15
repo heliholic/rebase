@@ -116,7 +116,6 @@
 
 #endif
 
-#define USE_RPM_FILTER
 #define USE_DYN_NOTCH_FILTER
 #define USE_ADC_INTERNAL
 #define USE_USB_MSC
