@@ -26,8 +26,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "rx/rx_spi.h"
-
 #define NRF24L01_MAX_PAYLOAD_SIZE 32
 
 // Register map of nRF24L01

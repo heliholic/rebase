@@ -74,7 +74,6 @@
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/rx.h"
-#include "pg/rx_spi.h"
 #include "pg/sdcard.h"
 #include "pg/vtx_table.h"
 #if ENABLE_FLIGHT_PLAN
@@ -82,7 +81,6 @@
 #endif
 
 #include "rx/rx.h"
-#include "rx/rx_spi.h"
 
 #include "scheduler/scheduler.h"
 
@@ -100,10 +98,6 @@ static bool rebootRequired = false;  // set if a config change requires a reboot
 static bool eepromWriteInProgress = false;
 
 pidProfile_t *currentPidProfile;
-
-#ifndef RX_SPI_DEFAULT_PROTOCOL
-#define RX_SPI_DEFAULT_PROTOCOL 0
-#endif
 
 PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 4);
 
@@ -274,12 +268,6 @@ static void validateAndFixConfig(void)
         featureDisableImmediate(FEATURE_RX_PARALLEL_PWM | FEATURE_RX_MSP | FEATURE_RX_PPM | FEATURE_RX_SPI | FEATURE_RX_UDP);
     }
 
-#ifdef USE_RX_SPI
-    if (featureIsConfigured(FEATURE_RX_SPI)) {
-        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PARALLEL_PWM | FEATURE_RX_PPM | FEATURE_RX_MSP | FEATURE_RX_UDP);
-    }
-#endif // USE_RX_SPI
-
     if (featureIsConfigured(FEATURE_RX_PARALLEL_PWM)) {
         featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_MSP | FEATURE_RX_PPM | FEATURE_RX_SPI | FEATURE_RX_UDP);
     }
@@ -353,11 +341,7 @@ static void validateAndFixConfig(void)
     adcConfigMutable()->vbat.enabled = (batteryConfig()->voltageMeterSource == VOLTAGE_METER_ADC);
     adcConfigMutable()->current.enabled = (batteryConfig()->currentMeterSource == CURRENT_METER_ADC);
 
-    // The FrSky D SPI RX sends RSSI_ADC_PIN (if configured) as A2
     adcConfigMutable()->rssi.enabled = featureIsEnabled(FEATURE_RSSI_ADC);
-#ifdef USE_RX_SPI
-    adcConfigMutable()->rssi.enabled |= (featureIsEnabled(FEATURE_RX_SPI) && rxSpiConfig()->rx_spi_protocol == RX_SPI_FRSKY_D);
-#endif
 #endif // USE_ADC
 
     // Bounds check gyro filter selection in case prior build had USE_GYRO_DLPF_EXPERIMENTAL defined
@@ -687,9 +671,6 @@ void writeUnmodifiedConfigToEEPROM(void)
 
 void writeEEPROM(void)
 {
-#ifdef USE_RX_SPI
-    rxSpiStop(); // some rx spi protocols use hardware timer, which needs to be stopped before writing to eeprom
-#endif
     systemConfigMutable()->configurationState = CONFIGURATION_STATE_CONFIGURED;
 
     writeUnmodifiedConfigToEEPROM();

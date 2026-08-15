@@ -647,56 +647,6 @@ vtx_unittest_DEFINES := \
 		USE_VTX_CONTROL= \
 		USE_VTX_SMARTAUDIO=
 
-rx_spi_spektrum_unittest_SRC := \
-		$(USER_DIR)/rx/cyrf6936_spektrum.c
-
-rx_spi_spektrum_unittest_DEFINES := \
-		USE_RX_SPI= \
-		USE_RX_SPEKTRUM=
-
-rx_spi_expresslrs_unittest_SRC := \
-        $(USER_DIR)/pg/rx_spi_expresslrs.c \
-		$(USER_DIR)/rx/expresslrs_common.c \
-		$(USER_DIR)/rx/expresslrs.c \
-		$(USER_DIR)/build/atomic.c \
-
-rx_spi_expresslrs_unittest_DEFINES := \
-		USE_RX_SPI= \
-		USE_RX_EXPRESSLRS= \
-		USE_RX_SX1280= \
-		USE_RX_SX127X= \
-
-rx_spi_expresslrs_v4_unittest_SRC := \
-        $(USER_DIR)/pg/rx_spi_expresslrs.c \
-		$(USER_DIR)/rx/expresslrs_common.c \
-		$(USER_DIR)/rx/expresslrs.c \
-		$(USER_DIR)/build/atomic.c \
-
-rx_spi_expresslrs_v4_unittest_DEFINES := \
-		USE_RX_SPI= \
-		USE_RX_EXPRESSLRS= \
-		USE_RX_SX1280= \
-		USE_RX_SX127X= \
-		USE_ELRSV4= \
-
-rx_spi_expresslrs_telemetry_unittest_SRC := \
-		$(USER_DIR)/rx/crsf.c \
-		$(USER_DIR)/telemetry/crsf.c \
-		$(USER_DIR)/common/crc.c \
-		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/common/gps_conversion.c \
-		$(USER_DIR)/common/printf.c \
-		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/rx/expresslrs_telemetry.c \
-		$(USER_DIR)/build/atomic.c \
-		$(USER_DIR)/telemetry/msp_shared.c \
-
-rx_spi_expresslrs_telemetry_unittest_DEFINES := \
-		USE_RX_EXPRESSLRS= \
-		USE_GPS= \
-		USE_MSP_OVER_TELEMETRY= \
-
 vtx_msp_unittest_SRC := \
         $(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \

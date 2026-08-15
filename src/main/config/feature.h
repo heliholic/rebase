@@ -34,9 +34,6 @@
 #define DEFAULT_RX_FEATURE FEATURE_RX_SERIAL
 #elif defined(USE_RX_MSP)
 #define DEFAULT_RX_FEATURE FEATURE_RX_MSP
-#elif defined(USE_RX_SPI)
-// need to test with FEATURE_RX_EXPRESSLRS
-#define DEFAULT_RX_FEATURE FEATURE_RX_SPI
 #endif
 
 #endif // DEFAULT_RX_FEATURE

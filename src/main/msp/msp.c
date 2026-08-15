@@ -120,7 +120,6 @@
 #include "pg/pilot.h"
 #include "pg/pos_hold.h"
 #include "pg/rx.h"
-#include "pg/rx_spi.h"
 #ifdef USE_RX_EXPRESSLRS
 #include "pg/rx_spi_expresslrs.h"
 #endif
@@ -1576,15 +1575,9 @@ case MSP_NAME:
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolation
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolationInterval
         sbufWriteU16(dst, 0); // rxConfig()->airModeActivateThreshold * 10 + 1000
-#ifdef USE_RX_SPI
-        sbufWriteU8(dst, rxSpiConfig()->rx_spi_protocol);
-        sbufWriteU32(dst, rxSpiConfig()->rx_spi_id);
-        sbufWriteU8(dst, rxSpiConfig()->rx_spi_rf_channel_count);
-#else
         sbufWriteU8(dst, 0);
         sbufWriteU32(dst, 0);
         sbufWriteU8(dst, 0);
-#endif
         sbufWriteU8(dst, 0); // was rxConfig()->fpvCamAngleDegrees
         sbufWriteU8(dst, 0); // rxConfig()->rcSmoothingChannels
         sbufWriteU8(dst, 0); // rxConfig()->rc_smoothing_type
@@ -3415,15 +3408,9 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU16(src); // rxConfigMutable()->airModeActivateThreshold
         }
         if (sbufBytesRemaining(src) >= 6) {
-#ifdef USE_RX_SPI
-            rxSpiConfigMutable()->rx_spi_protocol = sbufReadU8(src);
-            rxSpiConfigMutable()->rx_spi_id = sbufReadU32(src);
-            rxSpiConfigMutable()->rx_spi_rf_channel_count = sbufReadU8(src);
-#else
             sbufReadU8(src);
             sbufReadU32(src);
             sbufReadU8(src);
-#endif
         }
         if (sbufBytesRemaining(src) >= 1) {
             sbufReadU8(src);  // was rxConfigMutable()->fpvCamAngleDegrees
