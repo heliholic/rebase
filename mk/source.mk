@@ -154,7 +154,6 @@ COMMON_SRC = \
             flight/imu.c \
             flight/mixer.c \
             flight/mixer_init.c \
-            flight/mixer_tricopter.c \
             flight/nav_trail.c \
             flight/pid.c \
             flight/pid_init.c \
@@ -164,7 +163,6 @@ COMMON_SRC = \
             flight/position_nav.c \
             flight/pos_hold_multirotor.c \
             flight/servos.c \
-            flight/servos_tricopter.c \
             io/serial_4way.c \
             io/serial_4way_avrootloader.c \
             io/serial_4way_stk500v2.c \
