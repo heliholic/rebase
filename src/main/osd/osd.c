@@ -1259,13 +1259,7 @@ STATIC_UNIT_TESTED bool osdProcessStats1(timeUs_t currentTimeUs)
         int deltaT = cmpTimeUs(currentTimeUs, lastTimeUs);
         osdFlyTime += deltaT;
         stats.armed_time += deltaT;
-#ifdef USE_LAUNCH_CONTROL
-        if (!isLaunchControlActive()) {
-            osdLaunchTime += deltaT;
-        } else {
-            osdLaunchTime = 0;
-        }
-#endif
+        osdLaunchTime += deltaT;
     } else if (osdStatsEnabled) {  // handle showing/hiding stats based on OSD disable switch position
         if (displayIsGrabbed(osdDisplayPort)) {
             osdStatsEnabled = false;
