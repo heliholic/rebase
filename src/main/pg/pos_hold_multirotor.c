@@ -21,7 +21,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 
 #ifdef USE_POSITION_HOLD
 
@@ -42,4 +41,3 @@ PG_RESET_TEMPLATE(posHoldConfig_t, posHoldConfig,
 );
 #endif
 
-#endif // !USE_WING
