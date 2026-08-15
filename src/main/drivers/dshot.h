@@ -33,7 +33,6 @@
 
 #define DSHOT_MIN_THROTTLE              (48)
 #define DSHOT_MAX_THROTTLE              (2047)
-#define DSHOT_3D_FORWARD_MIN_THROTTLE   (1048)
 #define DSHOT_RANGE                     (DSHOT_MAX_THROTTLE - DSHOT_MIN_THROTTLE)
 
 #define DSHOT_TELEMETRY_NOEDGE          (0xfffe)
@@ -88,7 +87,7 @@ typedef struct dshotProtocolControl_s {
     bool requestTelemetry;
 } dshotProtocolControl_t;
 
-void dshotInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm, float *deadbandMotor3dHigh, float *deadbandMotor3dLow);
+void dshotInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm);
 float dshotConvertFromExternal(uint16_t externalValue);
 uint16_t dshotConvertToExternal(float motorValue);
 
