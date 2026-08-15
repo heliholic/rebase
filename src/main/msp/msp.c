@@ -1864,17 +1864,10 @@ case MSP_NAME:
         sbufWriteU16(dst, currentPidProfile->dterm_lpf2_static_hz);
         // Added in MSP API 1.41
         sbufWriteU8(dst, currentPidProfile->dterm_lpf2_type);
-#if defined(USE_DYN_LPF)
-        sbufWriteU16(dst, gyroConfig()->gyro_lpf1_dyn_min_hz);
-        sbufWriteU16(dst, gyroConfig()->gyro_lpf1_dyn_max_hz);
-        sbufWriteU16(dst, currentPidProfile->dterm_lpf1_dyn_min_hz);
-        sbufWriteU16(dst, currentPidProfile->dterm_lpf1_dyn_max_hz);
-#else
-        sbufWriteU16(dst, 0);
-        sbufWriteU16(dst, 0);
-        sbufWriteU16(dst, 0);
-        sbufWriteU16(dst, 0);
-#endif
+        sbufWriteU16(dst, 0); // gyroConfig()->gyro_lpf1_dyn_min_hz
+        sbufWriteU16(dst, 0); // gyroConfig()->gyro_lpf1_dyn_max_hz
+        sbufWriteU16(dst, 0); // currentPidProfile->dterm_lpf1_dyn_min_hz
+        sbufWriteU16(dst, 0); // currentPidProfile->dterm_lpf1_dyn_max_hz
         // Added in MSP API 1.42
 #if defined(USE_DYN_NOTCH_FILTER)
         sbufWriteU8(dst, 0);  // DEPRECATED 1.43: dyn_notch_range
@@ -1900,12 +1893,7 @@ case MSP_NAME:
 #else
         sbufWriteU16(dst, 0);
 #endif
-#if defined(USE_DYN_LPF)
-        // Added in MSP API 1.44
-        sbufWriteU8(dst, currentPidProfile->dterm_lpf1_dyn_expo);
-#else
-        sbufWriteU8(dst, 0);
-#endif
+        sbufWriteU8(dst, 0); // currentPidProfile->dterm_lpf1_dyn_expo
 #if defined(USE_DYN_NOTCH_FILTER)
         sbufWriteU8(dst, dynNotchConfig()->dyn_notch_count);
 #else
@@ -2938,17 +2926,10 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         if (sbufBytesRemaining(src) >= 9) {
             // Added in MSP API 1.41
             currentPidProfile->dterm_lpf2_type = sbufReadU8(src);
-#if defined(USE_DYN_LPF)
-            gyroConfigMutable()->gyro_lpf1_dyn_min_hz = sbufReadU16(src);
-            gyroConfigMutable()->gyro_lpf1_dyn_max_hz = sbufReadU16(src);
-            currentPidProfile->dterm_lpf1_dyn_min_hz = sbufReadU16(src);
-            currentPidProfile->dterm_lpf1_dyn_max_hz = sbufReadU16(src);
-#else
-            sbufReadU16(src);
-            sbufReadU16(src);
-            sbufReadU16(src);
-            sbufReadU16(src);
-#endif
+            sbufReadU16(src); // gyroConfigMutable()->gyro_lpf1_dyn_min_hz
+            sbufReadU16(src); // gyroConfigMutable()->gyro_lpf1_dyn_max_hz
+            sbufReadU16(src); // currentPidProfile->dterm_lpf1_dyn_min_hz
+            sbufReadU16(src); // currentPidProfile->dterm_lpf1_dyn_max_hz
         }
         if (sbufBytesRemaining(src) >= 8) {
             // Added in MSP API 1.42
@@ -2981,11 +2962,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
         if (sbufBytesRemaining(src) >= 2) {
             // Added in MSP API 1.44
-#if defined(USE_DYN_LPF)
-            currentPidProfile->dterm_lpf1_dyn_expo = sbufReadU8(src);
-#else
-            sbufReadU8(src);
-#endif
+            sbufReadU8(src); // currentPidProfile->dterm_lpf1_dyn_expo
 #if defined(USE_DYN_NOTCH_FILTER)
             i = sbufReadU8(src);
             // verify dyn notch count
