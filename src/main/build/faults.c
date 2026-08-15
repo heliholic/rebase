@@ -31,7 +31,7 @@
 
 #include "flight/mixer.h"
 
-#include "faults.h"
+#include "fc/faults.h"
 
 /* `used` keeps LTO from dropping the symbol. The only callers reach this
  * function via inline-asm `b systemFaultAction` in HardFault_Handler /
