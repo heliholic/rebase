@@ -193,7 +193,7 @@
 
 // DEFIO_PORT_USED_LIST - comma separated list of bitmask for all used ports.
 // DEFIO_PORT_OFFSET_LIST - comma separated list of port offsets (count of pins before this port)
-// Single port architecture (like PICO)
+// Single port architecture
 #define DEFIO_PORT_USED_COUNT   1
 #define DEFIO_PORT_USED_LIST
 #define DEFIO_PORT_OFFSET_LIST  0

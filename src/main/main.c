@@ -40,8 +40,8 @@
 #include "fc/init.h"
 
 // USE_MULTICORE turns on the multicore API and its features (core 1 + dispatch).
-// ENABLE_MULTICORE_INIT is the optional core-allocation policy (RP2350) of
-// running the FC init phases on the second core; it requires USE_MULTICORE.
+// ENABLE_MULTICORE_INIT is an optional policy of running the FC init phases on
+// the second core; it requires USE_MULTICORE.
 #if defined(ENABLE_MULTICORE_INIT) && !defined(USE_MULTICORE)
 #error "ENABLE_MULTICORE_INIT requires USE_MULTICORE"
 #endif

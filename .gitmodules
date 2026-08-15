@@ -3,12 +3,6 @@
 	url = https://github.com/betaflight/config.git
 	branch = master
 	ignore = dirty
-[submodule "lib/modules/pico-sdk"]
-	path = lib/modules/pico-sdk
-	url = https://github.com/raspberrypi/pico-sdk.git
-	branch = master
-	ignore = dirty
-	update = none
 [submodule "lib/modules/STM32N6"]
 	path = lib/modules/STM32N6
 	url = https://github.com/STMicroelectronics/STM32CubeN6

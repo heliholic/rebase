@@ -28,7 +28,6 @@
 
 // Drive the supplied pin with a 50% duty-cycle square wave at freqHz, suitable
 // for clocking an external sensor (e.g. ICM-426xx CLKIN). Implemented per
-// platform — STM32 uses its timer/PWM abstraction, PICO uses the pico-sdk PWM
-// hardware directly. Returns true on success, false if the pin can't be
+// platform using the timer/PWM hardware. Returns true on success, false if the pin can't be
 // driven at the requested frequency or resources can't be allocated.
 bool gyroClkInInit(ioTag_t tag, uint32_t freqHz, uint8_t resourceIndex);
