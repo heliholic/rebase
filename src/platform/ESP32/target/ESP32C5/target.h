@@ -31,7 +31,7 @@
 #endif
 
 #ifndef USBD_PRODUCT_STRING
-#define USBD_PRODUCT_STRING     "Betaflight - ESP32-C5"
+#define USBD_PRODUCT_STRING     "Rotorflight - ESP32-C5"
 #endif
 
 // The shared drivers back only UART0/UART1 and a single general-purpose SPI
