@@ -26,7 +26,7 @@
 #endif
 
 #ifndef USBD_PRODUCT_STRING
-#define USBD_PRODUCT_STRING     "Betaflight - STM32C5A3"
+#define USBD_PRODUCT_STRING     "Rotorflight - STM32C5A3"
 #endif
 
 #define USE_I2C_DEVICE_1
