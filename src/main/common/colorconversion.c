@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-#include "platform.h"
+#include <platform.h>
 
 #include "color.h"
 #include "colorconversion.h"
