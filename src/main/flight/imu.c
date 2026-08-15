@@ -88,8 +88,6 @@ static bool imuUpdated = false;
 
 bool canUseGPSHeading;
 
-static float smallAngleCosZ = 0;
-
 static imuRuntimeConfig_t imuRuntimeConfig;
 
 matrix33_t rMat;
@@ -115,16 +113,9 @@ quaternion_t imuAttitudeQuaternion = QUATERNION_INITIALIZE;
 
 PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG, 3);
 
-#ifdef USE_RACE_PRO
-#define DEFAULT_SMALL_ANGLE 180
-#else
-#define DEFAULT_SMALL_ANGLE 25
-#endif
-
 PG_RESET_TEMPLATE(imuConfig_t, imuConfig,
     .imu_dcm_kp = 2500,      // 1.0 * 10000
     .imu_dcm_ki = 0,         // 0.003 * 10000
-    .small_angle = DEFAULT_SMALL_ANGLE,
     .imu_process_denom = 2,
     .mag_declination = 0,
     .trust_mag = false, // user must set to true for mag to be accepted as a heading source
@@ -187,8 +178,6 @@ void imuConfigure(void)
     // v[NWU_N] = cos(declination), v[NWU_W] = -sin(declination).
     sincosf_approx(imuMagneticDeclinationRad, &north_ef.v[NWU_W], &north_ef.v[NWU_N]);
     north_ef.v[NWU_W] = -north_ef.v[NWU_W];
-
-    smallAngleCosZ = cos_approx(degreesToRadians(imuConfig()->small_angle));
 }
 
 void imuInit(void)
@@ -904,7 +893,7 @@ void imuQuaternionHeadfreeTransformVectorEarthToBody(vector3_t *v)
 bool isUpright(void)
 {
 #ifdef USE_ACC
-    return !sensors(SENSOR_ACC) || (attitudeIsEstablished && getCosTiltAngle() > smallAngleCosZ);
+    return !sensors(SENSOR_ACC) || (attitudeIsEstablished && getCosTiltAngle() > 0.7f);
 #else
     return true;
 #endif
