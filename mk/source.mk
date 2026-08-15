@@ -1,6 +1,6 @@
 PG_SRC = \
             pg/adc.c \
-            pg/alt_hold_multirotor.c \
+            pg/alt_hold.c \
             pg/autopilot.c \
             pg/beeper.c \
             pg/beeper_dev.c \
@@ -16,7 +16,7 @@ PG_SRC = \
             pg/flash.c \
             pg/flight_plan.c \
             pg/gps.c \
-            pg/gps_rescue_multirotor.c \
+            pg/gps_rescue.c \
             pg/gyrodev.c \
             pg/max7456.c \
             pg/mco.c \
@@ -28,7 +28,7 @@ PG_SRC = \
             pg/piniobox.c \
             pg/pinio.c \
             pg/pin_pull_up_down.c \
-            pg/pos_hold_multirotor.c \
+            pg/pos_hold.c \
             pg/rcdevice.c \
             pg/rx.c \
             pg/rx_pwm.c \
@@ -145,12 +145,12 @@ COMMON_SRC = \
             fc/rc_adjustments.c \
             fc/rc_controls.c \
             fc/rc_modes.c \
-            flight/alt_hold_multirotor.c \
-            flight/autopilot_multirotor.c \
+            flight/alt_hold.c \
+            flight/autopilot.c \
             flight/failsafe.c \
             flight/flight_plan_capture.c \
             flight/flight_plan_nav.c \
-            flight/gps_rescue_multirotor.c \
+            flight/gps_rescue.c \
             flight/imu.c \
             flight/mixer.c \
             flight/nav_trail.c \
@@ -159,7 +159,7 @@ COMMON_SRC = \
             flight/position_estimator.c \
             flight/position_filter.c \
             flight/position_nav.c \
-            flight/pos_hold_multirotor.c \
+            flight/pos_hold.c \
             flight/servos.c \
             io/serial_4way.c \
             io/serial_4way_avrootloader.c \
@@ -201,7 +201,7 @@ COMMON_SRC = \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue_multirotor.c \
+            cms/cms_menu_gps_rescue.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \
@@ -461,7 +461,7 @@ SIZE_OPTIMISED_SRC += \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue_multirotor.c \
+            cms/cms_menu_gps_rescue.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \
