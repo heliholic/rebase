@@ -45,6 +45,7 @@ extern "C" {
     #include "rx/rx.h"
     #include "scheduler/scheduler.h"
     #include "sensors/gyro.h"
+    #include "sensors/acceleration.h"
 
     #include "pg/autopilot.h"
     #include "flight/autopilot.h"
