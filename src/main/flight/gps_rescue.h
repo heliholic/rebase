@@ -17,4 +17,35 @@
 
 #pragma once
 
-#include "flight/gps_rescue_multirotor.h"
+
+#include <stdbool.h>
+
+#include "common/axis.h"
+
+#include "pg/gps_rescue.h"
+
+#define TASK_GPS_RESCUE_RATE_HZ 100  // in sync with altitude task rate
+
+typedef enum {
+    RESCUE_SANITY_OFF = 0,
+    RESCUE_SANITY_ON,
+    RESCUE_SANITY_FS_ONLY,
+    RESCUE_SANITY_COUNT
+} gpsRescueSanity_e;
+
+typedef enum {
+    GPS_RESCUE_ALT_MODE_MAX = 0,
+    GPS_RESCUE_ALT_MODE_FIXED,
+    GPS_RESCUE_ALT_MODE_CURRENT,
+    GPS_RESCUE_ALT_MODE_COUNT
+} gpsRescueAltitudeMode_e;
+
+void gpsRescueInit(void);
+void gpsRescueUpdate(void);
+float gpsRescueGetYawRate(void);
+float gpsRescueGetMaxAltitudeCm(void);
+bool gpsRescueIsConfigured(void);
+bool gpsRescueIsAvailable(void);
+bool gpsRescueIsHeadingOK(void);
+bool gpsRescueIsOK(void);
+
