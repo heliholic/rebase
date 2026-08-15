@@ -285,8 +285,8 @@ static void mavlinkSendAutopilotVersion(void)
 {
     const uint64_t capabilities = MAV_PROTOCOL_CAPABILITY_MAVLINK2;
     const uint32_t flightSwVersion =
-        ((uint32_t)(FC_VERSION_YEAR - FC_CALVER_BASE_YEAR) << 24) |
-        ((uint32_t)FC_VERSION_MONTH << 16) |
+        ((uint32_t)FC_VERSION_MAJOR << 24) |
+        ((uint32_t)FC_VERSION_MINOR << 16) |
         ((uint32_t)FC_VERSION_PATCH_LEVEL << 8);
 
     const uint8_t emptyCustom[8] = {0};
