@@ -327,23 +327,17 @@ const uint16_t osdTimerDefault[OSD_TIMER_COUNT] = {
         OSD_TIMER(OSD_TIMER_SRC_TOTAL_ARMED, OSD_TIMER_PREC_SECOND, 10)
 };
 
-#ifdef USE_RACE_PRO
-#define RACE_PRO true
-#else
-#define RACE_PRO false
-#endif
-
 void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 {
     // Enable the default stats
     osdConfig->enabled_stats = 0; // reset all to off and enable only a few initially
-    osdStatSetState(OSD_STAT_MAX_SPEED, !RACE_PRO);
+    osdStatSetState(OSD_STAT_MAX_SPEED, true);
     osdStatSetState(OSD_STAT_MIN_BATTERY, true);
-    osdStatSetState(OSD_STAT_MIN_RSSI, !RACE_PRO);
-    osdStatSetState(OSD_STAT_MAX_CURRENT, !RACE_PRO);
-    osdStatSetState(OSD_STAT_USED_MAH, !RACE_PRO);
-    osdStatSetState(OSD_STAT_BLACKBOX, !RACE_PRO);
-    osdStatSetState(OSD_STAT_BLACKBOX_NUMBER, !RACE_PRO);
+    osdStatSetState(OSD_STAT_MIN_RSSI, true);
+    osdStatSetState(OSD_STAT_MAX_CURRENT, true);
+    osdStatSetState(OSD_STAT_USED_MAH, true);
+    osdStatSetState(OSD_STAT_BLACKBOX, true);
+    osdStatSetState(OSD_STAT_BLACKBOX_NUMBER, true);
     osdStatSetState(OSD_STAT_TIMER_2, true);
 
     osdConfig->units = UNIT_METRIC;
@@ -428,10 +422,6 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 #ifdef USE_OSD_QUICK_MENU
     osdConfig->osd_use_quick_menu = true;
 #endif // USE_OSD_QUICK_MENU
-
-#ifdef USE_RACE_PRO
-    osdConfig->osd_show_spec_prearm = true;
-#endif // USE_RACE_PRO
 }
 
 void pgResetFn_osdElementConfig(osdElementConfig_t *osdElementConfig)

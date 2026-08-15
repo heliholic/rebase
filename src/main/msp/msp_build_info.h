@@ -72,7 +72,6 @@
 #define BUILD_OPTION_FRSKYOSD                   16411
 #define BUILD_OPTION_PINIO                      16418
 #define BUILD_OPTION_POSITION_HOLD              16425
-#define BUILD_OPTION_RACE_PRO                   16419
 #define BUILD_OPTION_RANGEFINDER                16429
 #define BUILD_OPTION_SOFTSERIAL                 16423
 #define BUILD_OPTION_SERVOS                     16420
