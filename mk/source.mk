@@ -13,7 +13,6 @@ PG_SRC = \
             pg/dronecan.c \
             pg/dronecan_dna.c \
             pg/displayport_profiles.c \
-            pg/dyn_notch.c \
             pg/flash.c \
             pg/flight_plan.c \
             pg/gps.c \
@@ -153,7 +152,6 @@ COMMON_SRC = \
             fc/rc_modes.c \
             flight/alt_hold_multirotor.c \
             flight/autopilot_multirotor.c \
-            flight/dyn_notch_filter.c \
             flight/failsafe.c \
             flight/flight_plan_capture.c \
             flight/flight_plan_nav.c \
@@ -449,7 +447,6 @@ SPEED_OPTIMISED_SRC += \
             fc/rc.c \
             fc/rc_controls.c \
             fc/runtime_config.c \
-            flight/dyn_notch_filter.c \
             flight/imu.c \
             flight/mixer.c \
             flight/pid.c \
