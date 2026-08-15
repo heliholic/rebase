@@ -28,7 +28,7 @@
 
 #if ENABLE_TELEMETRY_MAVLINK_MISSION
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "drivers/time.h"
 

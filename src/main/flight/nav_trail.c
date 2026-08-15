@@ -34,7 +34,7 @@
 #include "build/build_config.h"
 
 #include "common/maths.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/vector.h"
 
 #include "fc/runtime_config.h"

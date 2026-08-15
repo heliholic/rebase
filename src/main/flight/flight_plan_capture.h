@@ -23,7 +23,7 @@
 
 #include <stdbool.h>
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 // In-flight waypoint capture on the WP CAPTURE box: a tap appends the craft's
 // position (sampled at the press) to the flight plan as a FLYBY waypoint, a
