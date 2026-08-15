@@ -122,7 +122,6 @@
 #include "io/gimbal_control.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
-#include "io/pidaudio.h"
 #include "io/piniobox.h"
 #include "io/rcdevice_cam.h"
 #include "io/serial.h"
@@ -740,10 +739,6 @@ void initPhase3(void)
     pidInit(currentPidProfile);
 
     mixerInitProfile();
-
-#ifdef USE_PID_AUDIO
-    pidAudioInit();
-#endif
 
 #ifdef USE_SERVOS
     servosInit();
