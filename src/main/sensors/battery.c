@@ -236,10 +236,6 @@ void batteryUpdatePresence(void)
             batteryCellCount = currentBatteryProfile->forceBatteryCellCount;
         } else {
             batteryCellCount = autoDetectCellCount();
-
-            if (!ARMING_FLAG(ARMED)) {
-                changePidProfileFromCellCount(batteryCellCount);
-            }
         }
 #ifdef USE_RPM_LIMIT
         mixerResetRpmLimiter();
