@@ -68,7 +68,6 @@ extern "C" {
     #include "telemetry/msp_shared.h"
 
     rssiSource_e rssiSource;
-    bool airMode;
     baro_t baro;
     mag_t mag;
 
@@ -232,8 +231,6 @@ TEST(TelemetryCrsfTest, TestFlightMode)
     ENABLE_STATE(GPS_FIX);
     ENABLE_STATE(GPS_FIX_HOME);
 
-    airMode = false;
-
     DISABLE_ARMING_FLAG(ARMED);
 
     // nothing set, so ACRO mode
@@ -293,17 +290,17 @@ TEST(TelemetryCrsfTest, TestFlightMode)
     EXPECT_EQ(crfsCrc(frame, frameLen), frame[7]);
 
     disableFlightMode(HORIZON_MODE);
-    airMode = true;
     frameLen = getCrsfFrame(frame, CRSF_FRAMETYPE_FLIGHT_MODE);
-    EXPECT_EQ(4 + FRAME_HEADER_FOOTER_LEN, frameLen);
+    EXPECT_EQ(5 + FRAME_HEADER_FOOTER_LEN, frameLen);
     EXPECT_EQ(CRSF_SYNC_BYTE, frame[0]); // address
-    EXPECT_EQ(6, frame[1]); // length
+    EXPECT_EQ(7, frame[1]); // length
     EXPECT_EQ(0x21, frame[2]); // type
     EXPECT_EQ('A', frame[3]);
-    EXPECT_EQ('I', frame[4]);
+    EXPECT_EQ('C', frame[4]);
     EXPECT_EQ('R', frame[5]);
-    EXPECT_EQ(0, frame[6]);
-    EXPECT_EQ(crfsCrc(frame, frameLen), frame[7]);
+    EXPECT_EQ('O', frame[6]);
+    EXPECT_EQ(0, frame[7]);
+    EXPECT_EQ(crfsCrc(frame, frameLen), frame[8]);
 }
 
 // STUBS
@@ -346,8 +343,6 @@ bool telemetryCheckRxPortShared(const serialPortConfig_t *, SerialRXType) {retur
 bool telemetryIsSensorEnabled(sensor_e) {return true;}
 
 portSharing_e determinePortSharing(const serialPortConfig_t *, serialPortFunction_e) {return PORTSHARING_NOT_SHARED;}
-
-bool isAirmodeEnabled(void) {return airMode;}
 
 int32_t getAmperage(void)
 {
