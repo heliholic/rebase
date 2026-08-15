@@ -386,8 +386,6 @@ static float imuCalcKpGain(timeUs_t currentTimeUs, bool useAcc, float *gyroAvera
 // IMU groundspeed gain heuristic
 static float imuCalcGroundspeedGain(float dt)
 {
-    const bool isWing = isFixedWing();  // different weighting for airplane aerodynamic
-
     // 1. Groundspeed
     const float speedRatio = 0.5f * gpsSol.groundSpeed / GPS_COG_MIN_GROUNDSPEED;
     float speedBasedGain = speedRatio > 1.0f ? fminf(speedRatio, 10.0f) : sq(speedRatio);
@@ -409,7 +407,7 @@ static float imuCalcGroundspeedGain(float dt)
     // from 1.0 with no Roll to zero more than 10 degrees from flat
     // this is to prevent adaptation to GPS while flying sideways, or with a significant sideways element
     const float absRollAngle = fabsf(attitude.values.roll * 0.1f);  // degrees
-    float rollMax = isWing ? 25.0f : 10.0f; // 25 degrees for wing, 10 degrees for quad
+    float rollMax = 10.0f;
     // note: these value are 'educated guesses' - for quads it must be very tight
     // for wings, which can't fly sideways, it can be wider
     const float rollSuppression = (absRollAngle < rollMax) ? (rollMax - absRollAngle) / rollMax : 0.0f;
@@ -419,11 +417,9 @@ static float imuCalcGroundspeedGain(float dt)
     // ignored for wings because they typically are flat when flying and may fly forwards at negative angles.
     // In position hold the pilot may fly backwards.
     float pitchSuppression = 1.0f;
-    if (!isWing) {
-        const float pitchFactor = attitude.values.pitch * 0.1f / 10.0f; // negative is backwards
-        pitchSuppression = fminf(pitchFactor , 5.0f); // 1.0 at 10 degrees, 5.0 at 50 degrees or more
-        pitchSuppression = (pitchSuppression >= 0) ? pitchSuppression : 0.0f; // zero if flat or pitched backwards
-    }
+    const float pitchFactor = attitude.values.pitch * 0.1f / 10.0f; // negative is backwards
+    pitchSuppression = fminf(pitchFactor , 5.0f); // 1.0 at 10 degrees, 5.0 at 50 degrees or more
+    pitchSuppression = (pitchSuppression >= 0) ? pitchSuppression : 0.0f; // zero if flat or pitched backwards
     // 5. Suppress GPS correction generally when a mag is present (favour Mag)
     float MagSuppression = 1.0f;
 #ifdef USE_MAG
