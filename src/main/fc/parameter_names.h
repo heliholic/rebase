@@ -76,7 +76,6 @@
 #define PARAM_NAME_ITERM_WINDUP "iterm_windup"
 #define PARAM_NAME_PIDSUM_LIMIT "pidsum_limit"
 #define PARAM_NAME_PIDSUM_LIMIT_YAW "pidsum_limit_yaw"
-#define PARAM_NAME_ABS_CONTROL_GAIN "abs_control_gain"
 #define PARAM_NAME_DYN_IDLE_MIN_RPM "dyn_idle_min_rpm"
 #define PARAM_NAME_DYN_IDLE_P_GAIN "dyn_idle_p_gain"
 #define PARAM_NAME_DYN_IDLE_I_GAIN "dyn_idle_i_gain"

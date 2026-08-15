@@ -658,7 +658,6 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
         applyItermRelax(axis, previousIterm, gyroRate, &itermErrorRate, &currentPidSetpoint);
         errorRate = currentPidSetpoint - gyroRate;
 #endif
-
         // --------low-level gyro-based PID based on 2DOF PID controller. ----------
 
         // -----calculate P component
