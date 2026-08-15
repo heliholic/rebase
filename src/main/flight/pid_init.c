@@ -377,10 +377,6 @@ void pidInitConfig(const pidProfile_t *pidProfile)
     pidRuntime.dynLpfCurveExpo = pidProfile->dterm_lpf1_dyn_expo;
 #endif
 
-#ifdef USE_THRUST_LINEARIZATION
-    pidRuntime.thrustLinearization = pidProfile->thrustLinearization / 100.0f;
-#endif
-
 #ifdef USE_D_MAX
     for (int axis = FD_ROLL; axis <= FD_YAW; ++axis) {
         const uint8_t dMax = pidProfile->d_max[axis];
