@@ -485,10 +485,6 @@ telemetry_mavlink_mission_unittest_DEFINES := \
 		USE_TELEMETRY_MAVLINK= \
 		ENABLE_TELEMETRY_MAVLINK_MISSION=1
 
-transponder_ir_unittest_SRC := \
-		$(USER_DIR)/drivers/transponder_ir_ilap.c \
-		$(USER_DIR)/drivers/transponder_ir_arcitimer.c
-
 ws2811_unittest_SRC := \
 		$(USER_DIR)/drivers/light_ws2811strip.c
 
