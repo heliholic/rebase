@@ -67,8 +67,6 @@ extern "C" {
     extern volatile bool mspReplyPending;
     extern volatile bool deviceInfoReplyPending;
 
-    bool airMode;
-
     uint16_t testBatteryVoltage = 0;
     int32_t testAmperage = 0;
     int32_t testmAhDrawn = 0;
@@ -206,8 +204,6 @@ TEST(RxSpiExpressLrsTelemetryUnitTest, TestFlightMode)
 {
     initTelemetry();
     currentPayloadIndex = 3;
-
-    airMode = false;
 
     uint8_t *payload = 0;
     uint8_t payloadSize = 0;
@@ -428,8 +424,6 @@ extern "C" {
     bool featureIsEnabled(uint32_t) {return true; }
     bool telemetryIsSensorEnabled(sensor_e) {return true; }
     bool sensors(uint32_t ) { return true; }
-
-    bool isAirmodeEnabled(void) {return airMode; }
 
     bool isBatteryVoltageConfigured(void) { return true; }
     bool isAmperageConfigured(void) { return true; }
