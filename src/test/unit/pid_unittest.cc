@@ -150,9 +150,6 @@ void setDefaultTestSettings(void)
     pidProfile->horizon_ignore_sticks = false;
     pidProfile->itermLimit = 150;
     pidProfile->iterm_rotation = false;
-    pidProfile->iterm_relax = ITERM_RELAX_OFF,
-    pidProfile->iterm_relax_cutoff = 11,
-    pidProfile->iterm_relax_type = ITERM_RELAX_SETPOINT,
 
     gyro.targetLooptime = 8000;
 }
@@ -651,80 +648,6 @@ TEST(pidControllerTest, testiTermWindup)
     EXPECT_NEAR(200, pidData[FD_ROLL].I, calculateTolerance(200));
     EXPECT_NEAR(200, pidData[FD_PITCH].I, calculateTolerance(200));
     EXPECT_NEAR(160, pidData[FD_YAW].I, calculateTolerance(320));
-}
-
-TEST(pidControllerTest, testItermRelax)
-{
-    resetTest();
-    pidProfile->iterm_relax = ITERM_RELAX_RP;
-    ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
-
-    pidProfile->iterm_relax_type = ITERM_RELAX_SETPOINT;
-    pidInit(pidProfile);
-
-    float itermErrorRate = 0;
-    float currentPidSetpoint = 0;
-    float gyroRate = 0;
-
-    applyItermRelax(FD_PITCH, 0, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, 0);
-    itermErrorRate = -10;
-    currentPidSetpoint = 10;
-    pidData[FD_PITCH].I = 10;
-
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-
-    EXPECT_NEAR(-8.16, itermErrorRate, calculateTolerance(-8.16));
-    currentPidSetpoint += ITERM_RELAX_SETPOINT_THRESHOLD;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_NEAR(0, itermErrorRate, calculateTolerance(0));
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_NEAR(0, itermErrorRate, calculateTolerance(0));
-
-    pidProfile->iterm_relax_type = ITERM_RELAX_GYRO;
-    pidInit(pidProfile);
-
-    currentPidSetpoint = 100;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, 0);
-    gyroRate = 10;
-    itermErrorRate = -10;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_NEAR(7, itermErrorRate, calculateTolerance(7));
-    gyroRate += 100;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_NEAR(-10, itermErrorRate, calculateTolerance(-10));
-
-    pidProfile->iterm_relax = ITERM_RELAX_RP_INC;
-    pidInit(pidProfile);
-
-    itermErrorRate = -10;
-    pidData[FD_PITCH].I = 10;
-    currentPidSetpoint = 10;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, -10);
-    itermErrorRate = 10;
-    pidData[FD_PITCH].I = -10;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, 10);
-    itermErrorRate = -10;
-    currentPidSetpoint = 10;
-    applyItermRelax(FD_PITCH, pidData[FD_PITCH].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, -100);
-
-    pidProfile->iterm_relax_type = ITERM_RELAX_SETPOINT;
-    pidInit(pidProfile);
-
-    itermErrorRate = -10;
-    currentPidSetpoint = ITERM_RELAX_SETPOINT_THRESHOLD;
-    applyItermRelax(FD_YAW, pidData[FD_YAW].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_FLOAT_EQ(itermErrorRate, -10);
-
-    pidProfile->iterm_relax = ITERM_RELAX_RPY;
-    pidInit(pidProfile);
-    applyItermRelax(FD_YAW, pidData[FD_YAW].I, gyroRate, &itermErrorRate, &currentPidSetpoint);
-    EXPECT_NEAR(-3.6, itermErrorRate, calculateTolerance(-3.6));
 }
 
 // TODO - Add more tests
