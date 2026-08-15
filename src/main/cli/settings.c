@@ -100,9 +100,6 @@
 #include "pg/pos_hold.h"
 #include "pg/rx.h"
 #include "pg/rx_pwm.h"
-#include "pg/rx_spi.h"
-#include "pg/rx_spi_cc2500.h"
-#include "pg/rx_spi_expresslrs.h"
 #include "pg/sdcard.h"
 #include "pg/vcd.h"
 #include "pg/vtx_io.h"
@@ -113,11 +110,7 @@
 #include "pg/stats.h"
 #include "pg/board.h"
 
-#include "rx/a7105_flysky.h"
-#include "rx/cc2500_frsky_common.h"
-#include "rx/cc2500_sfhss.h"
 #include "rx/crsf.h"
-#include "rx/cyrf6936_spektrum.h"
 #include "rx/rx.h"
 #include "rx/spektrum.h"
 
@@ -248,32 +241,6 @@ static const char * const lookupTableSerialRX[] = {
 };
 #endif
 
-#ifdef USE_RX_SPI
-// sync with rx_spi_protocol_e
-static const char * const lookupTableRxSpi[] = {
-    "V202_250K",
-    "V202_1M",
-    "SYMA_X",
-    "SYMA_X5C",
-    "CX10",
-    "CX10A",
-    "H8_3D",
-    "INAV",
-    "FRSKY_D",
-    "FRSKY_X",
-    "FLYSKY",
-    "FLYSKY_2A",
-    "KN",
-    "SFHSS",
-    "SPEKTRUM",
-    "FRSKY_X_LBT",
-    "REDPINE",
-    "FRSKY_X_V2",
-    "FRSKY_X_LBT_V2",
-    "EXPRESSLRS",
-};
-#endif
-
 static const char * const lookupTableGyroHardwareLpf[] = {
     "NORMAL",
     "OPTION_1",
@@ -333,11 +300,6 @@ static const char * const lookupTableMax7456Clock[] = {
 };
 #endif
 
-#ifdef USE_RX_FRSKY_SPI
-static const char * const lookupTableFrskySpiA1Source[] = {
-    "VBAT", "EXTADC", "CONST"
-};
-#endif
 
 #ifdef USE_GYRO_OVERFLOW_CHECK
 static const char * const lookupTableGyroOverflowCheck[] = {
@@ -474,19 +436,6 @@ const char * const lookupTableCMSMenuBackgroundType[] = {
 };
 #endif
 
-#ifdef USE_RX_EXPRESSLRS
-static const char* const lookupTableFreqDomain[] = {
-#ifdef USE_RX_SX127X
-    "AU433", "AU915", "EU433", "EU868", "IN866", "FCC915",
-#endif
-#ifdef USE_RX_SX1280
-    "ISM2400", "CE2400"
-#endif
-#if !defined(USE_RX_SX127X) && !defined(USE_RX_SX1280)
-    "NONE",
-#endif
-};
-#endif
 
 #define LOOKUP_TABLE_ENTRY(name) { name, ARRAYLEN(name) }
 
@@ -517,9 +466,6 @@ const lookupTableEntry_t lookupTables[] = {
 #ifdef USE_SERIALRX
     LOOKUP_TABLE_ENTRY(lookupTableSerialRX),
 #endif
-#ifdef USE_RX_SPI
-    LOOKUP_TABLE_ENTRY(lookupTableRxSpi),
-#endif
     LOOKUP_TABLE_ENTRY(lookupTableGyroHardwareLpf),
     { lookupTableAccHardware, ACC_HARDWARE_COUNT },
 #ifdef USE_BARO
@@ -543,9 +489,6 @@ const lookupTableEntry_t lookupTables[] = {
     LOOKUP_TABLE_ENTRY(lookupTableBusType),
 #ifdef USE_MAX7456
     LOOKUP_TABLE_ENTRY(lookupTableMax7456Clock),
-#endif
-#ifdef USE_RX_FRSKY_SPI
-    LOOKUP_TABLE_ENTRY(lookupTableFrskySpiA1Source),
 #endif
 #ifdef USE_RANGEFINDER
     { lookupTableRangefinderHardware, RANGEFINDER_HARDWARE_COUNT },
@@ -596,9 +539,6 @@ const lookupTableEntry_t lookupTables[] = {
     LOOKUP_TABLE_ENTRY(lookupTableMixerType),
 #ifdef USE_OSD
     LOOKUP_TABLE_ENTRY(lookupTableCMSMenuBackgroundType),
-#endif
-#ifdef USE_RX_EXPRESSLRS
-    LOOKUP_TABLE_ENTRY(lookupTableFreqDomain),
 #endif
 };
 
@@ -729,11 +669,6 @@ const clivalue_t valueTable[] = {
 #if defined(USE_RX_MSP_OVERRIDE)
     { "msp_override_channels_mask",      VAR_UINT32 | MASTER_VALUE, .config.u32Max = (1 << MAX_SUPPORTED_RC_CHANNEL_COUNT) - 1, PG_RX_CONFIG, offsetof(rxConfig_t, msp_override_channels_mask)},
     { "msp_override_failsafe",      VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_CONFIG, offsetof(rxConfig_t, msp_override_failsafe)},
-#endif
-#ifdef USE_RX_SPI
-    { "rx_spi_protocol",            VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_RX_SPI }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, rx_spi_protocol) },
-    { "rx_spi_bus",                 VAR_UINT8   | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, SPIDEV_COUNT }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, spibus) },
-    { "rx_spi_led_inversion",       VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, ledInversion) },
 #endif
 
 // PG_ADC_CONFIG
@@ -1398,15 +1333,6 @@ const clivalue_t valueTable[] = {
     { "esc_sensor_current_offset",      VAR_UINT16  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 16000 }, PG_ESC_SENSOR_CONFIG, offsetof(escSensorConfig_t, offset) },
 #endif
 
-#ifdef USE_RX_FRSKY_SPI
-    { "frsky_spi_autobind",             VAR_UINT8   | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, autoBind) },
-    { "frsky_spi_tx_id",                VAR_UINT8   | MASTER_VALUE | MODE_ARRAY, .config.array.length = 3, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, bindTxId) },
-    { "frsky_spi_offset",               VAR_INT8    | MASTER_VALUE, .config.minmax = { -127, 127 }, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, bindOffset) },
-    { "frsky_spi_bind_hop_data",        VAR_UINT8   | MASTER_VALUE | MODE_ARRAY, .config.array.length = 50, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, bindHopData) },
-    { "frsky_x_rx_num",                 VAR_UINT8   | MASTER_VALUE, .config.minmaxUnsigned = { 0, UINT8_MAX }, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, rxNum) },
-    { "frsky_spi_a1_source",            VAR_UINT8   | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_RX_FRSKY_SPI_A1_SOURCE }, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, a1Source) },
-    { "cc2500_spi_chip_detect",         VAR_UINT8   | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_CC2500_SPI_CONFIG, offsetof(rxCc2500SpiConfig_t, chipDetectEnabled) },
-#endif
 #if !defined(USE_VIRTUAL_LED)
     { "led_inversion",                  VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, ((1 << STATUS_LED_COUNT) - 1) }, PG_STATUS_LED_CONFIG, offsetof(statusLedConfig_t, inversion) },
 #endif
@@ -1543,16 +1469,6 @@ const clivalue_t valueTable[] = {
     { "mco2_on_pc9",    VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_MCO_CONFIG, PG_ARRAY_ELEMENT_OFFSET(mcoConfig_t, 1, enabled) },
 #endif
 #endif
-#ifdef USE_RX_SPEKTRUM
-    { "spektrum_spi_protocol",     VAR_UINT8 | MASTER_VALUE, .config.minmaxUnsigned = { 0, UINT8_MAX }, PG_RX_SPEKTRUM_SPI_CONFIG, offsetof(spektrumConfig_t, protocol) },
-    { "spektrum_spi_mfg_id",       VAR_UINT8 | MASTER_VALUE | MODE_ARRAY, .config.array.length = 4, PG_RX_SPEKTRUM_SPI_CONFIG, offsetof(spektrumConfig_t, mfgId) },
-    { "spektrum_spi_num_channels", VAR_UINT8 | MASTER_VALUE, .config.minmaxUnsigned = { 0, DSM_MAX_CHANNEL_COUNT }, PG_RX_SPEKTRUM_SPI_CONFIG, offsetof(spektrumConfig_t, numChannels) },
-#endif
-#ifdef USE_RX_EXPRESSLRS
-    { "expresslrs_uid",         VAR_UINT8 | MASTER_VALUE | MODE_ARRAY, .config.array.length = 6, PG_RX_EXPRESSLRS_SPI_CONFIG, offsetof(rxExpressLrsSpiConfig_t, UID) },
-    { "expresslrs_domain",      VAR_UINT8 | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_FREQ_DOMAIN }, PG_RX_EXPRESSLRS_SPI_CONFIG, offsetof(rxExpressLrsSpiConfig_t, domain) },
-    { "expresslrs_model_id",    VAR_UINT8 | MASTER_VALUE, .config.minmaxUnsigned = { 0, UINT8_MAX }, PG_RX_EXPRESSLRS_SPI_CONFIG, offsetof(rxExpressLrsSpiConfig_t, modelId) },
-#endif
 
     { "scheduler_relax_rx",  VAR_UINT16  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, 500 }, PG_SCHEDULER_CONFIG, PG_ARRAY_ELEMENT_OFFSET(schedulerConfig_t, 0, rxRelaxDeterminism) },
     { "scheduler_relax_osd", VAR_UINT16  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, 500 }, PG_SCHEDULER_CONFIG, PG_ARRAY_ELEMENT_OFFSET(schedulerConfig_t, 0, osdRelaxDeterminism) },
@@ -1570,10 +1486,6 @@ const clivalue_t valueTable[] = {
     { "timezone_offset_minutes",  VAR_INT16 | MASTER_VALUE, .config.minmax = { TIMEZONE_OFFSET_MINUTES_MIN, TIMEZONE_OFFSET_MINUTES_MAX }, PG_TIME_CONFIG, offsetof(timeConfig_t, tz_offsetMinutes) },
 #endif
 
-#ifdef USE_RX_FLYSKY
-    { "flysky_spi_tx_id",       VAR_UINT32 | MASTER_VALUE, .config.u32Max = UINT32_MAX, PG_FLYSKY_CONFIG, offsetof(flySkyConfig_t, txId) },
-    { "flysky_spi_rf_channels", VAR_UINT8 | MASTER_VALUE | MODE_ARRAY, .config.array.length = 16, PG_FLYSKY_CONFIG, offsetof(flySkyConfig_t, rfChannelMap) },
-#endif
 
 #ifdef USE_PERSISTENT_STATS
     { "stats_min_armed_time_s",   VAR_INT8   | MASTER_VALUE, .config.minmax = { STATS_OFF, INT8_MAX }, PG_STATS_CONFIG, offsetof(statsConfig_t, stats_min_armed_time_s) },

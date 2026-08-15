@@ -263,29 +263,24 @@
 
 #endif // USE_OPTICALFLOW
 
-#if defined(USE_RX_CC2500)
-
-#if !defined(USE_RX_SPI)
-#define USE_RX_SPI
-#endif
-
-#define USE_RX_CC2500_SPI_PA_LNA
-#define USE_RX_CC2500_SPI_DIVERSITY
-
-#define USE_RX_SFHSS_SPI
-#define USE_RX_REDPINE_SPI
-
-#define USE_RX_FRSKY_SPI_D
-#define USE_RX_FRSKY_SPI_X
-#define USE_RX_FRSKY_SPI
-#define USE_RX_FRSKY_SPI_TELEMETRY
-
-#define USE_RX_FLYSKY
-#define USE_RX_FLYSKY_SPI_LED
-#define USE_RX_SPEKTRUM
-#define USE_RX_SPEKTRUM_TELEMETRY
-
-#endif // defined(USE_RX_CC2500)
+// SPI RX protocols have been removed
+#undef USE_RX_CC2500
+#undef USE_RX_CC2500_SPI_PA_LNA
+#undef USE_RX_CC2500_SPI_DIVERSITY
+#undef USE_RX_SFHSS_SPI
+#undef USE_RX_REDPINE_SPI
+#undef USE_RX_FRSKY_SPI_D
+#undef USE_RX_FRSKY_SPI_X
+#undef USE_RX_FRSKY_SPI
+#undef USE_RX_FRSKY_SPI_TELEMETRY
+#undef USE_RX_FLYSKY
+#undef USE_RX_FLYSKY_SPI_LED
+#undef USE_RX_SPEKTRUM
+#undef USE_RX_SPEKTRUM_TELEMETRY
+#undef USE_RX_EXPRESSLRS
+#undef USE_RX_SX1280
+#undef USE_RX_SX127X
+#undef USE_RX_NRF24
 
 #if defined(CAMERA_CONTROL_PIN) && defined(USE_OSD_SD) && !defined(USE_CAMERA_CONTROL)
 #define USE_CAMERA_CONTROL
@@ -775,7 +770,7 @@ extern struct linker_symbol __fontdata_end;
 #endif
 #endif
 
-#if defined(USE_RX_SPI) || defined(USE_SERIALRX_SRXL2) || defined(USE_SERIALRX_CRSF)
+#if defined(USE_SERIALRX_SRXL2) || defined(USE_SERIALRX_CRSF)
 #define USE_RX_BIND
 #endif
 
