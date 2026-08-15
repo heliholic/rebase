@@ -152,7 +152,13 @@ SECTIONS
         . = ALIGN(4);
     } >FLASH
 
-
+#ifdef FLASH_CONFIG_ERASE
+  .flash_config :
+  {
+    FILL(0xFFFFFFFF);
+    . = ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG);
+  } >FLASH_CONFIG
+#endif
 
     /* ===== Stage 3: DMA-safe and general data/bss in AHB_SRAM ===== */
 
