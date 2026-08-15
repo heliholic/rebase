@@ -78,7 +78,6 @@
 #define BUILD_OPTION_SOFTSERIAL                 16423
 #define BUILD_OPTION_SERVOS                     16420
 #define BUILD_OPTION_VTX                        16421
-#define BUILD_OPTION_WING                       16424
 
 #define BUILD_OPTION_FLIGHT_PLAN                16427
 

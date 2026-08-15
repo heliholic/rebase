@@ -28,7 +28,7 @@
 #include "platform.h"
 
 // positionNav is multirotor-only; flight plan execution follows suit.
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
 
 #include "common/maths.h"
 #include "common/time.h"
@@ -1627,4 +1627,4 @@ void flightPlanNavSetReachedListener(flightPlanWaypointReachedFn fn)
     reachedListener = fn;
 }
 
-#endif // ENABLE_FLIGHT_PLAN && !USE_WING
+#endif

@@ -231,7 +231,7 @@ RAM_CODE mspDescriptor_t mspDescriptorAlloc(void)
 
 static uint32_t mspArmingDisableFlags = 0;
 
-#if !ENABLE_SIMULATOR
+#if !(ENABLE_SIMULATOR)
 RAM_CODE static void mspArmingDisableByDescriptor(mspDescriptor_t desc)
 {
     mspArmingDisableFlags |= (1 << desc);
@@ -1595,7 +1595,6 @@ case MSP_NAME:
         break;
 
 #ifdef USE_GPS_RESCUE
-#ifndef USE_WING
     case MSP_GPS_RESCUE:
         sbufWriteU16(dst, autopilotConfig()->maxAngle);
         sbufWriteU16(dst, gpsRescueConfig()->returnAltitudeM);
@@ -1628,7 +1627,6 @@ case MSP_NAME:
         sbufWriteU16(dst, autopilotConfig()->positionD);
         sbufWriteU16(dst, gpsRescueConfig()->yawP);
         break;
-#endif // !USE_WING
 #endif
 #endif
 
@@ -1867,7 +1865,7 @@ case MSP_NAME:
     case MSP_RC_DEADBAND:
         sbufWriteU8(dst, rcControlsConfig()->deadband);
         sbufWriteU8(dst, rcControlsConfig()->yaw_deadband);
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
         sbufWriteU8(dst, posHoldConfig()->deadband);
 #else
         sbufWriteU8(dst, 0);
@@ -3087,7 +3085,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 
 #ifdef USE_GPS
 #ifdef USE_GPS_RESCUE
-#ifndef USE_WING
     case MSP_SET_GPS_RESCUE:
         autopilotConfigMutable()->maxAngle = sbufReadU16(src);
         gpsRescueConfigMutable()->returnAltitudeM = sbufReadU16(src);
@@ -3125,7 +3122,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         autopilotConfigMutable()->positionD = sbufReadU16(src);
         gpsRescueConfigMutable()->yawP = sbufReadU16(src);
         break;
-#endif // !USE_WING
 #endif
 #endif
 
@@ -3189,7 +3185,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
     case MSP_SET_RC_DEADBAND:
         rcControlsConfigMutable()->deadband = sbufReadU8(src);
         rcControlsConfigMutable()->yaw_deadband = sbufReadU8(src);
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
         posHoldConfigMutable()->deadband = sbufReadU8(src);
 #else
         sbufReadU8(src);
@@ -3906,7 +3902,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
                 disableRunawayTakeoff = sbufReadU8(src);
             }
             if (command) {
-#if !ENABLE_SIMULATOR // In simulator mode we can safely arm with MSP link.
+#if !(ENABLE_SIMULATOR) // In simulator mode we can safely arm with MSP link.
                 mspArmingDisableByDescriptor(srcDesc);
                 setArmingDisabled(ARMING_DISABLED_MSP);
                 if (ARMING_FLAG(ARMED)) {
