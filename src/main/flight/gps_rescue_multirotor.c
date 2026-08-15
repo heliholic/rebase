@@ -21,7 +21,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 #ifdef USE_GPS_RESCUE
 
 #include "build/debug.h"
@@ -129,7 +128,7 @@ rescueState_s rescueState;
 #define GPS_RESCUE_MAX_YAW_RATE          180    // deg/sec max yaw rate
 #define GPS_RESCUE_ALLOWED_YAW_RANGE   30.0f   // yaw error must be less than this to enter fly home phase, and to pitch during descend()
 #define GPS_RESCUE_ACCEPT_RADIUS       20.0f // ignore closer than this Cm
-#if !ENABLE_RESCUE_PLAN
+#if !(ENABLE_RESCUE_PLAN)
 static const float gpsRescueTaskIntervalSeconds = HZ_TO_INTERVAL(TASK_GPS_RESCUE_RATE_HZ); // i.e. 0.01s
 #endif
 static float rescueYawRate = 0.0f;
@@ -154,7 +153,7 @@ void gpsRescueInit(void)
 
 }
 
-#if !ENABLE_RESCUE_PLAN
+#if !(ENABLE_RESCUE_PLAN)
 static void rescueStart(void)
 {
     initPositionHold(); // initialise position hold at current location
@@ -238,7 +237,7 @@ if (rescueState.sensor.positionXYAvailable) {
     DEBUG_SET(DEBUG_GPS_RESCUE_TRACKING, 5, lrintf(rescueState.sensor.bearingToHomeDeg));
 }
 
-#if !ENABLE_RESCUE_PLAN
+#if !(ENABLE_RESCUE_PLAN)
 static void updateYawStartupAttenuator(void)
 {
     if (rescueState.intent.yawAttenuator < 1.0f) {
@@ -567,7 +566,7 @@ rescueState.isAvailable = STATE(GPS_FIX_HOME) && rescueState.sensor.gpsHealthy &
 }
 
 
-#if !ENABLE_RESCUE_PLAN
+#if !(ENABLE_RESCUE_PLAN)
 void gpsRescueUpdate(void) // called from core.c at TASK_GPS_RESCUE_RATE_HZ
 {
     if (!FLIGHT_MODE(GPS_RESCUE_MODE)) {
@@ -749,4 +748,3 @@ bool gpsRescueIsOK(void)
 }
 
 #endif // USE_GPS_RESCUE
-#endif // !USE_WING
