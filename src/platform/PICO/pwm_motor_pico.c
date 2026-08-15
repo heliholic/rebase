@@ -154,9 +154,7 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
     }
 
     for (unsigned motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < pwmMotorCount; motorIndex++) {
-
-        const unsigned reorderedMotorIndex = motorConfig->motorOutputReordering[motorIndex];
-        const ioTag_t tag = motorConfig->ioTags[reorderedMotorIndex];
+        const ioTag_t tag = motorConfig->ioTags[motorIndex];
 
         pwmMotors[motorIndex].io = IOGetByTag(tag);
         uint8_t pin = IO_PINBYTAG(tag);
@@ -164,7 +162,7 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
         const uint16_t slice = pwm_gpio_to_slice_num(pin);
         const uint16_t channel = pwm_gpio_to_channel(pin);
 
-        IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(reorderedMotorIndex));
+        IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
         picoPwmMotors[motorIndex].slice = slice;
         picoPwmMotors[motorIndex].channel = channel;
