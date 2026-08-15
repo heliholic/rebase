@@ -100,9 +100,6 @@
 #include "pg/pos_hold.h"
 #include "pg/rx.h"
 #include "pg/rx_pwm.h"
-#include "pg/rx_spi.h"
-#include "pg/rx_spi_cc2500.h"
-#include "pg/rx_spi_expresslrs.h"
 #include "pg/sdcard.h"
 #include "pg/vcd.h"
 #include "pg/vtx_io.h"
@@ -113,11 +110,7 @@
 #include "pg/stats.h"
 #include "pg/board.h"
 
-#include "rx/a7105_flysky.h"
-#include "rx/cc2500_frsky_common.h"
-#include "rx/cc2500_sfhss.h"
 #include "rx/crsf.h"
-#include "rx/cyrf6936_spektrum.h"
 #include "rx/rx.h"
 #include "rx/spektrum.h"
 
@@ -245,32 +238,6 @@ static const char * const lookupTableSerialRX[] = {
     "GHST",
     "SPEK1024",
     "MAVLINK",
-};
-#endif
-
-#ifdef USE_RX_SPI
-// sync with rx_spi_protocol_e
-static const char * const lookupTableRxSpi[] = {
-    "V202_250K",
-    "V202_1M",
-    "SYMA_X",
-    "SYMA_X5C",
-    "CX10",
-    "CX10A",
-    "H8_3D",
-    "INAV",
-    "FRSKY_D",
-    "FRSKY_X",
-    "FLYSKY",
-    "FLYSKY_2A",
-    "KN",
-    "SFHSS",
-    "SPEKTRUM",
-    "FRSKY_X_LBT",
-    "REDPINE",
-    "FRSKY_X_V2",
-    "FRSKY_X_LBT_V2",
-    "EXPRESSLRS",
 };
 #endif
 
@@ -517,9 +484,6 @@ const lookupTableEntry_t lookupTables[] = {
 #ifdef USE_SERIALRX
     LOOKUP_TABLE_ENTRY(lookupTableSerialRX),
 #endif
-#ifdef USE_RX_SPI
-    LOOKUP_TABLE_ENTRY(lookupTableRxSpi),
-#endif
     LOOKUP_TABLE_ENTRY(lookupTableGyroHardwareLpf),
     { lookupTableAccHardware, ACC_HARDWARE_COUNT },
 #ifdef USE_BARO
@@ -729,11 +693,6 @@ const clivalue_t valueTable[] = {
 #if defined(USE_RX_MSP_OVERRIDE)
     { "msp_override_channels_mask",      VAR_UINT32 | MASTER_VALUE, .config.u32Max = (1 << MAX_SUPPORTED_RC_CHANNEL_COUNT) - 1, PG_RX_CONFIG, offsetof(rxConfig_t, msp_override_channels_mask)},
     { "msp_override_failsafe",      VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_CONFIG, offsetof(rxConfig_t, msp_override_failsafe)},
-#endif
-#ifdef USE_RX_SPI
-    { "rx_spi_protocol",            VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_RX_SPI }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, rx_spi_protocol) },
-    { "rx_spi_bus",                 VAR_UINT8   | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, SPIDEV_COUNT }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, spibus) },
-    { "rx_spi_led_inversion",       VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_RX_SPI_CONFIG, offsetof(rxSpiConfig_t, ledInversion) },
 #endif
 
 // PG_ADC_CONFIG
