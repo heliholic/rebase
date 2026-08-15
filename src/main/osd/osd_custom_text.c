@@ -27,7 +27,7 @@
 
 #if defined(USE_OSD) && defined(USE_OSD_CUSTOM_TEXT)
 
-#include "common/time.h"
+#include "common/rtc.h"
 #include "drivers/serial.h"
 #include "io/serial.h"
 #include "osd/osd_custom_text.h"

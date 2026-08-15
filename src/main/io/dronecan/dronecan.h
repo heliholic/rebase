@@ -30,7 +30,7 @@
 
 #include "canard.h"
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 // Maximum number of subscribers a single stack instance accepts. NodeStatus
 // + GetNodeInfo use two slots out of the box; consumers added in follow-up
