@@ -145,7 +145,6 @@ void setDefaultTestSettings(void)
     pidProfile->angle_limit = 60;
     pidProfile->yawRateAccelLimit = 100;
     pidProfile->rateAccelLimit = 0;
-    pidProfile->anti_gravity_gain = 10;
     pidProfile->horizon_limit_degrees = 135;
     pidProfile->horizon_ignore_sticks = false;
     pidProfile->itermLimit = 150;
@@ -548,39 +547,6 @@ TEST(pidControllerTest, testMixerSaturation)
     EXPECT_NEAR(400, pidData[FD_ROLL].I, calculateTolerance(400));
     EXPECT_NEAR(-400, pidData[FD_PITCH].I, calculateTolerance(-400));
     EXPECT_NEAR(320, pidData[FD_YAW].I, calculateTolerance(320));
-
-    // Test that the added i term gain from Anti Gravity
-    // is also limited
-    resetTest();
-    ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
-    pidRuntime.itermLimit = 400;
-    pidRuntime.itermLimitYaw = 320;
-
-    setStickPosition(FD_ROLL, 1.0f);
-    setStickPosition(FD_PITCH, -1.0f);
-    setStickPosition(FD_YAW, 1.0f);
-    const bool prevAgState = pidRuntime.antiGravityEnabled;
-    const float prevAgTrhottleD = pidRuntime.antiGravityThrottleD;
-    pidRuntime.antiGravityEnabled = true;
-    pidRuntime.antiGravityThrottleD = 1.0;
-
-    pidController(pidProfile, currentTestTime());
-
-    // Expect more iterm accumulation than before on pitch and roll, no change on yaw
-    // without antigravity values were 156, 195, 7
-    EXPECT_NEAR(210.6, pidData[FD_ROLL].I, calculateTolerance(210.6f));
-    EXPECT_NEAR(-249.6f, pidData[FD_PITCH].I, calculateTolerance(-249.6f));
-    EXPECT_NEAR(7.0f, pidData[FD_YAW].I, calculateTolerance(7.0f));
-
-    // run again and should expect to hit the limit on pitch and roll but yaw unaffected
-    pidController(pidProfile, currentTestTime());
-    EXPECT_NEAR(400, pidData[FD_ROLL].I, calculateTolerance(400));
-    EXPECT_NEAR(-400, pidData[FD_PITCH].I, calculateTolerance(-400));
-    EXPECT_NEAR(21.0f, pidData[FD_YAW].I, calculateTolerance(21.0f));
-
-    pidRuntime.antiGravityEnabled = prevAgState;
-    pidRuntime.antiGravityThrottleD = prevAgTrhottleD;
 
     // Test that i term is limited on yaw at 320  when only yaw is saturated
     resetTest();
