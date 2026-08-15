@@ -111,6 +111,16 @@
 // has been moved to pg/gyrodev.c to set the custom alignment based on the sensor alignment
 // if a custom alignment is not applied in the target.
 
+// USB product name: prefer an explicit USBD_PRODUCT_STRING from config.h;
+// otherwise BOARD_NAME from a board config; otherwise the unified MCU target name.
+#ifndef USBD_PRODUCT_STRING
+#if defined(BOARD_NAME)
+#define USBD_PRODUCT_STRING "Rotorflight - " STR(BOARD_NAME)
+#elif defined(__TARGET__)
+#define USBD_PRODUCT_STRING "Rotorflight - " __TARGET__
+#endif
+#endif
+
 #ifdef USE_VCP
 #ifndef USB_DETECT_PIN
 #define USB_DETECT_PIN NONE
