@@ -24,7 +24,7 @@
  * @author Alberto Garcia Hierro <alberto@garciahierro.com>
  */
 
-#include "platform.h"
+#include <platform.h>
 
 #include "common/uvarint.h"
 

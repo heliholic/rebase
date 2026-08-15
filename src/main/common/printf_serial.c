@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "platform.h"
+#include <platform.h>
 
 #include "common/printf.h"
 
