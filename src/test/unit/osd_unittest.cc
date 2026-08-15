@@ -1618,10 +1618,8 @@ extern "C" {
 
     uint16_t getCoreTemperatureCelsius(void) { return simulationCoreTemperature; }
 
-    float pidItermAccelerator(void) { return 1.0; }
     uint8_t getMotorCount(void){ return 4; }
     bool areMotorsRunning(void){ return true; }
-    bool pidOsdAntiGravityActive(void) { return false; }
     bool failsafeIsActive(void) { return false; }
     bool gpsRescueIsConfigured(void) { return false; }
     bool gpsIsHealthy(void) { return simulationGpsHealthy; }
