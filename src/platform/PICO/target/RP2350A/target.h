@@ -110,7 +110,6 @@
 
 // Various untested or unsupported elements are undefined below
 
-#undef USE_RX_SPI
 #undef USE_RX_PWM
 #undef USE_RX_PPM
 #undef USE_RX_CC2500

@@ -88,7 +88,6 @@
 #undef USE_DMA_SPEC
 
 // Unsupported features for ESP32 bring-up
-#undef USE_RX_SPI
 #undef USE_RX_PWM
 #undef USE_RX_PPM
 #undef USE_RX_CC2500
