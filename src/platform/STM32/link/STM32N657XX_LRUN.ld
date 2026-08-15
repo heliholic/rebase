@@ -162,6 +162,14 @@ SECTIONS
     . = ALIGN(4);
   } >RAM AT >FLASH
 
+#ifdef FLASH_CONFIG_ERASE
+  .flash_config :
+  {
+    FILL(0xFFFFFFFF);
+    . = ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG);
+  } >FLASH_CONFIG
+#endif
+
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data :
   {
