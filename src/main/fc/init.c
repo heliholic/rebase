@@ -547,7 +547,7 @@ void initPhase2(void)
 
     serialInit(featureIsEnabled(FEATURE_SOFTSERIAL));
 
-    mixerInit(mixerConfig()->mixerMode);
+    //mixerInit();
 
 #ifdef USE_MOTOR
     /* Motors needs to be initialized soon as posible because hardware initialization
@@ -735,14 +735,9 @@ void initPhase3(void)
 
     pidInit(currentPidProfile);
 
-    mixerInitProfile();
-
 #ifdef USE_SERVOS
     servosInit();
-    if (isMixerUsingServos()) {
-        servoDevInit(&servoConfig()->dev);
-    }
-    servosFilterInit();
+    servoDevInit(&servoConfig()->dev);
 #endif
 
 
