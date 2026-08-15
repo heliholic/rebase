@@ -59,6 +59,7 @@ extern "C" {
     #include "scheduler/scheduler.h"
     #include "sensors/battery.h"
     #include "sensors/gyro.h"
+    #include "sensors/sensors.h"
 
     void cliSet(const char *cmdName, char *cmdline);
     void cliHelp(const char *cmdName, char *cmdline);
