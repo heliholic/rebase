@@ -344,8 +344,6 @@ static const void *cmsx_profileOtherOnExit(displayPort_t *pDisp, const OSD_Entry
     pidProfile->pid[PID_LEVEL].D = cmsx_horizonLimitSticks;
     pidProfile->horizon_limit_degrees = cmsx_horizonLimitDegrees;
 
-    initEscEndpoints();
-
     return NULL;
 }
 
