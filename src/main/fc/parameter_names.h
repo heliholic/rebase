@@ -97,8 +97,6 @@
 #define PARAM_NAME_PIDSUM_LIMIT "pidsum_limit"
 #define PARAM_NAME_PIDSUM_LIMIT_YAW "pidsum_limit_yaw"
 #define PARAM_NAME_ABS_CONTROL_GAIN "abs_control_gain"
-#define PARAM_NAME_D_MAX_GAIN "d_max_gain"
-#define PARAM_NAME_D_MAX_ADVANCE "d_max_advance"
 #define PARAM_NAME_FEEDFORWARD_TRANSITION "feedforward_transition"
 #define PARAM_NAME_FEEDFORWARD_AVERAGING "feedforward_averaging"
 #define PARAM_NAME_FEEDFORWARD_SMOOTH_FACTOR "feedforward_smooth_factor"
