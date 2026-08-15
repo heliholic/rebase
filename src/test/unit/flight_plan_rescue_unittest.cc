@@ -63,8 +63,8 @@ extern "C" {
 // --- Stubs and test hooks ---
 // Scaffolding mirrors flight_plan_nav_unittest.cc; extended with the
 // rescue-controller/IMU seams ENABLE_RESCUE_PLAN adds (the rescue
-// CONTROLLER flight/gps_rescue_multirotor.c is not linked here, only its
-// config pg/gps_rescue_multirotor.c, so gpsRescueGetMaxAltitudeCm() is
+// CONTROLLER flight/gps_rescue.c is not linked here, only its
+// config pg/gps_rescue.c, so gpsRescueGetMaxAltitudeCm() is
 // stubbed rather than driven by real rescue state).
 
 namespace {
@@ -236,8 +236,8 @@ uint32_t millis(void)
 }
 
 // --- ENABLE_RESCUE_PLAN-specific seams ---
-// The rescue controller (flight/gps_rescue_multirotor.c) is not linked; only
-// its config (pg/gps_rescue_multirotor.c) is. gpsRescueGetMaxAltitudeCm()
+// The rescue controller (flight/gps_rescue.c) is not linked; only
+// its config (pg/gps_rescue.c) is. gpsRescueGetMaxAltitudeCm()
 // normally reads the controller's running max-altitude-since-arming state.
 float gpsRescueGetMaxAltitudeCm(void)
 {
