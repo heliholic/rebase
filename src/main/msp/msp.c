@@ -1952,11 +1952,7 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0); // was abs_control_gain
         sbufWriteU8(dst, 0);
-#if defined(USE_ACRO_TRAINER)
-        sbufWriteU8(dst, currentPidProfile->acro_trainer_angle_limit);
-#else
         sbufWriteU8(dst, 0);
-#endif
         sbufWriteU16(dst, currentPidProfile->pid[PID_ROLL].F);
         sbufWriteU16(dst, currentPidProfile->pid[PID_PITCH].F);
         sbufWriteU16(dst, currentPidProfile->pid[PID_YAW].F);
@@ -3278,11 +3274,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU8(src);
             sbufReadU8(src); // was abs_control_gain
             sbufReadU8(src);
-#if defined(USE_ACRO_TRAINER)
-            currentPidProfile->acro_trainer_angle_limit = sbufReadU8(src);
-#else
             sbufReadU8(src);
-#endif
             // PID controller feedforward terms
             currentPidProfile->pid[PID_ROLL].F = sbufReadU16(src);
             currentPidProfile->pid[PID_PITCH].F = sbufReadU16(src);
