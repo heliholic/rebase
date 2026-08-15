@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "platform.h"
+#include <platform.h>
 
 #include "common/maths.h"
 #include "common/sdft.h"
