@@ -671,7 +671,6 @@ def base_config(extra):
         "set gps_provider = VIRTUAL",
         "set failsafe_procedure = AUTO-LAND",
         "set failsafe_delay = 10",
-        "set small_angle = 180",
         "aux 0 0 0 1700 2100 0 0",   # ARM on AUX1
         "aux 1 56 1 1700 2100 0 0",  # AUTOPILOT on AUX2
         "aux 2 1 2 1700 2100 0 0",   # ANGLE on AUX3 (heading-validation flight)
