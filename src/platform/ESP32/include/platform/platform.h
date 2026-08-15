@@ -178,7 +178,6 @@ extern uint32_t systemUniqueId[3];
 #endif
 
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 
 // NVIC priority utility macros
