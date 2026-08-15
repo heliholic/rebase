@@ -250,14 +250,6 @@ void resetPidProfile(pidProfile_t *pidProfile)
         .tpa_speed_pitch_offset = 0,
         .yaw_type = YAW_TYPE_RUDDER,
         .angle_pitch_offset = 0,
-        .chirp_lag_freq_hz = 3,
-        .chirp_lead_freq_hz = 30,
-        .chirp_amplitude_roll = 230,
-        .chirp_amplitude_pitch = 230,
-        .chirp_amplitude_yaw = 180,
-        .chirp_frequency_start_deci_hz = 2,
-        .chirp_frequency_end_deci_hz = 6000,
-        .chirp_time_seconds = 20,
     );
 }
 
@@ -1138,54 +1130,8 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
         disarmOnImpact();
     }
 
-#ifdef USE_CHIRP
-
-    static int chirpAxis = 0;
-    static bool shouldChirpAxisToggle = false;
-
-    float chirp = 0.0f;
-    float sinarg = 0.0f;
-    if (FLIGHT_MODE(CHIRP_MODE)) {
-        shouldChirpAxisToggle = true;  // advance chirp axis on next !CHIRP_MODE
-        // update chirp signal
-        if (chirpUpdate(&pidRuntime.chirp)) {
-            chirp = pidRuntime.chirp.exc;
-            sinarg = pidRuntime.chirp.sinarg;
-        }
-    } else {
-        if (shouldChirpAxisToggle) {
-            // toggle chirp signal logic and increment to next axis for next run
-            shouldChirpAxisToggle = false;
-            chirpAxis = (++chirpAxis > FD_YAW) ? 0 : chirpAxis;
-            // reset chirp signal generator
-            chirpReset(&pidRuntime.chirp);
-        }
-    }
-
-    // input / excitation shaping
-    float chirpFiltered  = phaseCompApply(&pidRuntime.chirpFilter, chirp);
-
-    // debug channels for offline system identification / autotune analysis
-    // 0: sinarg phase (0…2π scaled to ±32k) — enables offline chirp signal reconstruction
-    // 1: active chirp axis (0 = roll, 1 = pitch, 2 = yaw, -1 = inactive)
-    // 2: instantaneous chirp frequency in deci-Hz — maps time to frequency for spectral analysis
-    // 3: raw chirp excitation × 1000 (before phase comp filter) — reference signal for cross-correlation
-    DEBUG_SET(DEBUG_CHIRP, 0, lrintf(5.0e3f * sinarg));
-    DEBUG_SET(DEBUG_CHIRP, 1, FLIGHT_MODE(CHIRP_MODE) ? chirpAxis : -1);
-    DEBUG_SET(DEBUG_CHIRP, 2, lrintf(10.0f * pidRuntime.chirp.fchirp));
-    DEBUG_SET(DEBUG_CHIRP, 3, lrintf(1.0e3f * chirp));
-
-#endif // USE_CHIRP
-
     // ----------PID controller----------
     for (flight_dynamics_index_t axis = FD_ROLL; axis <= FD_YAW; ++axis) {
-
-#ifdef USE_CHIRP
-        float currentChirp = 0.0f;
-        if(axis == chirpAxis){
-            currentChirp = pidRuntime.chirpAmplitude[axis] * chirpFiltered;
-        }
-#endif // USE_CHIRP
 
         float currentPidSetpoint = getSetpointRate(axis);
         if (pidRuntime.maxVelocity[axis]) {
@@ -1247,9 +1193,6 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
 
         // -----calculate error rate
         const float gyroRate = gyro.gyroADCf[axis]; // Process variable from gyro output in deg/sec
-#ifdef USE_CHIRP
-        currentPidSetpoint += currentChirp;
-#endif // USE_CHIRP
         float errorRate = currentPidSetpoint - gyroRate; // r - y
 #if defined(USE_ACC)
         handleCrashRecovery(
@@ -1570,10 +1513,3 @@ float pidGetPidFrequency(void)
 {
     return pidRuntime.pidFrequency;
 }
-
-#ifdef USE_CHIRP
-bool  pidChirpIsFinished(void)
-{
-    return pidRuntime.chirp.isFinished;
-}
-#endif
