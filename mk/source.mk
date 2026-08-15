@@ -32,9 +32,6 @@ PG_SRC = \
             pg/rcdevice.c \
             pg/rx.c \
             pg/rx_pwm.c \
-            pg/rx_spi.c \
-            pg/rx_spi_cc2500.c \
-            pg/rx_spi_expresslrs.c \
             pg/scheduler.c \
             pg/sdcard.c \
             pg/sdio.c \
@@ -141,8 +138,6 @@ COMMON_SRC = \
             fc/init.c \
             fc/controlrate_profile.c \
             drivers/accgyro/gyro_sync.c \
-            drivers/rx/rx_spi.c \
-            drivers/rx/rx_xn297.c \
             drivers/rx/rx_pwm.c \
             drivers/serial_softserial.c \
             fc/core.c \
@@ -181,8 +176,6 @@ COMMON_SRC = \
             rx/rc_stats.c \
             rx/rx.c \
             rx/rx_bind.c \
-            rx/rx_spi.c \
-            rx/rx_spi_common.c \
             rx/crsf.c \
             rx/ghst.c \
             rx/sbus.c \
@@ -330,27 +323,7 @@ COMMON_SRC += \
             drivers/vtx_rtc6705_soft_spi.c
 
 RX_SRC = \
-            drivers/rx/expresslrs_driver.c \
-            drivers/rx/rx_a7105.c \
-            drivers/rx/rx_cc2500.c \
-            drivers/rx/rx_cyrf6936.c \
-            drivers/rx/rx_nrf24l01.c \
-            drivers/rx/rx_pwm.c \
-            drivers/rx/rx_spi.c \
-            drivers/rx/rx_sx127x.c \
-            drivers/rx/rx_sx1280.c \
-            drivers/rx/rx_xn297.c \
-            rx/cc2500_common.c \
-            rx/cc2500_frsky_shared.c \
-            rx/cc2500_frsky_d.c \
-            rx/cc2500_frsky_x.c \
-            rx/cc2500_sfhss.c \
-            rx/cc2500_redpine.c \
-            rx/a7105_flysky.c \
-            rx/cyrf6936_spektrum.c \
-            rx/expresslrs.c \
-            rx/expresslrs_common.c \
-            rx/expresslrs_telemetry.c
+            drivers/rx/rx_pwm.c
 
 FLASH_SRC += \
             drivers/flash/flash.c \
@@ -453,7 +426,6 @@ SPEED_OPTIMISED_SRC += \
             rx/ibus.c \
             rx/rc_stats.c \
             rx/rx.c \
-            rx/rx_spi.c \
             rx/crsf.c \
             rx/frsky_crc.c \
             rx/sbus.c \

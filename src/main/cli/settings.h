@@ -51,9 +51,6 @@ typedef enum {
 #ifdef USE_SERIALRX
     TABLE_SERIAL_RX,
 #endif
-#ifdef USE_RX_SPI
-    TABLE_RX_SPI,
-#endif
     TABLE_GYRO_HARDWARE_LPF,
     TABLE_ACC_HARDWARE,
 #ifdef USE_BARO

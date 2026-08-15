@@ -91,7 +91,6 @@
 #define USE_BEEPER
 #undef USE_RX_PPM
 #undef USE_RX_PWM
-#undef USE_RX_SPI
 #undef USE_RX_CC2500
 #undef USE_RX_EXPRESSLRS
 // #undef USE_SERIAL_4WAY_BLHELI_BOOTLOADER

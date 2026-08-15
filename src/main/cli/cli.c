@@ -148,8 +148,6 @@ bool cliMode = false;
 #include "pg/pg_ids.h"
 #include "pg/rx.h"
 #include "pg/rx_pwm.h"
-#include "pg/rx_spi_cc2500.h"
-#include "pg/rx_spi_expresslrs.h"
 #include "pg/serial_uart.h"
 #include "pg/sdio.h"
 #include "pg/timerio.h"
@@ -158,7 +156,6 @@ bool cliMode = false;
 #include "pg/vtx_table.h"
 
 #include "rx/rx_bind.h"
-#include "rx/rx_spi.h"
 
 #include "scheduler/scheduler.h"
 
@@ -6739,23 +6736,6 @@ const cliResourceValue_t resourceTable[] = {
 #endif
 #ifdef USE_MAX7456
     DEFS( OWNER_OSD_CS,        PG_MAX7456_CONFIG, max7456Config_t, csTag ),
-#endif
-#ifdef USE_RX_SPI
-    DEFS( OWNER_RX_SPI_CS,     PG_RX_SPI_CONFIG, rxSpiConfig_t, csnTag ),
-    DEFS( OWNER_RX_SPI_EXTI,   PG_RX_SPI_CONFIG, rxSpiConfig_t, extiIoTag ),
-    DEFS( OWNER_RX_SPI_BIND,   PG_RX_SPI_CONFIG, rxSpiConfig_t, bindIoTag ),
-    DEFS( OWNER_RX_SPI_LED,    PG_RX_SPI_CONFIG, rxSpiConfig_t, ledIoTag ),
-#if defined(USE_RX_CC2500) && defined(USE_RX_CC2500_SPI_PA_LNA)
-    DEFS( OWNER_RX_SPI_CC2500_TX_EN,   PG_RX_CC2500_SPI_CONFIG, rxCc2500SpiConfig_t, txEnIoTag ),
-    DEFS( OWNER_RX_SPI_CC2500_LNA_EN,  PG_RX_CC2500_SPI_CONFIG, rxCc2500SpiConfig_t, lnaEnIoTag ),
-#if defined(USE_RX_CC2500_SPI_DIVERSITY)
-    DEFS( OWNER_RX_SPI_CC2500_ANT_SEL, PG_RX_CC2500_SPI_CONFIG, rxCc2500SpiConfig_t, antSelIoTag ),
-#endif
-#endif
-#if defined(USE_RX_EXPRESSLRS)
-    DEFS( OWNER_RX_SPI_EXPRESSLRS_RESET, PG_RX_EXPRESSLRS_SPI_CONFIG, rxExpressLrsSpiConfig_t, resetIoTag ),
-    DEFS( OWNER_RX_SPI_EXPRESSLRS_BUSY, PG_RX_EXPRESSLRS_SPI_CONFIG, rxExpressLrsSpiConfig_t, busyIoTag ),
-#endif
 #endif
     DEFW( OWNER_GYRO_EXTI,     PG_GYRO_DEVICE_CONFIG, gyroDeviceConfig_t, extiTag, MAX_GYRODEV_COUNT ),
     DEFW( OWNER_GYRO_CS,       PG_GYRO_DEVICE_CONFIG, gyroDeviceConfig_t, csnTag, MAX_GYRODEV_COUNT ),

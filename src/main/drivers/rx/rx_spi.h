@@ -29,11 +29,7 @@
 
 #define RX_SPI_MAX_PAYLOAD_SIZE 35
 
-struct rxSpiConfig_s;
-
 extDevice_t *rxSpiGetDevice(void);
-void rxSpiDevicePreinit(const struct rxSpiConfig_s *rxSpiConfig);
-bool rxSpiDeviceInit(const struct rxSpiConfig_s *rxSpiConfig);
 void rxSpiSetNormalSpeedMhz(uint32_t mhz);
 void rxSpiNormalSpeed(void);
 void rxSpiStartupSpeed(void);
