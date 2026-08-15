@@ -368,8 +368,6 @@ extern "C" {
 class RcControlsAdjustmentsTest : public ::testing::Test {
 protected:
     controlRateConfig_t controlRateConfig = {
-        .thrMid8 = 0,
-        .thrExpo8 = 0,
         .rates_type = RATES_TYPE_BETAFLIGHT,
         .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
         .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
@@ -379,7 +377,6 @@ protected:
         .rate_limit = {0, 0, 0},
         .profileName = "default",
         .quickRatesRcExpo = 0,
-        .thrHover8 = 0,
     };
 
     channelRange_t fullRange = {
@@ -399,9 +396,6 @@ protected:
         controlRateConfig.rcRates[FD_PITCH] = 90;
         controlRateConfig.rcExpo[FD_ROLL] = 0;
         controlRateConfig.rcExpo[FD_PITCH] = 0;
-        controlRateConfig.thrMid8 = 0;
-        controlRateConfig.thrExpo8 = 0;
-        controlRateConfig.thrHover8 = 0;
         controlRateConfig.rcExpo[FD_YAW] = 0;
         controlRateConfig.rates[0] = 0;
         controlRateConfig.rates[1] = 0;
@@ -445,7 +439,7 @@ protected:
     }
 };
 
-#define ADJUSTMENT_CONFIG_RATE_INDEX 1
+#define ADJUSTMENT_CONFIG_RATE_INDEX ADJUSTMENT_RC_RATE
 
 TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsSticksInMiddle)
 {
@@ -475,8 +469,6 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
 {
     // given
     controlRateConfig_t controlRateConfig = {
-        .thrMid8 = 0,
-        .thrExpo8 = 0,
         .rates_type = RATES_TYPE_BETAFLIGHT,
         .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
         .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
@@ -486,7 +478,6 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
         .rate_limit = {0, 0, 0},
         .profileName = "default",
         .quickRatesRcExpo = 0,
-        .thrHover8 = 0,
     };
 
     // and
@@ -624,7 +615,7 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     EXPECT_FALSE(adjustmentState->ready);
 }
 
-#define ADJUSTMENT_RATE_PROFILE_INDEX 12
+#define ADJUSTMENT_RATE_PROFILE_INDEX ADJUSTMENT_RATE_PROFILE
 
 TEST_F(RcControlsAdjustmentsTest, processRcRateProfileAdjustments)
 {
@@ -651,12 +642,12 @@ TEST_F(RcControlsAdjustmentsTest, processRcRateProfileAdjustments)
     EXPECT_EQ(1, CALL_COUNTER(COUNTER_CHANGE_CONTROL_RATE_PROFILE));
 }
 
-#define ADJUSTMENT_PITCH_ROLL_P_INDEX 6
-#define ADJUSTMENT_PITCH_ROLL_I_INDEX 7
-#define ADJUSTMENT_PITCH_ROLL_D_INDEX 8
-#define ADJUSTMENT_YAW_P_INDEX 9
-#define ADJUSTMENT_YAW_I_INDEX 10
-#define ADJUSTMENT_YAW_D_INDEX 11
+#define ADJUSTMENT_PITCH_ROLL_P_INDEX ADJUSTMENT_PITCH_ROLL_P
+#define ADJUSTMENT_PITCH_ROLL_I_INDEX ADJUSTMENT_PITCH_ROLL_I
+#define ADJUSTMENT_PITCH_ROLL_D_INDEX ADJUSTMENT_PITCH_ROLL_D
+#define ADJUSTMENT_YAW_P_INDEX ADJUSTMENT_YAW_P
+#define ADJUSTMENT_YAW_I_INDEX ADJUSTMENT_YAW_I
+#define ADJUSTMENT_YAW_D_INDEX ADJUSTMENT_YAW_D
 
 TEST_F(RcControlsAdjustmentsTest, processPIDIncreasePidController0)
 {
