@@ -262,7 +262,7 @@ osd_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/printf.c \
-		$(USER_DIR)/common/time.c \
+		$(USER_DIR)/common/rtc.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
@@ -283,7 +283,7 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/common/time.c \
+		$(USER_DIR)/common/rtc.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
