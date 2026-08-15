@@ -1,7 +1,7 @@
 /*
  * This file is part of Betaflight.
  *
- * Tests geometry matching gps_rescue_multirotor rescueBearingToHomeDecideg
+ * Tests geometry matching gps_rescue rescueBearingToHomeDecideg
  * and velocity projection toward home (estimator ENU frame).
  */
 
@@ -16,7 +16,7 @@ extern "C" {
 #include "unittest_macros.h"
 #include "gtest/gtest.h"
 
-// Mirror flight/gps_rescue_multirotor.c rescueBearingToHomeDecideg (decidegrees).
+// Mirror flight/gps_rescue.c rescueBearingToHomeDecideg (decidegrees).
 static int16_t bearingToHomeDecideg(float posEastCm, float posNorthCm)
 {
     const float dLat = -posNorthCm;

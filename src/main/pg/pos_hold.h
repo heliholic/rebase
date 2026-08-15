@@ -21,4 +21,23 @@
 
 #pragma once
 
-#include "pg/pos_hold_multirotor.h"
+
+#include <stdint.h>
+
+#include "pg/pg.h"
+
+typedef enum {
+    POSHOLD_SOURCE_AUTO = 0,
+    POSHOLD_SOURCE_GPS_ONLY,
+    POSHOLD_SOURCE_OPTICALFLOW_ONLY
+} posHoldSource_e;
+
+typedef struct posHoldConfig_s {
+    uint8_t deadband;
+    uint8_t positionSource;              // Position source selection
+    uint8_t opticalflowQualityMin;       // Minimum optical flow quality threshold
+    uint16_t opticalflowMaxRange;        // Maximum altitude for optical flow (cm)
+} posHoldConfig_t;
+
+PG_DECLARE(posHoldConfig_t, posHoldConfig);
+
