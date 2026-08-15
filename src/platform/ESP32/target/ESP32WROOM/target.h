@@ -137,7 +137,6 @@
 #undef USE_SPEKTRUM_VTX_CONTROL
 #undef USE_VTX_COMMON
 
-#undef USE_RPM_LIMIT
 #undef USE_OSD_HD
 
 #undef USE_USB_MSC
