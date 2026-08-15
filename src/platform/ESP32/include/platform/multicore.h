@@ -22,7 +22,7 @@
 #pragma once
 
 // ESP32 multicore: core 0 runs the FC and owns interrupts/peripherals; core 1
-// is a compute-offload helper. Same API shape as the PICO port.
+// is a compute-offload helper.
 
 typedef enum multicoreCommand_e {
     MULTICORE_CMD_NONE = 0,
