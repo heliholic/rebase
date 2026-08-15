@@ -194,9 +194,6 @@ typedef enum {
 #ifdef USE_RC_STATS
     TASK_RC_STATS,
 #endif
-#ifdef USE_GIMBAL
-    TASK_GIMBAL,
-#endif
 #if ENABLE_OSD_CUSTOM_TEXT
     TASK_OSD_CUSTOM_TEXT,
 #endif
