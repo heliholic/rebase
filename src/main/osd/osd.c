@@ -1215,10 +1215,6 @@ static timeDelta_t osdShowArmed(void)
     }
     displayWrite(osdDisplayPort, midCol - (strlen("ARMED") / 2), midRow, DISPLAYPORT_SEVERITY_NORMAL, "ARMED");
 
-    if (isCrashFlipModeActive()) {
-        displayWrite(osdDisplayPort, midCol - (strlen(CRASHFLIP_WARNING) / 2), midRow + 1, DISPLAYPORT_SEVERITY_NORMAL, CRASHFLIP_WARNING);
-    }
-
     return ret;
 }
 
@@ -1243,8 +1239,7 @@ STATIC_UNIT_TESTED bool osdProcessStats1(timeUs_t currentTimeUs)
         } else if (isSomeStatEnabled()
                    && !suppressStatsDisplay
                    && !failsafeIsActive()
-                   && (!(getArmingDisableFlags() & (ARMING_DISABLED_CRASH_DETECTED))
-                       || !VISIBLE(osdElementConfig()->item_pos[OSD_WARNINGS]))) { // suppress stats if runaway takeoff triggered disarm and WARNINGS element is visible
+                   && !VISIBLE(osdElementConfig()->item_pos[OSD_WARNINGS])) {
             osdStatsEnabled = true;
             resumeRefreshAt = currentTimeUs + (60 * REFRESH_1S);
             stats.end_voltage = getStatsVoltage();
@@ -1302,9 +1297,8 @@ static void osdProcessStats2(timeUs_t currentTimeUs)
 
     if (resumeRefreshAt) {
         if (cmp32(currentTimeUs, resumeRefreshAt) < 0) {
-            // in timeout period, check sticks for activity or CRASHFLIP switch to resume display.
-            if (!ARMING_FLAG(ARMED) &&
-                (IS_HI(THROTTLE) || IS_HI(PITCH) || IS_RC_MODE_ACTIVE(BOXCRASHFLIP))) {
+            // in timeout period, check sticks for activity to resume display.
+            if (!ARMING_FLAG(ARMED) && (IS_HI(THROTTLE) || IS_HI(PITCH))) {
                 resumeRefreshAt = currentTimeUs;
             }
             return;
