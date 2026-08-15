@@ -827,7 +827,6 @@ extern "C" {
     void gyroStartCalibration(bool) {}
     bool isFirstArmingGyroCalibrationRunning(void) { return false; }
     void pidController(const pidProfile_t *, timeUs_t) {}
-    void pidStabilisationState(pidStabilisationState_e) {}
     void mixTable(timeUs_t) {};
     void writeMotors(void) {};
     void writeServos(void) {};
@@ -873,7 +872,6 @@ extern "C" {
     int32_t getEstimatedAltitudeCm(void) { return 0; }
     bool gpsIsHealthy(void) { return false; }
     float getCosTiltAngle(void) { return 0.0f; }
-    void pidSetItermReset(bool) {}
     void applyAccelerometerTrimsDelta(rollAndPitchTrims_t*) {}
     bool isFixedWing(void) { return false; }
     void compassStartCalibration(void) {}
