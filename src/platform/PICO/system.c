@@ -25,7 +25,7 @@
 #include "platform.h"
 
 #include "common/maths.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "drivers/system.h"
 #include "drivers/time.h"
 

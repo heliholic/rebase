@@ -22,7 +22,7 @@
 extern "C" {
     #include "platform.h"
 
-    #include "common/time.h"
+    #include "common/rtc.h"
 
     #include "fc/runtime_config.h"
 

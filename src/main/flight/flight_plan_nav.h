@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "pg/flight_plan.h"
 
