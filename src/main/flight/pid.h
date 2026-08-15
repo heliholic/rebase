@@ -195,7 +195,6 @@ typedef struct pidProfile_s {
     uint8_t d_max[XYZ_AXIS_COUNT];          // Maximum D value on each axis
     uint8_t d_max_gain;                     // Gain factor for amount of gyro / setpoint activity required to boost D
     uint8_t d_max_advance;                  // Percentage multiplier for setpoint input to boost algorithm
-    uint8_t motor_output_limit;             // Upper limit of the motor output (percent)
     int8_t auto_profile_cell_count;         // Cell count for this profile to be used with if auto PID profile switching is used
     char profileName[MAX_PROFILE_NAME_LENGTH + 1]; // Descriptive name for profile
 
