@@ -121,7 +121,6 @@ typedef enum {
     TABLE_OSD_CUSTOM_TEXT_TERMINATOR,
 #endif
 #endif
-    TABLE_MIXER_TYPE,
 #ifdef USE_OSD
     TABLE_CMS_BACKGROUND,
 #endif
@@ -237,7 +236,5 @@ extern const char * const lookupTableOsdDisplayPortDevice[];
 extern const char * const lookupTableFeedforwardAveraging[];
 
 extern const char * const lookupTableOffOn[];
-
-extern const char * const lookupTableMixerType[];
 
 extern const char * const lookupTableCMSMenuBackgroundType[];
