@@ -177,7 +177,6 @@ extern uint32_t systemUniqueId[3];
 #define DEFAULT_VOLTAGE_METER_SCALE   100
 #endif
 
-#define USE_RPM_FILTER
 #define USE_DYN_NOTCH_FILTER
 
 // NVIC priority utility macros
