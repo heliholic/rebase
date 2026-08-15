@@ -42,9 +42,8 @@ void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, fl
         *deadbandMotor3dLow = flight3DConfig()->deadband3d_low;
     } else {
         *disarm = motorConfig->mincommand;
-        const float minThrottle = motorConfig->mincommand + motorConfig->motorIdle * 0.1f;
-        *outputLow = minThrottle;
-        *outputHigh = motorConfig->maxthrottle - ((motorConfig->maxthrottle - minThrottle) * (1 - outputLimit));
+        *outputLow = motorConfig->mincommand;
+        *outputHigh = motorConfig->maxthrottle - ((motorConfig->maxthrottle - motorConfig->mincommand) * (1 - outputLimit));
     }
 }
 
