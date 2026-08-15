@@ -197,45 +197,9 @@ static bool gyroInitLowpassFilterLpf(int slot, int type, uint16_t lpfHz, uint32_
     return ret;
 }
 
-#ifdef USE_DYN_LPF
-static void dynLpfFilterInit(void)
-{
-    if (gyroConfig()->gyro_lpf1_dyn_min_hz > 0) {
-        switch (gyroConfig()->gyro_lpf1_type) {
-        case FILTER_PT1:
-            gyro.dynLpfFilter = DYN_LPF_PT1;
-            break;
-        case FILTER_SVF:
-            gyro.dynLpfFilter = DYN_LPF_SVF;
-            break;
-        case FILTER_PT2:
-            gyro.dynLpfFilter = DYN_LPF_PT2;
-            break;
-        case FILTER_PT3:
-            gyro.dynLpfFilter = DYN_LPF_PT3;
-            break;
-        default:
-            gyro.dynLpfFilter = DYN_LPF_NONE;
-            break;
-        }
-    } else {
-        gyro.dynLpfFilter = DYN_LPF_NONE;
-    }
-    gyro.dynLpfMin = gyroConfig()->gyro_lpf1_dyn_min_hz;
-    gyro.dynLpfMax = gyroConfig()->gyro_lpf1_dyn_max_hz;
-    gyro.dynLpfCurveExpo = gyroConfig()->gyro_lpf1_dyn_expo;
-}
-#endif
-
 void gyroInitFilters(void)
 {
     uint16_t gyro_lpf1_init_hz = gyroConfig()->gyro_lpf1_static_hz;
-
-#ifdef USE_DYN_LPF
-    if (gyroConfig()->gyro_lpf1_dyn_min_hz > 0) {
-        gyro_lpf1_init_hz = gyroConfig()->gyro_lpf1_dyn_min_hz;
-    }
-#endif
 
     gyroInitLowpassFilterLpf(
       FILTER_LPF1,
@@ -253,9 +217,6 @@ void gyroInitFilters(void)
 
     gyroInitFilterNotch1(gyroConfig()->gyro_soft_notch_hz_1, gyroConfig()->gyro_soft_notch_cutoff_1);
     gyroInitFilterNotch2(gyroConfig()->gyro_soft_notch_hz_2, gyroConfig()->gyro_soft_notch_cutoff_2);
-#ifdef USE_DYN_LPF
-    dynLpfFilterInit();
-#endif
 #ifdef USE_DYN_NOTCH_FILTER
     dynNotchInit(dynNotchConfig(), gyro.targetLooptime * 1e-6f);
 #endif
@@ -630,7 +591,6 @@ bool gyroInit(void)
     case DEBUG_FFT_FREQ:
     case DEBUG_GYRO_RAW:
     case DEBUG_GYRO_FILTERED:
-    case DEBUG_DYN_LPF:
     case DEBUG_GYRO_SAMPLE:
         gyro.gyroDebugMode = debugMode;
         break;
