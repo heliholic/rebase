@@ -1,7 +1,6 @@
 PG_SRC = \
             pg/adc.c \
             pg/alt_hold_multirotor.c \
-            pg/alt_hold_wing.c \
             pg/autopilot.c \
             pg/beeper.c \
             pg/beeper_dev.c \
@@ -21,7 +20,6 @@ PG_SRC = \
             pg/gps.c \
             pg/gps_lap_timer.c \
             pg/gps_rescue_multirotor.c \
-            pg/gps_rescue_wing.c \
             pg/gyrodev.c \
             pg/max7456.c \
             pg/mco.c \
@@ -34,7 +32,6 @@ PG_SRC = \
             pg/pinio.c \
             pg/pin_pull_up_down.c \
             pg/pos_hold_multirotor.c \
-            pg/pos_hold_wing.c \
             pg/rcdevice.c \
             pg/rpm_filter.c \
             pg/rx.c \
@@ -164,15 +161,12 @@ COMMON_SRC = \
             fc/rc_controls.c \
             fc/rc_modes.c \
             flight/alt_hold_multirotor.c \
-            flight/alt_hold_wing.c \
             flight/autopilot_multirotor.c \
-            flight/autopilot_wing.c \
             flight/dyn_notch_filter.c \
             flight/failsafe.c \
             flight/flight_plan_capture.c \
             flight/flight_plan_nav.c \
             flight/gps_rescue_multirotor.c \
-            flight/gps_rescue_wing.c \
             flight/imu.c \
             flight/mixer.c \
             flight/mixer_init.c \
@@ -185,7 +179,6 @@ COMMON_SRC = \
             flight/position_filter.c \
             flight/position_nav.c \
             flight/pos_hold_multirotor.c \
-            flight/pos_hold_wing.c \
             flight/rpm_filter.c \
             flight/servos.c \
             flight/servos_tricopter.c \
@@ -232,7 +225,6 @@ COMMON_SRC = \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
             cms/cms_menu_gps_rescue_multirotor.c \
-            cms/cms_menu_gps_rescue_wing.c \
             cms/cms_menu_gps_lap_timer.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
@@ -524,7 +516,6 @@ SIZE_OPTIMISED_SRC += \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
             cms/cms_menu_gps_rescue_multirotor.c \
-            cms/cms_menu_gps_rescue_wing.c \
             cms/cms_menu_gps_lap_timer.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \

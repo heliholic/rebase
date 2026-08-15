@@ -60,9 +60,9 @@
 #define ITERM_ACCELERATOR_GAIN_OFF 0
 #define ITERM_ACCELERATOR_GAIN_MAX 250
 
-#define PID_ROLL_DEFAULT  { 45, 80, 30, 120, 0 }
-#define PID_PITCH_DEFAULT { 47, 84, 34, 125, 0 }
-#define PID_YAW_DEFAULT   { 45, 80,  0, 120, 0 }
+#define PID_ROLL_DEFAULT  { 45, 80, 30, 120 }
+#define PID_PITCH_DEFAULT { 47, 84, 34, 125 }
+#define PID_YAW_DEFAULT   { 45, 80,  0, 120 }
 #define D_MAX_DEFAULT     { 40, 46, 0 }
 
 #define DTERM_LPF1_DYN_MIN_HZ_DEFAULT 75
@@ -71,17 +71,10 @@
 
 #define TPA_MAX 100
 
-#ifdef USE_WING
-#define ANGLE_PITCH_OFFSET_MAX 450
-#define S_TERM_SCALE 0.01f
-#define TPA_LOW_RATE_MIN INT8_MIN
-#define TPA_GRAVITY_MAX 5000
-#define TPA_CURVE_STALL_THROTTLE_MAX 100
-#else
 #define TPA_LOW_RATE_MIN 0
-#endif
 
 #ifdef USE_ADVANCED_TPA
+#define TPA_CURVE_STALL_THROTTLE_MAX 100
 #define TPA_CURVE_PID_MAX 1000
 #define TPA_CURVE_EXPO_MIN -100
 #define TPA_CURVE_EXPO_MAX 100
@@ -93,9 +86,6 @@
 typedef enum {
     TPA_MODE_PD,
     TPA_MODE_D,
-#ifdef USE_WING
-    TPA_MODE_PDS,
-#endif
 } tpaMode_e;
 
 typedef enum {
@@ -103,16 +93,7 @@ typedef enum {
     TERM_I,
     TERM_D,
     TERM_F,
-    TERM_S,
 } term_e;
-
-typedef enum {
-    SPA_MODE_OFF,
-    SPA_MODE_I_FREEZE,
-    SPA_MODE_I,
-    SPA_MODE_PID,
-    SPA_MODE_PD_I_FREEZE,
-} spaMode_e;
 
 typedef enum {
     PID_ROLL,
@@ -146,7 +127,6 @@ typedef struct pidf_s {
     uint8_t I;
     uint8_t D;
     uint16_t F;
-    uint8_t S;
 } pidf_t;
 
 typedef enum {
@@ -181,10 +161,6 @@ typedef enum tpaSpeedType_e {
     TPA_SPEED_ADVANCED,
 } tpaSpeedType_t;
 
-typedef enum {
-    YAW_TYPE_RUDDER,
-    YAW_TYPE_DIFF_THRUST,
-} yawType_e;
 
 #define MAX_PROFILE_NAME_LENGTH 8u
 
@@ -298,9 +274,6 @@ typedef struct pidProfile_s {
     uint8_t ez_landing_speed;               // Speed below which motor output is limited
     uint8_t landing_disarm_threshold;            // Accelerometer vector delta (jerk) threshold with disarms if exceeded
 
-    uint16_t spa_center[XYZ_AXIS_COUNT];    // RPY setpoint at which PIDs are reduced to 50% (setpoint PID attenuation)
-    uint16_t spa_width[XYZ_AXIS_COUNT];     // Width of smooth transition around spa_center
-    uint8_t spa_mode[XYZ_AXIS_COUNT];       // SPA mode for each axis
     uint8_t tpa_curve_type;                 // Classic type - for multirotor, hyperbolic - usually for wings
     uint8_t tpa_curve_stall_throttle;       // For wings: speed at which PIDs should be maxed out (stall speed)
     uint16_t tpa_curve_pid_thr0;            // For wings: PIDs multiplier at stall speed
@@ -338,8 +311,6 @@ typedef struct pidAxisData_s {
     float I;
     float D;
     float F;
-    float S;
-
     float Sum;
 } pidAxisData_t;
 
@@ -494,12 +465,6 @@ typedef struct pidRuntime_s {
     bool axisInAngleMode[3];
 #endif
 
-#ifdef USE_WING
-    float spa[XYZ_AXIS_COUNT]; // setpoint pid attenuation (0.0 to 1.0). 0 - full attenuation, 1 - no attenuation
-    tpaSpeedParams_t tpaSpeed;
-    float tpaFactorYaw;
-    float tpaFactorSterm[XYZ_AXIS_COUNT];
-#endif // USE_WING
 
 #ifdef USE_ADVANCED_TPA
     pwl_t tpaCurvePwl;
