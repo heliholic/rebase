@@ -160,6 +160,14 @@ SECTIONS
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
   } >FLASH
 
+#ifdef FLASH_CONFIG_ERASE
+  .flash_config :
+  {
+    FILL(0xFFFFFFFF);
+    . = ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG);
+  } >FLASH_CONFIG
+#endif
+
   /* ==========================================================
    * Copied sections: LMA in XSPI (immediately after .pg_resetdata in
    * the FLASH cursor), VMA in AXISRAM. Reset_Handler blits the whole
