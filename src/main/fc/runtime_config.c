@@ -1,19 +1,20 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,41 +34,40 @@ uint16_t flightModeFlags = 0;
 
 static uint32_t enabledSensors = 0;
 
-// Name must be no longer than OSD_WARNINGS_MAX_SIZE
-// try to keep names within OSD_WARNINGS_PREFFERED_SIZE
-const char *armingDisableFlagNames[]= {
-    "NOGYRO",
-    "FAILSAFE",
-    "RXLOSS",
-    "NOT_DISARMED",
-    "BOXFAILSAFE",
-    "UNUSED_5",
-    "UNUSED_6",
-    "THROTTLE",
-    "ANGLE",
-    "BOOTGRACE",
-    "NOPREARM",
-    "LOAD",
-    "CALIB",
-    "CLI",
-    "CMS",
-    "BST",
-    "MSP",
-    "PARALYZE",
-    "GPS",
-    "UNUSED_19",
-    "DSHOT_TELEM",
-    "REBOOT_REQD",
-    "DSHOT_BBANG",
-    "NO_ACC_CAL",
-    "MOTOR_PROTO",
-    "UNUSED_25",
-    "UNUSED_26",
-    "UNUSED_27",
-    "UNUSED_28",
-    "ARM_SWITCH",
+#define ENTRY(_NAME)   [ARMING_DISABLED_ ## _NAME ## _BIT] = #_NAME
+const char * const armingDisableFlagNames[ARMING_DISABLE_FLAGS_COUNT] = {
+    ENTRY(NO_GYRO),
+    ENTRY(FAILSAFE),
+    ENTRY(RX_FAILSAFE),
+    ENTRY(NOT_DISARMED),
+    ENTRY(BOXFAILSAFE),
+    ENTRY(UNUSED_5),
+    ENTRY(UNUSED_6),
+    ENTRY(THROTTLE),
+    ENTRY(ANGLE),
+    ENTRY(BOOT_GRACE_TIME),
+    ENTRY(NOPREARM),
+    ENTRY(LOAD),
+    ENTRY(CALIBRATING),
+    ENTRY(CLI),
+    ENTRY(CMS_MENU),
+    ENTRY(BST),
+    ENTRY(MSP),
+    ENTRY(PARALYZE),
+    ENTRY(GPS),
+    ENTRY(UNUSED_19),
+    ENTRY(DSHOT_TELEM),
+    ENTRY(REBOOT_REQUIRED),
+    ENTRY(DSHOT_BITBANG),
+    ENTRY(ACC_CALIBRATION),
+    ENTRY(MOTOR_PROTOCOL),
+    ENTRY(UNUSED_25),
+    ENTRY(UNUSED_26),
+    ENTRY(UNUSED_27),
+    ENTRY(UNUSED_28),
+    ENTRY(ARM_SWITCH),
 };
-STATIC_ASSERT(ARRAYLEN(armingDisableFlagNames) == ARMING_DISABLE_FLAGS_COUNT, armingDisableFlagNames_size_mismatch);
+#undef ENTRY
 
 static armingDisableFlags_e armingDisableFlags = 0;
 
