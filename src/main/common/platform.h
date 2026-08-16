@@ -51,8 +51,4 @@
 #include "target/common_post.h"
 #include "target/common_defaults_post.h"
 
-#if !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
-#pragma GCC poison sprintf snprintf
-#endif /* !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0) */
-
 #endif /* UNIT_TEST */
