@@ -20,7 +20,9 @@
 
 #pragma once
 
+#ifndef NOINLINE
 #define NOINLINE __attribute__((noinline))
+#endif
 
 #ifdef USE_CONFIG
 #include "config.h"
@@ -34,6 +36,12 @@
 #define USBD_PRODUCT_STRING "Rotorflight - " USBD_PRODUCT_STRINGIFY(BOARD_NAME)
 #endif
 
+#if defined(UNIT_TEST)
+
+#include "unittest_platform.h"
+
+#else
+
 #include "target/common_pre.h"
 
 // MCU specific platform from platform/X
@@ -43,6 +51,8 @@
 #include "target/common_post.h"
 #include "target/common_defaults_post.h"
 
-#if !defined(UNIT_TEST) && !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
+#if !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
 #pragma GCC poison sprintf snprintf
-#endif
+#endif /* !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0) */
+
+#endif /* UNIT_TEST */

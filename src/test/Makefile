@@ -612,7 +612,7 @@ COMMON_FLAGS = \
 	-Wall -Wextra  \
 	$(OPTIMIZE) \
 	-DUNIT_TEST \
-	-isystem $(GTEST_DIR)/inc \
+	-isystem $(GTEST_DIR)/include \
 	-MMD -MP \
 	-pipe
 
@@ -707,7 +707,8 @@ TESTS_ALL = $(TESTS)
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
-GTEST_HEADERS = $(GTEST_DIR)/inc/gtest/*.h
+GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
+                $(GTEST_DIR)/include/gtest/internal/*.h
 
 ## V                 : Set verbosity level based on the V= parameter
 ##                     V=0 Low
@@ -764,7 +765,7 @@ clean :
 
 # Usually you shouldn't tweak such internal variables, indicated by a
 # trailing _.
-GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/inc/gtest/*.h $(GTEST_HEADERS)
+GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # For simplicity and to avoid depending on Google Test's
 # implementation details, the dependencies specified below are
@@ -773,7 +774,7 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/inc/gtest/*.h $(GTEST_HEADERS)
 $(OBJECT_DIR)/gtest-all.o : $(GTEST_SRCS_)
 	@echo "compiling $@" "$(STDOUT)"
 	@mkdir -p $(dir $@)
-	$(V1) $(CXX) $(CXX_FLAGS) -I$(GTEST_DIR) -Wno-missing-field-initializers -Wno-unused-const-variable -c \
+	$(V1) $(CXX) $(CXX_FLAGS) -I$(GTEST_DIR) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o $@
 
 $(OBJECT_DIR)/gtest_main.o : $(GTEST_SRCS_)
@@ -796,6 +797,8 @@ $(OBJECT_DIR)/gtest_main.a : $(OBJECT_DIR)/gtest-all.o $(OBJECT_DIR)/gtest_main.
 
 # includes in test dir must override includes in user dir, unless the user
 # specifies a list of endorsed directories in ${target}_INCLUDE_DIRS.
+# $(USER_DIR)/common is needed so that #include "platform.h" from main source
+# files resolves to common/platform.h, which includes unittest_platform.h when UNIT_TEST.
 test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR)/common $(USER_DIR) $(ROOT)/lib/main/MAVLink
 test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 
