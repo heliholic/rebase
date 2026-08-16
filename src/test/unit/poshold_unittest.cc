@@ -85,7 +85,7 @@ extern "C" {
     float getCosTiltAngle(void) { return 1.0f; }
 
     uint8_t armingFlags = 0;
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode;
     uint16_t flightModeFlags = 0;
     uint8_t stateFlags = 0;

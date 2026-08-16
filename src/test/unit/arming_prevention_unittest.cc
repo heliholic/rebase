@@ -88,7 +88,7 @@ extern "C" {
     uint16_t averageSystemLoadPercent = 0;
     uint8_t cliMode = 0;
     uint8_t debugMode = 0;
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
     pidProfile_t *currentPidProfile;
     controlRateConfig_t *currentControlRateProfile;
     attitudeEulerAngles_t attitude;

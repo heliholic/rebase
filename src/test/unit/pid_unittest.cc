@@ -35,7 +35,7 @@ float simulatedRawSetpoint[3] = { 0,0,0 };
 float simulatedMaxRate[3] = { 670,670,670 };
 float simulatedFeedforward[3] = { 0,0,0 };
 
-int16_t debug[DEBUG16_VALUE_COUNT];
+int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode;
 
 extern "C" {
