@@ -355,7 +355,7 @@ extern "C" {
     gpsSolutionData_t gpsSol;
 
     uint8_t debugMode;
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
 
     uint8_t stateFlags;
     uint16_t flightModeFlags;

@@ -43,7 +43,7 @@ extern "C" {
 PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
 
 extern boxBitmask_t rcModeActivationMask;
-int16_t debug[DEBUG16_VALUE_COUNT];
+int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode = 0;
 uint8_t armingFlags = 0;
 
