@@ -882,7 +882,7 @@ extern struct linker_symbol __fontdata_end;
 // an attached LCD. Independent of the OSD/displayPort stack. Off by default;
 // configs opt in by setting ENABLE_LCD_CONSOLE 1 plus a panel selector
 // (LCD_CONSOLE_PANEL_STUB / _LTDC / _SSD1306_I2C / _ST7789_SPI / ...).
-// ENABLE_LCD_PRINTF_REDIRECT routes the global tfp_printf sink to the LCD
+// ENABLE_LCD_PRINTF_REDIRECT routes the global rf_printf sink to the LCD
 // at boot; turn it off to keep the LCD reachable only via lcdConsolePrintf().
 #if !defined(ENABLE_LCD_CONSOLE)
 #define ENABLE_LCD_CONSOLE 0
@@ -914,4 +914,16 @@ extern struct linker_symbol __fontdata_end;
 // can't yet skip restricted (e.g. RIFSC-protected) ports cleanly.
 #if !defined(ENABLE_UNUSED_PINS_INIT)
 #define ENABLE_UNUSED_PINS_INIT 1
+#endif
+
+#ifdef USE_SERIAL_PRINTF
+#ifndef PRINTF_SERIAL_PORT
+#define PRINTF_SERIAL_PORT SERIAL_PORT_USART3
+#endif
+#ifndef PRINTF_SERIAL_SPEED
+#define PRINTF_SERIAL_SPEED 921600
+#endif
+#ifndef PRINTF_SERIAL_OPTIONS
+#define PRINTF_SERIAL_OPTIONS 0
+#endif
 #endif
