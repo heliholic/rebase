@@ -43,7 +43,7 @@ extern "C" {
     #include "pg/gps_rescue.h"
     #include "pg/pg.h"
 
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode;
 
     uint8_t stateFlags;
