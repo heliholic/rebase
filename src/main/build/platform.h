@@ -47,7 +47,3 @@
 #include "target/common_defaults_post.h"
 
 #endif // !defined(UNIT_TEST)
-
-#if !defined(UNIT_TEST) && !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
-#pragma GCC poison sprintf snprintf
-#endif
