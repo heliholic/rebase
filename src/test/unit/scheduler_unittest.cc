@@ -56,7 +56,7 @@ extern "C" {
     bool taskPidReady = false;
     uint8_t activePidLoopDenom = 1;
 
-    int16_t debug[1];
+    int32_t debug[1];
     uint8_t debugMode = 0;
 
     void rxFrameCheck(timeUs_t, timeDelta_t) {}

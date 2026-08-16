@@ -92,7 +92,7 @@ extern "C" {
     #include "msp/msp.h"
 
     uint8_t debugMode = 0;
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
 
     uint8_t cliMode = 0;
     rxRuntimeState_t rxRuntimeState = rxRuntimeState_t();
