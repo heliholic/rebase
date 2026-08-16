@@ -107,7 +107,7 @@ extern "C" {
     const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e) {return findSerialPortConfig_stub_retval;}
     bool isRangeActive(uint8_t , const channelRange_t *) {return true;}
     int mspSerialPush(serialPortIdentifier_e, uint8_t, uint8_t *, int, mspDirection_e, mspVersion_e) {return 0;}
-    void tfp_sprintf(char *, char*, ...) {}
+    int tfp_sprintf(char *, const char *, ...) { return 0; }
 
     mspDescriptor_t getMspSerialPortDescriptor(const uint8_t ) {return 0;}
     mspDescriptor_t getMspTelemetryDescriptor(void) {return 0;}
