@@ -362,6 +362,10 @@ pg_unittest_SRC := \
 		$(USER_DIR)/pg/pg.c
 
 
+printf_unittest_SRC := \
+		$(USER_DIR)/common/printf.c
+
+
 rc_controls_unittest_SRC := \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/pg/pg.c \
@@ -919,7 +923,7 @@ $(OBJECT_DIR)/gtest_main.a : $(OBJECT_DIR)/gtest-all.o $(OBJECT_DIR)/gtest_main.
 # specifies a list of endorsed directories in ${target}_INCLUDE_DIRS.
 # $(USER_DIR)/common is needed so that #include "platform.h" from main source
 # files resolves to common/platform.h, which includes unittest_platform.h when UNIT_TEST.
-test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR)/common $(USER_DIR) $(ROOT)/lib/main/MAVLink
+test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR)/common $(USER_DIR) $(ROOT)/lib/main/MAVLink $(ROOT)/lib/main/nanoprintf
 test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 
 

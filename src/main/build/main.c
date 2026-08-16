@@ -33,7 +33,6 @@
 #include "drivers/system.h"
 
 #if ENABLE_LCD_CONSOLE && ENABLE_LCD_PRINTF_REDIRECT
-#include "common/printf_serial.h"
 #include "drivers/serial_lcd_console.h"
 #endif
 
@@ -56,6 +55,8 @@
 
 #include "scheduler/scheduler.h"
 
+#include "common/printf.h"
+
 #ifdef CONFIG_IN_FILE
 #include "cli/cli.h"
 #endif
@@ -71,8 +72,8 @@ int main(int argc, char * argv[])
     UNUSED(argv);
 #endif
 
-#if SERIAL_PORT_COUNT > 0
-    printfSerialInit();
+#ifdef USE_ITM_PRINTF
+    printfITMInit();
 #endif
 
     // Do basic system initialisation including multicore support if applicable
