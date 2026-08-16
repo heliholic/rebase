@@ -20,7 +20,9 @@
 
 #pragma once
 
+#ifndef NOINLINE
 #define NOINLINE __attribute__((noinline))
+#endif
 
 #ifdef USE_CONFIG
 #include "config.h"
@@ -34,6 +36,12 @@
 #define USBD_PRODUCT_STRING "Rotorflight - " USBD_PRODUCT_STRINGIFY(BOARD_NAME)
 #endif
 
+#if defined(UNIT_TEST)
+
+#include "unittest_platform.h"
+
+#else
+
 #include "target/common_pre.h"
 
 // MCU specific platform from platform/X
@@ -43,7 +51,7 @@
 #include "target/common_post.h"
 #include "target/common_defaults_post.h"
 
-#if !defined(UNIT_TEST) && !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
+#if !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0)
 #ifdef ENABLE_STDIO_PREINCLUDE
 // Pre-include stdio.h so its declarations of sprintf/snprintf land before
 // the poison pragma. Toolchains like xtensa-esp-elf pull stdio.h in
@@ -51,6 +59,8 @@
 // trips the poison. Only platforms that opt in (see platform/platform.h) need
 // this; others keep the poison without dragging stdio.h into every TU.
 #include <stdio.h>
-#endif
+#endif /* ENABLE_STDIO_PREINCLUDE */
 #pragma GCC poison sprintf snprintf
-#endif
+#endif /* !ENABLE_SIMULATOR && !(USBD_DEBUG_LEVEL > 0) */
+
+#endif /* UNIT_TEST */
