@@ -29,15 +29,14 @@
 typedef enum {
     // ARM flag
     BOXARM = 0,
-    // FLIGHT_MODE
+
+    // Flight modes
     BOXANGLE,
     BOXHORIZON,
     BOXFAILSAFE,
     BOXID_FLIGHTMODE_LAST = BOXFAILSAFE,
 
-// When new flight modes are added, the parameter group version for 'modeActivationConditions' in src/main/fc/rc_modes.c has to be incremented to ensure that the RC modes configuration is reset.
-
-    // RCMODE flags
+    // RC modes
     BOXBEEPERON,
     BOXLEDLOW,
     BOXCALIB, // unused; in-flight acc cal removed
