@@ -26,9 +26,31 @@
 
 #include "config/feature.h"
 
+// Feature names
+#define ENTRY(_FEA)  [FEATURE_BIT_ ## _FEA] = #_FEA
+const char * const featureNames[FEATURE_BIT_COUNT] = {
+    ENTRY(RX_PPM),
+    ENTRY(RX_UDP),
+    ENTRY(INFLIGHT_ACC_CAL),
+    ENTRY(RX_SERIAL),
+    ENTRY(SOFTSERIAL),
+    ENTRY(GPS),
+    ENTRY(OPTICALFLOW),
+    ENTRY(RANGEFINDER),
+    ENTRY(TELEMETRY),
+    ENTRY(RX_PARALLEL_PWM),
+    ENTRY(RX_MSP),
+    ENTRY(RSSI_ADC),
+    ENTRY(LED_STRIP),
+    ENTRY(DASHBOARD),
+    ENTRY(OSD),
+    ENTRY(RX_SPI),
+    ENTRY(ESC_SENSOR),
+};
+#undef ENTRY
+
 // bitmask of features that are supported in current build configuration
-uint32_t featuresSupportedByBuild =
-    0
+const uint32_t featuresSupportedByBuild = 0
 #ifdef USE_RX_PPM
     | FEATURE_RX_PPM
 #endif
