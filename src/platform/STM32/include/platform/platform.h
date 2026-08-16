@@ -801,3 +801,6 @@ extern uint8_t _dmaram_end__;
 #define NVIC_PRIORITY_SUB(prio) (((prio)>>4)&(0x0f>>(7-(NVIC_PRIORITY_GROUPING>>8))))
 #endif
 
+// Save space with initialization code
+#define INIT_CODE                  __attribute__((optimize("-O2")))
+

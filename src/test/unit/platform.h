@@ -35,6 +35,7 @@
 #define U_ID_2 2
 
 #define NOINLINE
+#define INIT_CODE
 #define FAST_CODE
 #define FAST_CODE_NOINLINE
 #define FAST_CODE_PREF
