@@ -213,7 +213,7 @@ TEST(CLIUnittest, TestCliSetStringWriteOnce)
 // STUBS
 extern "C" {
 
-int16_t debug[8];
+int32_t debug[8];
 float motor_disarmed[MAX_SUPPORTED_MOTORS];
 
 uint16_t batteryWarningVoltage;
