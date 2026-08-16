@@ -49,7 +49,6 @@ bool cliMode = false;
 #include "common/color.h"
 #include "common/maths.h"
 #include "common/printf.h"
-#include "common/printf_serial.h"
 #include "common/strtol.h"
 #include "common/rtc.h"
 #include "common/typeconversion.h"
@@ -177,6 +176,7 @@ bool cliMode = false;
 static serialPort_t *cliPort = NULL;
 static bool cliInteractive = false;
 static timeMs_t cliEntryTime = 0;
+static stdSink_t cliSavedPrintfSink;
 
 static bufWriter_t cliWriterDesc;
 static bufWriter_t *cliWriter = NULL;
@@ -341,9 +341,9 @@ static void cliPrintHashLine(const char *str)
 #endif
 }
 
-static void cliPutp(void *p, char ch)
+static void cliPutp(int ch, void *p)
 {
-    bufWriterAppend(p, ch);
+    bufWriterAppend(p, (uint8_t)ch);
 }
 
 static void cliPrintfva(const char *format, va_list va)
@@ -8147,6 +8147,14 @@ static void cliExit(const bool reboot)
     cliWriterFlush();
     waitForSerialPortToFinishTransmitting(cliPort);
     cliClearInputBuffer();
+
+    if (cliInteractive) {
+        // The port goes back to carrying MSP once the CLI is gone, so printf()
+        // must stop writing to it. Matters on 'exit noreboot', which is the
+        // only way out that leaves the firmware running.
+        setStdoutSink(cliSavedPrintfSink);
+    }
+
     cliMode = false;
     cliInteractive = false;
 
@@ -8164,6 +8172,7 @@ void cliEnter(serialPort_t *serialPort, bool interactive)
     cliClearInputBuffer();
 
     if (interactive) {
+        cliSavedPrintfSink = getStdoutSink();
         setPrintfSerialPort(cliPort);
     }
 
