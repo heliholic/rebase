@@ -121,6 +121,7 @@ COMMON_SRC = \
             drivers/display_canvas.c \
             drivers/dma.c \
             drivers/io.c \
+            drivers/itm.c \
             drivers/io_preinit.c \
             drivers/lcd_console.c \
             drivers/lcd_panel/lcd_panel_font_5x7.c \
