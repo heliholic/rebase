@@ -44,6 +44,7 @@ PG_SRC = \
             pg/msp.c \
             pg/opticalflow.c \
             pg/osd.c \
+            pg/osd_custom_text.c \
             pg/osd_nav_map.c \
             pg/pg.c \
             pg/pid.c \
