@@ -71,9 +71,6 @@
 #include "io/vtx_rtc6705.h"
 
 #include "osd/osd.h"
-#if ENABLE_OSD_CUSTOM_TEXT
-#include "osd/osd_custom_text.h"
-#endif
 
 #include "pg/adc.h"
 #include "pg/alt_hold.h"
@@ -91,6 +88,7 @@
 #include "pg/mco.h"
 #include "pg/motor.h"
 #include "pg/msp.h"
+#include "pg/osd_custom_text.h"
 #include "pg/osd_nav_map.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
