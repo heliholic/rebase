@@ -1,13 +1,13 @@
 /*
- * This file is part of Betaflight.
+ * This file is part of Rotorflight.
  *
- * Betaflight is free software. You can redistribute this software
+ * Rotorflight is free software. You can redistribute this software
  * and/or modify this software under the terms of the GNU General
  * Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later
  * version.
  *
- * Betaflight is distributed in the hope that it will be useful,
+ * Rotorflight is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
@@ -19,14 +19,16 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "platform.h"
 
-#include <stdbool.h>
+#include "config/config_reset.h"
 
-#include "common/rtc.h"
-
+#include "pg/pg.h"
+#include "pg/pg_ids.h"
 #include "pg/osd_custom_text.h"
 
-bool osdCustomTextInit(void);
-void osdCustomTextUpdate(timeUs_t currentTimeUs);
-const char* osdCustomTextGet(void);
+#if defined(USE_OSD) && defined(USE_OSD_CUSTOM_TEXT)
+
+PG_REGISTER_WITH_RESET_FN(osdCustomTextConfig_t, osdCustomTextConfig, PG_OSD_CUSTOM_TEXT_CONFIG, 0);
+
+#endif

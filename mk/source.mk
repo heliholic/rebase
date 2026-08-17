@@ -40,6 +40,7 @@ PG_SRC = \
             pg/msp.c \
             pg/opticalflow.c \
             pg/osd.c \
+            pg/osd_custom_text.c \
             pg/pg.c \
             pg/pid.c \
             pg/pilot.c \
