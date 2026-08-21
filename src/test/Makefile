@@ -496,6 +496,10 @@ sitl_gyro_unittest_SRC := \
 sitl_gyro_unittest_INCLUDE_DIRS := \
 		$(ROOT)/src/platform/SIMULATOR
 
+streambuf_unittest_SRC := \
+		$(USER_DIR)/common/streambuf.c
+
+
 telemetry_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
 		$(USER_DIR)/telemetry/crsf.c \
