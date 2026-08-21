@@ -131,7 +131,7 @@ void setDefaultTestSettings(void)
 
 timeUs_t currentTestTime(void)
 {
-    return targetPidLooptime * loopIter++;
+    return gyro.targetLooptime * loopIter++;
 }
 
 void resetTest(void)
