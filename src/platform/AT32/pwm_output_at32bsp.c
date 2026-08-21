@@ -31,7 +31,6 @@
 #include "drivers/io.h"
 #include "drivers/motor_impl.h"
 #include "drivers/pwm_output.h"
-#include "drivers/servo_impl.h"
 #include "drivers/pwm_output_impl.h"
 #include "drivers/time.h"
 #include "drivers/timer.h"
@@ -247,41 +246,4 @@ pwmOutputPort_t *pwmGetMotors(void)
     return pwmMotors;
 }
 
-#ifdef USE_SERVOS
-static pwmOutputPort_t servos[MAX_SUPPORTED_SERVOS];
-
-void servoWrite(uint8_t index, float value)
-{
-    if (index < MAX_SUPPORTED_SERVOS && servos[index].channel.ccr) {
-        *servos[index].channel.ccr = lrintf(value);
-    }
-}
-
-void servoDevInit(const servoDevConfig_t *servoConfig)
-{
-    for (uint8_t servoIndex = 0; servoIndex < MAX_SUPPORTED_SERVOS; servoIndex++) {
-        const ioTag_t tag = servoConfig->ioTags[servoIndex];
-
-        if (!tag) {
-            break;
-        }
-
-        servos[servoIndex].io = IOGetByTag(tag);
-
-        IOInit(servos[servoIndex].io, OWNER_SERVO, RESOURCE_INDEX(servoIndex));
-
-        const timerHardware_t *timer = timerAllocate(tag, OWNER_SERVO, RESOURCE_INDEX(servoIndex));
-
-        if (timer == NULL) {
-            /* flag failure and disable ability to arm */
-            break;
-        }
-
-        IOConfigGPIOAF(servos[servoIndex].io, IOCFG_AF_PP, timer->alternateFunction);
-
-        pwmOutputConfig(&servos[servoIndex].channel, timer, PWM_TIMER_1MHZ, PWM_TIMER_1MHZ / servoConfig->servoPwmRate, servoConfig->servoCenterPulse, 0);
-        servos[servoIndex].enabled = true;
-    }
-}
-#endif // USE_SERVOS
 #endif // USE_PWM_OUTPUT

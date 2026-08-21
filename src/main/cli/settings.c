@@ -59,7 +59,7 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
-#include "flight/servos.h"
+#include "fc/servos.h"
 
 #include "io/beeper.h"
 #include "io/dashboard.h"
@@ -818,12 +818,6 @@ const clivalue_t valueTable[] = {
     { "beeper_dshot_beacon_tone",   VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = {1, DSHOT_CMD_BEACON5 }, PG_BEEPER_CONFIG, offsetof(beeperConfig_t, dshotBeaconTone) },
 #endif
 #endif // USE_BEEPER
-
-// PG_SERVO_CONFIG
-#ifdef USE_SERVOS
-    { "servo_center_pulse",         VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { PWM_PULSE_MIN, PWM_PULSE_MAX }, PG_SERVO_CONFIG, offsetof(servoConfig_t, dev.servoCenterPulse) },
-    { "servo_pwm_rate",             VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 50, 498 }, PG_SERVO_CONFIG, offsetof(servoConfig_t, dev.servoPwmRate) },
-#endif
 
 // PG_CONTROLRATE_PROFILES
 #ifdef USE_PROFILE_NAMES
