@@ -19,50 +19,40 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "platform.h"
 
-#include "common/utils.h"
+#include "drivers/motor.h"
 
-#include "fc/motors.h"
-#include "fc/servos.h"
-#include "pg/servo.h"
 
-void motorStop(void)
-{
-}
+#define MOTOR_STOP                    -1
 
-int getServoCount(void)
-{
-    return MAX_SUPPORTED_SERVOS;
-}
+#define MOTOR_OVERRIDE_OFF            -1
+#define MOTOR_OVERRIDE_MIN             0
+#define MOTOR_OVERRIDE_MAX          1000
 
-void servoShutdown(void)
-{
-}
+#define MOTOR_OVERRIDE_RATE        0.25f
+#define MOTOR_OVERRIDE_TIMEOUT   1000000
 
-int getServoOutput(uint8_t servo)
-{
-    UNUSED(servo);
-    return DEFAULT_SERVO_CENTER;
-}
 
-int getServoOverride(uint8_t servo)
-{
-    UNUSED(servo);
-    return SERVO_OVERRIDE_OFF;
-}
+uint8_t getMotorCount(void);
 
-int setServoOverride(uint8_t servo, int val)
-{
-    UNUSED(servo);
-    return val;
-}
+int getMotorOutput(uint8_t motor);
 
-bool hasServoOverride(uint8_t servo)
-{
-    UNUSED(servo);
-    return false;
-}
+int getMotorOverride(uint8_t motor);
+int setMotorOverride(uint8_t motor, int value, timeDelta_t timeout);
+bool hasMotorOverride(uint8_t motor);
+void resetMotorOverride(void);
+
+bool areMotorsRunning(void);
+
+void motorInit(void);
+void motorStop(void);
+void motorUpdate(timeUs_t currentTimeUs);
+
+// Compat
+static inline void stopMotors(void) { motorStop(); }

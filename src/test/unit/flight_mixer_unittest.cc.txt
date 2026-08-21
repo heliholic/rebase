@@ -257,10 +257,6 @@ TEST_F(BasicMixerIntegrationTest, TestQuadMotors)
     memset(axisPID, 0, sizeof(axisPID));
     axisPID[YAW] = 0;
 
-
-    // when
-    writeMotors();
-
     // then
     EXPECT_EQ(4, updatedMotorCount);
 
@@ -339,11 +335,6 @@ TEST_F(CustomMixerIntegrationTest, TestCustomMixer)
     // and
     memset(axisPID, 0, sizeof(axisPID));
     axisPID[YAW] = 0;
-
-
-    // when
-    writeMotors();
-    writeServos();
 
     // then
     EXPECT_EQ(EXPECTED_MOTORS_TO_MIX_COUNT, updatedMotorCount);

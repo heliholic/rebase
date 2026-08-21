@@ -139,9 +139,9 @@ static FAST_CODE void dshotWriteInt(uint8_t index, uint16_t value)
     pwmWriteDshotInt(index, value);
 }
 
-static FAST_CODE void dshotWrite(uint8_t index, float value)
+static FAST_CODE void dshotWrite(uint8_t index, float throttle)
 {
-    pwmWriteDshotInt(index, lrintf(value));
+    pwmWriteDshotInt(index, dshotConvertToInternal(index, throttle));
 }
 
 static const motorVTable_t dshotPwmVTable = {
@@ -153,8 +153,6 @@ static const motorVTable_t dshotPwmVTable = {
     .write = dshotWrite,
     .writeInt = dshotWriteInt,
     .updateComplete = pwmCompleteDshotMotorUpdate,
-    .convertExternalToMotor = dshotConvertFromExternal,
-    .convertMotorToExternal = dshotConvertToExternal,
     .shutdown = dshotPwmShutdown,
     .requestTelemetry = pwmDshotRequestTelemetry,
     .isMotorIdle = pwmDshotIsMotorIdle,

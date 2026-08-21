@@ -214,7 +214,6 @@ TEST(CLIUnittest, TestCliSetStringWriteOnce)
 extern "C" {
 
 int32_t debug[8];
-float motor_disarmed[MAX_SUPPORTED_MOTORS];
 
 uint16_t batteryWarningVoltage;
 uint8_t useHottAlarmSoundPeriod (void) { return 0; }
@@ -305,7 +304,6 @@ const char rcChannelLetters[] = "AERT12345678abcdefgh";
 
 void parseRcChannels(const char *, rxConfig_t *){}
 bool setModeColor(ledModeIndex_e, int, int) { return false; }
-float motorConvertFromExternal(uint16_t) { return 1.0; }
 void motorShutdown(void) { }
 uint8_t getCurrentPidProfileIndex(void){ return 1; }
 uint8_t getCurrentControlRateProfileIndex(void){ return 1; }
