@@ -87,6 +87,7 @@ extern "C" {
     uint8_t armingFlags = 0;
     int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode;
+    uint8_t debugAxis = 0;
     uint16_t flightModeFlags = 0;
     uint8_t stateFlags = 0;
 

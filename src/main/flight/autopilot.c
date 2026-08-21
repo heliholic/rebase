@@ -47,7 +47,7 @@
 #include "flight/pos_hold.h"
 #endif
 
-// DEBUG_AUTOPILOT_PID each parameter on the axis set by gyro_filter_debug_axis
+// DEBUG_AUTOPILOT_PID each parameter on the axis set by debug_axis
 // 0 - VelocityError cm/s
 // 1 - DistanceError cm
 // 2 - P term * 10 // based on distance from intended position
@@ -59,7 +59,7 @@
 // In velocity mode slots 2-5 carry the velocity-loop terms: P/I on velocity error,
 // D damping, A the drag feedforward; slot 6 (F) reads ~0. See also DEBUG_POSITION_NAV.
 
-// DEBUG_POSITION_NAV, axis set by gyro_filter_debug_axis
+// DEBUG_POSITION_NAV, axis set by debug_axis
 // 0 - target velocity cm/s
 // 1 - filtered measured velocity cm/s
 // 2 - velocity error cm/s
@@ -227,7 +227,7 @@ void autopilotInit(void)
     initPidLpfs();
 
     ap.maxAngle = cfg->maxAngle;
-    ap.debugAxis = (gyroConfig()->gyro_filter_debug_axis == FD_PITCH) ? 1 : 0; // 1 for Pitch / North, 0 for Roll / East
+    ap.debugAxis = (debugAxis == FD_PITCH) ? 1 : 0; // 1 for Pitch / North, 0 for Roll / East
 
     altitudeKp = cfg->altitudeP * ALTITUDE_P_SCALE;
     altitudeKi = cfg->altitudeI * ALTITUDE_I_SCALE;

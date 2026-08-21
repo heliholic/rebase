@@ -119,7 +119,6 @@ void pgResetFn_gyroConfig(gyroConfig_t *gyroConfig)
     gyroConfig->gyro_soft_notch_cutoff_2 = 0;
     gyroConfig->checkOverflow = GYRO_OVERFLOW_CHECK_ALL_AXES;
     gyroConfig->gyro_offset_yaw = 0;
-    gyroConfig->gyro_filter_debug_axis = FD_ROLL;
     gyroConfig->gyro_enabled_bitmask = DEFAULT_GYRO_ENABLED;
 }
 
@@ -410,16 +409,16 @@ FAST_CODE void gyroUpdate(void)
 }
 
 #define GYRO_FILTER_FUNCTION_NAME filterGyro
-#define GYRO_FILTER_DEBUG_SET(mode, index, value) do { UNUSED(mode); UNUSED(index); UNUSED(value); } while (0)
-#define GYRO_FILTER_AXIS_DEBUG_SET(axis, mode, index, value) do { UNUSED(axis); UNUSED(mode); UNUSED(index); UNUSED(value); } while (0)
+#define GYRO_FILTER_DEBUG_SET(mode, index, value)
+#define GYRO_FILTER_AXIS_DEBUG_SET(axis, mode, index, value)
 #include "gyro_filter_impl.c"
 #undef GYRO_FILTER_FUNCTION_NAME
 #undef GYRO_FILTER_DEBUG_SET
 #undef GYRO_FILTER_AXIS_DEBUG_SET
 
 #define GYRO_FILTER_FUNCTION_NAME filterGyroDebug
-#define GYRO_FILTER_DEBUG_SET DEBUG_SET
-#define GYRO_FILTER_AXIS_DEBUG_SET(axis, mode, index, value) if (axis == gyro.gyroDebugAxis) DEBUG_SET(mode, index, value)
+#define GYRO_FILTER_DEBUG_SET(mode, index, value) DEBUG_SET((mode), (index), (value))
+#define GYRO_FILTER_AXIS_DEBUG_SET(axis, mode, index, value) DEBUG_AXIS_SET((mode), (axis), (index), (value))
 #include "gyro_filter_impl.c"
 #undef GYRO_FILTER_FUNCTION_NAME
 #undef GYRO_FILTER_DEBUG_SET

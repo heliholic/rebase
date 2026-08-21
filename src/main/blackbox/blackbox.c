@@ -1476,7 +1476,7 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE("gyro_notch_cutoff", "%d,%d",            gyroConfig()->gyro_soft_notch_cutoff_1,
                                                                             gyroConfig()->gyro_soft_notch_cutoff_2);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GYRO_ENABLE_MASK, "%d",       gyroConfig()->gyro_enabled_bitmask);
-        BLACKBOX_PRINT_HEADER_LINE("gyro_debug_axis", "%d",                 gyroConfig()->gyro_filter_debug_axis);
+        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_DEBUG_AXIS, "%d",             systemConfig()->debug_axis);
 #ifdef USE_DSHOT_TELEMETRY
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_DSHOT_BIDIR, "%d",            useDshotTelemetry);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_MOTOR_POLES, "%d",            motorConfig()->motorPoleCount);
