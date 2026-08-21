@@ -90,6 +90,7 @@ extern "C" {
     uint8_t debugMode = 0;
     uint8_t debugAxis = 0;
     int32_t debug[DEBUG_VALUE_COUNT];
+    uint32_t __timing[DEBUG_VALUE_COUNT];
     pidProfile_t *currentPidProfile;
     controlRateConfig_t *currentControlRateProfile;
     attitudeEulerAngles_t attitude;
