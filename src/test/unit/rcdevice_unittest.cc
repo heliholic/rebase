@@ -859,25 +859,6 @@ extern "C" {
             sbufWriteData(dst, string, strlen(string));
         }
     }
-    void sbufWriteU8(sbuf_t *dst, uint8_t val)
-    {
-        UNUSED(dst); UNUSED(val);
-
-        if (testData.isAllowBufferReadWrite) {
-            *dst->ptr++ = val;
-        }
-    }
-
-    void sbufWriteData(sbuf_t *dst, const void *data, int len)
-    {
-        UNUSED(dst); UNUSED(data); UNUSED(len);
-
-        if (testData.isAllowBufferReadWrite) {
-            memcpy(dst->ptr, data, len);
-            dst->ptr += len;
-
-        }
-    }
 
     // modifies streambuf so that written data are prepared for reading
     void sbufSwitchToReader(sbuf_t *buf, uint8_t *base)
@@ -899,27 +880,7 @@ extern "C" {
         return 0;
     }
 
-    void sbufAdvance(sbuf_t *buf, int size)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            buf->ptr += size;
-        }
-    }
-
-    int sbufBytesRemaining(sbuf_t *buf)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            return buf->end - buf->ptr;
-        }
-        return 0;
-    }
-
-    const uint8_t* sbufConstPtr(const sbuf_t *buf)
-    {
-        return buf->ptr;
-    }
-
-    void sbufReadData(sbuf_t *src, void *data, int len)
+    void sbufReadData(sbuf_t *src, void *data, size_t len)
     {
         if (testData.isAllowBufferReadWrite) {
             memcpy(data, src->ptr, len);
@@ -932,18 +893,6 @@ extern "C" {
         ret = sbufReadU8(src);
         ret |= sbufReadU8(src) << 8;
         return ret;
-    }
-
-    void sbufWriteU16(sbuf_t *dst, uint16_t val)
-    {
-        sbufWriteU8(dst, val >> 0);
-        sbufWriteU8(dst, val >> 8);
-    }
-
-    void sbufWriteU16BigEndian(sbuf_t *dst, uint16_t val)
-    {
-        sbufWriteU8(dst, val >> 8);
-        sbufWriteU8(dst, (uint8_t)val);
     }
 
     bool featureIsEnabled(uint32_t) { return false; }
@@ -971,11 +920,6 @@ extern "C" {
     void closeSerialPort(serialPort_t *serialPort)
     {
         UNUSED(serialPort);
-    }
-
-    uint8_t* sbufPtr(sbuf_t *buf)
-    {
-        return buf->ptr;
     }
 
     uint32_t sbufReadU32(sbuf_t *src)
