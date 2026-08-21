@@ -603,8 +603,6 @@ bool gyroInit(void)
         }
     }
 
-    gyro.gyroDebugAxis = gyroConfig()->gyro_filter_debug_axis;
-
     for (int i = 0; i < GYRO_COUNT; i++) {
         detectedGyros[i] = GYRO_NONE;
         // Only attempt to detect a gyro if it's enabled or we're doing an auto-scan

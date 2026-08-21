@@ -100,7 +100,6 @@ typedef struct gyro_s {
     uint8_t gyroDebugMode;
     bool gyroHasOverflowProtection;
     bool useMultiGyroDebugging;
-    int gyroDebugAxis;
 
 #ifdef USE_GYRO_OVERFLOW_CHECK
     uint8_t overflowAxisMask;
