@@ -58,3 +58,12 @@ void pwmWriteChannel(timerChannel_t *channel, uint32_t value);
 pwmOutputPort_t *pwmGetMotors(void);
 bool pwmIsSynced(void);
 void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm);
+
+void servoDevInit(void);
+
+void servoWrite(uint8_t index, float value);
+
+int getServoCount(void);
+
+#define PWM_SERVO_PULSE_MIN   100    // minimum PWM servo output pulse width allowed
+#define PWM_SERVO_PULSE_MAX   2500   // maximum PWM servo output pulse width allowed

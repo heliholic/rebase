@@ -25,28 +25,49 @@
 
 #include "platform.h"
 
+#include "common/utils.h"
+
 #include "drivers/io_types.h"
 
 #include "pg/pg.h"
 
-#define DEFAULT_SERVO_MIN       1000
-#define DEFAULT_SERVO_MIDDLE    1500
-#define DEFAULT_SERVO_MAX       2000
+#define DEFAULT_SERVO_FLAGS      0
+#define DEFAULT_SERVO_CENTER  1500
+#define DEFAULT_SERVO_MIN     -700
+#define DEFAULT_SERVO_MAX      700
+#define DEFAULT_SERVO_SCALE    500
+#define DEFAULT_SERVO_RATE     333
+#define DEFAULT_SERVO_SPEED      0
+
+#define SERVO_LIMIT_MIN      -1000
+#define SERVO_LIMIT_MAX       1000
+#define SERVO_SCALE_MIN        100
+#define SERVO_SCALE_MAX       1000
+#define SERVO_RATE_MIN          25
+#define SERVO_RATE_MAX        5000
+#define SERVO_SPEED_MIN          0
+#define SERVO_SPEED_MAX      60000
+
+enum {
+    SERVO_FLAG_REVERSED     = BIT(0),
+    SERVO_FLAG_GEO_CORR     = BIT(1),
+    SERVO_FLAGS_ALL         = BIT(2) - 1,
+};
 
 typedef struct {
-    uint32_t reversedSources;               // the direction of servo movement for each input source of the servo mixer, bit set=inverted
-    int16_t min;                            // servo min
-    int16_t max;                            // servo max
-    int16_t middle;                         // servo middle
-    int8_t rate;                            // range [-125;+125] ; can be used to adjust a rate 0-125% and a direction
+    int16_t     mid;     // center (mid) point
+    int16_t     min;     // lower limit in us from the midpoint
+    int16_t     max;     // upper limit in us from the midpoint
+    uint16_t    rpos;    // positive scale (slope) in us
+    uint16_t    rneg;    // negative scale (slope) in us
+    uint16_t    rate;    // servo update rate Hz
+    uint16_t    speed;   // speed limit
+    uint16_t    flags;   // feature flags
 } servoParam_t;
 
 PG_DECLARE_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams);
 
 typedef struct {
-    // PWM values, in milliseconds, common range is 1000-2000 (1ms to 2ms)
-    uint16_t servoCenterPulse;              // This is the value for servos when they should be in the middle. e.g. 1500.
-    uint16_t servoPwmRate;                  // The update rate of servo outputs (50-498Hz)
     ioTag_t  ioTags[MAX_SUPPORTED_SERVOS];
 } servoDevConfig_t;
 
@@ -55,4 +76,3 @@ typedef struct {
 } servoConfig_t;
 
 PG_DECLARE(servoConfig_t, servoConfig);
-
