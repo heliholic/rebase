@@ -31,10 +31,12 @@ typedef enum {
     MOTOR_PROTOCOL_FAMILY_PWM,
     MOTOR_PROTOCOL_FAMILY_DSHOT,
     MOTOR_PROTOCOL_FAMILY_CAN,
+    MOTOR_PROTOCOL_FAMILY_COUNT
 } motorProtocolFamily_e;
 
 typedef enum {
-    MOTOR_PROTOCOL_PWM = 0,
+    MOTOR_PROTOCOL_DISABLED = 0,
+    MOTOR_PROTOCOL_PWM,
     MOTOR_PROTOCOL_ONESHOT125,
     MOTOR_PROTOCOL_ONESHOT42,
     MOTOR_PROTOCOL_MULTISHOT,
@@ -42,16 +44,12 @@ typedef enum {
     MOTOR_PROTOCOL_DSHOT150,
     MOTOR_PROTOCOL_DSHOT300,
     MOTOR_PROTOCOL_DSHOT600,
-/*  MOTOR_PROTOCOL_DSHOT1200, removed */
     MOTOR_PROTOCOL_PROSHOT1000,
-    MOTOR_PROTOCOL_DISABLED,
-    // Appended after DISABLED so existing stored motor_pwm_protocol values keep
-    // their meaning across a config upgrade.
     MOTOR_PROTOCOL_DRONECAN,
-    MOTOR_PROTOCOL_MAX
+    MOTOR_PROTOCOL_COUNT
 } motorProtocolTypes_e;
 
-// Legacy aliases kept for backward compatibility with older PWM_TYPE_* names
+// Legacy aliases kept for board configs that still use PWM_TYPE_* names
 #define PWM_TYPE_PWM              MOTOR_PROTOCOL_PWM
 #define PWM_TYPE_ONESHOT125       MOTOR_PROTOCOL_ONESHOT125
 #define PWM_TYPE_ONESHOT42        MOTOR_PROTOCOL_ONESHOT42
@@ -66,15 +64,13 @@ typedef enum {
 typedef struct motorVTable_s {
     // Common
     void (*postInit)(void);
-    float (*convertExternalToMotor)(uint16_t externalValue);
-    uint16_t (*convertMotorToExternal)(float motorValue);
     bool (*enable)(void);
     void (*disable)(void);
     bool (*isMotorEnabled)(unsigned index);
     bool (*telemetryWait)(void);
     bool (*decodeTelemetry)(void);
     void (*updateInit)(void);
-    void (*write)(uint8_t index, float value);
+    void (*write)(uint8_t index, float throttle);
     void (*writeInt)(uint8_t index, uint16_t value);
     void (*updateComplete)(void);
     void (*shutdown)(void);

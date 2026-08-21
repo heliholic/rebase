@@ -26,23 +26,8 @@
 
 #include "common/utils.h"
 
-#include "drivers/motor.h"
-
 #include "mixer.h"
 
-
-float FAST_DATA_ZERO_INIT motor[MAX_SUPPORTED_MOTORS];
-
-float motor_disarmed[MAX_SUPPORTED_MOTORS];
-
-
-void writeMotors(void)
-{
-}
-
-void stopMotors(void)
-{
-}
 
 float getMotorOutputLow(void)
 {
@@ -51,21 +36,17 @@ float getMotorOutputLow(void)
 
 float getMotorOutputHigh(void)
 {
-    return 1;
-}
-
-bool areMotorsRunning(void)
-{
-    return true;
-}
-
-uint8_t getMotorCount(void)
-{
-    return MAX_SUPPORTED_MOTORS;
+    return 1000;
 }
 
 float mixerGetThrottle(void)
 {
+    return 0;
+}
+
+float mixerGetMotorOutput(uint8_t motor)
+{
+    UNUSED(motor);
     return 0;
 }
 
@@ -89,4 +70,3 @@ bool mixerIsCyclicServo(uint8_t index)
 void mixerInit(void)
 {
 }
-

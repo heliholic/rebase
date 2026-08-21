@@ -17,6 +17,7 @@
 #include "platform/timer.h"
 
 #include "pg/motor.h"
+#include "common/maths.h"
 
 static void pwmOCConfig(TIM_TypeDef *tim, uint8_t channel, uint16_t value, uint8_t output)
 {
@@ -60,9 +61,25 @@ void pwmWriteChannel(timerChannel_t *channel, uint32_t value)
 static FAST_DATA_ZERO_INIT motorDevice_t *pwmMotorDevice;
 static bool useContinuousUpdate = true;
 
-static void pwmWriteStandard(uint8_t index, float value)
+static float pwmConvertToInternal(uint8_t index, float throttle)
 {
-    *pwmMotors[index].channel.ccr = lrintf((value * pwmMotors[index].pulseScale) + pwmMotors[index].pulseOffset);
+    UNUSED(index);
+
+    float value = (float)motorConfig()->mincommand;
+
+    if (throttle >= 0) {
+        value = scaleRangef(throttle, 0, 1, (float)motorConfig()->mincommand, (float)motorConfig()->maxthrottle);
+    }
+
+    return value;
+}
+
+static void pwmWriteStandard(uint8_t index, float throttle)
+{
+    float value = pwmConvertToInternal(index, throttle);
+    float pulse = value * pwmMotors[index].pulseScale + pwmMotors[index].pulseOffset;
+
+    *pwmMotors[index].channel.ccr = lrintf(pulse);
 }
 
 static void pwmShutdownPulsesForAllMotors(void)
@@ -93,24 +110,12 @@ static void pwmCompleteMotorUpdate(void)
     }
 }
 
-static float pwmConvertFromExternal(uint16_t externalValue)
-{
-    return (float)externalValue;
-}
-
-static uint16_t pwmConvertToExternal(float motorValue)
-{
-    return (uint16_t)motorValue;
-}
-
 static const motorVTable_t motorPwmVTable = {
     .postInit = motorPostInitNull,
     .enable = pwmEnableMotors,
     .disable = pwmDisableMotors,
     .isMotorEnabled = pwmIsMotorEnabled,
     .shutdown = pwmShutdownPulsesForAllMotors,
-    .convertExternalToMotor = pwmConvertFromExternal,
-    .convertMotorToExternal = pwmConvertToExternal,
     .write = pwmWriteStandard,
     .decodeTelemetry = motorDecodeTelemetryNull,
     .updateComplete = pwmCompleteMotorUpdate,
@@ -119,7 +124,7 @@ static const motorVTable_t motorPwmVTable = {
     .getMotorIO = pwmGetMotorIO,
 };
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig, uint16_t idlePulse)
+bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig)
 {
     memset(pwmMotors, 0, sizeof(pwmMotors));
 
@@ -127,14 +132,19 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
         return false;
     }
 
+    uint16_t idlePulse = motorConfig()->mincommand;
+    if (motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) {
+        idlePulse = 0;
+    }
+
     device->vTable = &motorPwmVTable;
     pwmMotorDevice = device;
     pwmMotorCount = device->count;
-    useContinuousUpdate = motorConfig->useContinuousUpdate;
+    useContinuousUpdate = motorDevConfig->useContinuousUpdate;
 
     float sMin = 0.0f;
     float sLen = 0.0f;
-    switch (motorConfig->motorProtocol) {
+    switch (motorDevConfig->motorProtocol) {
     default:
     case MOTOR_PROTOCOL_ONESHOT125:
         sMin = 125e-6f;
@@ -162,7 +172,7 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
     }
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < pwmMotorCount; motorIndex++) {
-        const ioTag_t tag = motorConfig->ioTags[motorIndex];
+        const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
         const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
         if (timerHardware == NULL) {
@@ -175,16 +185,16 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
         IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
         IOConfigGPIOAF(pwmMotors[motorIndex].io, IOCFG_AF_PP, timerHardware->alternateFunction);
 
-        const unsigned pwmRateHz = useContinuousUpdate ? motorConfig->motorPwmRate : ceilf(1.0f / ((sMin + sLen) * 4.0f));
+        const unsigned pwmRateHz = useContinuousUpdate ? motorDevConfig->motorPwmRate : ceilf(1.0f / ((sMin + sLen) * 4.0f));
         const uint32_t clock = timerClock(timerHardware);
         const unsigned prescaler = ((clock / pwmRateHz) + 0xffffU) / 0x10000U;
         const uint32_t hz = clock / prescaler;
         const unsigned period = useContinuousUpdate ? (hz / pwmRateHz) : 0xffffU;
 
-        pwmMotors[motorIndex].pulseScale = ((motorConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
+        pwmMotors[motorIndex].pulseScale = ((motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
         pwmMotors[motorIndex].pulseOffset = (sMin * hz) - (pwmMotors[motorIndex].pulseScale * 1000.0f);
 
-        pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, motorConfig->motorInversion);
+        pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, motorDevConfig->motorInversion);
 
         bool timerAlreadyUsed = false;
         for (int i = 0; i < motorIndex; i++) {
