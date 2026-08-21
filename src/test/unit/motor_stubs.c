@@ -29,3 +29,26 @@ int getMotorOutput(uint8_t motor)
     UNUSED(motor);
     return 0;
 }
+
+int getMotorOverride(uint8_t motor)
+{
+    UNUSED(motor);
+    return MOTOR_OVERRIDE_OFF;
+}
+
+int setMotorOverride(uint8_t motor, int value, timeDelta_t timeout)
+{
+    UNUSED(motor);
+    UNUSED(timeout);
+    return value;
+}
+
+bool hasMotorOverride(uint8_t motor)
+{
+    UNUSED(motor);
+    return false;
+}
+
+void resetMotorOverride(void)
+{
+}
