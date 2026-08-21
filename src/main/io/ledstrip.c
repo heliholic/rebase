@@ -58,7 +58,7 @@
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
-#include "flight/servos.h"
+#include "fc/servos.h"
 #include "flight/position.h"
 
 #include "io/beeper.h"

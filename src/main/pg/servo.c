@@ -19,33 +19,26 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include "platform.h"
 
 #ifdef USE_SERVOS
 
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
+#include "common/utils.h"
 
+#include "pg/pg_ids.h"
 #include "pg/servo.h"
 
-#include "config/config.h"
 #include "config/config_reset.h"
 
 #include "drivers/io.h"
 
-
-PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
-
-PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
+PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 1);
 
 void pgResetFn_servoConfig(servoConfig_t *servoConfig)
 {
-    servoConfig->dev.servoCenterPulse = 1500;
-    servoConfig->dev.servoPwmRate = 50;
-
+    UNUSED(servoConfig);
 #ifdef SERVO1_PIN
     servoConfig->dev.ioTags[0] = IO_TAG(SERVO1_PIN);
 #endif
@@ -72,18 +65,22 @@ void pgResetFn_servoConfig(servoConfig_t *servoConfig)
 #endif
 }
 
+PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 1);
+
 void pgResetFn_servoParams(servoParam_t *instance)
 {
     for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
         RESET_CONFIG(servoParam_t, &instance[i],
-            .min = DEFAULT_SERVO_MIN,
-            .max = DEFAULT_SERVO_MAX,
-            .middle = DEFAULT_SERVO_MIDDLE,
-            .rate = 100,
+                     .mid   = DEFAULT_SERVO_CENTER,
+                     .min   = DEFAULT_SERVO_MIN,
+                     .max   = DEFAULT_SERVO_MAX,
+                     .rneg  = DEFAULT_SERVO_SCALE,
+                     .rpos  = DEFAULT_SERVO_SCALE,
+                     .rate  = DEFAULT_SERVO_RATE,
+                     .speed = DEFAULT_SERVO_SPEED,
+                     .flags = DEFAULT_SERVO_FLAGS,
         );
     }
 }
 
-#endif // USE_SERVOS
-
-
+#endif
