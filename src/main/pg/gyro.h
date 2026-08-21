@@ -46,8 +46,6 @@ typedef struct {
 
     uint16_t gyroCalibrationDuration;   // duration in 1/100 second
 
-    uint8_t gyro_filter_debug_axis;
-
     uint8_t gyrosDetected;
 
     uint8_t gyro_enabled_bitmask;
