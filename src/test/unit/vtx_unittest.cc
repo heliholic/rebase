@@ -375,9 +375,6 @@ extern "C" {
     uint16_t getAverageSystemLoadPercent(void) { return 0; }
     bool isMotorProtocolEnabled(void) { return false; }
     void pinioBoxTaskControl(void) {}
-    void sbufWriteU8(sbuf_t *, uint8_t) {}
-    void sbufWriteU16(sbuf_t *, uint16_t) {}
-    void sbufWriteU32(sbuf_t *, uint32_t) {}
     void schedulerSetNextStateTime(timeDelta_t) {}
     bool canUseGPSHeading;
 }
