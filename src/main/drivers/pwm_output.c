@@ -39,13 +39,6 @@
 FAST_DATA_ZERO_INIT pwmOutputPort_t pwmMotors[MAX_SUPPORTED_MOTORS];
 FAST_DATA_ZERO_INIT uint8_t pwmMotorCount;
 
-void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm)
-{
-    *disarm = motorConfig->mincommand;
-    *outputLow = motorConfig->mincommand;
-    *outputHigh = motorConfig->maxthrottle - ((motorConfig->maxthrottle - motorConfig->mincommand) * (1 - outputLimit));
-}
-
 IO_t pwmGetMotorIO(unsigned index)
 {
     if (index >= pwmMotorCount) {
