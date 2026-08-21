@@ -101,6 +101,7 @@ extern "C" {
     gyro_t gyro = {};
     bool mockIsUpright = false;
     uint8_t activePidLoopDenom = 1;
+    uint8_t activeFilterLoopDenom = 1;
 
     float getGpsDataIntervalSeconds(void) { return 0.1f; }
     float getGpsDataFrequencyHz(void) { return 10.0f; }
