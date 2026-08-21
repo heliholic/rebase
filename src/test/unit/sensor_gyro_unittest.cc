@@ -87,7 +87,7 @@ TEST(SensorGyro, Calibrate)
 {
     pgResetAll();
     gyroInit();
-    gyroSetTargetLooptime(1);
+    gyroSetLooptime(1, 1);
     virtualGyroSet(gyroDevPtr, 5, 6, 7);
     const bool read = gyroDevPtr->readFn(gyroDevPtr);
     EXPECT_TRUE(read);
@@ -122,7 +122,7 @@ TEST(SensorGyro, Update)
     gyroConfigMutable()->gyro_soft_notch_hz_1 = 0;
     gyroConfigMutable()->gyro_soft_notch_hz_2 = 0;
     gyroInit();
-    gyroSetTargetLooptime(1);
+    gyroSetLooptime(1, 1);
     gyroDevPtr->readFn = virtualGyroRead;
     gyroStartCalibration(false);
     EXPECT_FALSE(gyroIsCalibrationComplete());

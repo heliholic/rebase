@@ -25,6 +25,8 @@
 
 #include "pg/pg.h"
 
+#define FILTER_PROCESS_DENOM_DEFAULT 0
+
 enum {
     PID_ROLL,
     PID_PITCH,
@@ -52,6 +54,7 @@ PG_DECLARE_ARRAY(pidProfile_t, PID_PROFILE_COUNT, pidProfiles);
 
 typedef struct pidConfig_s {
     uint8_t pid_process_denom;
+    uint8_t filter_process_denom;
 } pidConfig_t;
 
 PG_DECLARE(pidConfig_t, pidConfig);
