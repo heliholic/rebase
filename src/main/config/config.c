@@ -582,6 +582,17 @@ void validateAndFixGyroConfig(void)
         }
     }
 
+    uint32_t pidDenom = pidConfigMutable()->pid_process_denom;
+    uint32_t filtDenom = pidConfigMutable()->filter_process_denom;
+    if (filtDenom > 0) {
+        if (filtDenom < pidDenom) {
+            while (pidDenom % filtDenom) filtDenom++;
+        } else {
+            filtDenom = pidDenom;
+        }
+        pidConfigMutable()->filter_process_denom = filtDenom;
+    }
+
     if (systemConfig()->activeRateProfile >= CONTROL_RATE_PROFILE_COUNT) {
         systemConfigMutable()->activeRateProfile = 0;
     }

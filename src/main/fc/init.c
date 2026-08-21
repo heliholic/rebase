@@ -720,13 +720,13 @@ void initPhase3(void)
     systemState |= SYSTEM_STATE_SENSORS_READY;
 
     // Set the targetLooptime based on the detected gyro sampleRateHz and pid_process_denom
-    gyroSetTargetLooptime(pidConfig()->pid_process_denom);
+    gyroSetLooptime(pidConfig()->pid_process_denom, pidConfig()->filter_process_denom);
 
     // Validate and correct the gyro config or PID loop time if needed
     validateAndFixGyroConfig();
 
     // Now reset the targetLooptime as it's possible for the validation to change the pid_process_denom
-    gyroSetTargetLooptime(pidConfig()->pid_process_denom);
+    gyroSetLooptime(pidConfig()->pid_process_denom, pidConfig()->filter_process_denom);
 
 #if defined(USE_DSHOT_TELEMETRY) || defined(USE_ESC_SENSOR)
     // Initialize the motor frequency filter now that we have a target looptime
