@@ -42,7 +42,6 @@
 #include "drivers/time.h"
 #include "drivers/usb_io.h"
 #include "drivers/pwm_output.h"
-#include "drivers/servo_impl.h"
 #include "drivers/pwm_output_impl.h"
 #include "drivers/light_led.h"
 
@@ -777,10 +776,9 @@ static int16_t motorsPwm[MAX_SUPPORTED_MOTORS];
 static int16_t servosPwm[MAX_SUPPORTED_SERVOS];
 static int16_t idlePulse;
 
-void servoDevInit(const servoDevConfig_t *servoConfig)
+void servoDevInit(void)
 {
-    printf("[SITL] Init servos num %d rate %d center %d\n", MAX_SUPPORTED_SERVOS,
-           servoConfig->servoPwmRate, servoConfig->servoCenterPulse);
+    printf("[SITL] Init servos num %d\n", MAX_SUPPORTED_SERVOS);
     for (uint8_t servoIndex = 0; servoIndex < MAX_SUPPORTED_SERVOS; servoIndex++) {
         servos[servoIndex].enabled = true;
     }
