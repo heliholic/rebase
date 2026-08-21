@@ -3978,18 +3978,14 @@ static void cliMotor(const char *cmdName, char *cmdline)
         if (motorValue < PWM_RANGE_MIN || motorValue > PWM_RANGE_MAX) {
             cliShowArgumentRangeError(cmdName, "VALUE", 1000, 2000);
         } else {
-            uint32_t motorOutputValue = motorConvertFromExternal(motorValue);
-
             if (motorIndex != ALL_MOTORS) {
-                motor_disarmed[motorIndex] = motorOutputValue;
-
-                cliPrintLinef("motor %d: %d", motorIndex, motorOutputValue);
+                /* Set motor output to motorValue */
+                cliPrintLinef("motor %d: %d", motorIndex, motorValue);
             } else  {
                 for (int i = 0; i < getMotorCount(); i++) {
-                    motor_disarmed[i] = motorOutputValue;
+                    /* Set motor output to motorValue */
                 }
-
-                cliPrintLinef("all motors: %d", motorOutputValue);
+                cliPrintLinef("all motors: %d", motorValue);
             }
         }
     } else {

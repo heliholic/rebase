@@ -176,6 +176,7 @@ COMMON_SRC = \
             fc/rc_controls.c \
             fc/rc_modes.c \
             fc/servos.c \
+            fc/motors.c \
             flight/failsafe.c \
             flight/imu.c \
             flight/mixer.c \

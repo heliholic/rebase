@@ -55,36 +55,17 @@
 
 FAST_DATA_ZERO_INIT uint8_t dshotMotorCount = 0;
 
-void dshotInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm)
+uint16_t dshotConvertToInternal(uint8_t index, float throttle)
 {
-    UNUSED(motorConfig);
-    float outputLimitOffset = DSHOT_RANGE * (1 - outputLimit);
-    *disarm = DSHOT_CMD_MOTOR_STOP;
-    *outputLow = DSHOT_MIN_THROTTLE;
-    *outputHigh = DSHOT_MAX_THROTTLE - outputLimitOffset;
-}
+    UNUSED(index);
 
-DEFINE_SCALE_FN(scaleRangeDshotFromExternal, PWM_RANGE_MIN + 1, PWM_RANGE_MAX, DSHOT_MIN_THROTTLE, DSHOT_MAX_THROTTLE)
+    uint16_t value = DSHOT_CMD_MOTOR_STOP;
 
-DEFINE_SCALE_FN(scaleRangeDshotToExternal, DSHOT_MIN_THROTTLE, DSHOT_MAX_THROTTLE, PWM_RANGE_MIN + 1, PWM_RANGE_MAX)
+    if (throttle >= 0) {
+        value = scaleRangef(throttle, 0, 1, DSHOT_MIN_THROTTLE, DSHOT_MAX_THROTTLE);
+    }
 
-float dshotConvertFromExternal(uint16_t externalValue)
-{
-    float motorValue;
-
-    externalValue = constrain(externalValue, PWM_RANGE_MIN, PWM_RANGE_MAX);
-    motorValue = (externalValue == PWM_RANGE_MIN) ? DSHOT_CMD_MOTOR_STOP : scaleRangeDshotFromExternal(externalValue);
-
-    return motorValue;
-}
-
-uint16_t dshotConvertToExternal(float motorValue)
-{
-    float externalValue;
-
-    externalValue = (motorValue < DSHOT_MIN_THROTTLE) ? PWM_RANGE_MIN : scaleRangeDshotToExternal(motorValue);
-
-    return lrintf(externalValue);
+    return value;
 }
 
 FAST_CODE uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb)
