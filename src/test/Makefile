@@ -349,7 +349,8 @@ osd_unittest_SRC := \
 		$(USER_DIR)/drivers/display.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/time.c \
-		$(USER_DIR)/pg/osd.c
+		$(USER_DIR)/pg/osd.c \
+		$(TEST_DIR)/motor_stubs.c
 
 osd_unittest_DEFINES := \
 		USE_OSD= \
@@ -382,7 +383,8 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
 		$(USER_DIR)/pg/time.c \
 		$(USER_DIR)/pg/modes.c \
-		$(USER_DIR)/pg/osd.c
+		$(USER_DIR)/pg/osd.c \
+		$(TEST_DIR)/motor_stubs.c
 
 link_quality_unittest_DEFINES := \
 		USE_OSD= \

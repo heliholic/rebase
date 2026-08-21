@@ -185,6 +185,7 @@ COMMON_SRC = \
             fc/rc_controls.c \
             fc/rc_modes.c \
             fc/servos.c \
+            fc/motors.c \
             flight/alt_hold.c \
             flight/autopilot.c \
             flight/failsafe.c \

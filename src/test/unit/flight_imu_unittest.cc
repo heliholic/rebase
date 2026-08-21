@@ -406,4 +406,5 @@ extern "C" {
     float positionEstimatorGetAltitudeDerivative(void) { return 0.0f; }
     static positionEstimate3d_t stubEstimate = {};
     const positionEstimate3d_t *positionEstimatorGetEstimate(void) { return &stubEstimate; }
+    void motorStop(void) {}
 }

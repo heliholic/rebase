@@ -332,7 +332,8 @@ extern "C" {
     bool isFirstArmingGyroCalibrationRunning(void) { return false; }
     void pidController(const pidProfile_t *, timeUs_t) {}
     void mixTable(timeUs_t) {};
-    void writeMotors(void) {};
+    void motorUpdate(timeUs_t) {};
+    void motorStop(void) {};
     void servoUpdate(void) {};
     bool calculateRxChannelsAndUpdateFailsafe(timeUs_t) { return true; }
     bool isMixerUsingServos(void) { return false; }
