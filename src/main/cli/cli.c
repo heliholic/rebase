@@ -100,6 +100,7 @@ bool cliMode = false;
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
+#include "fc/motors.h"
 #include "fc/servos.h"
 
 #include "flight/failsafe.h"
@@ -4138,6 +4139,7 @@ RAM_CODE static void cliDumpGyroRegisters(const char *cmdName, char *cmdline)
 }
 #endif
 
+#if defined(USE_DSHOT) || defined(USE_ESCSERIAL)
 static int parseOutputIndex(const char *cmdName, char *pch, bool allowAllEscs)
 {
     int outputIndex = atoi(pch);
@@ -4153,6 +4155,7 @@ static int parseOutputIndex(const char *cmdName, char *pch, bool allowAllEscs)
 
     return outputIndex;
 }
+#endif
 
 #if defined(USE_DSHOT)
 #if defined(USE_ESC_SENSOR) && defined(USE_ESC_SENSOR_INFO)
@@ -4469,54 +4472,93 @@ RAM_CODE static void cliEscPassthrough(const char *cmdName, char *cmdline)
 }
 #endif
 
+static void printMotorStatus(uint8_t motor)
+{
+    if (hasMotorOverride(motor))
+        cliPrintLinef("motor %d: %d [%d]", motor + 1, getMotorOutput(motor), getMotorOverride(motor));
+    else
+        cliPrintLinef("motor %d: %d", motor + 1, getMotorOutput(motor));
+}
+
+static void printMotorOverride(uint8_t motor)
+{
+    if (hasMotorOverride(motor))
+        cliPrintLinef("motor override %d %d", motor + 1, getMotorOverride(motor));
+    else
+        cliPrintLinef("motor override %d off", motor + 1);
+}
+
 static void cliMotor(const char *cmdName, char *cmdline)
 {
-    if (isEmpty(cmdline)) {
-        cliShowInvalidArgumentCountError(cmdName);
+    enum { FUNC = 0, ARGS_MAX = 4 };
+    char *args[ARGS_MAX];
+    char *saveptr, *ptr;
+    int count = 0;
 
-        return;
+    ptr = strtok_r(cmdline, " ", &saveptr);
+    while (ptr && count < ARGS_MAX) {
+        args[count++] = ptr;
+        ptr = strtok_r(NULL, " ", &saveptr);
     }
 
-    int motorIndex = 0;
-    int motorValue = 0;
-
-    char *saveptr;
-    char *pch = strtok_r(cmdline, " ", &saveptr);
-    int index = 0;
-    while (pch != NULL) {
-        switch (index) {
-        case 0:
-            motorIndex = parseOutputIndex(cmdName, pch, true);
-            if (motorIndex == -1) {
+    if (count == 0) {
+        for (int i = 0; i < getMotorCount(); i++) {
+            printMotorStatus(i);
+        }
+    }
+    else if (strcasecmp(args[FUNC], "status") == 0) {
+        for (int i = 0; i < getMotorCount(); i++) {
+            printMotorStatus(i);
+        }
+    }
+    else if (strcasecmp(args[FUNC], "override") == 0) {
+        if (count == 1) {
+            for (int i = 0; i < getMotorCount(); i++) {
+                printMotorOverride(i);
+            }
+        }
+        else if (count == 2) {
+            enum { FUNC_IDX = 0, CMD };
+            if (strcasecmp(args[CMD], "off") == 0 || strcasecmp(args[CMD], "reset") == 0) {
+                resetMotorOverride();
+            }
+        }
+        else if (count == 3) {
+            enum { FUNC_IDX = 0, INDEX, VALUE };
+            int index, value;
+            if (strcasecmp(args[INDEX], "all") == 0)
+                index = 0;
+            else
+                index = atoi(args[INDEX]);
+            if (strcasecmp(args[VALUE], "off") == 0 || strcasecmp(args[VALUE], "reset") == 0)
+                value = MOTOR_OVERRIDE_OFF;
+            else
+                value = atoi(args[VALUE]);
+            if (index < 0 || index > getMotorCount()) {
+                cliShowArgumentRangeError(cmdName, NULL, 0, 0);
                 return;
             }
-
-            break;
-        case 1:
-            motorValue = atoi(pch);
-
-            break;
-        }
-        index++;
-        pch = strtok_r(NULL, " ", &saveptr);
-    }
-
-    if (index == 2) {
-        if (motorValue < PWM_RANGE_MIN || motorValue > PWM_RANGE_MAX) {
-            cliShowArgumentRangeError(cmdName, "VALUE", 1000, 2000);
-        } else {
-            if (motorIndex != ALL_MOTORS) {
-                /* Set motor output to motorValue */
-                cliPrintLinef("motor %d: %d", motorIndex, motorValue);
-            } else  {
+            if ((value < MOTOR_OVERRIDE_MIN || value > MOTOR_OVERRIDE_MAX) && value != MOTOR_OVERRIDE_OFF) {
+                cliShowArgumentRangeError(cmdName, NULL, 0, 0);
+                return;
+            }
+            if (index == 0) {
                 for (int i = 0; i < getMotorCount(); i++) {
-                    /* Set motor output to motorValue */
+                    setMotorOverride(i, value, 0);
+                    printMotorOverride(i);
                 }
-                cliPrintLinef("all motors: %d", motorValue);
+            }
+            else {
+                setMotorOverride(index - 1, value, 0);
+                printMotorOverride(index - 1);
             }
         }
-    } else {
-        cliShowInvalidArgumentCountError(cmdName);
+        else {
+            cliShowInvalidArgumentCountError(cmdName);
+        }
+    }
+    else {
+        cliShowParseError(cmdName);
     }
 }
 
@@ -7991,7 +8033,12 @@ const clicmd_t cmdTable[] = {
 #ifdef USE_LED_STRIP_STATUS_MODE
     CLI_COMMAND_DEF("mode_color", "configure mode and special colors", NULL, cliModeColor),
 #endif
-    CLI_COMMAND_DEF("motor",  "get/set motor", "<index> [<value>]", cliMotor),
+    CLI_COMMAND_DEF("motor",  "configure motors",
+                    "status\r\n\t"
+                    "override\r\n\t"
+                    "override off\r\n\t"
+                    "override <index> <value>|off",
+                    cliMotor),
 #ifdef USE_USB_MSC
 #ifdef USE_RTC_TIME
     CLI_COMMAND_DEF("msc", "switch into msc mode", "[<timezone offset minutes>]", cliMsc),
