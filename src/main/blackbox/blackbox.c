@@ -1200,7 +1200,7 @@ static void loadMainState(timeUs_t currentTimeUs)
 
     const int motorCount = getMotorCount();
     for (int i = 0; i < motorCount; i++) {
-        blackboxCurrent->motor[i] = lrintf(motor[i]);
+        blackboxCurrent->motor[i] = lrintf(getMotorOutput(i) * 1000);
     }
 
 #ifdef USE_DSHOT_TELEMETRY
