@@ -75,7 +75,7 @@ INCLUDE_DIRS    := $(SRC_DIR)
 # Auto-hydrate submodules from .gitmodules that are not marked
 # `update = none`. Currently that's `src/config` (board configs) and
 # `lib/modules/dronecan/libcanard` (DroneCAN transport). Heavy vendor
-# SDKs (esp-idf, STM32H5/N6/C5, APM32F4) keep `update = none`
+# SDKs (STM32H5/N6/C5, APM32F4) keep `update = none`
 # and stay opt-in through their platform-SDK hydration targets.
 AUTOHYDRATE_SUBMODULES := $(shell \
     git config --file .gitmodules -l 2>/dev/null | \
@@ -495,7 +495,7 @@ ifeq ($(EXST),no)
 $(TARGET_BIN): $(TARGET_ELF)
 	@echo "Creating BIN $(TARGET_BIN)" "$(STDOUT)"
 # A platform may set BIN_FROM_ELF_CMD to generate the binary from the ELF its
-# own way (e.g. ESP32 wraps it into a bootable image with esptool elf2image);
+# own way (e.g. wrapping it into a bootable image);
 # otherwise fall back to a plain objcopy raw dump.
 ifdef BIN_FROM_ELF_CMD
 	$(V1) $(BIN_FROM_ELF_CMD)
