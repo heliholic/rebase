@@ -51,6 +51,10 @@ typedef struct {
     uint8_t device;
     uint8_t mode;
     uint8_t high_resolution;
+    // Amount of free space to guarantee by erasing when logging starts (USE_FLASHFS_LOOP)
+    uint16_t initialEraseFreeSpaceKiB;
+    // Keep logging when the flash is full by erasing the oldest sector (USE_FLASHFS_LOOP)
+    uint8_t rollingErase;
 } blackboxConfig_t;
 
 PG_DECLARE(blackboxConfig_t, blackboxConfig);
