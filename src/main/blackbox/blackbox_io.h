@@ -53,6 +53,8 @@ void blackboxDeviceClose(void);
 
 void blackboxEraseAll(void);
 bool isBlackboxErased(void);
+bool isBlackboxDeviceReady(void);
+void blackboxDeviceInitialErase(void);
 
 bool blackboxDeviceBeginLog(void);
 bool blackboxDeviceEndLog(bool retainLog);

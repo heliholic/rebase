@@ -1658,6 +1658,9 @@ case MSP_NAME:
         sbufWriteU8(dst, blackboxConfig()->sample_rate);
         // Added in MSP API 1.45
         sbufWriteU32(dst, blackboxConfig()->fields_disabled_mask);
+        // Flashfs loop recording
+        sbufWriteU16(dst, blackboxConfig()->initialEraseFreeSpaceKiB);
+        sbufWriteU8(dst, blackboxConfig()->rollingErase);
 #else
         sbufWriteU8(dst, 0); // Blackbox not supported
         sbufWriteU8(dst, 0);
@@ -1667,6 +1670,9 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
         // Added in MSP API 1.45
         sbufWriteU32(dst, 0);
+        // Flashfs loop recording
+        sbufWriteU16(dst, 0);
+        sbufWriteU8(dst, 0);
 #endif
         break;
 
@@ -2892,6 +2898,12 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             // Added in MSP API 1.45
             if (sbufBytesRemaining(src) >= 4) {
                 blackboxConfigMutable()->fields_disabled_mask = sbufReadU32(src);
+            }
+
+            // Flashfs loop recording
+            if (sbufBytesRemaining(src) >= 3) {
+                blackboxConfigMutable()->initialEraseFreeSpaceKiB = sbufReadU16(src);
+                blackboxConfigMutable()->rollingErase = sbufReadU8(src);
             }
         }
         break;
