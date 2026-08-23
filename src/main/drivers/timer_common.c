@@ -159,7 +159,7 @@ const timerHardware_t *timerAllocate(ioTag_t ioTag, resourceOwner_e owner, uint8
 
 #else // !USE_TIMER
 
-// Stubs for platforms without timer support (e.g. ESP32 initial bring-up).
+// Stubs for platforms without timer support.
 // Some common code (cli.c, config.c) references these unconditionally.
 #include "drivers/io_types.h"
 #include "drivers/resource.h"
