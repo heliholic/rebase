@@ -197,6 +197,16 @@ encoding_unittest_SRC := \
 		$(USER_DIR)/common/encoding.c
 
 
+flashfs_unittest_SRC := \
+		$(USER_DIR)/io/flashfs.c \
+		$(USER_DIR)/pg/blackbox.c \
+		$(TEST_DIR)/flashfs_unittest.include/flash_emulator.cc \
+		$(TEST_DIR)/flashfs_unittest.include/flash_c_stub.cc
+
+flashfs_unittest_DEFINES := \
+		USE_FLASHFS \
+		USE_FLASHFS_LOOP
+
 flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
@@ -911,6 +921,13 @@ $(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c
 	@echo "compiling test c file: $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
+                $$(foreach def,$$($1_DEFINES),-D $$(def)) \
+                -c $$< -o $$@
+
+$(OBJECT_DIR)/$1/%.cc.o: $(TEST_DIR)/%.cc
+	@echo "compiling test c++ file: $$<" "$(STDOUT)"
+	$(V1) mkdir -p $$(dir $$@)
+	$(V1) $(CXX) $(CXX_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
                 $$(foreach def,$$($1_DEFINES),-D $$(def)) \
                 -c $$< -o $$@
 

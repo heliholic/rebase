@@ -174,6 +174,7 @@
 
 #if !defined(USE_EXST)
 #define USE_FLASHFS
+#define USE_FLASHFS_LOOP     // Wrap the log around the end of the volume
 #define USE_FLASH_TOOLS
 #define USE_FLASH_M25P16
 #define USE_FLASH_W25N01G    // 1Gb NAND flash support

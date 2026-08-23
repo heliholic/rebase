@@ -530,6 +530,10 @@
 #undef USE_FLASHFS
 #endif
 
+#ifndef USE_FLASHFS
+#undef USE_FLASHFS_LOOP
+#endif
+
 #if (!defined(USE_SDCARD) && !defined(USE_FLASHFS)) || !defined(USE_BLACKBOX)
 #undef USE_USB_MSC
 #endif
