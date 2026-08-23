@@ -118,4 +118,10 @@ typedef struct flashVTable_s {
     int (*readBytes)(flashDevice_t *fdevice, uint32_t address, uint8_t *buffer, uint32_t length);
 
     const flashGeometry_t *(*getGeometry)(flashDevice_t *fdevice);
+
+    // Erase suspend/resume. Optional; only implemented by chips that support
+    // suspending an in-progress erase so that a program can be interleaved.
+    void (*suspend)(flashDevice_t *fdevice);
+    void (*resume)(flashDevice_t *fdevice);
+    bool (*isSuspended)(flashDevice_t *fdevice);
 } flashVTable_t;

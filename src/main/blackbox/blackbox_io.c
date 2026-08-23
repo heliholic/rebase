@@ -119,7 +119,7 @@ void blackboxWrite(uint8_t value)
     switch (blackboxConfig()->device) {
 #ifdef USE_FLASHFS
     case BLACKBOX_DEVICE_FLASH:
-        flashfsWriteByte(value); // Write byte asynchronously
+        flashfsWriteByte(value);
         break;
 #endif
 #ifdef USE_SDCARD
@@ -181,7 +181,7 @@ int blackboxWriteString(const char *s)
 #ifdef USE_FLASHFS
     case BLACKBOX_DEVICE_FLASH:
         length = strlen(s);
-        flashfsWrite((const uint8_t*) s, length, false); // Write asynchronously
+        flashfsWrite((const uint8_t*) s, length);
         break;
 #endif // USE_FLASHFS
 
@@ -228,7 +228,7 @@ void blackboxDeviceFlush(void)
          * devices will progressively write in the background without Blackbox calling anything.
          */
     case BLACKBOX_DEVICE_FLASH:
-        flashfsFlushAsync(false);
+        flashfsFlushAsync();
         break;
 #endif // USE_FLASHFS
 #ifdef USE_BLACKBOX_VIRTUAL
@@ -256,7 +256,7 @@ bool blackboxDeviceFlushForce(void)
 
 #ifdef USE_FLASHFS
     case BLACKBOX_DEVICE_FLASH:
-        return flashfsFlushAsync(true);
+        return flashfsFlushAsync();
 #endif // USE_FLASHFS
 
 #ifdef USE_SDCARD
@@ -368,7 +368,7 @@ bool blackboxDeviceOpen(void)
         break;
 #ifdef USE_FLASHFS
     case BLACKBOX_DEVICE_FLASH:
-        if (!flashfsIsSupported() || isBlackboxDeviceFull()) {
+        if (!flashfsIsSupported()) {
             return false;
         }
 
@@ -435,6 +435,31 @@ bool isBlackboxErased(void)
     }
 }
 #endif
+
+/**
+ * Check to see if the device is ready to accept a new log.
+ */
+bool isBlackboxDeviceReady(void)
+{
+#ifdef USE_FLASHFS
+    if (blackboxConfig()->device == BLACKBOX_DEVICE_FLASH) {
+        return flashfsIsReady();
+    }
+#endif
+    return true;
+}
+
+/**
+ * Perform an initial erase to get some empty space.
+ */
+void blackboxDeviceInitialErase(void)
+{
+#ifdef USE_FLASHFS_LOOP
+    if (blackboxConfig()->device == BLACKBOX_DEVICE_FLASH) {
+        flashfsLoopInitialErase();
+    }
+#endif
+}
 
 /**
  * Close the Blackbox logging device.
@@ -799,7 +824,7 @@ blackboxBufferReserveStatus_e blackboxDeviceReserveBufferSpace(int32_t bytes)
              * that the Blackbox header writing code doesn't have to guess about the best time to ask flashfs to
              * flush, and doesn't stall waiting for a flush that would otherwise not automatically be called.
              */
-            flashfsFlushAsync(true);
+            flashfsFlushAsync();
         }
         return BLACKBOX_RESERVE_TEMPORARY_FAILURE;
 #endif // USE_FLASHFS
