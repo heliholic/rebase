@@ -535,10 +535,17 @@ MMFLASH_CODE void flashEraseSector(uint32_t address)
     }
 }
 
+bool flashEraseCompletelySupported(void)
+{
+    return flashDevice.vTable->eraseCompletely != NULL;
+}
+
 void flashEraseCompletely(void)
 {
-    flashDevice.callback = NULL;
-    flashDevice.vTable->eraseCompletely(&flashDevice);
+    if (flashDevice.vTable->eraseCompletely) {
+        flashDevice.callback = NULL;
+        flashDevice.vTable->eraseCompletely(&flashDevice);
+    }
 }
 
 /* The callback, if provided, will receive the totoal number of bytes transfered
@@ -593,6 +600,40 @@ MMFLASH_CODE void flashFlush(void)
 
         flashWaitForReadyOrFail();
     }
+}
+
+/*
+ * Erase suspend/resume. Only supported by some NOR chips; allows a page
+ * program to be interleaved into a long running sector erase so that
+ * logging does not stall while a rolling erase is in progress.
+ */
+bool flashSuspendSupported(void)
+{
+    return flashDevice.vTable->suspend && flashDevice.vTable->resume &&
+           flashDevice.vTable->isSuspended;
+}
+
+void flashSuspend(void)
+{
+    if (flashDevice.vTable->suspend) {
+        flashDevice.vTable->suspend(&flashDevice);
+    }
+}
+
+void flashResume(void)
+{
+    if (flashDevice.vTable->resume) {
+        flashDevice.vTable->resume(&flashDevice);
+    }
+}
+
+bool flashIsSuspended(void)
+{
+    if (flashDevice.vTable->isSuspended) {
+        return flashDevice.vTable->isSuspended(&flashDevice);
+    }
+
+    return false;
 }
 
 static const flashGeometry_t noFlashGeometry = {
