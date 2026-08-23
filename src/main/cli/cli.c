@@ -4049,6 +4049,13 @@ static void cliReboot(void)
     cliRebootEx(REBOOT_TARGET_FIRMWARE);
 }
 
+static void cliDFU(const char *cmdName, char *cmdline)
+{
+    UNUSED(cmdName);
+    UNUSED(cmdline);
+    cliRebootEx(REBOOT_TARGET_BOOTLOADER_ROM);
+}
+
 RAM_CODE static void cliBootloader(const char *cmdName, char *cmdline)
 {
     rebootTarget_e rebootTarget;
@@ -7966,6 +7973,7 @@ const clicmd_t cmdTable[] = {
         CLI_COMMAND_DEF("color", "configure colors", NULL, cliColor),
 #endif
     CLI_COMMAND_DEF("defaults", "reset to defaults and reboot", "{nosave}", cliDefaults),
+    CLI_COMMAND_DEF("dfu", "reboot into DFU bootloader", NULL, cliDFU),
     CLI_COMMAND_DEF("diff", "list configuration changes from default", "[master|profile|rates|hardware|all] {defaults|bare}", cliDiff),
 #ifdef USE_RESOURCE_MGMT
 
