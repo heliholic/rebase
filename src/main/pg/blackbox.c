@@ -21,24 +21,41 @@
 
 #include "platform.h"
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/blackbox.h"
+
+#include "blackbox/blackbox_fielddefs.h"
 
 #ifndef DEFAULT_BLACKBOX_DEVICE
 #define DEFAULT_BLACKBOX_DEVICE     BLACKBOX_DEVICE_NONE
 #endif
 
 
-PG_REGISTER_WITH_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 4);
+PG_REGISTER_WITH_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 5);
 
 PG_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig,
-    .fields_disabled_mask = 0,
-    .sample_rate = BLACKBOX_RATE_QUARTER,
     .device = DEFAULT_BLACKBOX_DEVICE,
-    .mode = BLACKBOX_MODE_NORMAL,
-    .high_resolution = false,
-    .initialEraseFreeSpaceKiB = 0,
+    .mode = BLACKBOX_MODE_ARMED,
+    .denom = 8,
+    .fields = BIT(FLIGHT_LOG_FIELD_SELECT_COMMAND) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_SETPOINT) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_PID) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_ATTITUDE) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_GYRAW) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_GYRO) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_ALT) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_BATTERY) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_RSSI) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_RPM) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_MOTOR) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_SERVO) |
+              BIT(FLIGHT_LOG_FIELD_SELECT_TEMP) |
+              0,
+    .initialErase = 0,
     .rollingErase = 0,
+    .gracePeriod = 5,
 );
