@@ -34,10 +34,6 @@ typedef enum {
     TABLE_GPS_UBLOX_MODELS,
     TABLE_GPS_UBLOX_UTC_STANDARD,
 #endif
-#ifdef USE_GPS_RESCUE
-    TABLE_GPS_RESCUE_SANITY_CHECK,
-    TABLE_GPS_RESCUE_ALT_MODE,
-#endif
 #ifdef USE_BLACKBOX
     TABLE_BLACKBOX_DEVICE,
     TABLE_BLACKBOX_MODE,
@@ -221,7 +217,6 @@ extern const clivalue_t valueTable[];
 
 extern const char * const lookupTableLedstripColors[];
 
-extern const char * const lookupTableRescueAltitudeMode[];
 
 extern const char * const lookupTableOsdDisplayPortDevice[];
 

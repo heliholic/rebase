@@ -403,8 +403,8 @@
 
 #endif // !defined(CORE_BUILD)
 
-// Note: USE_GPS secondary defines (USE_GPS_NMEA, USE_GPS_UBLOX, USE_GPS_RESCUE)
-// are in common_post.h because SITL defines USE_GPS in target.h (after common_pre.h).
+// Note: USE_GPS secondary defines (USE_GPS_NMEA, USE_GPS_UBLOX) are in
+// common_post.h because SITL defines USE_GPS in target.h (after common_pre.h).
 
 #if (defined(USE_OSD_HD) || defined(USE_OSD_SD) || defined(USE_FRSKYOSD)) && !defined(USE_OSD)
 // If either USE_OSD_SD for USE_OSD_HD are defined, ensure that USE_OSD is also defined
@@ -436,7 +436,6 @@
 #define USE_OSD_CUSTOM_TEXT
 
 #if defined(USE_GPS)
-#define USE_CMS_GPS_RESCUE_MENU
 #endif
 
 #endif // defined(USE_OSD)
