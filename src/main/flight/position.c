@@ -145,7 +145,7 @@ void calculateEstimatedAltitude(void)
 #ifdef USE_VARIO
     DEBUG_SET(DEBUG_ALTITUDE, 3, estimatedVario);
 #endif
-    DEBUG_SET(DEBUG_RTH, 1, lrintf(displayAltitudeCm / 10.0f));
+    DEBUG_SET(DEBUG_ALTITUDE, 4, lrintf(displayAltitudeCm / 10.0f));
 
 #if defined(USE_BARO) || defined(USE_GPS) || defined(USE_RANGEFINDER)
     wasArmed = isArmed;

@@ -15,7 +15,6 @@ PG_SRC = \
             pg/displayport_profiles.c \
             pg/flash.c \
             pg/gps.c \
-            pg/gps_rescue_multirotor.c \
             pg/gyrodev.c \
             pg/max7456.c \
             pg/mco.c \
@@ -145,7 +144,6 @@ COMMON_SRC = \
             flight/alt_hold_multirotor.c \
             flight/autopilot_multirotor.c \
             flight/failsafe.c \
-            flight/gps_rescue_multirotor.c \
             flight/imu.c \
             flight/mixer.c \
             flight/mixer_init.c \
@@ -197,7 +195,6 @@ COMMON_SRC = \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue_multirotor.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \
@@ -456,7 +453,6 @@ SIZE_OPTIMISED_SRC += \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue_multirotor.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \
