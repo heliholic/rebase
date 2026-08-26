@@ -310,7 +310,6 @@ protected:
     }
 
     void TearDown() override {
-        flightPlanNavSetReachedListener(nullptr);
     }
 
     static waypoint_t makeWaypoint(int32_t lat, int32_t lon, int32_t altCm,
@@ -933,11 +932,6 @@ TEST_F(FlightPlanNavTest, YawRateCapClearsOnDisengageAndEngage)
 
 // --- Injected runtime plans ---
 
-namespace {
-int g_reachedCalls;
-void recordReached(uint8_t index) { (void)index; g_reachedCalls++; }
-} // namespace
-
 TEST_F(FlightPlanNavTest, InjectedPlanReplacesMissionAndRunsToTermination)
 {
     // Single-waypoint PG mission with a yaw-rate cap staged: injection must
@@ -1011,26 +1005,6 @@ TEST_F(FlightPlanNavTest, EngageAfterInjectRevertsToPgPlan)
     EXPECT_EQ(flightPlanNavGetCurrentIndex(), 0);
     ASSERT_TRUE(g_lastTarget.valid);
     EXPECT_NEAR(g_lastTarget.targetEfM.z, 50.0f, 0.1f); // PG waypoint: 150 m AMSL - 100 m origin
-}
-
-TEST_F(FlightPlanNavTest, ReachedListenerSuppressedWhileInjected)
-{
-    g_reachedCalls = 0;
-    flightPlanNavSetReachedListener(recordReached);
-
-    addWaypoint(10, 20, 15000, WAYPOINT_TYPE_FLYOVER);
-    addWaypoint(30, 40, 15000, WAYPOINT_TYPE_FLYOVER);
-    flightPlanNavEngage();
-    arriveAtWaypoint();
-    EXPECT_EQ(g_reachedCalls, 1); // PG mission progress is reported
-
-    const waypoint_t plan[] = {
-        makeWaypoint(0, 0, 12000, WAYPOINT_TYPE_FLYOVER),
-        makeWaypoint(0, 0, 12000, WAYPOINT_TYPE_LAND),
-    };
-    ASSERT_TRUE(flightPlanNavInjectPlan(plan, 2));
-    arriveAtWaypoint();
-    EXPECT_EQ(g_reachedCalls, 1); // injected-plan progress is not
 }
 
 // --- LAND waypoint type ---

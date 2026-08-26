@@ -885,16 +885,6 @@ extern struct linker_symbol __fontdata_end;
 #error "USE_POSITION_HOLD requires USE_GPS and/or USE_OPTICALFLOW to be defined"
 #endif
 
-#if !defined(ENABLE_TELEMETRY_MAVLINK_MISSION)
-// flight_plan_nav.c (and the autopilot hook in fc/core.c) must be present
-// for the mission module to reach those symbols.
-#if defined(USE_TELEMETRY_MAVLINK) && ENABLE_FLIGHT_PLAN
-#define ENABLE_TELEMETRY_MAVLINK_MISSION 1
-#else
-#define ENABLE_TELEMETRY_MAVLINK_MISSION 0
-#endif
-#endif
-
 #if !defined(ENABLE_RX_UDP)
 #define ENABLE_RX_UDP 0
 #endif
