@@ -322,7 +322,6 @@ protected:
     }
 
     void TearDown() override {
-        flightPlanNavSetReachedListener(nullptr);
     }
 
     static int32_t metresToLonUnits(float metres)
