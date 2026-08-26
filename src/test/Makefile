@@ -46,7 +46,6 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/autopilot.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/pg/modes.c

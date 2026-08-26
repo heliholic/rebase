@@ -49,26 +49,8 @@
 #define PARAM_NAME_ALTITUDE_LPF "altitude_lpf"
 #define PARAM_NAME_ALTITUDE_D_LPF "altitude_d_lpf"
 
-#define PARAM_NAME_AP_LANDING_ALTITUDE_M "ap_landing_altitude_m"
-#define PARAM_NAME_AP_HOVER_THROTTLE "ap_hover_throttle"
-#define PARAM_NAME_AP_THROTTLE_MIN "ap_throttle_min"
-#define PARAM_NAME_AP_THROTTLE_MAX "ap_throttle_max"
-#define PARAM_NAME_AP_ALTITUDE_P "ap_altitude_p"
-#define PARAM_NAME_AP_ALTITUDE_I "ap_altitude_i"
-#define PARAM_NAME_AP_ALTITUDE_D "ap_altitude_d"
-#define PARAM_NAME_AP_ALTITUDE_F "ap_altitude_f"
-#define PARAM_NAME_AP_POSITION_P "ap_position_p"
-#define PARAM_NAME_AP_POSITION_I "ap_position_i"
-#define PARAM_NAME_AP_POSITION_D "ap_position_d"
-#define PARAM_NAME_AP_POSITION_A "ap_position_a"
-#define PARAM_NAME_AP_POSITION_F "ap_position_f"
-#define PARAM_NAME_AP_POSITION_CUTOFF "ap_position_cutoff"
-#define PARAM_NAME_AP_STOP_THRESHOLD "ap_stop_threshold"
-#define PARAM_NAME_AP_MAX_ANGLE "ap_max_angle"
 
 // Velocity-based position control with drag compensation
-#define PARAM_NAME_AP_VELOCITY_DRAG_COEFF "ap_velocity_drag_coeff"
-#define PARAM_NAME_AP_MAX_VELOCITY "ap_max_velocity"
 
 // Phase 3: Waypoint navigation & yaw control
 

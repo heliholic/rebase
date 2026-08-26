@@ -72,7 +72,6 @@
 #include "osd/osd.h"
 
 #include "pg/adc.h"
-#include "pg/autopilot.h"
 #include "pg/beeper.h"
 #include "pg/beeper_dev.h"
 #include "pg/bus_i2c.h"
@@ -1418,28 +1417,6 @@ const clivalue_t valueTable[] = {
     { PARAM_NAME_ALTITUDE_LPF,          VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 10, 5000 }, PG_POSITION, offsetof(positionConfig_t, altitude_lpf) },
     { "rangefinder_max_range_cm",       VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 50, 1000 }, PG_POSITION, offsetof(positionConfig_t, rangefinder_max_range_cm) },
     { PARAM_NAME_ALTITUDE_D_LPF,        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 10, 5000 }, PG_POSITION, offsetof(positionConfig_t, altitude_d_lpf) },
-
-// PG_AUTOPILOT
-    { PARAM_NAME_AP_LANDING_ALTITUDE_M,  VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, landingAltitudeM) },
-    { PARAM_NAME_AP_HOVER_THROTTLE,      VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 1700 }, PG_AUTOPILOT, offsetof(autopilotConfig_t, hoverThrottle) },
-    { PARAM_NAME_AP_THROTTLE_MIN,        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 1050, 1400 }, PG_AUTOPILOT, offsetof(autopilotConfig_t, throttleMin) },
-    { PARAM_NAME_AP_THROTTLE_MAX,        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 1400, 2000 }, PG_AUTOPILOT, offsetof(autopilotConfig_t, throttleMax) },
-    { PARAM_NAME_AP_ALTITUDE_P,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, altitudeP) },
-    { PARAM_NAME_AP_ALTITUDE_I,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, altitudeI) },
-    { PARAM_NAME_AP_ALTITUDE_D,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, altitudeD) },
-    { PARAM_NAME_AP_ALTITUDE_F,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, altitudeF) },
-    { PARAM_NAME_AP_POSITION_P,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionP) },
-    { PARAM_NAME_AP_POSITION_I,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionI) },
-    { PARAM_NAME_AP_POSITION_D,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionD) },
-    { PARAM_NAME_AP_POSITION_A,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionA) },
-    { PARAM_NAME_AP_POSITION_F,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionF) },
-    { PARAM_NAME_AP_POSITION_CUTOFF,     VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 10, 50 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, positionCutoff) },
-    { PARAM_NAME_AP_STOP_THRESHOLD,      VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 100 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, stopThreshold) },
-    { PARAM_NAME_AP_MAX_ANGLE,           VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 10, 70 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, maxAngle) },
-
-    // Drag feedforward and velocity setpoint cap
-    { PARAM_NAME_AP_VELOCITY_DRAG_COEFF, VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 100 },     PG_AUTOPILOT, offsetof(autopilotConfig_t, velocityDragCoeff) },
-    { PARAM_NAME_AP_MAX_VELOCITY,        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 100, 5000 },  PG_AUTOPILOT, offsetof(autopilotConfig_t, maxVelocity) },
 
 
 // PG_MODE_ACTIVATION_CONFIG
