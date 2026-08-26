@@ -50,7 +50,6 @@
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
-#include "flight/flight_plan_capture.h"
 #include "flight/flight_plan_nav.h"
 #include "flight/pos_hold.h"
 
@@ -392,18 +391,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         *displayAttr = DISPLAYPORT_SEVERITY_CRITICAL;
         *blinking = true;
         return;
-    }
-
-    // Waypoint capture confirmations ("WP3 SET" / "WP2 DELETED" / "WP FULL").
-    // Shown outside AUTOPILOT mode too - capture happens before engaging - and
-    // below every critical warning; the cue self-expires.
-    {
-        const char *captureMsg = flightPlanCaptureOsdMessage();
-        if (captureMsg != NULL) {
-            tfp_sprintf(warningText, "%s", captureMsg);
-            *displayAttr = DISPLAYPORT_SEVERITY_INFO;
-            return;
-        }
     }
 
     // Mission progress cues, below every critical warning above. The mode
