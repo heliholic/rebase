@@ -100,7 +100,6 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
-#include "flight/pos_hold.h"
 #include "flight/servos.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
@@ -1018,10 +1017,6 @@ void initPhase3(void)
 // autopilot must be initialised before modes that require the autopilot pids
 #ifdef USE_ALTITUDE_HOLD
     altHoldInit();
-#endif
-
-#ifdef USE_POSITION_HOLD
-    posHoldInit();
 #endif
 
     debugInit();

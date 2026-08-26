@@ -132,10 +132,6 @@ typedef enum {
     OSD_BATTERY_PROFILE_NAME,
 
 
-#ifdef USE_POSITION_HOLD
-    OSD_POS_HOLD_READY,         // pre-engagement Position Hold readiness indicator
-#endif
-
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 

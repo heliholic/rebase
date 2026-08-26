@@ -831,10 +831,6 @@ extern struct linker_symbol __fontdata_end;
 #define ENABLE_BOOT0_PIN_SELECT 1
 #endif
 
-#if defined(USE_POSITION_HOLD) && !(defined(USE_GPS) || defined(USE_OPTICALFLOW))
-#error "USE_POSITION_HOLD requires USE_GPS and/or USE_OPTICALFLOW to be defined"
-#endif
-
 #if !defined(ENABLE_RX_UDP)
 #define ENABLE_RX_UDP 0
 #endif

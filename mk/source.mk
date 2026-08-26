@@ -50,7 +50,6 @@ PG_SRC = \
             pg/pinio.c \
             pg/pin_pull_up_down.c \
             pg/position.c \
-            pg/pos_hold.c \
             pg/rangefinder.c \
             pg/rates.c \
             pg/rcdevice.c \
@@ -187,8 +186,6 @@ COMMON_SRC = \
             flight/position.c \
             flight/position_estimator.c \
             flight/position_filter.c \
-            flight/position_nav.c \
-            flight/pos_hold.c \
             flight/servos.c \
             io/serial_4way.c \
             io/serial_4way_avrootloader.c \

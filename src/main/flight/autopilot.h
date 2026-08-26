@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include "flight/pos_hold.h"
 #include <stdbool.h>
 #include <stdint.h>
 

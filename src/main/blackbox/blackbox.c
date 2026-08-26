@@ -78,7 +78,6 @@
 #include "pg/autopilot.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
-#include "pg/pos_hold.h"
 #include "pg/rx.h"
 
 #include "rx/rx.h"
@@ -1526,9 +1525,6 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ALT_HOLD_DEADBAND,    "%d", altHoldConfig()->deadband);
 #endif // USE_ALTITUDE_HOLD
 
-#ifdef USE_POSITION_HOLD
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_POS_HOLD_DEADBAND,    "%d", posHoldConfig()->deadband);
-#endif
 
 
         default:
