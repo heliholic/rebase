@@ -144,9 +144,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_PINIO
         BUILD_OPTION_PINIO,
 #endif
-#ifdef USE_POSITION_HOLD
-        BUILD_OPTION_POSITION_HOLD,
-#endif
 #ifdef USE_RANGEFINDER
         BUILD_OPTION_RANGEFINDER,
 #endif
