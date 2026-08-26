@@ -3,7 +3,6 @@ PG_SRC = \
             pg/adc.c \
             pg/adjustments.c \
             pg/alignment.c \
-            pg/alt_hold.c \
             pg/arming.c \
             pg/autopilot.c \
             pg/barometer.c \
@@ -177,7 +176,6 @@ COMMON_SRC = \
             fc/rc_adjustments.c \
             fc/rc_controls.c \
             fc/rc_modes.c \
-            flight/alt_hold.c \
             flight/autopilot.c \
             flight/failsafe.c \
             flight/imu.c \

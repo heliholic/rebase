@@ -99,9 +99,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_AKK_SMARTAUDIO
         BUILD_OPTION_AKK_SMARTAUDIO,
 #endif
-#ifdef USE_ALTITUDE_HOLD
-        BUILD_OPTION_ALTITUDE_HOLD,
-#endif
 #ifdef USE_BATTERY_CONTINUE
         BUILD_OPTION_BATTERY_CONTINUE,
 #endif

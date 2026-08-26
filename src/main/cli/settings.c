@@ -72,7 +72,6 @@
 #include "osd/osd.h"
 
 #include "pg/adc.h"
-#include "pg/alt_hold.h"
 #include "pg/autopilot.h"
 #include "pg/beeper.h"
 #include "pg/beeper_dev.h"
@@ -851,10 +850,6 @@ const clivalue_t valueTable[] = {
     { PARAM_NAME_DEADBAND,          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 32 }, PG_RC_CONTROLS_CONFIG, offsetof(rcControlsConfig_t, deadband) },
     { PARAM_NAME_YAW_DEADBAND,      VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 100 }, PG_RC_CONTROLS_CONFIG, offsetof(rcControlsConfig_t, yaw_deadband) },
 
-#ifdef USE_ALTITUDE_HOLD
-    { PARAM_NAME_ALT_HOLD_CLIMB_RATE,  VAR_UINT8 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 200 }, PG_ALTHOLD_CONFIG, offsetof(altHoldConfig_t, climbRate) },
-    { PARAM_NAME_ALT_HOLD_DEADBAND,    VAR_UINT8 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 70 },  PG_ALTHOLD_CONFIG, offsetof(altHoldConfig_t, deadband) },
-#endif // USE_ALTITUDE_HOLD
 
 
 // PG_PID_CONFIG

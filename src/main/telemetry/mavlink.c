@@ -111,7 +111,6 @@ typedef enum {
     BF_MAV_MODE_ACRO = 0,
     BF_MAV_MODE_ANGLE,
     BF_MAV_MODE_HORIZON,
-    BF_MAV_MODE_ALT_HOLD,
     BF_MAV_MODE_FAILSAFE,
     BF_MAV_MODE_COUNT,
 } bfMavMode_e;
@@ -126,7 +125,6 @@ static const bfMavModeDescriptor_t bfMavModeDescriptors[BF_MAV_MODE_COUNT] = {
     [BF_MAV_MODE_ACRO]      = { "Acro",      MAV_STANDARD_MODE_NON_STANDARD,  0 },
     [BF_MAV_MODE_ANGLE]     = { "Angle",     MAV_STANDARD_MODE_NON_STANDARD,  0 },
     [BF_MAV_MODE_HORIZON]   = { "Horizon",   MAV_STANDARD_MODE_NON_STANDARD,  0 },
-    [BF_MAV_MODE_ALT_HOLD]  = { "Alt Hold",  MAV_STANDARD_MODE_ALTITUDE_HOLD, 0 },
     [BF_MAV_MODE_FAILSAFE]  = { "Failsafe",  MAV_STANDARD_MODE_SAFE_RECOVERY, MAV_MODE_PROPERTY_NOT_USER_SELECTABLE },
 };
 
@@ -334,9 +332,6 @@ static uint32_t mavlinkComputeCustomMode(void)
 {
     if (FLIGHT_MODE(FAILSAFE_MODE) || failsafeIsActive()) {
         return BF_MAV_MODE_FAILSAFE;
-    }
-    if (FLIGHT_MODE(ALT_HOLD_MODE)) {
-        return BF_MAV_MODE_ALT_HOLD;
     }
     if (FLIGHT_MODE(HORIZON_MODE)) {
         return BF_MAV_MODE_HORIZON;

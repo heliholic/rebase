@@ -37,17 +37,6 @@ alignsensor_unittest_SRC := \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/pg/alignment.c
 
-althold_unittest_SRC := \
-		$(USER_DIR)/flight/alt_hold.c \
-		$(USER_DIR)/flight/autopilot.c \
-		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/common/vector.c \
-		$(USER_DIR)/common/filter.c \
-		$(USER_DIR)/pg/rx.c
-
-althold_unittest_DEFINES := \
-		USE_ALTITUDE_HOLD= \
-
 arming_prevention_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/filter.c \

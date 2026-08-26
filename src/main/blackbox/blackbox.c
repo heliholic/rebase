@@ -74,7 +74,6 @@
 #include "io/serial.h"
 
 #include "pg/blackbox.h"
-#include "pg/alt_hold.h"
 #include "pg/autopilot.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
@@ -1520,10 +1519,6 @@ static bool blackboxWriteSysinfo(void)
 
 #endif // USE_GPS
 
-#ifdef USE_ALTITUDE_HOLD
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ALT_HOLD_CLIMB_RATE,  "%d", altHoldConfig()->climbRate);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ALT_HOLD_DEADBAND,    "%d", altHoldConfig()->deadband);
-#endif // USE_ALTITUDE_HOLD
 
 
 

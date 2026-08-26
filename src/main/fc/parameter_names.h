@@ -102,11 +102,6 @@
 
 #endif // USE_GPS
 
-#ifdef USE_ALTITUDE_HOLD
-#define PARAM_NAME_ALT_HOLD_DEADBAND "alt_hold_deadband"
-#define PARAM_NAME_ALT_HOLD_CLIMB_RATE "alt_hold_climb_rate"
-#endif
-
 #define PARAM_NAME_IMU_DCM_KP "imu_dcm_kp"
 #define PARAM_NAME_IMU_DCM_KI "imu_dcm_ki"
 #define PARAM_NAME_IMU_PROCESS_DENOM "imu_process_denom"
