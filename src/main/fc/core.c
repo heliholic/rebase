@@ -68,9 +68,6 @@
 #endif
 #include "flight/flight_plan_nav.h"
 
-#ifdef USE_OSD_NAV_MAP
-#include "flight/nav_trail.h"
-#endif
 
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -773,12 +770,6 @@ void processRxModes(timeUs_t currentTimeUs)
             flightPlanNavDisengage();
         }
     }
-#endif
-
-#ifdef USE_OSD_NAV_MAP
-    // record the flown trail for the OSD minimap; internally rate-limited and
-    // needs only the GPS solution, home and the ARMED state
-    navTrailUpdate(currentTimeUs);
 #endif
 
 #ifdef USE_ALTITUDE_HOLD

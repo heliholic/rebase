@@ -874,13 +874,6 @@ extern struct linker_symbol __fontdata_end;
 #error "ENABLE_RESCUE_PLAN requires ENABLE_FLIGHT_PLAN and USE_GPS_RESCUE"
 #endif
 
-// Flight-plan OSD minimap: draws the stored mission, home and the flown trail
-// as a character-cell map. Needs the flight-plan executor, an OSD and GPS.
-// Derived here so every consumer (pg, osd, cli, core) shares one gate.
-#if ENABLE_FLIGHT_PLAN && defined(USE_OSD) && defined(USE_GPS)
-#define USE_OSD_NAV_MAP
-#endif
-
 #if defined(USE_POSITION_HOLD) && !(defined(USE_GPS) || defined(USE_OPTICALFLOW))
 #error "USE_POSITION_HOLD requires USE_GPS and/or USE_OPTICALFLOW to be defined"
 #endif
