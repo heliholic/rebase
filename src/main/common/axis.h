@@ -65,8 +65,8 @@ typedef enum {
     NWU_U = 2   // +Up
 } axisNWU_e;
 
-// ENU (East-North-Up): the navigation frame used by the position estimator
-// and autopilot. The position/velocity vector3_t fields are indexed by these.
+// ENU (East-North-Up): the navigation frame used by the position estimator.
+// The position/velocity vector3_t fields are indexed by these.
 typedef enum {
     ENU_E = 0,  // +East
     ENU_N = 1,  // +North
@@ -80,9 +80,9 @@ typedef enum {
     EF_NORTH = 1   // +North
 } efAxis_e;
 
-// The autopilot stores into EF_AXIS_COUNT arrays by EF_EAST/EF_NORTH while
-// reading the estimate by ENU_E/ENU_N; that is only correct because the two
-// horizontal frames share index values. Lock the invariant so a future
-// reordering of either enum fails to compile rather than silently swapping axes.
+// Code stores into EF_AXIS_COUNT arrays by EF_EAST/EF_NORTH while reading the
+// estimate by ENU_E/ENU_N; that is only correct because the two horizontal
+// frames share index values. Lock the invariant so a future reordering of
+// either enum fails to compile rather than silently swapping axes.
 STATIC_ASSERT((int)EF_EAST == (int)ENU_E, ef_east_must_match_enu_east);
 STATIC_ASSERT((int)EF_NORTH == (int)ENU_N, ef_north_must_match_enu_north);

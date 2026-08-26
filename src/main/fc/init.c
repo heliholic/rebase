@@ -93,7 +93,6 @@
 #include "fc/stats.h"
 #include "fc/tasks.h"
 
-#include "flight/autopilot.h"
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -829,7 +828,6 @@ void initPhase3(void)
 #endif
 
     positionInit();
-    autopilotInit();
 
 #if defined(USE_VTX_COMMON) || defined(USE_VTX_CONTROL)
     vtxTableInit();
@@ -1010,7 +1008,6 @@ void initPhase3(void)
     spiInitBusDMA();
 #endif
 
-// autopilot must be initialised before modes that require the autopilot pids
     debugInit();
 
 #if ENABLE_UNUSED_PINS_INIT
