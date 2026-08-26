@@ -38,8 +38,7 @@ typedef enum {
     FAILSAFE_LANDED,
     FAILSAFE_RX_LOSS_MONITORING,
     FAILSAFE_RX_LOSS_RECOVERED,
-    FAILSAFE_GPS_RESCUE,
-    FAILSAFE_AUTOPILOT      // continuing an autopilot mission under rx loss (ap_rx_loss_policy = CONTINUE)
+    FAILSAFE_GPS_RESCUE
 } failsafePhase_e;
 
 typedef enum {
@@ -64,9 +63,6 @@ typedef struct failsafeState_s {
     failsafePhase_e phase;
     failsafeRxLinkState_e rxLinkState;
     bool boxFailsafeSwitchWasOn;
-#if ENABLE_RESCUE_PLAN
-    uint32_t autopilotEngageDeadline;       // grace window for core.c to engage a staged rescue mission
-#endif
 } failsafeState_t;
 
 void failsafeInit(void);

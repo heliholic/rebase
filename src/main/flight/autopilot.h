@@ -39,7 +39,6 @@ void altitudeControl(float targetAltitudeCm, float taskIntervalS, float targetAl
 void moveTargetLocation(const vector2_t *stepEF, unsigned taskRateHz, bool forceAbortNav);// for nav modes to update the target position
 void pitchForwardOverride(bool request);
 void autopilotForceLevelPark(bool request); // heading/mag fault: force angle-mode self-level, never position hold
-void autopilotSetNavHeadingOverride(bool valid, float headingDeg); // mission pre-turn: command nose heading directly
 void initPositionHold(void);
 void positionControlReanchor(void);
 uint16_t autopilotGetEffectiveHoverThrottlePwm(void);
@@ -47,10 +46,4 @@ void autopilotCaptureHoverThrottleForAltHold(void);
 void autopilotClearAltHoldHoverThrottle(void);
 bool isBelowLandingAltitude(void);
 float getAutopilotThrottle(void);
-
-// Mission yaw control: rate injected as the yaw setpoint by rc.c while a
-// navigation leg is being flown (see updateYawControl in autopilot.c)
-float autopilotGetYawRate(void);
-bool autopilotYawControlActive(void);
-void autopilotSetYawRateLimit(float rateLimitDps); // deg/s, 0 = no mission cap
 

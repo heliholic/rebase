@@ -28,7 +28,6 @@ PG_SRC = \
             pg/failsafe.c \
             pg/feature.c \
             pg/flash.c \
-            pg/flight_plan.c \
             pg/gps.c \
             pg/gps_rescue.c \
             pg/gyro.c \
@@ -183,7 +182,6 @@ COMMON_SRC = \
             flight/alt_hold.c \
             flight/autopilot.c \
             flight/failsafe.c \
-            flight/flight_plan_nav.c \
             flight/gps_rescue.c \
             flight/imu.c \
             flight/mixer.c \
