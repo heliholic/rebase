@@ -416,7 +416,7 @@ TEST_F(FlashFSLoopInitialEraseTest, Normal)
     // Now let's try to auto erase
     const uint16_t initial_erase_kb = 16;
 
-    blackboxConfigMutable()->initialEraseFreeSpaceKiB = initial_erase_kb;
+    blackboxConfigMutable()->initialErase = initial_erase_kb;
     flashfsLoopInitialErase();
 
     while (!flashfsIsReady())
@@ -451,7 +451,7 @@ TEST_F(FlashFSLoopInitialEraseTest, Wrapped)
     ASSERT_EQ(initial_erase_kb * 1024, initial_erase)
         << "This test expects the exact erase size to be a multiple of 1024.";
 
-    blackboxConfigMutable()->initialEraseFreeSpaceKiB = initial_erase_kb;
+    blackboxConfigMutable()->initialErase = initial_erase_kb;
     flashfsLoopInitialErase();
     while (!flashfsIsReady())
         flashfsEraseAsync();
@@ -485,7 +485,7 @@ TEST_F(FlashFSLoopInitialEraseTest, UnalignedSize)
         << "This test only makes sense if erasing more than a page size";
     ASSERT_LT(erase_kb * 1024, sector_size_)
         << "This test only makes sense if erasing less than a sector size";
-    blackboxConfigMutable()->initialEraseFreeSpaceKiB = erase_kb;
+    blackboxConfigMutable()->initialErase = erase_kb;
     flashfsLoopInitialErase();
     while (!flashfsIsReady()) {
         flashfsEraseAsync();
@@ -514,7 +514,7 @@ TEST(InitialErase, U16KiBOverflow)
     EXPECT_EQ(tailAddress, flash_emulator->kFlashFSSize - 2048);
 
     // Setting UINT16_MAX is equal to erasrasing 64MiB
-    blackboxConfigMutable()->initialEraseFreeSpaceKiB = UINT16_MAX;
+    blackboxConfigMutable()->initialErase = UINT16_MAX;
     flashfsLoopInitialErase();
     while (!flashfsIsReady()) {
         flashfsEraseAsync();
