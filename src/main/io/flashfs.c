@@ -935,7 +935,7 @@ void flashfsLoopInitialErase(void)
 {
     if (flashfsState == FLASHFS_IDLE) {
         const int32_t bytesNeeded = flashfsGetOffset() +
-            blackboxConfig()->initialEraseFreeSpaceKiB * 1024 - flashfsSize;
+            blackboxConfig()->initialErase * 1024 - flashfsSize;
 
         if (bytesNeeded > 0) {
             const uint32_t sectorSize = flashGeometry->sectorSize;
