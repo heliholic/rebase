@@ -117,9 +117,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_ESCSERIAL_SIMONK
         BUILD_OPTION_ESCSERIAL_SIMONK,
 #endif
-#ifdef USE_FLIGHT_PLAN
-        BUILD_OPTION_FLIGHT_PLAN,
-#endif
 #ifdef USE_GPS
         BUILD_OPTION_GPS,
 #endif
@@ -161,9 +158,6 @@ static const uint16_t buildOptions[] = {
 #endif
 #ifdef USE_VTX
         BUILD_OPTION_VTX,
-#endif
-#if ENABLE_FLIGHT_PLAN
-        BUILD_OPTION_FLIGHT_PLAN,
 #endif
 #ifdef USE_BRUSHED
         BUILD_OPTION_BRUSHED,

@@ -127,9 +127,7 @@ rescueState_s rescueState;
 #define GPS_RESCUE_MAX_YAW_RATE          180    // deg/sec max yaw rate
 #define GPS_RESCUE_ALLOWED_YAW_RANGE   30.0f   // yaw error must be less than this to enter fly home phase, and to pitch during descend()
 #define GPS_RESCUE_ACCEPT_RADIUS       20.0f // ignore closer than this Cm
-#if !(ENABLE_RESCUE_PLAN)
 static const float gpsRescueTaskIntervalSeconds = HZ_TO_INTERVAL(TASK_GPS_RESCUE_RATE_HZ); // i.e. 0.01s
-#endif
 static float rescueYawRate = 0.0f;
 
 
@@ -152,7 +150,6 @@ void gpsRescueInit(void)
 
 }
 
-#if !(ENABLE_RESCUE_PLAN)
 static void rescueStart(void)
 {
     initPositionHold(); // initialise position hold at current location
@@ -165,7 +162,6 @@ static void rescueStop(void)
     rescueState.phase = RESCUE_IDLE;
     pitchForwardOverride(false);
 }
-#endif // !ENABLE_RESCUE_PLAN
 // While idle, update the altitude targets
 static void updateMaxAltitude(void)
 {
@@ -236,7 +232,6 @@ if (rescueState.sensor.positionXYAvailable) {
     DEBUG_SET(DEBUG_GPS_RESCUE_TRACKING, 5, lrintf(rescueState.sensor.bearingToHomeDeg));
 }
 
-#if !(ENABLE_RESCUE_PLAN)
 static void updateYawStartupAttenuator(void)
 {
     if (rescueState.intent.yawAttenuator < 1.0f) {
@@ -549,7 +544,6 @@ void initRescueValues(void)
     resetPositionControl(TASK_GPS_RESCUE_RATE_HZ); // Initialise position control in autopilot multirotor
 
 }
-#endif // !ENABLE_RESCUE_PLAN
 
 static void checkGPSRescueIsAvailable(void)
 {
@@ -559,7 +553,6 @@ rescueState.isAvailable = STATE(GPS_FIX_HOME) && rescueState.sensor.gpsHealthy &
 }
 
 
-#if !(ENABLE_RESCUE_PLAN)
 void gpsRescueUpdate(void) // called from core.c at TASK_GPS_RESCUE_RATE_HZ
 {
     if (!FLIGHT_MODE(GPS_RESCUE_MODE)) {
@@ -697,18 +690,6 @@ void gpsRescueUpdate(void) // called from core.c at TASK_GPS_RESCUE_RATE_HZ
         controlAltitude();
     }
 }
-#else // ENABLE_RESCUE_PLAN
-// GPS rescue is flown as an autopilot mission (the rescue plan in
-// flight_plan_nav): the legacy controller above is retired. This task only
-// maintains the sensor/availability state and the running max altitude that the
-// rescue-plan builder reads for its return-altitude modes.
-void gpsRescueUpdate(void)
-{
-    sensorUpdate();
-    updateMaxAltitude();
-    checkGPSRescueIsAvailable();
-}
-#endif // !ENABLE_RESCUE_PLAN
 
 float gpsRescueGetYawRate(void)
 {
