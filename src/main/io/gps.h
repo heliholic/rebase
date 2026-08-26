@@ -37,6 +37,7 @@
 #define GPS_X 1
 #define GPS_Y 0
 #define GPS_MIN_SAT_COUNT 4     // number of sats to trigger low sat count sanity check
+#define GPS_HOME_MIN_SATS 8     // sats needed before a home fix is taken and the GPS ready cues fire
 
 #ifdef USE_GPS_UBLOX
 typedef enum {

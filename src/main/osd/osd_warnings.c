@@ -46,7 +46,6 @@
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
@@ -175,18 +174,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
 
     warningText[0] = '\0';
 
-#ifdef USE_GPS_RESCUE
-    if (osdWarnGetState(OSD_WARNING_GPS_RESCUE_UNAVAILABLE)
-        && FLIGHT_MODE(GPS_RESCUE_MODE) && !gpsRescueIsOK()) {
-
-        tfp_sprintf(warningText, "RESCUE FAIL");
-        // when a rescue sanity check is active (rescue has failed)
-        // takes precedence over RXLOSS warning which otherwise is shown throughout the rescue
-        *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
-        *blinking = true;
-        return;
-    }
-#endif
 
     *displayAttr = DISPLAYPORT_SEVERITY_NORMAL;
     *blinking = false;
@@ -316,35 +303,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         *blinking = true;
         return;
     }
-
-#ifdef USE_GPS_RESCUE
-    if (osdWarnGetState(OSD_WARNING_GPS_RESCUE_UNAVAILABLE)
-        && ARMING_FLAG(ARMED)
-        && gpsRescueIsConfigured() // show this warning on arming (not waiting for the rescue to start)
-        && !gpsRescueIsAvailable()) {
-
-        statistic_t *stats = osdGetStats();
-        if (cmpTimeUs(stats->armed_time, OSD_GPS_RESCUE_DISABLED_WARNING_DURATION_US) < 0) {
-            tfp_sprintf(warningText, "RESCUE N/A");
-            // tell the user that GPS Rescue won't be available if requested later in the flight
-            // auto-remove the message after the warning duration timeout (5s)
-            *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
-            *blinking = true;
-            return;
-        }
-    }
-    if (osdWarnGetState(OSD_WARNING_GPS_RESCUE_FAILING)
-        && ARMING_FLAG(ARMED)
-        && gpsRescueIsConfigured()
-        && !gpsRescueIsHeadingOK()) {
-
-        tfp_sprintf(warningText, "HEADING N/A");
-        // show this warning until IMU heading is oriented by pilot flying straight ahead
-        *displayAttr = DISPLAYPORT_SEVERITY_WARNING;
-        *blinking = true;
-        return;
-    }
-#endif // USE_GPS_RESCUE
 
 #ifdef USE_POSITION_HOLD
     if (osdWarnGetState(OSD_WARNING_POSHOLD_FAILED) && posHoldFailure()) {

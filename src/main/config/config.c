@@ -273,24 +273,8 @@ static void validateAndFixConfig(void)
         rxConfigMutable()->rssi_src_frame_errors = false;
     }
 
-    if (!featureIsConfigured(FEATURE_GPS)
-#if !defined(USE_GPS) || !defined(USE_GPS_RESCUE)
-        || true
-#endif
-        ) {
-
-#ifdef USE_GPS_RESCUE
-        if (failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE) {
-            failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
-        }
-#endif
-        if (failsafeConfig()->failsafe_procedure >= FAILSAFE_PROCEDURE_COUNT) {
-            failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
-        }
-
-        if (isModeActivationConditionPresent(BOXGPSRESCUE)) {
-            removeModeActivationCondition(BOXGPSRESCUE);
-        }
+    if (failsafeConfig()->failsafe_procedure >= FAILSAFE_PROCEDURE_COUNT) {
+        failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
     }
 
 #if defined(USE_ESC_SENSOR)

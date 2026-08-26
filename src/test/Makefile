@@ -58,13 +58,9 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/autopilot.c \
-		$(USER_DIR)/flight/gps_rescue.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/pg/modes.c
-
-arming_prevention_unittest_DEFINES := \
-            USE_GPS_RESCUE=
 
 atomic_unittest_SRC := \
 		$(USER_DIR)/build/atomic.c \
@@ -202,9 +198,6 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/flight/failsafe.c \
 		$(USER_DIR)/pg/modes.c \
 		$(USER_DIR)/pg/failsafe.c
-
-flight_failsafe_unittest_DEFINES := \
-		USE_GPS_RESCUE=
 
 
 flight_imu_unittest_SRC := \
@@ -548,9 +541,6 @@ pid_unittest_SRC :=  \
 		$(USER_DIR)/pg/pid.c
 
 pid_unittest_DEFINES := \
-
-position_rescue_geometry_unittest_SRC := \
-		$(USER_DIR)/common/maths.c
 
 
 poshold_unittest_SRC := \

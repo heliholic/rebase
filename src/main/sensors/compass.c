@@ -556,9 +556,6 @@ uint32_t compassUpdate(timeUs_t currentTimeUs)
     for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
         mag.magADC.v[axis] = magADCRaw[axis];
     }
-    // If debug_mode is DEBUG_GPS_RESCUE_HEADING, we should update the magYaw value, after which isNewMagADCFlag will be set false
-    mag.isNewMagADCFlag = true;
-
     if (magDev.magAlignment == ALIGN_CUSTOM) {
         alignSensorViaMatrix(&mag.magADC, &magDev.rotationMatrix);
     } else {

@@ -49,7 +49,6 @@ extern "C" {
     #include "msp/msp_box.h"
     #include "osd/osd.h"
     #include "pg/pg.h"
-    #include "pg/gps_rescue.h"
     #include "pg/pg_ids.h"
     #include "pg/beeper.h"
     #include "pg/gps.h"
@@ -96,7 +95,6 @@ extern "C" {
     PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG, 0);
     PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
-    PG_REGISTER(gpsRescueConfig_t, gpsRescueConfig, PG_GPS_RESCUE, 0);
 
     PG_REGISTER_WITH_RESET_FN(int8_t, unitTestData, PG_RESERVED_FOR_TESTING_1, 0);
 }

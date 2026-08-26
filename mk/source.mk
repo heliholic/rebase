@@ -29,7 +29,6 @@ PG_SRC = \
             pg/feature.c \
             pg/flash.c \
             pg/gps.c \
-            pg/gps_rescue.c \
             pg/gyro.c \
             pg/gyrodev.c \
             pg/imu.c \
@@ -182,7 +181,6 @@ COMMON_SRC = \
             flight/alt_hold.c \
             flight/autopilot.c \
             flight/failsafe.c \
-            flight/gps_rescue.c \
             flight/imu.c \
             flight/mixer.c \
             flight/pid.c \
@@ -232,7 +230,6 @@ COMMON_SRC = \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \
@@ -490,7 +487,6 @@ SIZE_OPTIMISED_SRC += \
             cms/cms_menu_blackbox.c \
             cms/cms_menu_failsafe.c \
             cms/cms_menu_firmware.c \
-            cms/cms_menu_gps_rescue.c \
             cms/cms_menu_imu.c \
             cms/cms_menu_ledstrip.c \
             cms/cms_menu_main.c \

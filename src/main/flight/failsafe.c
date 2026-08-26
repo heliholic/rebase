@@ -65,9 +65,6 @@ static failsafeState_t failsafeState;
 const char * const failsafeProcedureNames[FAILSAFE_PROCEDURE_COUNT] = {
     "AUTO-LAND",
     "DROP",
-#ifdef USE_GPS_RESCUE
-    "GPS-RESCUE",
-#endif
 };
 
 /*
@@ -223,12 +220,6 @@ static void failsafeStartProcedure(failsafeProcedure_e procedure)
             failsafeState.phase = FAILSAFE_LANDED;
             //  go directly to FAILSAFE_LANDED
             break;
-#ifdef USE_GPS_RESCUE
-        case FAILSAFE_PROCEDURE_GPS_RESCUE:
-            ENABLE_FLIGHT_MODE(GPS_RESCUE_MODE);
-            failsafeState.phase = FAILSAFE_GPS_RESCUE;
-            break;
-#endif
     }
 }
 
@@ -285,11 +276,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                         //  allow re-arming 1 second after Rx recovery, customisable
                         reprocessState = true;
                     } else if (!receivingRxData) {
-                        if (millis() > failsafeState.throttleLowPeriod
-#ifdef USE_GPS_RESCUE
-                            && failsafeConfig()->failsafe_procedure != FAILSAFE_PROCEDURE_GPS_RESCUE
-#endif
-                            ) {
+                        if (millis() > failsafeState.throttleLowPeriod) {
                             //  JustDisarm if throttle was LOW for at least 'failsafe_throttle_low_delay' before failsafe
                             //  protects against false arming when the Tx is powered up after the quad
                             failsafeState.active = true;
@@ -352,27 +339,6 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                     }
                 }
                 break;
-#ifdef USE_GPS_RESCUE
-            case FAILSAFE_GPS_RESCUE:
-                if (receivingRxData) {
-                    if (areSticksActive(failsafeConfig()->failsafe_stick_threshold) || failsafeState.boxFailsafeSwitchWasOn) {
-                        // exits the rescue immediately if failsafe was initiated by switch, otherwise
-                        // requires stick input to exit the rescue after a true Rx loss failsafe
-                        // NB this test requires stick inputs to be received during GPS Rescue see PR #7936 for rationale
-                        failsafeState.phase = FAILSAFE_RX_LOSS_RECOVERED;
-                        reprocessState = true;
-                    }
-                } else {
-                    if (armed) {
-                        beeperMode = BEEPER_RX_LOST_LANDING;
-                    } else {
-                        // to manually disarm while in GPS Rescue, aux channels must be enabled
-                        failsafeState.phase = FAILSAFE_LANDED;
-                        reprocessState = true;
-                    }
-                }
-                break;
-#endif
             case FAILSAFE_LANDED:
                 disarm(DISARM_REASON_FAILSAFE);
                 setArmingDisabled(ARMING_DISABLED_FAILSAFE);
@@ -402,9 +368,6 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                 failsafeState.throttleLowPeriod = millis() + failsafeConfig()->failsafe_throttle_low_delay * MILLIS_PER_TENTH_SECOND;
                 failsafeState.phase = FAILSAFE_IDLE;
                 failsafeState.active = false;
-#ifdef USE_GPS_RESCUE
-                DISABLE_FLIGHT_MODE(GPS_RESCUE_MODE);
-#endif
                 DISABLE_FLIGHT_MODE(FAILSAFE_MODE);
                 unsetArmingDisabled(ARMING_DISABLED_FAILSAFE);
                 reprocessState = true;

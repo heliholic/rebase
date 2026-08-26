@@ -100,25 +100,6 @@
 #define PARAM_NAME_GPS_NMEA_CUSTOM_COMMANDS "gps_nmea_custom_commands"
 #define PARAM_NAME_GPS_UPDATE_RATE_HZ "gps_update_rate_hz"
 
-#ifdef USE_GPS_RESCUE
-#define PARAM_NAME_GPS_RESCUE_MIN_START_DIST "gps_rescue_min_start_dist"
-#define PARAM_NAME_GPS_RESCUE_ALT_MODE "gps_rescue_alt_mode"
-#define PARAM_NAME_GPS_RESCUE_INITIAL_CLIMB "gps_rescue_initial_climb"
-#define PARAM_NAME_GPS_RESCUE_ASCEND_RATE "gps_rescue_ascend_rate"
-
-#define PARAM_NAME_GPS_RESCUE_RETURN_ALT "gps_rescue_return_alt"
-#define PARAM_NAME_GPS_RESCUE_GROUND_SPEED "gps_rescue_ground_speed"
-
-#define PARAM_NAME_GPS_RESCUE_DESCENT_DIST "gps_rescue_descent_dist"
-#define PARAM_NAME_GPS_RESCUE_DESCEND_RATE "gps_rescue_descend_rate"
-#define PARAM_NAME_GPS_RESCUE_DISARM_THRESHOLD "gps_rescue_disarm_threshold"
-
-#define PARAM_NAME_GPS_RESCUE_SANITY_CHECKS "gps_rescue_sanity_checks"
-#define PARAM_NAME_GPS_RESCUE_MIN_SATS "gps_rescue_min_sats"
-#define PARAM_NAME_GPS_RESCUE_ALLOW_ARMING_WITHOUT_FIX "gps_rescue_allow_arming_without_fix"
-
-#define PARAM_NAME_GPS_RESCUE_YAW_P "gps_rescue_yaw_p"
-#endif // USE_GPS_RESCUE
 #endif // USE_GPS
 
 #ifdef USE_ALTITUDE_HOLD

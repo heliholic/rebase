@@ -43,7 +43,6 @@
 #include "flight/autopilot.h"
 #include "flight/failsafe.h"
 #include "flight/imu.h"
-#include "flight/gps_rescue.h"
 #include "flight/pid.h"
 
 #include "pg/autopilot.h"
@@ -343,16 +342,6 @@ FAST_CODE void processRcCommand(void)
 
             float angleRate;
 
-#ifdef USE_GPS_RESCUE
-            if ((axis == FD_YAW) && FLIGHT_MODE(GPS_RESCUE_MODE)) {
-                // If GPS Rescue is active then override the setpointRate used in the
-                // pid controller with the value calculated from the desired heading logic.
-                angleRate = gpsRescueGetYawRate();
-                // Treat the stick input as centered to avoid any stick deflection base modifications (like acceleration limit)
-                rcDeflection[axis] = 0;
-                rcDeflectionAbs[axis] = 0;
-            } else
-#endif
             {
                 // scale rcCommandf to range [-1.0, 1.0]
                 float rcCommandf;

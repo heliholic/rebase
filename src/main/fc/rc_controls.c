@@ -150,7 +150,6 @@ void processRcStickPositions(void)
                 // to avoid potentially false disarm signals soon after link recover
                 // Note that BOXFAILSAFE will also drive failsafeIsReceivingRxData false (immediately at start or end)
                 // That's why we explicitly allow disarm here if BOXFAILSAFE switch is active
-                // Note that BOXGPSRESCUE mode does not trigger failsafe - we can always disarm in that mode
                 rcDisarmTicks++;
                 if (rcDisarmTicks > 3) {
                     // require three duplicate disarm values in a row before we disarm

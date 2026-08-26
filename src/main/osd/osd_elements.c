@@ -153,7 +153,6 @@
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
-#include "flight/gps_rescue.h"
 #include "flight/position.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -1082,8 +1081,6 @@ static void osdElementFlymode(osdElementParms_t *element)
     // Note that flight mode display has precedence in what to display, FS first, ACRO last
     if (FLIGHT_MODE(FAILSAFE_MODE)) {
         strcpy(element->buff, "!FS!");
-    } else if (FLIGHT_MODE(GPS_RESCUE_MODE)) {
-        strcpy(element->buff, "RESC");
     } else if (FLIGHT_MODE(POS_HOLD_MODE)) {
         strcpy(element->buff, "POSH");
     } else if (FLIGHT_MODE(ALT_HOLD_MODE)) {
@@ -1178,11 +1175,6 @@ static void osdElementGpsSats(osdElementParms_t *element)
     if ((STATE(GPS_FIX) == 0) || (gpsSol.numSat < GPS_MIN_SAT_COUNT) ) {
         element->attr = DISPLAYPORT_SEVERITY_CRITICAL;
     }
-#ifdef USE_GPS_RESCUE
-    else if ((gpsSol.numSat < gpsRescueConfig()->minSats) && gpsRescueIsConfigured()) {
-        element->attr = DISPLAYPORT_SEVERITY_WARNING;
-    }
-#endif
     else {
         element->attr = DISPLAYPORT_SEVERITY_NORMAL;
     }
@@ -2422,11 +2414,7 @@ void osdUpdateAlarms(void)
     }
 
 #ifdef USE_GPS
-    if ((STATE(GPS_FIX) == 0) || (gpsSol.numSat < GPS_MIN_SAT_COUNT)
-#ifdef USE_GPS_RESCUE
-            || ((gpsSol.numSat < gpsRescueConfig()->minSats) && gpsRescueIsConfigured())
-#endif
-            ) {
+    if ((STATE(GPS_FIX) == 0) || (gpsSol.numSat < GPS_MIN_SAT_COUNT)) {
         SET_BLINK(OSD_GPS_SATS);
     } else {
         CLR_BLINK(OSD_GPS_SATS);

@@ -114,7 +114,6 @@
 #include "pg/autopilot.h"
 #include "pg/beeper.h"
 #include "pg/board.h"
-#include "pg/gps_rescue.h"
 #include "pg/gyrodev.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
@@ -1517,40 +1516,6 @@ case MSP_NAME:
         }
         break;
 
-#ifdef USE_GPS_RESCUE
-    case MSP_GPS_RESCUE:
-        sbufWriteU16(dst, autopilotConfig()->maxAngle);
-        sbufWriteU16(dst, gpsRescueConfig()->returnAltitudeM);
-        sbufWriteU16(dst, gpsRescueConfig()->descentDistanceM);
-        sbufWriteU16(dst, gpsRescueConfig()->groundSpeedCmS);
-        sbufWriteU16(dst, autopilotConfig()->throttleMin);
-        sbufWriteU16(dst, autopilotConfig()->throttleMax);
-        sbufWriteU16(dst, autopilotConfig()->hoverThrottle);
-        sbufWriteU8(dst,  gpsRescueConfig()->sanityChecks);
-        sbufWriteU8(dst,  gpsRescueConfig()->minSats);
-
-        // Added in API version 1.43
-        sbufWriteU16(dst, gpsRescueConfig()->ascendRate);
-        sbufWriteU16(dst, gpsRescueConfig()->descendRate);
-        sbufWriteU8(dst, gpsRescueConfig()->allowArmingWithoutFix);
-        sbufWriteU8(dst, gpsRescueConfig()->altitudeMode);
-        // Added in API version 1.44
-        sbufWriteU16(dst, gpsRescueConfig()->minStartDistM);
-        // Added in API version 1.46
-        sbufWriteU16(dst, gpsRescueConfig()->initialClimbM);
-        break;
-
-    case MSP_GPS_RESCUE_PIDS:
-        sbufWriteU16(dst, autopilotConfig()->altitudeP);
-        sbufWriteU16(dst, autopilotConfig()->altitudeI);
-        sbufWriteU16(dst, autopilotConfig()->altitudeD);
-        // altitude_F not implemented yet
-        sbufWriteU16(dst, autopilotConfig()->positionP);
-        sbufWriteU16(dst, autopilotConfig()->positionI);
-        sbufWriteU16(dst, autopilotConfig()->positionD);
-        sbufWriteU16(dst, gpsRescueConfig()->yawP);
-        break;
-#endif
 #endif
 
 #if defined(USE_ACC)
@@ -2667,45 +2632,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 #endif
 
 #ifdef USE_GPS
-#ifdef USE_GPS_RESCUE
-    case MSP_SET_GPS_RESCUE:
-        autopilotConfigMutable()->maxAngle = sbufReadU16(src);
-        gpsRescueConfigMutable()->returnAltitudeM = sbufReadU16(src);
-        gpsRescueConfigMutable()->descentDistanceM = sbufReadU16(src);
-        gpsRescueConfigMutable()->groundSpeedCmS = sbufReadU16(src);
-        autopilotConfigMutable()->throttleMin = sbufReadU16(src);
-        autopilotConfigMutable()->throttleMax = sbufReadU16(src);
-        autopilotConfigMutable()->hoverThrottle = sbufReadU16(src);
-        gpsRescueConfigMutable()->sanityChecks = sbufReadU8(src);
-        gpsRescueConfigMutable()->minSats = sbufReadU8(src);
-        if (sbufBytesRemaining(src) >= 6) {
-            // Added in API version 1.43
-            gpsRescueConfigMutable()->ascendRate = sbufReadU16(src);
-            gpsRescueConfigMutable()->descendRate = sbufReadU16(src);
-            gpsRescueConfigMutable()->allowArmingWithoutFix = sbufReadU8(src);
-            gpsRescueConfigMutable()->altitudeMode = sbufReadU8(src);
-        }
-        if (sbufBytesRemaining(src) >= 2) {
-            // Added in API version 1.44
-            gpsRescueConfigMutable()->minStartDistM = sbufReadU16(src);
-        }
-        if (sbufBytesRemaining(src) >= 2) {
-            // Added in API version 1.46
-            gpsRescueConfigMutable()->initialClimbM = sbufReadU16(src);
-        }
-        break;
-
-    case MSP_SET_GPS_RESCUE_PIDS:
-        autopilotConfigMutable()->altitudeP = sbufReadU16(src);
-        autopilotConfigMutable()->altitudeI = sbufReadU16(src);
-        autopilotConfigMutable()->altitudeD = sbufReadU16(src);
-        // altitude_F not included in msp yet
-        autopilotConfigMutable()->positionP = sbufReadU16(src);
-        autopilotConfigMutable()->positionI = sbufReadU16(src);
-        autopilotConfigMutable()->positionD = sbufReadU16(src);
-        gpsRescueConfigMutable()->yawP = sbufReadU16(src);
-        break;
-#endif
 #endif
 
     case MSP_SET_MOTOR:

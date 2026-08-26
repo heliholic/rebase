@@ -37,7 +37,6 @@ extern "C" {
     #include "flight/mixer.h"
     #include "flight/pid.h"
     #include "flight/servos.h"
-    #include "flight/gps_rescue.h"
 
     #include "io/beeper.h"
     #include "io/gps.h"
@@ -46,7 +45,6 @@ extern "C" {
 
     #include "drivers/vtx_common.h"
 
-    #include "pg/gps_rescue.h"
     #include "pg/motor.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
@@ -71,7 +69,6 @@ extern "C" {
     PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
     PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 0);
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
-    PG_REGISTER(gpsRescueConfig_t, gpsRescueConfig, PG_GPS_CONFIG, 0);
 
     extern float rcCommand[4];
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];

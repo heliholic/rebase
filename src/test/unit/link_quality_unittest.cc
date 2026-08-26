@@ -504,7 +504,6 @@ extern "C" {
     bool failsafeIsActive(void) { return false; }
     bool failsafeIsReceivingRxData(void) { return true; }
     bool gpsIsHealthy(void) { return true; }
-    bool gpsRescueIsConfigured(void) { return false; }
     int8_t calculateThrottlePercent(void) { return 0; }
     uint32_t persistentObjectRead(persistentObjectId_e) { return 0; }
     void persistentObjectWrite(persistentObjectId_e, uint32_t) {}
