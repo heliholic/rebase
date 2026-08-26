@@ -92,8 +92,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51},
     { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
     { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
-    { .boxId = BOXAUTOPILOT, .boxName = "AUTOPILOT", .permanentId = 56},
-    { .boxId = BOXWPCAPTURE, .boxName = "WP CAPTURE", .permanentId = 57}
+    { .boxId = BOXAUTOPILOT, .boxName = "AUTOPILOT", .permanentId = 56}
 };
 
 // mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
@@ -223,7 +222,6 @@ void initActiveBoxIds(void)
     }
 #if ENABLE_FLIGHT_PLAN
     BME(BOXAUTOPILOT);
-    BME(BOXWPCAPTURE);
 #endif
 #endif
 
