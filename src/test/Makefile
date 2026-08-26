@@ -44,8 +44,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/autopilot_multirotor.c
+		$(USER_DIR)/fc/runtime_config.c
 
 atomic_unittest_SRC := \
 		$(USER_DIR)/build/atomic.c \
