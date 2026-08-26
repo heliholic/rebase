@@ -20,82 +20,92 @@
 
 #pragma once
 
-typedef enum {
+typedef enum FlightLogFieldCondition {
     FLIGHT_LOG_FIELD_CONDITION_ALWAYS = 0,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_1,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_2,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_3,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_4,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_5,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_6,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_7,
-    FLIGHT_LOG_FIELD_CONDITION_AT_LEAST_MOTORS_8,
 
-#ifdef USE_DSHOT_TELEMETRY
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_1_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_2_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_3_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_4_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_5_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_6_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_7_HAS_RPM,
-    FLIGHT_LOG_FIELD_CONDITION_MOTOR_8_HAS_RPM,
-#endif
-
-#ifdef USE_SERVOS
-    FLIGHT_LOG_FIELD_CONDITION_SERVOS,
-#endif
-
-    FLIGHT_LOG_FIELD_CONDITION_MAG,
-    FLIGHT_LOG_FIELD_CONDITION_BARO,
-    FLIGHT_LOG_FIELD_CONDITION_VBAT,
-    FLIGHT_LOG_FIELD_CONDITION_AMPERAGE_ADC,
-    FLIGHT_LOG_FIELD_CONDITION_RANGEFINDER,
-    FLIGHT_LOG_FIELD_CONDITION_RSSI,
-
-    FLIGHT_LOG_FIELD_CONDITION_PID,
-    FLIGHT_LOG_FIELD_CONDITION_NONZERO_PID_D_0,
-    FLIGHT_LOG_FIELD_CONDITION_NONZERO_PID_D_1,
-    FLIGHT_LOG_FIELD_CONDITION_NONZERO_PID_D_2,
-
-
-    FLIGHT_LOG_FIELD_CONDITION_RC_COMMANDS,
+    FLIGHT_LOG_FIELD_CONDITION_COMMAND,
     FLIGHT_LOG_FIELD_CONDITION_SETPOINT,
+    FLIGHT_LOG_FIELD_CONDITION_PID,
 
-    FLIGHT_LOG_FIELD_CONDITION_NOT_LOGGING_EVERY_FRAME,
-
-    FLIGHT_LOG_FIELD_CONDITION_GYRO,
-    FLIGHT_LOG_FIELD_CONDITION_GYROUNFILT,
-    FLIGHT_LOG_FIELD_CONDITION_ACC,
-    FLIGHT_LOG_FIELD_CONDITION_DEBUG_LOG,
     FLIGHT_LOG_FIELD_CONDITION_ATTITUDE,
+    FLIGHT_LOG_FIELD_CONDITION_GYRAW,
+    FLIGHT_LOG_FIELD_CONDITION_GYRO,
+    FLIGHT_LOG_FIELD_CONDITION_ACC,
+    FLIGHT_LOG_FIELD_CONDITION_MAG,
+    FLIGHT_LOG_FIELD_CONDITION_ALT,
+    FLIGHT_LOG_FIELD_CONDITION_RSSI,
+    FLIGHT_LOG_FIELD_CONDITION_VOLTAGE,
+    FLIGHT_LOG_FIELD_CONDITION_CURRENT,
+
+    FLIGHT_LOG_FIELD_CONDITION_TMCU,
+
+    FLIGHT_LOG_FIELD_CONDITION_MOTOR_1,
+    FLIGHT_LOG_FIELD_CONDITION_MOTOR_2,
+    FLIGHT_LOG_FIELD_CONDITION_MOTOR_3,
+    FLIGHT_LOG_FIELD_CONDITION_MOTOR_4,
+
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_1,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_2,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_3,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_4,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_5,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_6,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_7,
+    FLIGHT_LOG_FIELD_CONDITION_SERVO_8,
+
+    FLIGHT_LOG_FIELD_CONDITION_DEBUG,
+
+    FLIGHT_LOG_FIELD_CONDITION_NOT_EVERY_FRAME,
+
     FLIGHT_LOG_FIELD_CONDITION_NEVER,
 
-    FLIGHT_LOG_FIELD_CONDITION_FIRST = FLIGHT_LOG_FIELD_CONDITION_ALWAYS,
-    FLIGHT_LOG_FIELD_CONDITION_LAST = FLIGHT_LOG_FIELD_CONDITION_NEVER
-} flightLogFieldCondition_e;
+    FLIGHT_LOG_FIELD_CONDITION_COUNT
+} FlightLogFieldCondition;
 
-typedef enum { // no more than 32
-    FLIGHT_LOG_FIELD_SELECT_PID = 0,
-    FLIGHT_LOG_FIELD_SELECT_RC_COMMANDS,
+/*
+ * Bit positions in blackboxConfig()->fields. These are part of the CLI and MSP
+ * API and match Rotorflight 4.6, so the numbering must stay stable - do not
+ * renumber. Positions whose flight code is not in this tree yet are reserved.
+ */
+typedef enum FlightLogFieldSelect_e {
+    FLIGHT_LOG_FIELD_SELECT_COMMAND,
     FLIGHT_LOG_FIELD_SELECT_SETPOINT,
-    FLIGHT_LOG_FIELD_SELECT_BATTERY,
-    FLIGHT_LOG_FIELD_SELECT_MAG,
-    FLIGHT_LOG_FIELD_SELECT_ALTITUDE,
-    FLIGHT_LOG_FIELD_SELECT_RSSI,
-    FLIGHT_LOG_FIELD_SELECT_GYRO,
+    FLIGHT_LOG_FIELD_SELECT_MIXER,
+    FLIGHT_LOG_FIELD_SELECT_PID,
     FLIGHT_LOG_FIELD_SELECT_ATTITUDE,
+    FLIGHT_LOG_FIELD_SELECT_GYRAW,
+    FLIGHT_LOG_FIELD_SELECT_GYRO,
     FLIGHT_LOG_FIELD_SELECT_ACC,
-    FLIGHT_LOG_FIELD_SELECT_DEBUG_LOG,
-    FLIGHT_LOG_FIELD_SELECT_MOTOR,
+    FLIGHT_LOG_FIELD_SELECT_MAG,
+    FLIGHT_LOG_FIELD_SELECT_ALT,
+    FLIGHT_LOG_FIELD_SELECT_BATTERY,
+    FLIGHT_LOG_FIELD_SELECT_RSSI,
     FLIGHT_LOG_FIELD_SELECT_GPS,
     FLIGHT_LOG_FIELD_SELECT_RPM,
-    FLIGHT_LOG_FIELD_SELECT_GYROUNFILT,
+    FLIGHT_LOG_FIELD_SELECT_MOTOR,
     FLIGHT_LOG_FIELD_SELECT_SERVO,
+    FLIGHT_LOG_FIELD_SELECT_VBEC,
+    FLIGHT_LOG_FIELD_SELECT_VBUS,
+    FLIGHT_LOG_FIELD_SELECT_TEMP,
+    FLIGHT_LOG_FIELD_SELECT_ESC,
+    FLIGHT_LOG_FIELD_SELECT_BEC,
+    FLIGHT_LOG_FIELD_SELECT_ESC2,
+    FLIGHT_LOG_FIELD_SELECT_GOV,
     FLIGHT_LOG_FIELD_SELECT_COUNT
-} flightLogFieldSelect_e;
+} FlightLogFieldSelect_e;
 
 typedef enum {
+    FLIGHT_LOG_EVENT_SYNC_BEEP = 0,
+    FLIGHT_LOG_EVENT_INFLIGHT_ADJUSTMENT = 13,
+    FLIGHT_LOG_EVENT_LOGGING_RESUME = 14,
+    FLIGHT_LOG_EVENT_DISARM = 15,
+    FLIGHT_LOG_EVENT_FLIGHTMODE = 30, // Add new event type for flight mode status.
+    FLIGHT_LOG_EVENT_CUSTOM_DATA = 100,
+    FLIGHT_LOG_EVENT_CUSTOM_STRING = 101,
+    FLIGHT_LOG_EVENT_LOG_END = 255
+} FlightLogEvent;
+
+typedef enum FlightLogFieldPredictor {
     //No prediction:
     FLIGHT_LOG_FIELD_PREDICTOR_0              = 0,
 
@@ -103,7 +113,7 @@ typedef enum {
     FLIGHT_LOG_FIELD_PREDICTOR_PREVIOUS       = 1,
 
     //Predict that the slope between this field and the previous item is the same as that between the past two history items:
-    FLIGHT_LOG_FIELD_PREDICTOR_STRAIGHT_LINE  = 2,
+    FLIGHT_LOG_FIELD_PREDICTOR_LINEAR         = 2,
 
     //Predict that this field is the same as the average of the last two history items:
     FLIGHT_LOG_FIELD_PREDICTOR_AVERAGE_2      = 3,
@@ -132,9 +142,9 @@ typedef enum {
     //Predict that this field is the minimum motor output
     FLIGHT_LOG_FIELD_PREDICTOR_MINMOTOR       = 11
 
-} flightLogFieldPredictor_e;
+} FlightLogFieldPredictor;
 
-typedef enum {
+typedef enum FlightLogFieldEncoding {
     FLIGHT_LOG_FIELD_ENCODING_SIGNED_VB       = 0, // Signed variable-byte
     FLIGHT_LOG_FIELD_ENCODING_UNSIGNED_VB     = 1, // Unsigned variable-byte
     FLIGHT_LOG_FIELD_ENCODING_NEG_14BIT       = 3, // Unsigned variable-byte but we negate the value before storing, value is 14 bits
@@ -143,12 +153,12 @@ typedef enum {
     FLIGHT_LOG_FIELD_ENCODING_TAG8_4S16       = 8,
     FLIGHT_LOG_FIELD_ENCODING_NULL            = 9, // Nothing is written to the file, take value to be zero
     FLIGHT_LOG_FIELD_ENCODING_TAG2_3SVARIABLE = 10
-} flightLogFieldEncoding_e;
+} FlightLogFieldEncoding;
 
-typedef enum {
+typedef enum FlightLogFieldSign {
     FLIGHT_LOG_FIELD_UNSIGNED = 0,
     FLIGHT_LOG_FIELD_SIGNED   = 1
-} flightLogFieldSign_e;
+} FlightLogFieldSign;
 
 typedef struct flightLogEvent_syncBeep_s {
     uint32_t time;
@@ -158,7 +168,7 @@ typedef struct flightLogEvent_disarm_s {
     uint32_t reason;
 } flightLogEvent_disarm_t;
 
-typedef struct flightLogEvent_flightMode_s { // New Event Data type
+typedef struct flightLogEvent_flightMode_s {
     uint32_t flags;
     uint32_t lastFlags;
 } flightLogEvent_flightMode_t;
@@ -170,6 +180,15 @@ typedef struct flightLogEvent_inflightAdjustment_s {
     bool floatFlag;
 } flightLogEvent_inflightAdjustment_t;
 
+typedef struct flightLogEvent_customData_s {
+    const uint8_t *buffer;
+    uint8_t length;
+} flightLogEvent_customData_t;
+
+typedef struct flightLogEvent_customString_s {
+    const char *buffer;
+} flightLogEvent_customString_t;
+
 typedef struct flightLogEvent_loggingResume_s {
     uint32_t logIteration;
     uint32_t currentTime;
@@ -179,9 +198,11 @@ typedef struct flightLogEvent_loggingResume_s {
 
 typedef union flightLogEventData_u {
     flightLogEvent_syncBeep_t syncBeep;
-    flightLogEvent_flightMode_t flightMode; // New event data
+    flightLogEvent_flightMode_t flightMode;
     flightLogEvent_disarm_t disarm;
     flightLogEvent_inflightAdjustment_t inflightAdjustment;
+    flightLogEvent_customData_t data;
+    flightLogEvent_customString_t string;
     flightLogEvent_loggingResume_t loggingResume;
 } flightLogEventData_t;
 

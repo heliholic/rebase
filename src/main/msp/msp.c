@@ -1267,7 +1267,7 @@ case MSP_NAME:
         int16_t w = lrintf(imuAttitudeQuaternion.w * q_scale);
         int16_t x = lrintf(imuAttitudeQuaternion.x * q_scale);
         int16_t y = lrintf(imuAttitudeQuaternion.y * q_scale);
-        int16_t z = lrintf(imuAttitudeQuaternion.z * q_scale); 
+        int16_t z = lrintf(imuAttitudeQuaternion.z * q_scale);
         // Write their bit representation as uint16_t
         sbufWriteU16(dst, *(uint16_t*)&w);
         sbufWriteU16(dst, *(uint16_t*)&x);
@@ -1652,26 +1652,22 @@ case MSP_NAME:
 #ifdef USE_BLACKBOX
         sbufWriteU8(dst, 1); //Blackbox supported
         sbufWriteU8(dst, blackboxConfig()->device);
-        sbufWriteU8(dst, 1); // Rate numerator, not used anymore
-        sbufWriteU8(dst, blackboxGetRateDenom());
-        sbufWriteU16(dst, blackboxGetPRatio());
-        sbufWriteU8(dst, blackboxConfig()->sample_rate);
-        // Added in MSP API 1.45
-        sbufWriteU32(dst, blackboxConfig()->fields_disabled_mask);
+        sbufWriteU8(dst, blackboxConfig()->mode);
+        sbufWriteU16(dst, blackboxConfig()->denom);
+        sbufWriteU32(dst, blackboxConfig()->fields);
         // Flashfs loop recording
-        sbufWriteU16(dst, blackboxConfig()->initialEraseFreeSpaceKiB);
+        sbufWriteU16(dst, blackboxConfig()->initialErase);
         sbufWriteU8(dst, blackboxConfig()->rollingErase);
+        sbufWriteU8(dst, blackboxConfig()->gracePeriod);
 #else
         sbufWriteU8(dst, 0); // Blackbox not supported
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
         sbufWriteU16(dst, 0);
-        sbufWriteU8(dst, 0);
-        // Added in MSP API 1.45
         sbufWriteU32(dst, 0);
         // Flashfs loop recording
         sbufWriteU16(dst, 0);
+        sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
 #endif
         break;
@@ -2876,34 +2872,17 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         // Don't allow config to be updated while Blackbox is logging
         if (blackboxMayEditConfig()) {
             blackboxConfigMutable()->device = sbufReadU8(src);
-            const int rateNum = sbufReadU8(src); // was rate_num
-            const int rateDenom = sbufReadU8(src); // was rate_denom
-            uint16_t pRatio = 0;
-            if (sbufBytesRemaining(src) >= 2) {
-                // p_ratio specified, so use it directly
-                pRatio = sbufReadU16(src);
-            } else {
-                // p_ratio not specified in MSP, so calculate it from old rateNum and rateDenom
-                pRatio = blackboxCalculatePDenom(rateNum, rateDenom);
-            }
-
-            if (sbufBytesRemaining(src) >= 1) {
-                // sample_rate specified, so use it directly
-                blackboxConfigMutable()->sample_rate = sbufReadU8(src);
-            } else {
-                // sample_rate not specified in MSP, so calculate it from old p_ratio
-                blackboxConfigMutable()->sample_rate = blackboxCalculateSampleRate(pRatio);
-            }
-
-            // Added in MSP API 1.45
-            if (sbufBytesRemaining(src) >= 4) {
-                blackboxConfigMutable()->fields_disabled_mask = sbufReadU32(src);
-            }
+            blackboxConfigMutable()->mode = sbufReadU8(src);
+            blackboxConfigMutable()->denom = sbufReadU16(src);
+            blackboxConfigMutable()->fields = sbufReadU32(src);
 
             // Flashfs loop recording
             if (sbufBytesRemaining(src) >= 3) {
-                blackboxConfigMutable()->initialEraseFreeSpaceKiB = sbufReadU16(src);
+                blackboxConfigMutable()->initialErase = sbufReadU16(src);
                 blackboxConfigMutable()->rollingErase = sbufReadU8(src);
+            }
+            if (sbufBytesRemaining(src) >= 1) {
+                blackboxConfigMutable()->gracePeriod = sbufReadU8(src);
             }
         }
         break;
@@ -3165,7 +3144,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 
 #if defined(USE_FLASHFS) && defined(USE_BLACKBOX)
     case MSP_DATAFLASH_ERASE:
-        blackboxEraseAll();
+        blackboxErase();
 
         break;
 #endif

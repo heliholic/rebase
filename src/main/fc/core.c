@@ -339,10 +339,6 @@ void disarm(flightLogDisarmReason_e reason)
         flightLogEvent_disarm_t eventData;
         eventData.reason = reason;
         blackboxLogEvent(FLIGHT_LOG_EVENT_DISARM, (flightLogEventData_t*)&eventData);
-
-        if (blackboxConfig()->device) {
-            blackboxFinish();
-        }
 #else
         UNUSED(reason);
 #endif
@@ -673,6 +669,17 @@ static FAST_CODE_NOINLINE void subTaskPidSubprocesses(timeUs_t currentTimeUs)
     DEBUG_TIME_END(PIDLOOP, 3);
 }
 
+static FAST_CODE_NOINLINE void subTaskBlackboxFlush(timeUs_t currentTimeUs)
+{
+#ifdef USE_BLACKBOX
+    if (blackboxConfig()->device) {
+        blackboxFlush(currentTimeUs);
+    }
+#else
+    UNUSED(currentTimeUs);
+#endif
+}
+
 #ifdef USE_TELEMETRY
 #define GYRO_TEMP_READ_DELAY_US (3 * 1000 * 1000)    // Only read the gyro temp every 3 seconds
 void subTaskTelemetryPollSensors(timeUs_t currentTimeUs)
@@ -777,6 +784,7 @@ FAST_CODE void taskMainPidLoop(timeUs_t currentTimeUs)
     subTaskPidController(currentTimeUs);
     subTaskMotorUpdate(currentTimeUs);
     subTaskPidSubprocesses(currentTimeUs);
+    subTaskBlackboxFlush(currentTimeUs);
 
     DEBUG_SET(DEBUG_CYCLETIME, 0, getTaskDeltaTimeUs(TASK_SELF));
     DEBUG_SET(DEBUG_CYCLETIME, 1, getAverageSystemLoadPercent());

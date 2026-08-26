@@ -48,9 +48,6 @@ extern "C" {
 
     #include "sensors/battery.h"
     #include "sensors/gyro.h"
-
-    extern int16_t blackboxIInterval;
-    extern int16_t blackboxPInterval;
 }
 
 #include "unittest_macros.h"
@@ -58,277 +55,115 @@ extern "C" {
 
 gyroDev_t gyroDev;
 
+// Set up the gyro rate and the P-frame denominator, then re-run blackboxInit()
+static void blackboxInitWith(uint16_t targetRateHz, uint16_t denom)
+{
+    gyro.targetRateHz = targetRateHz;
+    blackboxConfigMutable()->denom = denom;
+    blackboxInit();
+}
+
 TEST(BlackboxTest, TestInitIntervals)
 {
-    blackboxConfigMutable()->sample_rate = 4; // sample_rate = PID loop frequency / 16
-    // 250Hz PIDloop
-    gyro.targetLooptime = 4000;
-    blackboxInit();
-    EXPECT_EQ(8, blackboxIInterval);
-    EXPECT_EQ(0, blackboxPInterval);
-    EXPECT_EQ(2048, blackboxSInterval);
-
-    // 500Hz PIDloop
-    gyro.targetLooptime = 2000;
-    blackboxInit();
-    EXPECT_EQ(16, blackboxIInterval);
-    EXPECT_EQ(16, blackboxPInterval);
-    EXPECT_EQ(4096, blackboxSInterval);
-
-    blackboxConfigMutable()->sample_rate = 1; // sample_rate = PID loop frequency / 2
-    // 2kHz PIDloop
-    gyro.targetLooptime = 500;
-    blackboxInit();
-    EXPECT_EQ(64, blackboxIInterval);
-    EXPECT_EQ(2, blackboxPInterval);
-    EXPECT_EQ(16384, blackboxSInterval);
-
-    blackboxConfigMutable()->sample_rate = 2;
-    // 4kHz PIDloop
-    gyro.targetLooptime = 250;
-    blackboxInit();
-    EXPECT_EQ(128, blackboxIInterval);
-    EXPECT_EQ(4, blackboxPInterval);
-    EXPECT_EQ(32768, blackboxSInterval);
-
-    blackboxConfigMutable()->sample_rate = 3;
-    // 8kHz PIDloop
-    gyro.targetLooptime = 125;
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(8, blackboxPInterval);
-    EXPECT_EQ(65536, blackboxSInterval);
-}
-
-TEST(BlackboxTest, Test_500Hz)
-{
-    blackboxConfigMutable()->sample_rate = 0;
-    // 500Hz PIDloop
-    gyro.targetLooptime = 2000;
-    blackboxInit();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-    for (int ii = 0; ii < 15; ++ii) {
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_TRUE(blackboxShouldLogPFrame());
-    }
-    blackboxAdvanceIterationTimers();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-}
-
-TEST(BlackboxTest, Test_1kHz)
-{
-    blackboxConfigMutable()->sample_rate = 0;
-    // 1kHz PIDloop
-    gyro.targetLooptime = 1000;
-    blackboxInit();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-    EXPECT_EQ(0, blackboxSlowFrameIterationTimer);
-    EXPECT_FALSE(blackboxSlowFrameIterationTimer >= blackboxSInterval);
-    blackboxSlowFrameIterationTimer = blackboxSInterval;
-    EXPECT_TRUE(writeSlowFrameIfNeeded());
-    EXPECT_EQ(0, blackboxSlowFrameIterationTimer);
-
-    for (int ii = 0; ii < 31; ++ii) {
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_TRUE(blackboxShouldLogPFrame());
-        EXPECT_EQ(ii + 1, blackboxSlowFrameIterationTimer);
-        EXPECT_FALSE(writeSlowFrameIfNeeded());
-    }
-    blackboxAdvanceIterationTimers();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-}
-
-TEST(BlackboxTest, Test_2kHz)
-{
-    blackboxConfigMutable()->sample_rate = 1;
-    // 2kHz PIDloop
-    gyro.targetLooptime = 500;
-    blackboxInit();
-    EXPECT_EQ(64, blackboxIInterval);
-    EXPECT_EQ(2, blackboxPInterval);
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-    blackboxAdvanceIterationTimers();
-    EXPECT_FALSE(blackboxShouldLogIFrame());
-    EXPECT_FALSE(blackboxShouldLogPFrame());
-
-    for (int ii = 0; ii < 31; ++ii) {
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_TRUE(blackboxShouldLogPFrame());
-
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_FALSE(blackboxShouldLogPFrame());
-    }
-
-    blackboxAdvanceIterationTimers();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-
-    blackboxAdvanceIterationTimers();
-    EXPECT_FALSE(blackboxShouldLogIFrame());
-    EXPECT_FALSE(blackboxShouldLogPFrame());
-}
-
-TEST(BlackboxTest, Test_8kHz)
-{
-    blackboxConfigMutable()->sample_rate = 3;
-    // 8kHz PIDloop
-    gyro.targetLooptime = 125;
-    blackboxInit();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-    EXPECT_EQ(0, blackboxSlowFrameIterationTimer);
-    EXPECT_FALSE(blackboxSlowFrameIterationTimer >= blackboxSInterval);
-    blackboxSlowFrameIterationTimer = blackboxSInterval;
-    EXPECT_TRUE(writeSlowFrameIfNeeded());
-    EXPECT_EQ(0, blackboxSlowFrameIterationTimer);
-
-    for (int ii = 0; ii < 255; ++ii) {
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_EQ(ii + 1, blackboxSlowFrameIterationTimer);
-        EXPECT_FALSE(writeSlowFrameIfNeeded());
-    }
-    blackboxAdvanceIterationTimers();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_TRUE(blackboxShouldLogPFrame());
-}
-
-TEST(BlackboxTest, Test_zero_p_interval)
-{
-    blackboxConfigMutable()->sample_rate = 4;
-    // 250Hz PIDloop
-    gyro.targetLooptime = 4000;
-    blackboxInit();
-    EXPECT_EQ(8, blackboxIInterval);
-    EXPECT_EQ(0, blackboxPInterval);
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_FALSE(blackboxShouldLogPFrame());
-
-    for (int ii = 0; ii < 7; ++ii) {
-        blackboxAdvanceIterationTimers();
-        EXPECT_FALSE(blackboxShouldLogIFrame());
-        EXPECT_FALSE(blackboxShouldLogPFrame());
-    }
-    blackboxAdvanceIterationTimers();
-    EXPECT_TRUE(blackboxShouldLogIFrame());
-    EXPECT_FALSE(blackboxShouldLogPFrame());
-}
-
-TEST(BlackboxTest, Test_CalculatePDenom)
-{
-    blackboxConfigMutable()->sample_rate = 0;
-    // note I-frame is logged every 32ms regardless of PIDloop rate
-
-    // 1kHz PIDloop
-    gyro.targetLooptime = 1000;
-    blackboxInit();
-    EXPECT_EQ(32, blackboxIInterval);
-    EXPECT_EQ(32, blackboxCalculatePDenom(1, 1)); // 1kHz logging
-    EXPECT_EQ(16, blackboxCalculatePDenom(1, 2));
-    EXPECT_EQ(8, blackboxCalculatePDenom(1, 4));
-
-    // 2kHz PIDloop
-    gyro.targetLooptime = 500;
-    blackboxInit();
-    EXPECT_EQ(64, blackboxIInterval);
-    EXPECT_EQ(64, blackboxCalculatePDenom(1, 1));
-    EXPECT_EQ(32, blackboxCalculatePDenom(1, 2)); // 1kHz logging
-    EXPECT_EQ(16, blackboxCalculatePDenom(1, 4));
-
-    // 4kHz PIDloop
-    gyro.targetLooptime = 250;
-    blackboxInit();
-    EXPECT_EQ(128, blackboxIInterval);
-    EXPECT_EQ(128, blackboxCalculatePDenom(1, 1));
-    EXPECT_EQ(64, blackboxCalculatePDenom(1, 2));
-    EXPECT_EQ(32, blackboxCalculatePDenom(1, 4)); // 1kHz logging
-    EXPECT_EQ(16, blackboxCalculatePDenom(1, 8));
-
-    // 8kHz PIDloop
-    gyro.targetLooptime = 125;
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(256, blackboxCalculatePDenom(1, 1));
-    EXPECT_EQ(128, blackboxCalculatePDenom(1, 2));
-    EXPECT_EQ(64, blackboxCalculatePDenom(1, 4));
-    EXPECT_EQ(32, blackboxCalculatePDenom(1, 8)); // 1kHz logging
-    EXPECT_EQ(16, blackboxCalculatePDenom(1, 16));
-}
-
-TEST(BlackboxTest, Test_CalculateRates)
-{
-    // 1kHz PIDloop
-    gyro.targetLooptime = 1000;
-    blackboxConfigMutable()->sample_rate = 0;
-    blackboxInit();
-    EXPECT_EQ(32, blackboxIInterval);
+    // 1kHz gyro, logging every iteration. An I-frame is written every 32ms.
+    blackboxInitWith(1000, 1);
     EXPECT_EQ(1, blackboxPInterval);
+    EXPECT_EQ(32, blackboxIInterval);
+    EXPECT_EQ(5000, blackboxSInterval);
+    EXPECT_EQ(312, blackboxGInterval);
+
+    // 1kHz gyro, logging every 4th iteration. I-interval stays a multiple of P.
+    blackboxInitWith(1000, 4);
+    EXPECT_EQ(4, blackboxPInterval);
+    EXPECT_EQ(32, blackboxIInterval);
+    EXPECT_EQ(1250, blackboxSInterval);
+    EXPECT_EQ(312, blackboxGInterval);
+
+    // 8kHz gyro, logging at 1kHz.
+    blackboxInitWith(8000, 8);
+    EXPECT_EQ(8, blackboxPInterval);
+    EXPECT_EQ(256, blackboxIInterval);
+    EXPECT_EQ(5000, blackboxSInterval);
+    EXPECT_EQ(312, blackboxGInterval);
+
+    // Slow logging: 32ms would need fewer than one P-frame, so I == P.
+    blackboxInitWith(1000, 64);
+    EXPECT_EQ(64, blackboxPInterval);
+    EXPECT_EQ(64, blackboxIInterval);
+
+    // Very fast gyro with a small denom: I-interval is capped at 64 P-frames.
+    blackboxInitWith(8000, 1);
+    EXPECT_EQ(1, blackboxPInterval);
+    EXPECT_EQ(64, blackboxIInterval);
+
+    // The denom is constrained into [1, 8000].
+    blackboxInitWith(1000, 0);
+    EXPECT_EQ(1, blackboxPInterval);
+}
+
+TEST(BlackboxTest, TestFrameScheduling1kHz)
+{
+    // 1kHz gyro, logging every iteration -> a fast frame every iteration,
+    // an I-frame every 32.
+    blackboxInitWith(1000, 1);
+    EXPECT_EQ(1, blackboxPInterval);
+    EXPECT_EQ(32, blackboxIInterval);
+
+    EXPECT_TRUE(blackboxShouldLogFastFrame());
+    EXPECT_TRUE(blackboxShouldLogIFrame());
+
+    for (int ii = 0; ii < 31; ii++) {
+        blackboxAdvanceIterationTimers();
+        EXPECT_TRUE(blackboxShouldLogFastFrame());
+        EXPECT_FALSE(blackboxShouldLogIFrame());
+    }
+
+    blackboxAdvanceIterationTimers();
+    EXPECT_TRUE(blackboxShouldLogFastFrame());
+    EXPECT_TRUE(blackboxShouldLogIFrame());
+}
+
+TEST(BlackboxTest, TestFrameSchedulingDecimated)
+{
+    // 8kHz gyro, logging at 1kHz -> a fast frame every 8th iteration,
+    // an I-frame every 256.
+    blackboxInitWith(8000, 8);
+    EXPECT_EQ(8, blackboxPInterval);
+    EXPECT_EQ(256, blackboxIInterval);
+
+    EXPECT_TRUE(blackboxShouldLogFastFrame());
+    EXPECT_TRUE(blackboxShouldLogIFrame());
+
+    for (int ii = 0; ii < 7; ii++) {
+        blackboxAdvanceIterationTimers();
+        EXPECT_FALSE(blackboxShouldLogFastFrame());
+        EXPECT_FALSE(blackboxShouldLogIFrame());
+    }
+
+    // 8th iteration: a P-frame, but not an I-frame
+    blackboxAdvanceIterationTimers();
+    EXPECT_TRUE(blackboxShouldLogFastFrame());
+    EXPECT_FALSE(blackboxShouldLogIFrame());
+
+    // Advance to iteration 256, which is both
+    for (int ii = 8; ii < 256; ii++) {
+        blackboxAdvanceIterationTimers();
+    }
+    EXPECT_TRUE(blackboxShouldLogFastFrame());
+    EXPECT_TRUE(blackboxShouldLogIFrame());
+}
+
+TEST(BlackboxTest, TestGetRateDenom)
+{
+    blackboxInitWith(1000, 1);
     EXPECT_EQ(1, blackboxGetRateDenom());
 
-    blackboxConfigMutable()->sample_rate = 1;
-    blackboxInit();
-    EXPECT_EQ(32, blackboxIInterval);
-    EXPECT_EQ(2, blackboxPInterval);
-    EXPECT_EQ(2, blackboxGetRateDenom());
-
-    blackboxConfigMutable()->sample_rate = 2;
-    blackboxInit();
-    EXPECT_EQ(32, blackboxIInterval);
-    EXPECT_EQ(4, blackboxPInterval);
+    blackboxInitWith(1000, 4);
     EXPECT_EQ(4, blackboxGetRateDenom());
 
-
-    // 8kHz PIDloop
-    gyro.targetLooptime = 125;
-    blackboxConfigMutable()->sample_rate = 3; // 1kHz logging
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(8, blackboxPInterval);
-    EXPECT_EQ(8, blackboxGetRateDenom());
-
-    blackboxConfigMutable()->sample_rate = 4; // 500Hz logging
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(16, blackboxPInterval);
+    blackboxInitWith(8000, 16);
     EXPECT_EQ(16, blackboxGetRateDenom());
-
-    blackboxConfigMutable()->sample_rate = 2; // 2kHz logging
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(4, blackboxPInterval);
-    EXPECT_EQ(4, blackboxGetRateDenom());
-
-    blackboxConfigMutable()->sample_rate = 1; // 4kHz logging
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(2, blackboxPInterval);
-    EXPECT_EQ(2, blackboxGetRateDenom());
-
-    blackboxConfigMutable()->sample_rate = 0; // 8kHz logging
-    blackboxInit();
-    EXPECT_EQ(256, blackboxIInterval);
-    EXPECT_EQ(1, blackboxPInterval);
-    EXPECT_EQ(1, blackboxGetRateDenom());
-
-    // 0.126 PIDloop = 7.94kHz
-    gyro.targetLooptime = 126;
-    blackboxConfigMutable()->sample_rate = 3; // 0.992kHz logging
-    blackboxInit();
-    EXPECT_EQ(253, blackboxIInterval);
-    EXPECT_EQ(8, blackboxPInterval);
-    EXPECT_EQ(8, blackboxGetRateDenom());
-
 }
-
 
 // STUBS
 extern "C" {
@@ -360,10 +195,16 @@ boxBitmask_t rcModeActivationMask;
 void mspSerialAllocatePorts(void) {}
 uint32_t getArmingBeepTimeMicros(void) {return 0;}
 uint16_t getBatteryVoltageLatest(void) {return 0;}
+int32_t getAmperageLatest(void) {return 0;}
+bool isAmperageConfigured(void) {return false;}
+bool isBatteryVoltageConfigured(void) {return false;}
+int16_t getCoreTemperatureCelsius(void) {return 0;}
 uint8_t getMotorCount(void) {return 4;}
 bool areMotorsRunning(void) { return false; }
 void motorStop(void) {}
 int getMotorOutput(uint8_t) { return 0; }
+int getServoCount(void) {return 0;}
+int getServoOutput(uint8_t) {return 0;}
 bool IS_RC_MODE_ACTIVE(boxId_e) {return false;}
 bool isModeActivationConditionPresent(boxId_e) {return false;}
 uint32_t millis(void) {return 0;}
