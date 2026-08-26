@@ -112,9 +112,6 @@
 #define PARAM_NAME_AP_GEOFENCE_ACTION "ap_geofence_action"
 
 // Flight-plan OSD minimap
-#define PARAM_NAME_OSD_NAV_MAP_MODE "osd_nav_map_mode"
-#define PARAM_NAME_OSD_NAV_MAP_CENTRE "osd_nav_map_centre"
-#define PARAM_NAME_OSD_NAV_MAP_MIN_SCALE_M "osd_nav_map_min_scale_m"
 
 // Phase 3: L1 Nonlinear Guidance
 #define PARAM_NAME_AP_L1_ENABLE "ap_l1_enable"

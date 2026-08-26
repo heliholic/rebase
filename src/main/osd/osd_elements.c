@@ -169,9 +169,6 @@
 #include "osd/osd_custom_text.h"
 #endif
 #include "osd/osd_elements.h"
-#ifdef USE_OSD_NAV_MAP
-#include "osd/osd_nav_map.h"
-#endif
 #include "osd/osd_warnings.h"
 
 #include "pg/flight_plan.h"
@@ -2092,9 +2089,6 @@ const osdElementDrawFn osdElementDrawFunction[OSD_ITEM_COUNT] = {
     [OSD_WP_NEXT_NUMBER]          = osdElementWpNextNumber,
     [OSD_WP_ETA]                  = osdElementWpEta,
 #endif
-#ifdef USE_OSD_NAV_MAP
-    [OSD_NAV_MAP]                 = osdElementNavMap,
-#endif
 #endif
     [OSD_DEBUG]                   = osdElementDebug,
     [OSD_DEBUG2]                  = osdElementDebug2,
@@ -2253,9 +2247,6 @@ void osdAddActiveElements(void)
         osdAddActiveElement(OSD_WP_DIRECTION);
         osdAddActiveElement(OSD_WP_NEXT_NUMBER);
         osdAddActiveElement(OSD_WP_ETA);
-#endif
-#ifdef USE_OSD_NAV_MAP
-        osdAddActiveElement(OSD_NAV_MAP);
 #endif
     }
 #endif // GPS
