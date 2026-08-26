@@ -41,8 +41,6 @@ void autopilotForceLevelPark(bool request); // heading/mag fault: force angle-mo
 void initPositionHold(void);
 void positionControlReanchor(void);
 uint16_t autopilotGetEffectiveHoverThrottlePwm(void);
-void autopilotCaptureHoverThrottleForAltHold(void);
-void autopilotClearAltHoldHoverThrottle(void);
 bool isBelowLandingAltitude(void);
 float getAutopilotThrottle(void);
 
