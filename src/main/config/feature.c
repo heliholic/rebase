@@ -59,9 +59,6 @@ uint32_t featuresSupportedByBuild =
 #ifdef USE_TELEMETRY
     | FEATURE_TELEMETRY
 #endif
-#ifdef USE_PWM
-    | FEATURE_RX_PARALLEL_PWM
-#endif
 #ifdef USE_RX_MSP
     | FEATURE_RX_MSP
 #endif

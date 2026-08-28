@@ -20,7 +20,7 @@
 
 #include "platform.h"
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM) || defined(USE_SERIALRX) || defined(USE_RX_MSP)
+#if defined(USE_RX_PPM) || defined(USE_SERIALRX) || defined(USE_RX_MSP)
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"

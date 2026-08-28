@@ -324,9 +324,7 @@ void rxInit(void)
         rxRuntimeState.rxProvider = RX_PROVIDER_UDP;
     } else
 #endif
-    if (featureIsEnabled(FEATURE_RX_PARALLEL_PWM)) {
-        rxRuntimeState.rxProvider = RX_PROVIDER_PARALLEL_PWM;
-    } else if (featureIsEnabled(FEATURE_RX_PPM)) {
+    if (featureIsEnabled(FEATURE_RX_PPM)) {
         rxRuntimeState.rxProvider = RX_PROVIDER_PPM;
     } else if (featureIsEnabled(FEATURE_RX_SERIAL)) {
         rxRuntimeState.rxProvider = RX_PROVIDER_SERIAL;
@@ -395,9 +393,8 @@ void rxInit(void)
         break;
 #endif
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#ifdef USE_RX_PPM
     case RX_PROVIDER_PPM:
-    case RX_PROVIDER_PARALLEL_PWM:
         rxPwmInit(rxConfig(), &rxRuntimeState);
 
         break;
@@ -455,8 +452,8 @@ bool rxAreFlightChannelsValid(void)
 
 void suspendRxSignal(void)
 {
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
-    if (rxRuntimeState.rxProvider == RX_PROVIDER_PARALLEL_PWM || rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
+#ifdef USE_RX_PPM
+    if (rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
         suspendRxSignalUntil = micros() + DELAY_1500_MS;  // 1.5s
         skipRxSamples = SKIP_RC_SAMPLES_ON_RESUME;
     }
@@ -466,8 +463,8 @@ void suspendRxSignal(void)
 
 void resumeRxSignal(void)
 {
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
-    if (rxRuntimeState.rxProvider == RX_PROVIDER_PARALLEL_PWM || rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
+#ifdef USE_RX_PPM
+    if (rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
         suspendRxSignalUntil = micros();
         skipRxSamples = SKIP_RC_SAMPLES_ON_RESUME;
     }
@@ -565,18 +562,11 @@ FAST_CODE_NOINLINE void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t current
     default:
 
         break;
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#ifdef USE_RX_PPM
     case RX_PROVIDER_PPM:
         if (isPPMDataBeingReceived()) {
             rxDataReceived = true;
             resetPPMDataReceivedState();
-        }
-
-        break;
-    case RX_PROVIDER_PARALLEL_PWM:
-        if (isPWMDataBeingReceived()) {
-            rxDataReceived = true;
-            useDataDrivenProcessing = false;
         }
 
         break;
@@ -628,7 +618,7 @@ FAST_CODE_NOINLINE void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t current
     DEBUG_SET(DEBUG_RX_SIGNAL_LOSS, 0, rxSignalReceived);
 }
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#ifdef USE_RX_PPM
 static uint16_t calculateChannelMovingAverage(uint8_t chan, uint16_t sample)
 {
     static int16_t rcSamples[MAX_SUPPORTED_RX_PARALLEL_PWM_OR_PPM_CHANNEL_COUNT][PPM_AND_PWM_SAMPLE_COUNT];
@@ -786,9 +776,9 @@ static void detectAndApplySignalLossBehaviour(void)
 
         sample = constrainf(sample, PWM_PULSE_MIN, PWM_PULSE_MAX);
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
-        if (rxRuntimeState.rxProvider == RX_PROVIDER_PARALLEL_PWM || rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
-            //  smooth output for PWM and PPM using moving average
+#ifdef USE_RX_PPM
+        if (rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
+            //  smooth output for PPM using moving average
             rcData[channel] = calculateChannelMovingAverage(channel, sample);
         } else
 #endif
