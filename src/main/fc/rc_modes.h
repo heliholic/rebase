@@ -48,7 +48,7 @@ typedef enum {
     BOXHEADADJ,
     BOXBEEPERON,
     BOXLEDLOW,
-    BOXCALIB,
+    BOXCALIB, // unused; in-flight acc cal removed
     BOXOSD,
     BOXTELEMETRY,
     BOXSERVO1,
