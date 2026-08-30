@@ -50,7 +50,6 @@
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
-#include "flight/flight_plan_nav.h"
 #include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/pid.h"
@@ -619,7 +618,7 @@ static void crsfFrameFlightMode(sbuf_t *dst)
     // Flight modes in decreasing order of importance
     if (FLIGHT_MODE(FAILSAFE_MODE) || IS_RC_MODE_ACTIVE(BOXFAILSAFE)) {
         flightMode = "!FS!";
-    } else if (FLIGHT_MODE(GPS_RESCUE_MODE) || IS_RC_MODE_ACTIVE(BOXGPSRESCUE) || flightPlanNavIsRescuePlanActive()) {
+    } else if (FLIGHT_MODE(GPS_RESCUE_MODE) || IS_RC_MODE_ACTIVE(BOXGPSRESCUE)) {
         flightMode = "RTH";
     } else if (FLIGHT_MODE(ANGLE_MODE)) {
         flightMode = "ANGL";

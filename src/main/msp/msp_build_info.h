@@ -60,7 +60,6 @@
 #define BUILD_OPTION_DASHBOARD                  16408
 #define BUILD_OPTION_EMFAT_TOOLS                16409
 #define BUILD_OPTION_ESCSERIAL_SIMONK           16410
-#define BUILD_OPTION_FLIGHT_PLAN                16427
 #define BUILD_OPTION_GPS                        16412
 #define BUILD_OPTION_LED_STRIP                  16413
 #define BUILD_OPTION_LED_STRIP_64               16414
@@ -75,8 +74,6 @@
 #define BUILD_OPTION_SOFTSERIAL                 16423
 #define BUILD_OPTION_SERVOS                     16420
 #define BUILD_OPTION_VTX                        16421
-
-#define BUILD_OPTION_FLIGHT_PLAN                16427
 
 // Motor Protocols
 #define BUILD_OPTION_BRUSHED                    8230
