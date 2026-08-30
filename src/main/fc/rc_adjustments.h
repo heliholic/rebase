@@ -22,9 +22,8 @@
 
 #include <stdbool.h>
 
-#include "fc/rc_modes.h"
-
-#include "pg/pg.h"
+#include "fc/controlrate_profile.h"
+#include "pg/adjustments.h"
 
 typedef enum {
     ADJUSTMENT_NONE = 0,
@@ -75,23 +74,6 @@ typedef struct adjustmentConfig_s {
     adjustmentMode_e mode;
     adjustmentData_t data;
 } adjustmentConfig_t;
-
-#define MAX_ADJUSTMENT_RANGE_COUNT 30
-
-typedef struct adjustmentRange_s {
-    // when aux channel is in range...
-    uint8_t auxChannelIndex;
-    channelRange_t range;
-
-    // ..then apply the adjustment function to the auxSwitchChannel ...
-    uint8_t adjustmentConfig;
-    uint8_t auxSwitchChannelIndex;
-
-    uint16_t adjustmentCenter;
-    uint16_t adjustmentScale;
-} adjustmentRange_t;
-
-PG_DECLARE_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges);
 
 typedef struct timedAdjustmentState_s {
     uint32_t timeoutAt;
