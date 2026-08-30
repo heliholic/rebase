@@ -22,7 +22,6 @@ PG_SRC = \
             pg/mco.c \
             pg/motor.c \
             pg/msp.c \
-            pg/osd_nav_map.c \
             pg/pg.c \
             pg/pilot.c \
             pg/piniobox.c \
@@ -153,7 +152,6 @@ COMMON_SRC = \
             flight/imu.c \
             flight/mixer.c \
             flight/mixer_init.c \
-            flight/nav_trail.c \
             flight/pid.c \
             flight/pid_init.c \
             flight/position.c \
@@ -241,7 +239,6 @@ COMMON_SRC = \
             osd/osd.c \
             osd/osd_custom_text.c \
             osd/osd_elements.c \
-            osd/osd_nav_map.c \
             osd/osd_warnings.c \
             sensors/barometer.c \
             sensors/rangefinder.c \
@@ -484,7 +481,6 @@ SIZE_OPTIMISED_SRC += \
             osd/osd.c \
             osd/osd_custom_text.c \
             osd/osd_elements.c \
-            osd/osd_nav_map.c \
             osd/osd_warnings.c \
             rx/rx_bind.c \
             io/vtx_msp.c \
