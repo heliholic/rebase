@@ -74,7 +74,6 @@
 #include "fc/board_info.h"
 #include "fc/controlrate_profile.h"
 #include "fc/core.h"
-#include "fc/dispatch.h"
 #include "fc/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
@@ -121,10 +120,6 @@
 #include "pg/pilot.h"
 #include "pg/pos_hold.h"
 #include "pg/rx.h"
-#include "pg/rx_spi.h"
-#ifdef USE_RX_EXPRESSLRS
-#include "pg/rx_spi_expresslrs.h"
-#endif
 #include "pg/usb.h"
 #include "pg/vcd.h"
 #include "pg/vtx_table.h"
@@ -416,27 +411,8 @@ RAM_CODE static void mspRebootFn(serialPort_t *serialPort)
     while (true) ;
 }
 
-#define MSP_DISPATCH_DELAY_US 1000000
-
-RAM_CODE static void mspReboot(dispatchEntry_t* self)
+RAM_CODE static void writeReadEeprom(void)
 {
-    UNUSED(self);
-
-    if (ARMING_FLAG(ARMED)) {
-        return;
-    }
-
-    mspRebootFn(NULL);
-}
-
-dispatchEntry_t mspRebootEntry = {
-    mspReboot, 0, NULL, false
-};
-
-RAM_CODE static void writeReadEeprom(dispatchEntry_t* self)
-{
-    UNUSED(self);
-
     if (ARMING_FLAG(ARMED)) {
         return;
     }
@@ -452,9 +428,6 @@ RAM_CODE static void writeReadEeprom(dispatchEntry_t* self)
 #endif
 }
 
-dispatchEntry_t writeReadEepromEntry = {
-    writeReadEeprom, 0, NULL, false
-};
 
 RAM_CODE static void serializeSDCardSummaryReply(sbuf_t *dst)
 {
@@ -1599,15 +1572,9 @@ case MSP_NAME:
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolation
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolationInterval
         sbufWriteU16(dst, 0); // rxConfig()->airModeActivateThreshold * 10 + 1000
-#ifdef USE_RX_SPI
-        sbufWriteU8(dst, rxSpiConfig()->rx_spi_protocol);
-        sbufWriteU32(dst, rxSpiConfig()->rx_spi_id);
-        sbufWriteU8(dst, rxSpiConfig()->rx_spi_rf_channel_count);
-#else
         sbufWriteU8(dst, 0);
         sbufWriteU32(dst, 0);
         sbufWriteU8(dst, 0);
-#endif
         sbufWriteU8(dst, 0); // was rxConfig()->fpvCamAngleDegrees
         sbufWriteU8(dst, 0); // rxConfig()->rcSmoothingChannels
         sbufWriteU8(dst, 0); // rxConfig()->rc_smoothing_type
@@ -1625,19 +1592,11 @@ case MSP_NAME:
         // Added in MSP API 1.44
         sbufWriteU8(dst, 0); // rxConfig()->rc_smoothing
         // Added in MSP API 1.45
-#ifdef USE_RX_EXPRESSLRS
-        sbufWriteData(dst, rxExpressLrsSpiConfig()->UID, sizeof(rxExpressLrsSpiConfig()->UID));
-#else
         uint8_t emptyUid[6];
         memset(emptyUid, 0, sizeof(emptyUid));
         sbufWriteData(dst, &emptyUid, sizeof(emptyUid));
-#endif
         // Added in MSP API 1.47
-#ifdef USE_RX_EXPRESSLRS
-        sbufWriteU8(dst, rxExpressLrsSpiConfig()->modelId);
-#else
         sbufWriteU8(dst, 0);
-#endif
         break;
     case MSP_FAILSAFE_CONFIG:
         sbufWriteU8(dst, failsafeConfig()->failsafe_delay);
@@ -2140,11 +2099,6 @@ RAM_CODE static mspResult_e mspFcProcessOutCommandWithArg(mspDescriptor_t srcDes
         }
 #endif
 
-#if defined(USE_MSP_OVER_TELEMETRY)
-        if (featureIsEnabled(FEATURE_RX_SPI) && srcDesc == getMspTelemetryDescriptor()) {
-            dispatchAdd(&mspRebootEntry, MSP_DISPATCH_DELAY_US);
-        } else
-#endif
         if (mspPostProcessFn) {
             *mspPostProcessFn = mspRebootFn;
         }
@@ -3074,14 +3028,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         // ignore how long it takes to avoid confusing the scheduler
         schedulerIgnoreTaskStateTime();
 
-#if defined(USE_MSP_OVER_TELEMETRY)
-        if (featureIsEnabled(FEATURE_RX_SPI) && srcDesc == getMspTelemetryDescriptor()) {
-            dispatchAdd(&writeReadEepromEntry, MSP_DISPATCH_DELAY_US);
-        } else
-#endif
-        {
-            writeReadEeprom(NULL);
-        }
+        writeReadEeprom();
 
         break;
 
@@ -3473,15 +3420,9 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU16(src); // rxConfigMutable()->airModeActivateThreshold
         }
         if (sbufBytesRemaining(src) >= 6) {
-#ifdef USE_RX_SPI
-            rxSpiConfigMutable()->rx_spi_protocol = sbufReadU8(src);
-            rxSpiConfigMutable()->rx_spi_id = sbufReadU32(src);
-            rxSpiConfigMutable()->rx_spi_rf_channel_count = sbufReadU8(src);
-#else
             sbufReadU8(src);
             sbufReadU32(src);
             sbufReadU8(src);
-#endif
         }
         if (sbufBytesRemaining(src) >= 1) {
             sbufReadU8(src);  // was rxConfigMutable()->fpvCamAngleDegrees
@@ -3514,20 +3455,12 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
         if (sbufBytesRemaining(src) >= 6) {
             // Added in MSP API 1.45
-#ifdef USE_RX_EXPRESSLRS
-            sbufReadData(src, rxExpressLrsSpiConfigMutable()->UID, 6);
-#else
             uint8_t emptyUid[6];
             sbufReadData(src, emptyUid, 6);
-#endif
         }
         if (sbufBytesRemaining(src) >= 1) {
-#ifdef USE_RX_EXPRESSLRS
             // Added in MSP API 1.47
-            rxExpressLrsSpiConfigMutable()->modelId = sbufReadU8(src);
-#else
             sbufReadU8(src);
-#endif
         }
         break;
     case MSP_SET_FAILSAFE_CONFIG:

@@ -29,7 +29,6 @@ MCU_COMMON_SRC += \
             common/stm32/dshot_bitbang_shared.c \
             common/stm32/ledstrip_ws2811_stm32.c \
             common/stm32/debug_pin.c \
-            common/stm32/expresslrs_driver_hw.c \
             common/stm32/fault_handlers.c
 
 endif
