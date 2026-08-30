@@ -41,7 +41,6 @@ PG_SRC = \
 COMMON_SRC = \
             build/debug.c \
             build/version.c \
-            main.c \
             common/bitarray.c \
             common/colorconversion.c \
             common/crc.c \
@@ -102,6 +101,7 @@ COMMON_SRC = \
             drivers/sound_beeper.c \
             drivers/stack_check.c \
             drivers/timer_common.c \
+            fc/main.c \
             fc/board_info.c \
             fc/dispatch.c \
             fc/faults.c \
