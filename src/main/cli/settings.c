@@ -31,7 +31,7 @@
 #include "cms/cms.h"
 
 #include "common/utils.h"
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "drivers/adc.h"
 #include "drivers/bus_i2c.h"
