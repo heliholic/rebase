@@ -378,10 +378,6 @@ void updateArmingStatus(void)
         }
 
         if (!isUsingSticksForArming()) {
-            if (!IS_RC_MODE_ACTIVE(BOXARM)) {
-                unsetArmingDisabled(ARMING_DISABLED_CRASH_DETECTED);
-            }
-
             /* Ignore ARMING_DISABLED_CALIBRATING if we are going to calibrate gyro on first arm */
             bool ignoreGyro = armingConfig()->gyro_cal_on_first_arm
                 && !(getArmingDisableFlags() & ~(ARMING_DISABLED_ARM_SWITCH | ARMING_DISABLED_CALIBRATING));
@@ -449,10 +445,8 @@ void disarm(flightLogDisarmReason_e reason)
         setMotorSpinDirection(DSHOT_CMD_SPIN_DIRECTION_NORMAL);
 #endif
 
-        // make disarming beeps, but not if ARMING_DISABLED (CRASH_DETECTED)
-        if (!(getArmingDisableFlags() & ARMING_DISABLED_CRASH_DETECTED)) {
-            beeper(BEEPER_DISARMING);
-        }
+        // make disarming beeps
+        beeper(BEEPER_DISARMING);
     }
 }
 
