@@ -16,5 +16,4 @@
  */
 
 #pragma once
-#include "flight/pos_hold_multirotor.h"
 #include "flight/autopilot_multirotor.h"

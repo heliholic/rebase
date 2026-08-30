@@ -117,7 +117,6 @@
 #include "pg/gyrodev.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
-#include "pg/pos_hold.h"
 #include "pg/rx.h"
 #include "pg/usb.h"
 #include "pg/vcd.h"
@@ -1712,11 +1711,7 @@ case MSP_NAME:
     case MSP_RC_DEADBAND:
         sbufWriteU8(dst, rcControlsConfig()->deadband);
         sbufWriteU8(dst, rcControlsConfig()->yaw_deadband);
-#if defined(USE_POSITION_HOLD)
-        sbufWriteU8(dst, posHoldConfig()->deadband);
-#else
-        sbufWriteU8(dst, 0);
-#endif
+        sbufWriteU8(dst, 0); // was posHoldConfig()->deadband
         sbufWriteU16(dst, 0); // was flight3DConfig()->deadband3d_throttle
         break;
 
@@ -2672,11 +2667,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
     case MSP_SET_RC_DEADBAND:
         rcControlsConfigMutable()->deadband = sbufReadU8(src);
         rcControlsConfigMutable()->yaw_deadband = sbufReadU8(src);
-#if defined(USE_POSITION_HOLD)
-        posHoldConfigMutable()->deadband = sbufReadU8(src);
-#else
-        sbufReadU8(src);
-#endif
+        sbufReadU8(src); // was posHoldConfigMutable()->deadband
         sbufReadU16(src); // was flight3DConfigMutable()->deadband3d_throttle
         break;
 

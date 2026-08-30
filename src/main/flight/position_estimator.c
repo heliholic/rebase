@@ -59,12 +59,6 @@
 #include "io/gps.h"
 #endif
 
-#if defined(USE_POSITION_HOLD)
-#include "pg/autopilot.h"
-#endif
-#if defined(USE_POSITION_HOLD)
-#include "pg/pos_hold.h"
-#endif
 
 // Accelerometer process noise in (cm/s^2)^2.
 // Accounts for vibration, bias drift, attitude errors.
@@ -118,34 +112,16 @@ static bool positionEstimatorWantXYFusion(void)
         return false;
     }
 
-#if defined(USE_POSITION_HOLD)
-    if (FLIGHT_MODE(POS_HOLD_MODE)) {
-        return true;
-    }
-#endif
-
 #ifdef USE_GPS
     if (sensors(SENSOR_GPS) && STATE(GPS_FIX)) {
-#if defined(USE_POSITION_HOLD)
-        if (posHoldConfig()->positionSource != POSHOLD_SOURCE_OPTICALFLOW_ONLY) {
-            return true;
-        }
-#else
         return true;
-#endif
     }
 #endif
 
 #if defined(USE_OPTICALFLOW) && defined(USE_RANGEFINDER)
     if (sensors(SENSOR_OPTICALFLOW) && sensors(SENSOR_RANGEFINDER) &&
         isOpticalflowHealthy() && rangefinderIsHealthy()) {
-#if defined(USE_POSITION_HOLD)
-        if (posHoldConfig()->positionSource != POSHOLD_SOURCE_GPS_ONLY) {
-            return true;
-        }
-#else
         return true;
-#endif
     }
 #endif
 
@@ -217,11 +193,6 @@ static void initZCalEntries(void)
 
 void positionEstimatorInit(void)
 {
-
-#if defined(USE_POSITION_HOLD)
-    qaccelXY = Q_ACCEL_XY * ((autopilotConfig()->positionA > 1) ?  (30.0f / autopilotConfig()->positionA ) : 15.0f);
-    // when user reduces positionA, , they want more accelerometer influence (up to 15x more), and vice versa
-#endif
     kalmanInit(&kfEast, 0.0f, 0.0f, INITIAL_POS_VAR, INITIAL_VEL_VAR, qaccelXY);
     kalmanInit(&kfNorth, 0.0f, 0.0f, INITIAL_POS_VAR, INITIAL_VEL_VAR, qaccelXY);
     kalmanInit(&kfUp, 0.0f, 0.0f, INITIAL_POS_VAR, INITIAL_VEL_VAR, Q_ACCEL_Z);
@@ -323,11 +294,7 @@ static uint16_t gpsDopOrFallback(uint16_t preferredDop, uint16_t fallbackDop)
 #ifdef USE_OPTICALFLOW
 static float opticalFlowR(int16_t quality)
 {
-#if defined(USE_POSITION_HOLD)
-    const int minQuality = posHoldConfig()->opticalflowQualityMin;
-#else
     const int minQuality = 30;
-#endif
     if (quality <= minQuality) {
         return -1.0f;  // signal: do not use
     }
@@ -348,13 +315,7 @@ static void feedGPSMeasurements(timeUs_t nowUs)
         return;
     }
 
-    // Determine which measurements are allowed by source settings
-#if defined(USE_POSITION_HOLD)
-    const uint8_t posSource = posHoldConfig()->positionSource;
-    const bool gpsXYAllowed = (posSource != POSHOLD_SOURCE_OPTICALFLOW_ONLY);
-#else
     const bool gpsXYAllowed = true;
-#endif
     const uint8_t altSource = positionConfig()->altitude_source;
     const bool gpsAltAllowed = (altSource == ALTITUDE_SOURCE_DEFAULT ||
                                 altSource == ALTITUDE_SOURCE_GPS_ONLY ||
@@ -496,23 +457,13 @@ static void feedOpticalFlowMeasurements(timeUs_t nowUs)
         return;
     }
 
-#if defined(USE_POSITION_HOLD)
-    const uint8_t posSource = posHoldConfig()->positionSource;
-    if (posSource == POSHOLD_SOURCE_GPS_ONLY) {
-        return;
-    }
-#endif
-
     const uint8_t altSource = positionConfig()->altitude_source;
     if (altSource == ALTITUDE_SOURCE_BARO_ONLY || altSource == ALTITUDE_SOURCE_GPS_ONLY) {
         return;
     }
 
 #ifdef USE_RANGEFINDER
-    float maxRangeCm = positionConfig()->rangefinder_max_range_cm;
-#if defined(USE_POSITION_HOLD)
-    maxRangeCm = fminf(maxRangeCm, (float)posHoldConfig()->opticalflowMaxRange);
-#endif
+    const float maxRangeCm = positionConfig()->rangefinder_max_range_cm;
     float altitudeCmF;
     if (!rangefinderSampleAltitudeCm(&altitudeCmF, maxRangeCm)) {
         return;
@@ -672,13 +623,6 @@ float positionEstimatorGetTrustXY(void)
 
 bool positionEstimatorIsHeadingRequired(void)
 {
-    // If configured for optical flow only, heading is not required
-#if defined(USE_GPS) && defined(USE_POSITION_HOLD)
-    if (posHoldConfig()->positionSource == POSHOLD_SOURCE_OPTICALFLOW_ONLY) {
-        return false;
-    }
-#endif
-
     // If optical flow is active and spatial tracking is healthy, heading is optional
     if (sensors(SENSOR_OPTICALFLOW) && positionEstimatorIsValidXY()) {
         return false;
