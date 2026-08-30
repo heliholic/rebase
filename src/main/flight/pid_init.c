@@ -227,8 +227,8 @@ void pidInitConfig(const pidProfile_t *pidProfile)
     pidRuntime.maxVelocity[FD_ROLL] = pidRuntime.maxVelocity[FD_PITCH] = pidProfile->rateAccelLimit * 100 * pidRuntime.dT;
     pidRuntime.maxVelocity[FD_YAW] = pidProfile->yawRateAccelLimit * 100 * pidRuntime.dT;
 
-    pidRuntime.itermLimit = 0.01f * pidProfile->itermWindup * pidProfile->pidSumLimit;
-    pidRuntime.itermLimitYaw = 0.01f * pidProfile->itermWindup * pidProfile->pidSumLimitYaw;
+    pidRuntime.itermLimit = pidProfile->pidSumLimit;
+    pidRuntime.itermLimitYaw = pidProfile->pidSumLimitYaw;
 
     pidRuntime.itermRotation = pidProfile->iterm_rotation;
 }
