@@ -15,12 +15,6 @@
 	branch = main
 	ignore = dirty
 	update = none
-[submodule "lib/modules/esp-idf"]
-	path = lib/modules/esp-idf
-	url = https://github.com/espressif/esp-idf.git
-	branch = release/v5.4
-	ignore = dirty
-	update = none
 [submodule "lib/modules/STM32H5"]
 	path = lib/modules/STM32H5
 	url = https://github.com/STMicroelectronics/STM32CubeH5

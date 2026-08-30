@@ -330,13 +330,13 @@ breakpad_clean:
 
 # Platform-specific tools
 # Each platform tools.mk appends to PLATFORM_SDKS and defines per-SDK properties:
-#   PLATFORM_SDK_<name>_SUBMODULE  - submodule path (e.g. lib/modules/esp-idf)
+#   PLATFORM_SDK_<name>_SUBMODULE  - submodule path (e.g. lib/modules/STM32H5)
 #   PLATFORM_SDK_<name>_HYDRATE   - make target to hydrate the SDK
 #   PLATFORM_SDK_<name>_TOOLS     - make targets to install required toolchains and tools
 #
 # 'none' is the default for targets with no toolchain needs (e.g. SITL).
 # 'arm' is for ARM-based targets without a platform-specific SDK submodule.
-# Platform SDKs declare their toolchain in _TOOLS (e.g. arm_sdk_install, esp_tools_install).
+# Platform SDKs declare their toolchain in _TOOLS (e.g. arm_sdk_install).
 PLATFORM_SDKS :=
 PLATFORM_SDK_arm_TOOLS      := arm_sdk_install
 PLATFORM_SDK_arm_CC         := $(if $(ARM_SDK_PREFIX),$(ARM_SDK_PREFIX)gcc,arm-none-eabi-gcc)
