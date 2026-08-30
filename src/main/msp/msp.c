@@ -1965,13 +1965,8 @@ case MSP_NAME:
         sbufWriteU16(dst, 0); // was currentPidProfile->dtermSetpointWeight
         sbufWriteU8(dst, currentPidProfile->iterm_rotation);
         sbufWriteU8(dst, 0); // was currentPidProfile->smart_feedforward
-#if defined(USE_ITERM_RELAX)
-        sbufWriteU8(dst, currentPidProfile->iterm_relax);
-        sbufWriteU8(dst, currentPidProfile->iterm_relax_type);
-#else
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
-#endif
         sbufWriteU8(dst, 0); // was abs_control_gain
         sbufWriteU8(dst, 0);
 #if defined(USE_ACRO_TRAINER)
@@ -1990,12 +1985,8 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
-#if defined(USE_ITERM_RELAX)
         // Added in MSP API 1.42
-        sbufWriteU8(dst, currentPidProfile->iterm_relax_cutoff);
-#else
         sbufWriteU8(dst, 0);
-#endif
         // Added in MSP API 1.43
         sbufWriteU8(dst, 0);  // was currentPidProfile->motor_output_limit
         sbufWriteU8(dst, 0);  // was currentPidProfile->auto_profile_cell_count
@@ -3300,13 +3291,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             // Added in MSP API 1.40
             currentPidProfile->iterm_rotation = sbufReadU8(src);
             sbufReadU8(src); // was currentPidProfile->smart_feedforward
-#if defined(USE_ITERM_RELAX)
-            currentPidProfile->iterm_relax = sbufReadU8(src);
-            currentPidProfile->iterm_relax_type = sbufReadU8(src);
-#else
             sbufReadU8(src);
             sbufReadU8(src);
-#endif
             sbufReadU8(src); // was abs_control_gain
             sbufReadU8(src);
 #if defined(USE_ACRO_TRAINER)
@@ -3332,11 +3318,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
         if(sbufBytesRemaining(src) >= 1) {
             // Added in MSP API 1.42
-#if defined(USE_ITERM_RELAX)
-            currentPidProfile->iterm_relax_cutoff = sbufReadU8(src);
-#else
             sbufReadU8(src);
-#endif
         }
         if (sbufBytesRemaining(src) >= 3) {
             // Added in MSP API 1.43
