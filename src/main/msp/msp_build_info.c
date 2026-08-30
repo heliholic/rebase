@@ -96,9 +96,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_TELEMETRY_SRXL
         BUILD_OPTION_TELEMETRY_SRXL,
 #endif
-#ifdef USE_ACRO_TRAINER
-        BUILD_OPTION_ACRO_TRAINER,
-#endif
 #ifdef USE_AKK_SMARTAUDIO
         BUILD_OPTION_AKK_SMARTAUDIO,
 #endif
