@@ -71,7 +71,6 @@ typedef enum {
     RESCUE_FLYAWAY,
     RESCUE_GPSLOST,
     RESCUE_LOWSATS,
-    RESCUE_CRASHFLIP_DETECTED,
     RESCUE_STALLED,
     RESCUE_TOO_CLOSE,
     RESCUE_NO_HOME_POINT,
@@ -365,11 +364,6 @@ static void performSanityChecks(void)
         secondsLowSats = 0;
         secondsDoingNothing = 0;
         rescueState.isOK = true;
-    }
-
-    if (crashRecoveryModeActive()) {
-        setArmingDisabled(ARMING_DISABLED_ARM_SWITCH);
-        rescueDisarmNow();
     }
 
     const bool hardFailsafe = !isRxReceivingSignal();
