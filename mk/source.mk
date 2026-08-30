@@ -34,6 +34,7 @@ PG_SRC = \
             pg/serial_uart.c \
             pg/stats.c \
             pg/system.c \
+            pg/time.c \
             pg/timerio.c \
             pg/timerup.c \
             pg/usb.c \
