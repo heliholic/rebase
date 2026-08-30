@@ -263,7 +263,6 @@
 #endif
 
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 #define USE_ADC_INTERNAL
 #define USE_USB_CDC_HID
@@ -292,7 +291,6 @@
 #define ITCM_RAM_OPTIMISATION "-O2", "-freorder-blocks-algorithm=simple"
 #define USE_FAST_DATA
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 #define USE_OVERCLOCK
 #define ENABLE_OVERCLOCK_240_MHZ 1
@@ -323,7 +321,6 @@
 #endif
 #define USE_FAST_DATA
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 #ifndef CORE_CM4
 #define USE_ADC_INTERNAL
@@ -346,7 +343,6 @@
 
 #ifdef STM32G4
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_OVERCLOCK
 #define ENABLE_OVERCLOCK_192_MHZ 1
 #define ENABLE_OVERCLOCK_216_MHZ 1
@@ -366,7 +362,6 @@
 
 #ifdef STM32H5
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 #define USE_ADC_INTERNAL
 #define USE_DMA_SPEC
@@ -376,7 +371,6 @@
 
 #ifdef STM32C5
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 #define USE_ADC_INTERNAL
 #define USE_DMA_SPEC
@@ -390,7 +384,6 @@
 
 #ifdef STM32N6
 #define USE_RPM_FILTER
-#define USE_DYN_IDLE
 #define USE_DYN_NOTCH_FILTER
 // N6 lacks factory calibration data for VREFINT/TEMPSENSOR; disable internal ADC for now
 //#define USE_ADC_INTERNAL
