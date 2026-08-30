@@ -546,7 +546,6 @@ pid_unittest_SRC :=  \
 pid_unittest_DEFINES := \
 		USE_ITERM_RELAX= \
 		USE_RC_SMOOTHING_FILTER= \
-		USE_FEEDFORWARD= \
 
 position_rescue_geometry_unittest_SRC := \
 		$(USER_DIR)/common/maths.c
