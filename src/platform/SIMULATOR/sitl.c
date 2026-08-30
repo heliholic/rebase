@@ -73,7 +73,6 @@
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "sensors/sensors.h"
-#include "pg/flight_plan.h"
 
 #include "io/gps.h"
 #include "io/gps_virtual.h"
@@ -115,19 +114,6 @@ static FILE *gpxTrackFile = NULL;
 static bool gpxHeaderWritten = false;
 static bool gpxEnabled = false;
 
-#if ENABLE_FLIGHT_PLAN
-static const char *gpxWaypointTypeName(uint8_t type)
-{
-    switch (type) {
-    case WAYPOINT_TYPE_FLYOVER: return "FLYOVER";
-    case WAYPOINT_TYPE_FLYBY:   return "FLYBY";
-    case WAYPOINT_TYPE_HOLD:    return "HOLD";
-    case WAYPOINT_TYPE_LAND:    return "LAND";
-    default:                    return "UNKNOWN";
-    }
-}
-#endif
-
 static void gpxTrackOpen(void)
 {
     gpxTrackFile = fopen("sitl_track.gpx", "w");
@@ -136,23 +122,6 @@ static void gpxTrackOpen(void)
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<gpx version=\"1.1\" creator=\"Betaflight SITL\"\n"
             "     xmlns=\"http://www.topografix.com/GPX/1/1\">\n");
-
-#if ENABLE_FLIGHT_PLAN
-        // Flight plan waypoints as GPX points of interest
-        const flightPlanConfig_t *plan = flightPlanConfig();
-        for (uint8_t i = 0; i < plan->waypointCount && i < MAX_WAYPOINTS; i++) {
-            const waypoint_t *wp = &plan->waypoints[i];
-            fprintf(gpxTrackFile,
-                "  <wpt lat=\"%.7f\" lon=\"%.7f\">\n"
-                "    <ele>%.2f</ele>\n"
-                "    <name>WP%d %s</name>\n"
-                "  </wpt>\n",
-                (double)wp->latitude / 1e7,
-                (double)wp->longitude / 1e7,
-                (double)wp->altitude / 100.0,
-                i, gpxWaypointTypeName(wp->type));
-        }
-#endif
 
         fprintf(gpxTrackFile,
             "  <trk>\n"

@@ -14,7 +14,6 @@ PG_SRC = \
             pg/dronecan_dna.c \
             pg/displayport_profiles.c \
             pg/flash.c \
-            pg/flight_plan.c \
             pg/gps.c \
             pg/gps_rescue_multirotor.c \
             pg/gyrodev.c \
@@ -146,7 +145,6 @@ COMMON_SRC = \
             flight/alt_hold_multirotor.c \
             flight/autopilot_multirotor.c \
             flight/failsafe.c \
-            flight/flight_plan_nav.c \
             flight/gps_rescue_multirotor.c \
             flight/imu.c \
             flight/mixer.c \

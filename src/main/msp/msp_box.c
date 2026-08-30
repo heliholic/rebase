@@ -91,8 +91,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
 //    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50}, (removed)
     { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51},
     { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
-    { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
-    { .boxId = BOXAUTOPILOT, .boxName = "AUTOPILOT", .permanentId = 56}
+    { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53}
 };
 
 // mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
@@ -217,9 +216,6 @@ void initActiveBoxIds(void)
 #endif
         BME(BOXBEEPGPSCOUNT);
     }
-#if ENABLE_FLIGHT_PLAN
-    BME(BOXAUTOPILOT);
-#endif
 #endif
 
     BME(BOXFAILSAFE);

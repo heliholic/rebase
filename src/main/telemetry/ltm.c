@@ -69,7 +69,6 @@
 
 #include "rx/rx.h"
 
-#include "flight/flight_plan_nav.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
@@ -171,7 +170,7 @@ static void ltm_sframe(void)
         lt_flightmode = 2;
     else if (FLIGHT_MODE(HORIZON_MODE))
         lt_flightmode = 3;
-    else if (FLIGHT_MODE(GPS_RESCUE_MODE) || flightPlanNavIsRescuePlanActive())
+    else if (FLIGHT_MODE(GPS_RESCUE_MODE))
         lt_flightmode = 13;
     else if (FLIGHT_MODE(POS_HOLD_MODE))
         lt_flightmode = 9;
