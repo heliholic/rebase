@@ -25,23 +25,7 @@
 
 #include "drivers/opticalflow/opticalflow.h"
 
-#include "pg/pg.h"
-
-typedef enum {
-    OPTICALFLOW_NONE = 0,
-    OPTICALFLOW_MT = 1,
-    OPTICALFLOW_UPT1 = 2,
-    OPTICALFLOW_HARDWARE_COUNT
-} opticalflowType_e;
-
-typedef struct opticalflowConfig_s {
-    uint8_t  opticalflow_hardware;
-    uint16_t rotation;
-    uint8_t  flip_x;
-    uint16_t flow_lpf;
-} opticalflowConfig_t;
-
-PG_DECLARE(opticalflowConfig_t, opticalflowConfig);
+#include "pg/opticalflow.h"
 
 typedef struct opticalflow_s {
     opticalflowDev_t dev;
