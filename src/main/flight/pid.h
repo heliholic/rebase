@@ -30,33 +30,18 @@
 #include "pg/pg.h"
 
 #define MAX_PID_PROCESS_DENOM       16
-#define PID_CONTROLLER_BETAFLIGHT   1
-
-#define PIDSUM_LIMIT                500
-#define PIDSUM_LIMIT_YAW            400
-#define PIDSUM_LIMIT_MIN            100
-#define PIDSUM_LIMIT_MAX            1000
-
-#define PID_GAIN_MAX 250
-#define F_GAIN_MAX 1000
-
-// Scaling factors for Pids for better tunable range in configurator for betaflight pid controller. The scaling is based on legacy pid controller or previous float
-#define PTERM_SCALE 0.032029f
-#define ITERM_SCALE 0.244381f
-#define DTERM_SCALE 0.000529f
-
-// The constant scale factor to replace the Kd component of the feedforward calculation.
-// This value gives the same "feel" as the previous Kd default of 26 (26 * DTERM_SCALE)
-#define FEEDFORWARD_SCALE 0.013754f
-
-#define PID_ROLL_DEFAULT  { 45, 80, 30, 120 }
-#define PID_PITCH_DEFAULT { 47, 84, 34, 125 }
-#define PID_YAW_DEFAULT   { 45, 80,  0, 120 }
 
 #define DTERM_LPF1_HZ_DEFAULT 75
 #define DTERM_LPF2_HZ_DEFAULT 150
 
 #define G_ACCELERATION 9.80665f // gravitational acceleration in m/s^2
+
+typedef enum {
+    TERM_P,
+    TERM_I,
+    TERM_D,
+    TERM_F,
+} term_e;
 
 typedef enum {
     PID_ROLL,
@@ -66,12 +51,6 @@ typedef enum {
     PID_MAG, // unused; MAG_MODE removed
     PID_ITEM_COUNT
 } pidIndex_e;
-
-typedef enum {
-    SUPEREXPO_YAW_OFF = 0,
-    SUPEREXPO_YAW_ON,
-    SUPEREXPO_YAW_ALWAYS
-} pidSuperExpoYaw_e;
 
 typedef struct pidf_s {
     uint8_t P;
@@ -83,44 +62,18 @@ typedef struct pidf_s {
 #define MAX_PROFILE_NAME_LENGTH 8u
 
 typedef struct pidProfile_s {
-    uint16_t dterm_lpf1_static_hz;          // Static Dterm lowpass 1 filter cutoff value in hz
-    uint16_t dterm_notch_hz;                // SVF dterm notch hz
-    uint16_t dterm_notch_cutoff;            // SVF dterm notch low cutoff
-
+    char profileName[MAX_PROFILE_NAME_LENGTH + 1];
     pidf_t  pid[PID_ITEM_COUNT];
-
-    uint8_t dterm_lpf1_type;                // Filter type for dterm lowpass 1
-    uint16_t pidSumLimit;                   // pidSum limit value for pitch and roll
-    uint16_t pidSumLimitYaw;                // pidSum limit value for yaw
-    uint8_t angle_limit;                    // Max angle in degrees in Angle mode
-
-    uint8_t horizon_limit_degrees;          // in Horizon mode, zero levelling when the quad's attitude exceeds this angle
-    uint8_t horizon_ignore_sticks;          // 0 = default, meaning both stick and attitude attenuation; 1 = only attitude attenuation
-
-    // Betaflight PID controller parameters
-    uint16_t yawRateAccelLimit;             // yaw accel limiter for deg/sec/ms
-    uint16_t rateAccelLimit;                // accel limiter roll/pitch deg/sec/ms
-    uint16_t itermLimit;
-    uint16_t dterm_lpf2_static_hz;          // Static Dterm lowpass 2 filter cutoff value in hz
-    uint8_t iterm_rotation;                 // rotates iterm to translate world errors to local coordinate system
-    uint8_t dterm_lpf2_type;                // Filter type for 2nd dterm lowpass
-    char profileName[MAX_PROFILE_NAME_LENGTH + 1]; // Descriptive name for profile
-
-    uint8_t angle_earth_ref;                // Control amount of "co-ordination" from yaw into roll while pitched forward in angle mode
-    uint16_t horizon_delay_ms;              // delay when Horizon Strength increases, 50 = 500ms time constant
-
-    int16_t angle_pitch_offset;         // For wings: pitch offset for angle modes; in decidegrees; positive values tilting the wing down
 } pidProfile_t;
 
 PG_DECLARE_ARRAY(pidProfile_t, PID_PROFILE_COUNT, pidProfiles);
 
 typedef struct pidConfig_s {
-    uint8_t pid_process_denom;                   // Processing denominator for PID controller vs gyro sampling rate
+    uint8_t pid_process_denom;
 } pidConfig_t;
 
 PG_DECLARE(pidConfig_t, pidConfig);
 
-union rollAndPitchTrims_u;
 void pidController(const pidProfile_t *pidProfile, timeUs_t currentTimeUs);
 
 typedef struct pidAxisData_s {
@@ -131,13 +84,6 @@ typedef struct pidAxisData_s {
     float Sum;
 } pidAxisData_t;
 
-typedef union dtermLowpass_u {
-    pt1Filter_t pt1Filter;
-    svfLowpassFilter_t svfLowpassFilter;
-    pt2Filter_t pt2Filter;
-    pt3Filter_t pt3Filter;
-} dtermLowpass_t;
-
 typedef struct pidCoefficient_s {
     float Kp;
     float Ki;
@@ -146,62 +92,18 @@ typedef struct pidCoefficient_s {
     float Ka;
 } pidCoefficient_t;
 
-typedef struct pidRuntime_s {
-    float dT;
-    float pidFrequency;
-    float previousPidSetpoint[XYZ_AXIS_COUNT];
-    filterApplyFnPtr dtermNotchApplyFn;
-    svfNotchFilter_t dtermNotch[XYZ_AXIS_COUNT];
-    filterApplyFnPtr dtermLowpassApplyFn;
-    dtermLowpass_t dtermLowpass[XYZ_AXIS_COUNT];
-    filterApplyFnPtr dtermLowpass2ApplyFn;
-    dtermLowpass_t dtermLowpass2[XYZ_AXIS_COUNT];
-    pidCoefficient_t pidCoefficient[XYZ_AXIS_COUNT];
-    float angleGain;
-    float horizonGain;
-    float horizonLimitSticks;
-    float horizonLimitSticksInv;
-    float horizonLimitDegrees;
-    float horizonLimitDegreesInv;
-    float horizonIgnoreSticks;
-    float maxVelocity[XYZ_AXIS_COUNT];
-    float itermLimit;
-    float itermLimitYaw;
-    bool itermRotation;
-
-#ifdef USE_ACC
-    pt3Filter_t attitudeFilter[RP_AXIS_COUNT];  // Only for ROLL and PITCH
-    pt1Filter_t horizonSmoothingPt1;
-    uint16_t horizonDelayMs;
-    float angleYawSetpoint;
-    float angleEarthRef;
-    float angleTarget[RP_AXIS_COUNT];
-    bool axisInAngleMode[3];
-#endif
-} pidRuntime_t;
-
-extern pidRuntime_t pidRuntime;
-
-extern const char pidNames[];
-
 extern pidAxisData_t pidData[3];
 
 extern uint32_t targetPidLooptime;
 
-extern pt1Filter_t throttleLpf;
-
 void resetPidProfile(pidProfile_t *profile);
-
-void pidResetIterm(void);
-
-#ifdef UNIT_TEST
-#include "sensors/acceleration.h"
-void rotateItermAndAxisError();
-float pidLevel(int axis, const pidProfile_t *pidProfile,
-    const rollAndPitchTrims_t *angleTrim, float rawSetpoint, float horizonLevelStrength);
-float calcHorizonLevelStrength(void);
-#endif
 
 float pidGetPreviousSetpoint(int axis);
 float pidGetDT(void);
 float pidGetPidFrequency(void);
+
+void pidInitFilters(const pidProfile_t *pidProfile);
+void pidInitConfig(const pidProfile_t *pidProfile);
+void pidInit(const pidProfile_t *pidProfile);
+
+void pidCopyProfile(uint8_t dstPidProfileIndex, uint8_t srcPidProfileIndex);
