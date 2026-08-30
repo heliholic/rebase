@@ -28,6 +28,7 @@ PG_SRC = \
             pg/pin_pull_up_down.c \
             pg/rates.c \
             pg/rcdevice.c \
+            pg/rc_controls.c \
             pg/rx.c \
             pg/rx_pwm.c \
             pg/scheduler.c \
