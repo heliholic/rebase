@@ -29,7 +29,7 @@
 
 #include "sensors/esc_sensor.h"
 
-#define OSD_NUM_TIMER_TYPES 5
+#define OSD_NUM_TIMER_TYPES 4
 extern const char * const osdTimerSourceNames[OSD_NUM_TIMER_TYPES];
 
 #define OSD_ELEMENT_BUFFER_LENGTH 32
@@ -285,7 +285,6 @@ typedef enum {
     OSD_TIMER_SRC_TOTAL_ARMED,
     OSD_TIMER_SRC_LAST_ARMED,
     OSD_TIMER_SRC_ON_OR_ARMED,
-    OSD_TIMER_SRC_LAUNCH_TIME,
     OSD_TIMER_SRC_COUNT
 } osd_timer_source_e;
 
@@ -306,7 +305,6 @@ typedef enum {
     OSD_WARNING_ESC_FAIL,
     OSD_WARNING_CORE_TEMPERATURE,
     OSD_WARNING_FAIL_SAFE,
-    OSD_WARNING_LAUNCH_CONTROL,
     OSD_WARNING_GPS_RESCUE_UNAVAILABLE,
     OSD_WARNING_GPS_RESCUE_FAILING,
     OSD_WARNING_RSSI,
@@ -422,7 +420,6 @@ typedef struct statistic_s {
 
 extern timeUs_t resumeRefreshAt;
 extern timeUs_t osdFlyTime;
-extern timeUs_t osdLaunchTime;
 
 #if defined(USE_ACC)
 extern float osdGForce;

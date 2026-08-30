@@ -402,22 +402,6 @@ void mixerResetRpmLimiter(void)
 
 #endif // USE_RPM_LIMIT
 
-#ifdef USE_LAUNCH_CONTROL
-// Create a custom mixer for launch control based on the current settings
-// but disable the front motors. We don't care about roll or yaw because they
-// are limited in the PID controller.
-static void loadLaunchControlMixer(void)
-{
-    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        mixerRuntime.launchControlMixer[i] = mixerRuntime.currentMixer[i];
-        // limit the front motors to minimum output
-        if (mixerRuntime.launchControlMixer[i].pitch < 0.0f) {
-            mixerRuntime.launchControlMixer[i].pitch = 0.0f;
-            mixerRuntime.launchControlMixer[i].throttle = 0.0f;
-        }
-    }
-}
-#endif
 
 #ifndef USE_QUAD_MIXER_ONLY
 
@@ -446,9 +430,6 @@ static void mixerConfigureOutput(void)
                 mixerRuntime.currentMixer[i] = mixers[currentMixerMode].motor[i];
         }
     }
-#ifdef USE_LAUNCH_CONTROL
-    loadLaunchControlMixer();
-#endif
     mixerResetDisarmedMotors();
 }
 
@@ -474,9 +455,6 @@ static void mixerConfigureOutput(void)
     for (int i = 0; i < mixerRuntime.motorCount; i++) {
         mixerRuntime.currentMixer[i] = mixerQuadX[i];
     }
-#ifdef USE_LAUNCH_CONTROL
-    loadLaunchControlMixer();
-#endif
     mixerResetDisarmedMotors();
 }
 #endif // USE_QUAD_MIXER_ONLY
