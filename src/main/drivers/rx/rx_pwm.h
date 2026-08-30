@@ -30,16 +30,11 @@ typedef enum {
 
 struct ppmConfig_s;
 void ppmRxInit(const struct ppmConfig_s *ppmConfig);
-struct pwmConfig_s;
-void pwmRxInit(const struct pwmConfig_s *pwmConfig);
 
-uint16_t pwmRead(uint8_t channel);
 uint16_t ppmRead(uint8_t channel);
 
 bool isPPMDataBeingReceived(void);
 void resetPPMDataReceivedState(void);
-
-bool isPWMDataBeingReceived(void);
 
 #include "drivers/timer_types.h"
 void pwmICConfig(timerResource_t *tim, uint8_t channel, uint16_t polarity, uint8_t filter);

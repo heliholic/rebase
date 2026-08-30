@@ -513,7 +513,6 @@ extern "C" {
     void featureDisableImmediate(uint32_t) { }
     bool rxMspFrameComplete(void) { return false; }
     bool isPPMDataBeingReceived(void) { return false; }
-    bool isPWMDataBeingReceived(void) { return false; }
     void resetPPMDataReceivedState(void){ }
     void failsafeOnValidDataReceived(void) { }
     void failsafeOnValidDataFailed(void) { }

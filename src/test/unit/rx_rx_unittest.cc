@@ -59,7 +59,6 @@ extern "C" {
 
 typedef struct testData_s {
     bool isPPMDataBeingReceived;
-    bool isPWMDataBeingReceived;
 } testData_t;
 
 static testData_t testData;
@@ -223,10 +222,6 @@ extern "C" {
 
     bool isPPMDataBeingReceived(void) {
         return testData.isPPMDataBeingReceived;
-    }
-
-    bool isPWMDataBeingReceived(void) {
-        return testData.isPWMDataBeingReceived;
     }
 
     void resetPPMDataReceivedState(void) {}
