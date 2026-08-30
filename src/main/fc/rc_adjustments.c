@@ -46,7 +46,6 @@
 
 #include "flight/pid.h"
 #include "flight/pid_init.h"
-#include "config/simplified_tuning.h"
 
 #include "io/beeper.h"
 #include "io/ledstrip.h"
@@ -66,9 +65,6 @@
 #define ADJUSTMENT_RANGE_COUNT_INVALID -1
 
 PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG, 2);
-
-// Track whether the multiplier center has been initialized
-static bool potBasePositionInitialized = false;
 
 STATIC_UNIT_TESTED int stepwiseAdjustmentCount = ADJUSTMENT_RANGE_COUNT_INVALID;
 STATIC_UNIT_TESTED timedAdjustmentState_t stepwiseAdjustments[MAX_ADJUSTMENT_RANGE_COUNT];
@@ -207,10 +203,6 @@ static const adjustmentConfig_t defaultAdjustmentConfigs[ADJUSTMENT_FUNCTION_COU
         .mode = ADJUSTMENT_MODE_SELECT,
         .data = { .switchPositions = 100 }
     }, {
-        .adjustmentFunction = ADJUSTMENT_SIMPLIFIED_MASTER_MULTIPLIER,
-        .mode = ADJUSTMENT_MODE_SELECT,
-        .data = { .switchPositions = 100 }
-    }, {
         .adjustmentFunction = ADJUSTMENT_BATTERY_PROFILE,
         .mode = ADJUSTMENT_MODE_SELECT,
         .data = { .switchPositions = BATTERY_PROFILE_COUNT }
@@ -249,7 +241,6 @@ static const char * const adjustmentLabels[] = {
     "OSD PROFILE",
     "LED PROFILE",
     "LED DIMMER",
-    "SLIDER MASTER MULTIPLIER",
     "BATTERY PROFILE",
 };
 
@@ -523,7 +514,7 @@ static int applyAbsoluteAdjustment(controlRateConfig_t *controlRateConfig, adjus
     return newValue;
 }
 
-static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, uint8_t position, uint16_t adjustmentScale)
+static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, uint8_t position)
 {
     uint8_t beeps = 0;
 
@@ -552,34 +543,6 @@ static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, ui
                 currentPidProfile->pid[PID_LEVEL].D = newValue;
                 blackboxLogInflightAdjustmentEvent(ADJUSTMENT_HORIZON_STRENGTH, position);
             }
-        }
-        break;
-    case ADJUSTMENT_SIMPLIFIED_MASTER_MULTIPLIER:
-        {
-            static int centerPosition = 0;
-            static int baseMultiplier = 100;
-
-            // When first entering adjustment range, initialize
-            if (!potBasePositionInitialized) {
-                centerPosition = position;
-                baseMultiplier = currentPidProfile->simplified_master_multiplier;
-                potBasePositionInitialized = true;
-            }
-
-            // Compute change from center with configurable sensitivity
-            int scaleFactor = constrain((adjustmentScale > 0) ? adjustmentScale : 125, 0, 250); // Use adjustmentScale (default to 125 = 1.25x if not set)
-            int delta = (position - centerPosition) * scaleFactor / 100; // Scale by dividing by 100
-            int newValue = constrain(baseMultiplier + delta, 20, 200);
-            
-            // Apply PID update immediately if changed
-            if (newValue != currentPidProfile->simplified_master_multiplier) {
-                currentPidProfile->simplified_master_multiplier = newValue;
-                applySimplifiedTuningPids(currentPidProfile);
-                pidInitConfig(currentPidProfile);
-                blackboxLogInflightAdjustmentEvent(ADJUSTMENT_SIMPLIFIED_MASTER_MULTIPLIER, newValue);
-                beeps = 1;
-            }
-            return currentPidProfile->simplified_master_multiplier;
         }
         break;
     case ADJUSTMENT_OSD_PROFILE:
@@ -765,7 +728,7 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
                     const uint16_t rangeWidth = (2100 - 900) / switchPositions;
                     const uint8_t position = (constrain(rcData[channelIndex], 900, 2100 - 1) - 900) / rangeWidth;
                     
-                    newValue = applySelectAdjustment(adjustmentFunction, position, adjustmentRange->adjustmentScale);
+                    newValue = applySelectAdjustment(adjustmentFunction, position);
 
                     setConfigDirtyIfNotPermanent(&adjustmentRange->range);
                 } else {
@@ -790,9 +753,6 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
             }
         } else {
             adjustmentState->lastRcData = 0;
-            if (adjustmentFunction == ADJUSTMENT_SIMPLIFIED_MASTER_MULTIPLIER) {
-                potBasePositionInitialized = false;
-            }
         }
     }
 }
