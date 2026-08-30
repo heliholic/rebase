@@ -261,7 +261,6 @@ static void controlYaw(void)
 {
     float yawRateTemp = rescueState.sensor.errorAngleDeg * rescueState.intent.yawAttenuator * gpsRescueConfig()->yawP * 0.1f;
     yawRateTemp = constrainf(yawRateTemp, -GPS_RESCUE_MAX_YAW_RATE, GPS_RESCUE_MAX_YAW_RATE);
-    yawRateTemp *= GET_DIRECTION(rcControlsConfig()->yaw_control_reversed);
     // rescueYaw is the yaw rate in deg/s to correct the heading error
     rescueYawRate = yawRateTemp;
     DEBUG_SET(DEBUG_GPS_RESCUE_HEADING, 7, rescueYawRate);

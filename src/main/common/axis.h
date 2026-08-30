@@ -86,5 +86,3 @@ typedef enum {
 // reordering of either enum fails to compile rather than silently swapping axes.
 STATIC_ASSERT((int)EF_EAST == (int)ENU_E, ef_east_must_match_enu_east);
 STATIC_ASSERT((int)EF_NORTH == (int)ENU_N, ef_north_must_match_enu_north);
-
-#define GET_DIRECTION(isReversed) ((isReversed) ? -1 : 1)
