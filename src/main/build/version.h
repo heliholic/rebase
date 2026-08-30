@@ -54,6 +54,12 @@
 
 extern const char* const targetName;
 
+// Legacy MSP MCU-type byte value
+#define MCU_TYPE_ID_PROVIDED_BY_NAME 254
+
+extern const char* const mcuTypeName;
+static inline const char *getMcuTypeName(void) { return mcuTypeName; }
+
 #define GIT_SHORT_REVISION_LENGTH   7 // lower case hexadecimal digits.
 extern const char* const shortGitRevision;
 
