@@ -40,11 +40,3 @@ int cliGetSettingByName(const char *name, char *buf, int bufLen);
 int cliGetSettingInfoByName(const char *name, int offset, char *buf, int bufLen, int *totalLen);
 bool cliSetSettingByName(const char *cmdline);
 #endif
-
-#ifdef USE_CLI_DEBUG_PRINT
-void cliPrint(const char *str);
-void cliPrintLinefeed(void);
-void cliPrintLine(const char *str);
-void cliPrintf(const char *format, ...);
-void cliPrintLinef(const char *format, ...);
-#endif
