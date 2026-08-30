@@ -620,7 +620,6 @@ extern "C" {
     void mspSerialAllocatePorts(void) {}
     void gyroReadTemperature(void) {}
     void updateRcCommands(void) {}
-    void applyAltHold(void) {}
     void resetYawAxis(void) {}
     void processRcCommand(void) {}
     void updateGpsStateForHomeAndHoldMode(void) {}
