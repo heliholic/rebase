@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 #include "common/axis.h"
-#include "common/time.h"
+#include "common/rtc.h"
 
 // Install the MagneticFieldStrength2 subscriber. Call once from dronecanInit()
 // after the base subscriber table has been initialised.

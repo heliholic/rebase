@@ -25,7 +25,7 @@
 
 #if ENABLE_DRONECAN_DNA
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 // Install the dynamic node-ID allocation handler. No-op if dronecan_dna_enabled
 // is clear. Called once from dronecanInit().

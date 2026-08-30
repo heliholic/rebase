@@ -23,7 +23,7 @@
  */
 
 #include "platform.h"
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "usbd_storage.h"
 

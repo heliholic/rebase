@@ -23,7 +23,7 @@
 
 #include "platform.h"
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 #include "drivers/can/can.h"
 #include "drivers/can/can_types.h"
