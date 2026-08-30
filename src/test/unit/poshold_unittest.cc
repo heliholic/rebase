@@ -647,156 +647,6 @@ TEST_F(PosHoldTest, DiagonalDisplacementProducesBothAxes)
                 fabsf(autopilotAngle[AI_PITCH]), 1.0f);
 }
 
-// -- Mission yaw control --
-
-class AutopilotYawTest : public PosHoldTest {
-protected:
-    void engageNavLeg(uint8_t yawMode) {
-        initAndSettleAt(0, 0, 0);
-
-        autopilotConfig_t *cfg = autopilotConfigMutable();
-        cfg->yawMode = yawMode;
-        cfg->yawP = 50;                // 0.5 deg/s per deg of heading error
-        cfg->yawD = 0;                 // deterministic P-only response
-        cfg->maxYawRate = 30;
-        cfg->minForwardVelocity = 100; // 1 m/s
-
-        mockNavHasActiveTarget = true;
-        mockNavCommand.active = true;
-        mockNavCommand.acceptanceRadiusM = 5.0f;
-        flightModeFlags |= AUTOPILOT_MODE;
-    }
-
-    // Enough iterations at 100 Hz for the 1 s engage attenuator to saturate.
-    void settleYaw() { runIterations(SETTLE_ITERATIONS); }
-};
-
-TEST_F(AutopilotYawTest, InactiveWithoutAutopilotMode)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    flightModeFlags = 0;
-    testEstimate.velocity.x = 300.0f; // moving east, well above min speed
-
-    settleYaw();
-    EXPECT_FALSE(autopilotYawControlActive());
-    EXPECT_FLOAT_EQ(autopilotGetYawRate(), 0.0f);
-}
-
-TEST_F(AutopilotYawTest, InactiveInFixedMode)
-{
-    engageNavLeg(YAW_MODE_FIXED);
-    testEstimate.velocity.x = 300.0f;
-
-    settleYaw();
-    EXPECT_FALSE(autopilotYawControlActive());
-}
-
-TEST_F(AutopilotYawTest, InactiveWithoutNavTarget)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    mockNavHasActiveTarget = false;
-    testEstimate.velocity.x = 300.0f;
-
-    settleYaw();
-    EXPECT_FALSE(autopilotYawControlActive());
-}
-
-TEST_F(AutopilotYawTest, VelocityModeYawsTowardCourse)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    // Heading north, flying east: a right turn is a negative (CCW-positive
-    // convention) yaw rate, clamped at the max rate.
-    testEstimate.velocity.x = 300.0f;
-
-    settleYaw();
-    EXPECT_TRUE(autopilotYawControlActive());
-    EXPECT_NEAR(autopilotGetYawRate(), -30.0f, 0.1f);
-
-    // Flying west instead: yaw the other way.
-    testEstimate.velocity.x = -300.0f;
-    settleYaw();
-    EXPECT_NEAR(autopilotGetYawRate(), 30.0f, 0.1f);
-}
-
-TEST_F(AutopilotYawTest, VelocityModeInactiveBelowMinSpeed)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    testEstimate.velocity.x = 50.0f; // below the 100 cm/s course gate
-
-    settleYaw();
-    EXPECT_FALSE(autopilotYawControlActive());
-}
-
-TEST_F(AutopilotYawTest, VelocityModeProportionalBelowClamp)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    // Heading east already (900 decidegrees), flying east-north-east:
-    // small negative error yaws gently left, unclamped.
-    attitude.values.yaw = 900;
-    testEstimate.velocity.x = 300.0f;
-    testEstimate.velocity.y = 120.0f; // course ~68 deg: a ~22 deg left turn -> ~+11 deg/s
-
-    settleYaw();
-    EXPECT_TRUE(autopilotYawControlActive());
-    EXPECT_NEAR(autopilotGetYawRate(), 11.0f, 1.0f);
-}
-
-TEST_F(AutopilotYawTest, BearingModeYawsTowardTarget)
-{
-    engageNavLeg(YAW_MODE_BEARING);
-    mockNavCommand.targetPosEfM.v[0] = 50.0f; // 50 m east: a right turn from north
-
-    settleYaw();
-    EXPECT_TRUE(autopilotYawControlActive());
-    EXPECT_NEAR(autopilotGetYawRate(), -30.0f, 0.1f);
-}
-
-TEST_F(AutopilotYawTest, BearingModeInactiveInsideAcceptanceRadius)
-{
-    engageNavLeg(YAW_MODE_BEARING);
-    mockNavCommand.targetPosEfM.v[0] = 3.0f; // inside the 5 m radius
-
-    settleYaw();
-    EXPECT_FALSE(autopilotYawControlActive());
-}
-
-TEST_F(AutopilotYawTest, HybridFallsBackToBearingWhenSlow)
-{
-    engageNavLeg(YAW_MODE_HYBRID);
-    mockNavCommand.targetPosEfM.v[0] = 50.0f;
-    testEstimate.velocity.x = 50.0f; // too slow for a course heading
-
-    settleYaw();
-    EXPECT_TRUE(autopilotYawControlActive());
-    EXPECT_NEAR(autopilotGetYawRate(), -30.0f, 0.1f);
-}
-
-TEST_F(AutopilotYawTest, MissionYawRateCapApplies)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    testEstimate.velocity.x = 300.0f;
-    autopilotSetYawRateLimit(10.0f);
-
-    settleYaw();
-    EXPECT_NEAR(autopilotGetYawRate(), -10.0f, 0.1f);
-
-    autopilotSetYawRateLimit(0.0f); // no cap: back to ap_max_yaw_rate
-    settleYaw();
-    EXPECT_NEAR(autopilotGetYawRate(), -30.0f, 0.1f);
-}
-
-TEST_F(AutopilotYawTest, EngageRampsRateIn)
-{
-    engageNavLeg(YAW_MODE_VELOCITY);
-    testEstimate.velocity.x = 300.0f;
-
-    // A quarter of the 1 s ramp: attenuated well below the clamp.
-    runIterations(25);
-    EXPECT_TRUE(autopilotYawControlActive());
-    EXPECT_GT(autopilotGetYawRate(), -15.0f);
-    EXPECT_LT(autopilotGetYawRate(), 0.0f);
-}
-
 // -- Nav mode --
 // The unified controller flies nav by anchoring position to positionNav's
 // carrot (targetPosEfM) with the commanded velocity as feedforward; a bounded
@@ -805,8 +655,7 @@ TEST_F(AutopilotYawTest, EngageRampsRateIn)
 class NavModeTest : public PosHoldTest {
 protected:
     void engageNav(uint8_t positionD, uint8_t positionP, uint8_t positionA,
-                            uint8_t velocityDragCoeff, uint8_t velocityBuildupMaxPitch,
-                            uint8_t maxAngle = 45)
+                            uint8_t velocityDragCoeff, uint8_t maxAngle = 45)
     {
         initAndSettleAt(0, 0, 0);
 
@@ -817,7 +666,6 @@ protected:
         cfg->positionP = positionP;
         cfg->positionA = positionA;
         cfg->velocityDragCoeff = velocityDragCoeff;
-        cfg->velocityBuildupMaxPitch = velocityBuildupMaxPitch;
         autopilotInit();
 
         mockNavHasActiveTarget = true;
@@ -841,7 +689,7 @@ TEST_F(NavModeTest, NavAnchorsToCarrotAhead)
 {
     // Carrot 50 m north, craft at the origin: the position anchor produces a
     // lean toward the carrot (pitch), with negligible roll.
-    engageNav(30, 30, 0, 0, 30, 45);
+    engageNav(30, 30, 0, 0, 45);
     setNavCarrot(0.0f, 50.0f);
     setTargetVelocityNorth(0.0f);
 
@@ -856,7 +704,7 @@ TEST_F(NavModeTest, NavPositionErrorIsBounded)
     // The carrot lead grows with speed; NAV_ERROR_DISTANCE_LIMIT bounds the
     // position error so a distant carrot cannot drive P without limit. Two
     // carrots well beyond the bound must produce the same (clamped) lean.
-    engageNav(30, 30, 0, 0, 30, 45);
+    engageNav(30, 30, 0, 0, 45);
     setTargetVelocityNorth(0.0f);
 
     setNavCarrot(0.0f, 50.0f);
@@ -874,7 +722,7 @@ TEST_F(NavModeTest, NavVelocityFeedforward)
 {
     // Carrot coincident with the craft (zero position error), so the lean comes
     // purely from the target-velocity feedforward (F = targetVel * Kd).
-    engageNav(30, 30, 0, 0, 30, 45);
+    engageNav(30, 30, 0, 0, 45);
     setNavCarrot(0.0f, 0.0f);
     setTargetVelocityNorth(300.0f);
     testEstimate.velocity.y = 0.0f;
@@ -890,7 +738,7 @@ TEST_F(NavModeTest, NavForcesIntegralZero)
     // Nav runs the I_ZERO policy: with a fixed carrot error the output is carried
     // by P alone and must not creep upward over time from an accumulating
     // integral (which is what a settled position hold would do).
-    engageNav(30, 30, 0, 0, 30, 45);
+    engageNav(30, 30, 0, 0, 45);
     setNavCarrot(0.0f, 3.0f); // 3 m north, inside the nav error bound
     setTargetVelocityNorth(0.0f);
 
@@ -904,7 +752,7 @@ TEST_F(NavModeTest, NavForcesIntegralZero)
 
 TEST_F(NavModeTest, ResetOnNavReentry)
 {
-    engageNav(30, 50, 0, 0, 30, 45);
+    engageNav(30, 50, 0, 0, 45);
     setTargetVelocityNorth(150.0f); // stays inside the relax gate throughout: the integral builds every cycle
 
     runIterations(150);

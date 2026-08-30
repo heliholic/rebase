@@ -51,7 +51,6 @@
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
-#include "flight/flight_plan_nav.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
@@ -114,7 +113,6 @@ typedef enum {
     BF_MAV_MODE_HORIZON,
     BF_MAV_MODE_ALT_HOLD,
     BF_MAV_MODE_POS_HOLD,
-    BF_MAV_MODE_AUTOPILOT,
     BF_MAV_MODE_RTL,
     BF_MAV_MODE_FAILSAFE,
     BF_MAV_MODE_COUNT,
@@ -132,7 +130,6 @@ static const bfMavModeDescriptor_t bfMavModeDescriptors[BF_MAV_MODE_COUNT] = {
     [BF_MAV_MODE_HORIZON]   = { "Horizon",   MAV_STANDARD_MODE_NON_STANDARD,  0 },
     [BF_MAV_MODE_ALT_HOLD]  = { "Alt Hold",  MAV_STANDARD_MODE_ALTITUDE_HOLD, 0 },
     [BF_MAV_MODE_POS_HOLD]  = { "Pos Hold",  MAV_STANDARD_MODE_POSITION_HOLD, 0 },
-    [BF_MAV_MODE_AUTOPILOT] = { "Autopilot", MAV_STANDARD_MODE_MISSION,       0 },
     [BF_MAV_MODE_RTL]       = { "RTL",       MAV_STANDARD_MODE_SAFE_RECOVERY, 0 },
     [BF_MAV_MODE_FAILSAFE]  = { "Failsafe",  MAV_STANDARD_MODE_SAFE_RECOVERY, MAV_MODE_PROPERTY_NOT_USER_SELECTABLE },
 };
@@ -342,11 +339,8 @@ static uint32_t mavlinkComputeCustomMode(void)
     if (FLIGHT_MODE(FAILSAFE_MODE) || failsafeIsActive()) {
         return BF_MAV_MODE_FAILSAFE;
     }
-    if (FLIGHT_MODE(GPS_RESCUE_MODE) || flightPlanNavIsRescuePlanActive()) {
+    if (FLIGHT_MODE(GPS_RESCUE_MODE)) {
         return BF_MAV_MODE_RTL;
-    }
-    if (FLIGHT_MODE(AUTOPILOT_MODE)) {
-        return BF_MAV_MODE_AUTOPILOT;
     }
     if (FLIGHT_MODE(POS_HOLD_MODE)) {
         return BF_MAV_MODE_POS_HOLD;
