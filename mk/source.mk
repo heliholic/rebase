@@ -146,7 +146,6 @@ COMMON_SRC = \
             flight/alt_hold_multirotor.c \
             flight/autopilot_multirotor.c \
             flight/failsafe.c \
-            flight/flight_plan_capture.c \
             flight/flight_plan_nav.c \
             flight/gps_rescue_multirotor.c \
             flight/imu.c \
