@@ -471,19 +471,6 @@ telemetry_ibus_unittest_SRC := \
 		$(USER_DIR)/telemetry/ibus_shared.c \
 		$(USER_DIR)/telemetry/ibus.c
 
-telemetry_mavlink_mission_unittest_SRC := \
-		$(USER_DIR)/telemetry/mavlink_mission.c \
-		$(USER_DIR)/pg/flight_plan.c \
-		$(USER_DIR)/pg/autopilot.c
-
-telemetry_mavlink_mission_unittest_DEFINES := \
-		USE_GPS= \
-		USE_FLIGHT_PLAN= \
-		ENABLE_FLIGHT_PLAN=1 \
-		USE_TELEMETRY= \
-		USE_TELEMETRY_MAVLINK= \
-		ENABLE_TELEMETRY_MAVLINK_MISSION=1
-
 ws2811_unittest_SRC := \
 		$(USER_DIR)/drivers/light_ws2811strip.c
 
