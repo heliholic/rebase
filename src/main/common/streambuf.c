@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "platform.h"
+#include <platform.h>
 
 #include "streambuf.h"
 #include "common/maths.h"
