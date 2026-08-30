@@ -1532,10 +1532,6 @@ extern "C" {
         return false;
     }
 
-    bool isAirmodeEnabled() {
-        return false;
-    }
-
     uint8_t getCurrentPidProfileIndex() {
         return 0;
     }

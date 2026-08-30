@@ -258,12 +258,12 @@ static void updateDynLpfCutoffs(timeUs_t currentTimeUs, float throttle)
 
 DEFINE_SCALE_FN(scaleAirmodeTransition, 0.0f, 0.5f, 0.5f, 1.0f)
 
-static void applyMixerAdjustmentLinear(float *motorMix, const bool airmodeEnabled)
+static void applyMixerAdjustmentLinear(float *motorMix)
 {
     float airmodeTransitionPercent = 1.0f;
     float motorDeltaScale = 0.5f;
 
-    if (!airmodeEnabled && throttle < 0.5f) {
+    if (throttle < 0.5f) {
         // this scales the motor mix authority to be 0.5 at 0 throttle, and 1.0 at 0.5 throttle as airmode off intended for things to work.
         // also lays the groundwork for how an airmode percent would work.
         airmodeTransitionPercent = scaleAirmodeTransition(throttle);
@@ -357,11 +357,11 @@ static void applyMixerAdjustmentEzLand(float *motorMix, const float motorMixMin,
     // DEBUG_EZLANDING 4 and 5 is the upper limits based on stick input and speed respectively
 }
 
-static void applyMixerAdjustment(float *motorMix, const float motorMixMin, const float motorMixMax, const bool airmodeEnabled)
+static void applyMixerAdjustment(float *motorMix, const float motorMixMin, const float motorMixMax)
 {
     float airmodeTransitionPercent = 1.0f;
 
-    if (!airmodeEnabled && throttle < 0.5f) {
+    if (throttle < 0.5f) {
         // this scales the motor mix authority to be 0.5 at 0 throttle, and 1.0 at 0.5 throttle as airmode off intended for things to work.
         // also lays the groundwork for how an airmode percent would work.
         airmodeTransitionPercent = scaleAirmodeTransition(throttle); // 0.5 throttle is full transition, and 0.0 throttle is 50% airmodeTransitionPercent
@@ -380,8 +380,6 @@ static void applyMixerAdjustment(float *motorMix, const float motorMixMin, const
 
 FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
 {
-    const bool airmodeEnabled = isAirmodeEnabled();
-
     // Find min and max throttle based on conditions. Throttle has to be known before mixing
     calculateThrottleAndCurrentMotorEndpoints(currentTimeUs);
 
@@ -457,20 +455,19 @@ FAST_CODE_NOINLINE void mixTable(timeUs_t currentTimeUs)
 
     motorMixRange = motorMixMax - motorMixMin;
 
-    // note that here airmodeEnabled is true also when Launch Control is active
     switch (mixerConfig()->mixer_type) {
     case MIXER_LEGACY:
-        applyMixerAdjustment(motorMix, motorMixMin, motorMixMax, airmodeEnabled);
+        applyMixerAdjustment(motorMix, motorMixMin, motorMixMax);
         break;
     case MIXER_LINEAR:
     case MIXER_DYNAMIC:
-        applyMixerAdjustmentLinear(motorMix, airmodeEnabled);
+        applyMixerAdjustmentLinear(motorMix);
         break;
     case MIXER_EZLANDING:
         applyMixerAdjustmentEzLand(motorMix, motorMixMin, motorMixMax);
         break;
     default:
-        applyMixerAdjustment(motorMix, motorMixMin, motorMixMax, airmodeEnabled);
+        applyMixerAdjustment(motorMix, motorMixMin, motorMixMax);
         break;
     }
 
