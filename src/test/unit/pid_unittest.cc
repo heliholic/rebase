@@ -141,7 +141,6 @@ void setDefaultTestSettings(void)
     pidProfile->dterm_notch_cutoff = 160;
     pidProfile->dterm_lpf1_type = FILTER_SVF;
     pidProfile->itermWindup = 80;
-    pidProfile->pidAtMinThrottle = PID_STABILISATION_ON;
     pidProfile->angle_limit = 60;
     pidProfile->yawRateAccelLimit = 100;
     pidProfile->rateAccelLimit = 0;
@@ -163,7 +162,6 @@ void resetTest(void)
     loopIter = 0;
     simulatedMotorMixRange = 0.0f;
 
-    pidStabilisationState(PID_STABILISATION_OFF);
     DISABLE_ARMING_FLAG(ARMED);
 
     setDefaultTestSettings();
@@ -186,9 +184,16 @@ void resetTest(void)
     pidInit(pidProfile);
     loadControlRateProfile();
 
-    // Run pidloop for a while after reset
+    // Run pidloop for a while after reset to settle filters
     for (int loop = 0; loop < 20; loop++) {
         pidController(pidProfile, currentTestTime());
+    }
+    for (int axis = FD_ROLL; axis <= FD_YAW; axis++) {
+        pidData[axis].P = 0;
+        pidData[axis].I = 0;
+        pidData[axis].D = 0;
+        pidData[axis].F = 0;
+        pidData[axis].Sum = 0;
     }
 }
 
@@ -217,33 +222,11 @@ TEST(pidControllerTest, testInitialisation)
     }
 }
 
-TEST(pidControllerTest, testStabilisationDisabled)
-{
-    ENABLE_ARMING_FLAG(ARMED);
-    // Run few loops to make sure there is no error building up when stabilisation disabled
-
-    for (int loop = 0; loop < 10; loop++) {
-        pidController(pidProfile, currentTestTime());
-
-        // PID controller should not do anything, while stabilisation disabled
-        EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].P);
-        EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].P);
-        EXPECT_FLOAT_EQ(0, pidData[FD_YAW].P);
-        EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].I);
-        EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].I);
-        EXPECT_FLOAT_EQ(0, pidData[FD_YAW].I);
-        EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].D);
-        EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].D);
-        EXPECT_FLOAT_EQ(0, pidData[FD_YAW].D);
-    }
-}
-
 TEST(pidControllerTest, testPidLoop)
 {
     // Make sure to start with fresh values
     resetTest();
     ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
 
     pidController(pidProfile, currentTestTime());
 
@@ -340,21 +323,6 @@ TEST(pidControllerTest, testPidLoop)
     EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].D);
     EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].D);
     EXPECT_FLOAT_EQ(0, pidData[FD_YAW].D);
-
-    // Now disable Stabilisation
-    pidStabilisationState(PID_STABILISATION_OFF);
-    pidController(pidProfile, currentTestTime());
-
-    // Should all be zero again
-    EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].P);
-    EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].P);
-    EXPECT_FLOAT_EQ(0, pidData[FD_YAW].P);
-    EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].I);
-    EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].I);
-    EXPECT_FLOAT_EQ(0, pidData[FD_YAW].I);
-    EXPECT_FLOAT_EQ(0, pidData[FD_ROLL].D);
-    EXPECT_FLOAT_EQ(0, pidData[FD_PITCH].D);
-    EXPECT_FLOAT_EQ(0, pidData[FD_YAW].D);
 }
 
 TEST(pidControllerTest, testPidLevel)
@@ -362,7 +330,6 @@ TEST(pidControllerTest, testPidLevel)
     // Make sure to start with fresh values
     resetTest();
     ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
 
     // Test Angle mode response
     enableFlightMode(ANGLE_MODE);
@@ -423,7 +390,6 @@ TEST(pidControllerTest, testPidHorizon)
 {
     resetTest();
     ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
     enableFlightMode(HORIZON_MODE);
 
     // Test stick response greater than default limit of 0.75
@@ -509,7 +475,6 @@ TEST(pidControllerTest, testMixerSaturation)
     resetTest();
 
     ENABLE_ARMING_FLAG(ARMED);
-    pidStabilisationState(PID_STABILISATION_ON);
 
     pidRuntime.itermLimit = 400;
     pidRuntime.itermLimitYaw = 320;
@@ -554,7 +519,6 @@ TEST(pidControllerTest, testMixerSaturation)
     pidRuntime.itermLimit = 400;
     pidRuntime.itermLimitYaw = 320;
 
-    pidStabilisationState(PID_STABILISATION_ON);
     setStickPosition(FD_ROLL, 0.0f);
     setStickPosition(FD_PITCH, 0.0f);
     setStickPosition(FD_YAW, 0.5f);
@@ -587,7 +551,6 @@ TEST(pidControllerTest, testiTermWindup)
     pidRuntime.itermLimit = 200;
     pidRuntime.itermLimitYaw = 160;
 
-    pidStabilisationState(PID_STABILISATION_ON);
     setStickPosition(FD_ROLL, 0.12f);
     setStickPosition(FD_PITCH, 0.12f);
     setStickPosition(FD_YAW, 0.12f);
