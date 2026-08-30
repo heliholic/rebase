@@ -67,9 +67,6 @@
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
-#if defined(USE_DYN_NOTCH_FILTER)
-#include "flight/dyn_notch_filter.h"
-#endif
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -190,7 +187,6 @@ const osd_stats_e osdStatsDisplayOrder[] = {
     OSD_STAT_MAX_ESC_TEMP,
     OSD_STAT_MAX_ESC_RPM,
     OSD_STAT_MIN_LINK_QUALITY,
-    OSD_STAT_MAX_FFT,
     OSD_STAT_MIN_RSSI_DBM,
     OSD_STAT_MIN_RSNR,
     OSD_STAT_TOTAL_FLIGHTS,
@@ -943,21 +939,6 @@ static bool osdDisplayStat(int statistic, uint8_t displayRow)
         strcat(buff, "%");
         osdDisplayStatisticLabel(midCol, displayRow, "MIN LINK", buff);
         return true;
-#endif
-
-#if defined(USE_DYN_NOTCH_FILTER)
-    case OSD_STAT_MAX_FFT:
-        if (isDynNotchActive()) {
-            int value = getMaxFFT();
-            if (value > 0) {
-                tfp_sprintf(buff, "%dHZ", value);
-                osdDisplayStatisticLabel(midCol, displayRow, "PEAK FFT", buff);
-            } else {
-                osdDisplayStatisticLabel(midCol, displayRow, "PEAK FFT", "THRT<20%");
-            }
-            return true;
-        }
-        break;
 #endif
 
 #ifdef USE_RX_RSSI_DBM
