@@ -190,9 +190,7 @@ static bool accNeedsCalibration(void)
             isModeActivationConditionPresent(BOXALTHOLD) ||
             isModeActivationConditionPresent(BOXPOSHOLD) ||
             isModeActivationConditionPresent(BOXGPSRESCUE) ||
-            isModeActivationConditionPresent(BOXCALIB) ||
-            isModeActivationConditionPresent(BOXACROTRAINER)) {
-
+            isModeActivationConditionPresent(BOXCALIB)) {
             return true;
         }
 
@@ -487,10 +485,6 @@ if (isMotorProtocolDshot()) {
 #endif
 
         resetTryingToArm();
-
-#ifdef USE_ACRO_TRAINER
-        pidAcroTrainerInit();
-#endif // USE_ACRO_TRAINER
 
         if (isModeActivationConditionPresent(BOXPREARM)) {
             ENABLE_ARMING_FLAG(WAS_ARMED_WITH_PREARM);
@@ -1005,10 +999,6 @@ void processRxModes(timeUs_t currentTimeUs)
         handleVTXControlButton();
     }
 #endif
-
-#ifdef USE_ACRO_TRAINER
-    pidSetAcroTrainerState(IS_RC_MODE_ACTIVE(BOXACROTRAINER) && sensors(SENSOR_ACC));
-#endif // USE_ACRO_TRAINER
 
     pidSetAntiGravityState(IS_RC_MODE_ACTIVE(BOXANTIGRAVITY) || featureIsEnabled(FEATURE_ANTI_GRAVITY));
 }
