@@ -1149,18 +1149,6 @@ case MSP_NAME:
             sbufWriteU32(dst, servoParams(i)->reversedSources);
         }
         break;
-
-    case MSP_SERVO_MIX_RULES:
-        for (int i = 0; i < MAX_SERVO_RULES; i++) {
-            sbufWriteU8(dst, customServoMixers(i)->targetChannel);
-            sbufWriteU8(dst, customServoMixers(i)->inputSource);
-            sbufWriteU8(dst, customServoMixers(i)->rate);
-            sbufWriteU8(dst, customServoMixers(i)->speed);
-            sbufWriteU8(dst, customServoMixers(i)->min);
-            sbufWriteU8(dst, customServoMixers(i)->max);
-            sbufWriteU8(dst, customServoMixers(i)->box);
-        }
-        break;
 #endif
 
     case MSP_MOTOR:
@@ -1521,7 +1509,7 @@ case MSP_NAME:
         break;
 #endif
     case MSP_MIXER_CONFIG:
-        sbufWriteU8(dst, mixerConfig()->mixerMode);
+        sbufWriteU8(dst, 0); // mixerConfig()->mixerMode
         break;
 
     case MSP_RX_CONFIG:
@@ -2640,29 +2628,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 #endif
         break;
 
-    case MSP_SET_SERVO_MIX_RULE:
-#ifdef USE_SERVOS
-        i = sbufReadU8(src);
-        if (i >= MAX_SERVO_RULES) {
-            return MSP_RESULT_ERROR;
-        } else {
-            const uint8_t targetChannel = sbufReadU8(src);
-            const uint8_t inputSource = sbufReadU8(src);
-            if (targetChannel >= MAX_SUPPORTED_SERVOS || inputSource >= INPUT_SOURCE_COUNT) {
-                return MSP_RESULT_ERROR;
-            }
-            customServoMixersMutable(i)->targetChannel = targetChannel;
-            customServoMixersMutable(i)->inputSource = inputSource;
-            customServoMixersMutable(i)->rate = sbufReadU8(src);
-            customServoMixersMutable(i)->speed = sbufReadU8(src);
-            customServoMixersMutable(i)->min = sbufReadU8(src);
-            customServoMixersMutable(i)->max = sbufReadU8(src);
-            customServoMixersMutable(i)->box = sbufReadU8(src);
-            loadCustomServoMixer();
-        }
-#endif
-        break;
-
     case MSP_SET_RC_DEADBAND:
         rcControlsConfigMutable()->deadband = sbufReadU8(src);
         rcControlsConfigMutable()->yaw_deadband = sbufReadU8(src);
@@ -2876,8 +2841,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
 
         pidInitConfig(currentPidProfile);
-        initEscEndpoints();
-        mixerInitProfile();
 
         break;
     case MSP_SET_SENSOR_CONFIG:
@@ -3307,11 +3270,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         break;
 
     case MSP_SET_MIXER_CONFIG:
-#ifndef USE_QUAD_MIXER_ONLY
-        mixerConfigMutable()->mixerMode = sbufReadU8(src);
-#else
-        sbufReadU8(src);
-#endif
+        sbufReadU8(src); // mixerConfigMutable()->mixerMode
         break;
 
     case MSP_SET_RX_CONFIG:
