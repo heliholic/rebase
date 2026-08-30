@@ -92,18 +92,9 @@ PG_REGISTER_WITH_RESET_TEMPLATE(pidConfig_t, pidConfig, PG_PID_CONFIG, 4);
 #define DEFAULT_PID_PROCESS_DENOM       1
 #endif
 
-#ifdef USE_RUNAWAY_TAKEOFF
-PG_RESET_TEMPLATE(pidConfig_t, pidConfig,
-    .pid_process_denom = DEFAULT_PID_PROCESS_DENOM,
-    .runaway_takeoff_prevention = true,
-    .runaway_takeoff_deactivate_throttle = 20,  // throttle level % needed to accumulate deactivation time
-    .runaway_takeoff_deactivate_delay = 500,    // Accumulated time (in milliseconds) before deactivation in successful takeoff
-);
-#else
 PG_RESET_TEMPLATE(pidConfig_t, pidConfig,
     .pid_process_denom = DEFAULT_PID_PROCESS_DENOM,
 );
-#endif
 
 #ifdef USE_ACRO_TRAINER
 #define ACRO_TRAINER_LOOKAHEAD_RATE_LIMIT 500.0f  // Max gyro rate for lookahead time scaling
@@ -998,7 +989,6 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
 #endif
         pidRuntime.previousPidSetpoint[axis] = currentPidSetpoint; // this is the value sent to blackbox, and used for D-max setpoint
 
-        // disable D if launch control is active
         if (pidRuntime.pidCoefficient[axis].Kd > 0) {
             // Divide rate change by dT to get differential (ie dr/dt).
             // dT is fixed and calculated from the target PID loop time
