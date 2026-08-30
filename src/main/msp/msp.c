@@ -3867,13 +3867,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
     case MSP_SET_ARMING_DISABLED:
         {
             const uint8_t command = sbufReadU8(src);
-            uint8_t disableRunawayTakeoff = 0;
-#ifndef USE_RUNAWAY_TAKEOFF
-            UNUSED(disableRunawayTakeoff);
-#endif
-            if (sbufBytesRemaining(src)) {
-                disableRunawayTakeoff = sbufReadU8(src);
-            }
             if (command) {
 #if !ENABLE_SIMULATOR // In simulator mode we can safely arm with MSP link.
                 mspArmingDisableByDescriptor(srcDesc);
@@ -3882,16 +3875,10 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
                     disarm(DISARM_REASON_ARMING_DISABLED);
                 }
 #endif
-#ifdef USE_RUNAWAY_TAKEOFF
-                runawayTakeoffTemporaryDisable(false);
-#endif
             } else {
                 mspArmingEnableByDescriptor(srcDesc);
                 if (mspIsMspArmingEnabled()) {
                     unsetArmingDisabled(ARMING_DISABLED_MSP);
-#ifdef USE_RUNAWAY_TAKEOFF
-                    runawayTakeoffTemporaryDisable(disableRunawayTakeoff);
-#endif
                 }
             }
         }
