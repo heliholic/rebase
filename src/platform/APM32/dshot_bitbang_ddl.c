@@ -27,7 +27,7 @@
 
 #ifdef USE_DSHOT_BITBANG
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 #include "build/debug.h"
 
 #include "drivers/io.h"

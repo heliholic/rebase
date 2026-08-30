@@ -47,7 +47,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c
 
 atomic_unittest_SRC := \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(TEST_DIR)/atomic_unittest_c.c
 
 beeper_unittest_SRC := \
@@ -239,7 +239,7 @@ maths_unittest_SRC := \
 
 
 motor_output_unittest_SRC := \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/drivers/dshot.c
 
 motor_output_unittest_DEFINES := \
@@ -403,7 +403,7 @@ telemetry_crsf_unittest_DEFINES := \
 
 telemetry_crsf_msp_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/printf.c \
