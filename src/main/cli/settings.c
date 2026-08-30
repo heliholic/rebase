@@ -70,9 +70,6 @@
 #include "io/vtx_rtc6705.h"
 
 #include "osd/osd.h"
-#if ENABLE_OSD_CUSTOM_TEXT
-#include "osd/osd_custom_text.h"
-#endif
 
 #include "pg/adc.h"
 #include "pg/beeper.h"
