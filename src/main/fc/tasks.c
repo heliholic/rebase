@@ -52,7 +52,6 @@
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
-#include "flight/alt_hold.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
@@ -211,7 +210,6 @@ static void taskUpdateRxMain(timeUs_t currentTimeUs)
         break;
 
     case RX_STATE_UPDATE:
-        // updateRcCommands sets rcCommand, which is needed by updateAltHold
         updateRcCommands();
         updateArmingStatus();
 
@@ -382,10 +380,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_GPS] = DEFINE_TASK("GPS", NULL, NULL, gpsUpdate, TASK_PERIOD_HZ(TASK_GPS_RATE), TASK_PRIORITY_MEDIUM), // Required to prevent buffer overruns if running at 115200 baud (115 bytes / period < 256 bytes buffer)
 #endif
 
-#ifdef USE_ALTITUDE_HOLD
-    [TASK_ALTHOLD] = DEFINE_TASK("ALTHOLD", NULL, NULL, updateAltHold, TASK_PERIOD_HZ(ALTHOLD_TASK_RATE_HZ), TASK_PRIORITY_LOW),
-#endif
-
 #ifdef USE_MAG
     [TASK_COMPASS] = DEFINE_TASK("COMPASS", NULL, NULL, taskUpdateMag, TASK_PERIOD_HZ(TASK_COMPASS_RATE_HZ), TASK_PRIORITY_LOW),
 #endif
@@ -544,12 +538,6 @@ void tasksInit(void)
 
 #ifdef USE_GPS
     setTaskEnabled(TASK_GPS, featureIsEnabled(FEATURE_GPS));
-#endif
-
-#ifdef USE_ALTITUDE_HOLD
-    setTaskEnabled(TASK_ALTHOLD, sensors(SENSOR_BARO) ||
-                                 sensors(SENSOR_RANGEFINDER) ||
-                                 featureIsEnabled(FEATURE_GPS));
 #endif
 
 #ifdef USE_MAG

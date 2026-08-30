@@ -1,6 +1,5 @@
 PG_SRC = \
             pg/adc.c \
-            pg/alt_hold_multirotor.c \
             pg/autopilot.c \
             pg/beeper.c \
             pg/beeper_dev.c \
@@ -140,7 +139,6 @@ COMMON_SRC = \
             fc/rc_adjustments.c \
             fc/rc_controls.c \
             fc/rc_modes.c \
-            flight/alt_hold_multirotor.c \
             flight/autopilot_multirotor.c \
             flight/failsafe.c \
             flight/imu.c \

@@ -1076,8 +1076,6 @@ static void osdElementFlymode(osdElementParms_t *element)
     // Note that flight mode display has precedence in what to display, FS first, ACRO last
     if (FLIGHT_MODE(FAILSAFE_MODE)) {
         strcpy(element->buff, "!FS!");
-    } else if (FLIGHT_MODE(ALT_HOLD_MODE)) {
-        strcpy(element->buff, "ALTH");
     } else if (FLIGHT_MODE(ANGLE_MODE)) {
         strcpy(element->buff, "ANGL");
     } else if (FLIGHT_MODE(HORIZON_MODE)) {
