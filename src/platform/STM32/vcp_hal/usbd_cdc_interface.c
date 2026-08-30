@@ -53,7 +53,7 @@
 
 #ifdef USE_VCP
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "usbd_conf.h"
 #include "usbd_core.h"
