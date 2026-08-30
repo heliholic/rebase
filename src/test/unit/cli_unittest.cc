@@ -85,10 +85,7 @@ extern "C" {
     PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG, 0);
     PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG, 0);
     PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
-    PG_REGISTER(mixerConfig_t, mixerConfig, PG_MIXER_CONFIG, 0);
-    PG_REGISTER_ARRAY(motorMixer_t, MAX_SUPPORTED_MOTORS, customMotorMixer, PG_MOTOR_MIXER, 0);
     PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
-    PG_REGISTER_ARRAY(servoMixer_t, MAX_SERVO_RULES, customServoMixers, PG_SERVO_MIXER, 0);
     PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG, 0);
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
     PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 0);
@@ -294,7 +291,6 @@ void beeperOffClearAll(void) {}
 bool parseColor(int, const char *) {return false; }
 bool resetEEPROM(void) { return true; }
 void bufWriterFlush(bufWriter_t *) {}
-void mixerResetDisarmedMotors(void) {}
 
 typedef enum {
     DUMMY
@@ -307,7 +303,6 @@ bool parseLedStripConfig(int, const char *){return false; }
 const char rcChannelLetters[] = "AERT12345678abcdefgh";
 
 void parseRcChannels(const char *, rxConfig_t *){}
-void mixerLoadMix(int, motorMixer_t *) {}
 bool setModeColor(ledModeIndex_e, int, int) { return false; }
 float motorConvertFromExternal(uint16_t) { return 1.0; }
 void motorShutdown(void) { }
@@ -324,7 +319,6 @@ const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e) { return NU
 void serialPassthrough(serialPort_t *, serialPort_t *, serialConsumer *, serialConsumer *) {}
 uint32_t millis(void) { return 0; }
 uint8_t getBatteryCellCount(void) { return 1; }
-void servoMixerLoadMix(int) {}
 const char * getBatteryStateString(void){ return "_getBatteryStateString_"; }
 uint32_t getCycleCounter(void) { return 0; }
 uint32_t clockMicrosToCycles(uint32_t micros) { return micros; }

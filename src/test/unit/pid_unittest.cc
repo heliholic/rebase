@@ -34,7 +34,6 @@ float simulatedRcCommandDelta[3] = { 1,1,1 };
 float simulatedRawSetpoint[3] = { 0,0,0 };
 float simulatedMaxRate[3] = { 670,670,670 };
 float simulatedFeedforward[3] = { 0,0,0 };
-float simulatedMotorMixRange = 0.0f;
 
 int16_t debug[DEBUG16_VALUE_COUNT];
 uint8_t debugMode;
@@ -88,14 +87,12 @@ extern "C" {
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 2);
     PG_REGISTER(positionConfig_t, positionConfig, PG_SYSTEM_CONFIG, 4);
 
-    float getMotorMixRange(void) { return simulatedMotorMixRange; }
     float getSetpointRate(int axis) { return simulatedSetpointRate[axis]; }
     bool wasThrottleRaised(void) { return simulatedThrottleRaised; }
     float getRcDeflectionAbs(int axis) { return fabsf(simulatedRcDeflection[axis]); }
 
     // used by auto-disarm code
     float getMaxRcDeflectionAbs() { return fabsf(simulatedMaxRcDeflectionAbs); }
-    float mixerGetRcThrottle() { return fabsf(simulatedMixerGetRcThrottle); }
 
 
     bool isBelowLandingAltitude(void) { return false; }
@@ -159,7 +156,6 @@ timeUs_t currentTestTime(void)
 void resetTest(void)
 {
     loopIter = 0;
-    simulatedMotorMixRange = 0.0f;
 
     DISABLE_ARMING_FLAG(ARMED);
 
