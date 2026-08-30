@@ -197,7 +197,8 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/flight/imu.c \
 		$(USER_DIR)/pg/feature.c \
 		$(USER_DIR)/pg/modes.c \
-		$(USER_DIR)/pg/imu.c
+		$(USER_DIR)/pg/imu.c \
+		$(USER_DIR)/pg/position.c
 
 
 flight_mixer_unittest :=  \
