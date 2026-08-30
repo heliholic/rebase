@@ -31,33 +31,6 @@
 static IO_t leds[STATUS_LED_COUNT];
 static uint8_t ledInversion = 0;
 
-PG_REGISTER_WITH_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig, PG_STATUS_LED_CONFIG, 0);
-
-PG_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig,
-    .ioTags = {
-#if STATUS_LED_COUNT > 0 && defined(LED0_PIN)
-        [0] = IO_TAG(LED0_PIN),
-#endif
-#if STATUS_LED_COUNT > 1 && defined(LED1_PIN)
-        [1] = IO_TAG(LED1_PIN),
-#endif
-#if STATUS_LED_COUNT > 2 && defined(LED2_PIN)
-        [2] = IO_TAG(LED2_PIN),
-#endif
-    },
-    .inversion = 0
-#ifdef LED0_INVERTED
-    | BIT(0)
-#endif
-#ifdef LED1_INVERTED
-    | BIT(1)
-#endif
-#ifdef LED2_INVERTED
-    | BIT(2)
-#endif
-    ,
-);
-
 void ledInit(const statusLedConfig_t *statusLedConfig)
 {
     ledInversion = statusLedConfig->inversion;
