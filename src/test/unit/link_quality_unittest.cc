@@ -67,6 +67,7 @@ extern "C" {
     #include "rx/rx.h"
 
     #include "sensors/battery.h"
+    #include "sensors/acceleration.h"
 
     attitudeEulerAngles_t attitude;
     matrix33_t rMat;
