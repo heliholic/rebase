@@ -655,7 +655,7 @@ static void updateYawControl(float dt, const positionEstimate3d_t *est)
     }
     yawRateDps = constrainf(yawRateDps, -maxRateDps, maxRateDps);
 
-    apYawRateDps = yawRateDps * GET_DIRECTION(rcControlsConfig()->yaw_control_reversed);
+    apYawRateDps = yawRateDps;
     apYawActive = true;
 }
 
