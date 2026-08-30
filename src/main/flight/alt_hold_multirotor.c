@@ -17,7 +17,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 
 #include "math.h"
 
@@ -189,4 +188,3 @@ bool isAltHoldActive(void) {
 }
 
 #endif // USE_ALTITUDE_HOLD
-#endif // !USE_WING

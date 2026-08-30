@@ -21,7 +21,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 #ifdef USE_GPS_RESCUE
 
 #include "build/debug.h"
@@ -749,4 +748,3 @@ bool gpsRescueIsOK(void)
 }
 
 #endif // USE_GPS_RESCUE
-#endif // !USE_WING
