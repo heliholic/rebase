@@ -51,7 +51,7 @@ typedef enum {
     FUNCTION_LIDAR_TF            = (1 << 15), // 32768
     FUNCTION_FRSKY_OSD           = (1 << 16), // 65536
     FUNCTION_VTX_MSP             = (1 << 17), // 131072
-    FUNCTION_GIMBAL              = (1 << 18), // 262144
+    // FUNCTION_GIMBAL           = (1 << 18), // 262144 (removed)
     FUNCTION_LIDAR_NL            = (1 << 19), // 524288
     FUNCTION_OSD_CUSTOM_TEXT     = (1 << 20), // 1048576
 } serialPortFunction_e;

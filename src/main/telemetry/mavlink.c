@@ -59,7 +59,6 @@
 #include "flight/position.h"
 
 #include "io/serial.h"
-#include "io/gimbal.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
 

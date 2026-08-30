@@ -118,8 +118,6 @@
 #include "io/displayport_msp.h"
 #include "io/dronecan/dronecan.h"
 #include "io/flashfs.h"
-#include "io/gimbal.h"
-#include "io/gimbal_control.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/piniobox.h"
@@ -845,11 +843,6 @@ void initPhase3(void)
     blackboxInit();
 #endif
 
-#ifdef USE_ACC
-    if (mixerConfig()->mixerMode == MIXER_GIMBAL) {
-        accStartCalibration();
-    }
-#endif
     gyroStartCalibration(false);
 #ifdef USE_BARO
     baroStartCalibration();
@@ -891,10 +884,6 @@ void initPhase3(void)
 #endif
 
 #endif // VTX_CONTROL
-
-#ifdef USE_GIMBAL
-    gimbalInit();
-#endif
 
     batteryInit(); // always needs doing, regardless of features.
 
