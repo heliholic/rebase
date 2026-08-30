@@ -43,7 +43,6 @@ extern "C" {
     #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
-    #include "flight/gps_rescue.h"
     #include "flight/imu.h"
     #include "flight/mixer.h"
     #include "flight/pid.h"
@@ -55,7 +54,6 @@ extern "C" {
     #include "osd/osd_elements.h"
     #include "osd/osd_warnings.h"
 
-    #include "pg/gps_rescue.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/pilot.h"
@@ -95,7 +93,6 @@ extern "C" {
     PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
     PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG, 0);
-    PG_REGISTER(gpsRescueConfig_t, gpsRescueConfig, PG_GPS_RESCUE, 0);
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
 
@@ -1621,7 +1618,6 @@ extern "C" {
     uint8_t getMotorCount(void){ return 4; }
     bool areMotorsRunning(void){ return true; }
     bool failsafeIsActive(void) { return false; }
-    bool gpsRescueIsConfigured(void) { return false; }
     bool gpsIsHealthy(void) { return simulationGpsHealthy; }
     int8_t calculateThrottlePercent(void) { return 0; }
     uint32_t persistentObjectRead(persistentObjectId_e) { return 0; }

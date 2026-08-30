@@ -98,7 +98,6 @@
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
-#include "flight/gps_rescue.h"
 #include "flight/pid.h"
 #include "flight/pid_init.h"
 #include "flight/position.h"
@@ -1020,12 +1019,6 @@ void initPhase3(void)
 
 #ifdef USE_POSITION_HOLD
     posHoldInit();
-#endif
-
-#ifdef USE_GPS_RESCUE
-    if (featureIsEnabled(FEATURE_GPS)) {
-        gpsRescueInit();
-    }
 #endif
 
     debugInit();
