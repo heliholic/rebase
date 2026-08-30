@@ -232,7 +232,6 @@ static const char * const mixerNames[] = {
 static const char * const featureNames[] = {
     _R(FEATURE_RX_PPM, "RX_PPM"),
     _R(FEATURE_RX_UDP, "RX_UDP"),
-    _R(FEATURE_INFLIGHT_ACC_CAL, "INFLIGHT_ACC_CAL"),
     _R(FEATURE_RX_SERIAL, "RX_SERIAL"),
     _R(FEATURE_SOFTSERIAL, "SOFTSERIAL"),
     _R(FEATURE_GPS, "GPS"),

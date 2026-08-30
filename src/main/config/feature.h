@@ -44,7 +44,7 @@
 typedef enum {
     FEATURE_RX_PPM = 1 << 0,
     FEATURE_RX_UDP = 1 << 1,
-    FEATURE_INFLIGHT_ACC_CAL = 1 << 2,
+    //FEATURE_INFLIGHT_ACC_CAL = 1 << 2, (removed)
     FEATURE_RX_SERIAL = 1 << 3,
     FEATURE_SOFTSERIAL = 1 << 6,
     FEATURE_GPS = 1 << 7,

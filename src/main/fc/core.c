@@ -184,8 +184,7 @@ static bool accNeedsCalibration(void)
             isModeActivationConditionPresent(BOXHORIZON) ||
             isModeActivationConditionPresent(BOXALTHOLD) ||
             isModeActivationConditionPresent(BOXPOSHOLD) ||
-            isModeActivationConditionPresent(BOXGPSRESCUE) ||
-            isModeActivationConditionPresent(BOXCALIB)) {
+            isModeActivationConditionPresent(BOXGPSRESCUE)) {
             return true;
         }
 
@@ -524,44 +523,6 @@ if (isMotorProtocolDshot()) {
     }
 }
 
-// Automatic ACC Offset Calibration
-bool AccInflightCalibrationArmed = false;
-bool AccInflightCalibrationMeasurementDone = false;
-bool AccInflightCalibrationSavetoEEProm = false;
-bool AccInflightCalibrationActive = false;
-uint16_t InflightcalibratingA = 0;
-
-void handleInflightCalibrationStickPosition(void)
-{
-    if (AccInflightCalibrationMeasurementDone) {
-        // trigger saving into eeprom after landing
-        AccInflightCalibrationMeasurementDone = false;
-        AccInflightCalibrationSavetoEEProm = true;
-    } else {
-        AccInflightCalibrationArmed = !AccInflightCalibrationArmed;
-        if (AccInflightCalibrationArmed) {
-            beeper(BEEPER_ACC_CALIBRATION);
-        } else {
-            beeper(BEEPER_ACC_CALIBRATION_FAIL);
-        }
-    }
-}
-
-static void updateInflightCalibrationState(void)
-{
-    if (AccInflightCalibrationArmed && ARMING_FLAG(ARMED) && rcData[THROTTLE] > rxConfig()->mincheck && !IS_RC_MODE_ACTIVE(BOXARM)) {   // Copter is airborne and you are turning it off via boxarm : start measurement
-        InflightcalibratingA = 50;
-        AccInflightCalibrationArmed = false;
-    }
-    if (IS_RC_MODE_ACTIVE(BOXCALIB)) {      // Use the Calib Option to activate : Calib = TRUE measurement started, Land and Calib = 0 measurement stored
-        if (!AccInflightCalibrationActive && !AccInflightCalibrationMeasurementDone)
-            InflightcalibratingA = 50;
-        AccInflightCalibrationActive = true;
-    } else if (AccInflightCalibrationMeasurementDone && !ARMING_FLAG(ARMED)) {
-        AccInflightCalibrationMeasurementDone = false;
-        AccInflightCalibrationSavetoEEProm = true;
-    }
-}
 
 #if defined(USE_GPS) || defined(USE_MAG)
 static void updateMagHold(void)
@@ -717,10 +678,6 @@ void processRxModes(timeUs_t currentTimeUs)
 #endif
         ) {
         processRcStickPositions();
-    }
-
-    if (featureIsEnabled(FEATURE_INFLIGHT_ACC_CAL)) {
-        updateInflightCalibrationState();
     }
 
     updateActivatedModes();
