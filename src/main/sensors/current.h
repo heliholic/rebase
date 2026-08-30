@@ -79,22 +79,6 @@ typedef struct currentSensorADCConfig_s {
 PG_DECLARE(currentSensorADCConfig_t, currentSensorADCConfig);
 
 //
-// Virtual
-//
-
-typedef struct currentMeterVirtualState_s {
-    currentMeterMAhDrawnState_t mahDrawnState;
-    int32_t amperage;           // current read by current sensor in centiamperes (1/100th A)
-} currentSensorVirtualState_t;
-
-typedef struct currentSensorVirtualConfig_s {
-    int16_t scale;              // scale the throttle to centiamperes, using a hardcoded thrust linearization function (see Battery.md)
-    uint16_t offset;            // offset of the current sensor in centiamperes (1/100th A)
-} currentSensorVirtualConfig_t;
-
-PG_DECLARE(currentSensorVirtualConfig_t, currentSensorVirtualConfig);
-
-//
 // ESC
 //
 
@@ -121,10 +105,6 @@ void currentMeterReset(currentMeter_t *meter);
 void currentMeterADCInit(void);
 void currentMeterADCRefresh(int32_t lastUpdateAt);
 void currentMeterADCRead(currentMeter_t *meter);
-
-void currentMeterVirtualInit(void);
-void currentMeterVirtualRefresh(int32_t lastUpdateAt, bool armed, bool throttleLowAndMotorStop, int32_t throttleOffset);
-void currentMeterVirtualRead(currentMeter_t *meter);
 
 void currentMeterESCInit(void);
 void currentMeterESCRefresh(int32_t lastUpdateAt);
