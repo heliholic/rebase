@@ -203,14 +203,6 @@
 
 #define PARAM_NAME_GPS_RESCUE_YAW_P "gps_rescue_yaw_p"
 #endif // USE_GPS_RESCUE
-
-#ifdef USE_GPS_LAP_TIMER
-#define PARAM_NAME_GPS_LAP_TIMER_GATE_LAT "gps_lap_timer_gate_lat"
-#define PARAM_NAME_GPS_LAP_TIMER_GATE_LON "gps_lap_timer_gate_lon"
-#define PARAM_NAME_GPS_LAP_TIMER_MIN_LAP_TIME "gps_lap_timer_min_lap_time_s"
-#define PARAM_NAME_GPS_LAP_TIMER_GATE_TOLERANCE "gps_lap_timer_gate_tolerance_m"
-#endif // USE_GPS_LAP_TIMER
-
 #endif // USE_GPS
 
 #ifdef USE_ALTITUDE_HOLD

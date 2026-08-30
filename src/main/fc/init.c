@@ -87,7 +87,6 @@
 
 #include "fc/board_info.h"
 #include "fc/dispatch.h"
-#include "fc/gps_lap_timer.h"
 #include "fc/init.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
@@ -792,9 +791,6 @@ void initPhase3(void)
 #ifdef USE_GPS
     if (featureIsEnabled(FEATURE_GPS)) {
         gpsInit();
-#ifdef USE_GPS_LAP_TIMER
-        gpsLapTimerInit();
-#endif // USE_GPS_LAP_TIMER
     }
 #endif
 

@@ -787,11 +787,6 @@ extern struct linker_symbol __fontdata_end;
 
 #ifndef USE_GPS
 #undef USE_GPS_PLUS_CODES
-#undef USE_GPS_LAP_TIMER
-#endif
-
-#ifdef USE_GPS_LAP_TIMER
-#define USE_CMS_GPS_LAP_TIMER_MENU
 #endif
 
 // Enable PINIO by default if any PIN is defined

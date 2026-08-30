@@ -57,7 +57,6 @@
 
 #include "config/config.h"
 
-#include "fc/gps_lap_timer.h"
 #include "fc/runtime_config.h"
 
 #include "flight/gps_rescue.h"
@@ -3026,10 +3025,6 @@ void onGpsNewData(void)
     if (ARMING_FLAG(ARMED)) {
         GPS_calculateDistanceFlown(false);
     }
-
-#ifdef USE_GPS_LAP_TIMER
-    gpsLapTimerNewGpsData();
-#endif // USE_GPS_LAP_TIMER
 
 }
 

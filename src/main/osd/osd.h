@@ -190,9 +190,6 @@ typedef enum {
     OSD_SYS_WARNINGS,
     OSD_SYS_VTX_TEMP,
     OSD_SYS_FAN_SPEED,
-    OSD_GPS_LAP_TIME_CURRENT,
-    OSD_GPS_LAP_TIME_PREVIOUS,
-    OSD_GPS_LAP_TIME_BEST3,
     OSD_DEBUG2,
     OSD_CUSTOM_MSG0,
     OSD_CUSTOM_MSG1,
@@ -263,8 +260,8 @@ typedef enum {
     OSD_STAT_MIN_RSSI_DBM,
     OSD_STAT_WATT_HOURS_DRAWN,
     OSD_STAT_MIN_RSNR,
-    OSD_STAT_BEST_3_CONSEC_LAPS,
-    OSD_STAT_BEST_LAP,
+    OSD_STAT_BEST_3_CONSEC_LAPS, // unused; GPS lap timer removed
+    OSD_STAT_BEST_LAP, // unused; GPS lap timer removed
     OSD_STAT_FULL_THROTTLE_TIME,
     OSD_STAT_FULL_THROTTLE_COUNTER,
     OSD_STAT_AVG_THROTTLE,
@@ -336,7 +333,7 @@ STATIC_ASSERT(OSD_WARNING_COUNT <= 32, osdwarnings_overflow);
 #define OSD_GPS_RESCUE_DISABLED_WARNING_DURATION_US 5000000 // 5 seconds
 
 extern const uint16_t osdTimerDefault[OSD_TIMER_COUNT];
-extern const osd_stats_e osdStatsDisplayOrder[OSD_STAT_COUNT];
+extern const osd_stats_e osdStatsDisplayOrder[];
 
 typedef struct osdConfig_s {
     // Alarms
