@@ -352,7 +352,6 @@
 #define USE_CLI_BATCH
 #define USE_RESOURCE_MGMT
 
-#define USE_RUNAWAY_TAKEOFF     // Runaway Takeoff Prevention (anti-taz)
 
 #define USE_GYRO_OVERFLOW_CHECK
 #define USE_YAW_SPIN_RECOVERY
@@ -429,7 +428,6 @@
 // CORE_BUILD is only hardware drivers, and the bare minimum
 // any thing defined here will be in the standard (git hub actions)
 // builds or included in CLOUD_BUILD by default.
-
 
 #endif // !defined(CORE_BUILD)
 
