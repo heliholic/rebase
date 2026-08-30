@@ -64,7 +64,7 @@ typedef enum {
     PID_PITCH,
     PID_YAW,
     PID_LEVEL,
-    PID_MAG,
+    PID_MAG, // unused; MAG_MODE removed
     PID_ITEM_COUNT
 } pidIndex_e;
 
