@@ -14,6 +14,7 @@ PG_SRC = \
             pg/dronecan.c \
             pg/dronecan_dna.c \
             pg/displayport_profiles.c \
+            pg/failsafe.c \
             pg/feature.c \
             pg/flash.c \
             pg/gps.c \
