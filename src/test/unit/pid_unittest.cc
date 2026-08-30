@@ -140,7 +140,6 @@ void setDefaultTestSettings(void)
     pidProfile->dterm_notch_hz = 260;
     pidProfile->dterm_notch_cutoff = 160;
     pidProfile->dterm_lpf1_type = FILTER_SVF;
-    pidProfile->itermWindup = 80;
     pidProfile->angle_limit = 60;
     pidProfile->yawRateAccelLimit = 100;
     pidProfile->rateAccelLimit = 0;
@@ -547,7 +546,7 @@ TEST(pidControllerTest, testiTermWindup)
 {
     resetTest();
     ENABLE_ARMING_FLAG(ARMED);
-    // simulate the outcome with iterm_windup of 50
+    // simulate iterm limited to half of pidSumLimit
     pidRuntime.itermLimit = 200;
     pidRuntime.itermLimitYaw = 160;
 
