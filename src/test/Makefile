@@ -44,8 +44,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/autopilot_multirotor.c
+		$(USER_DIR)/fc/runtime_config.c
 
 atomic_unittest_SRC := \
 		$(USER_DIR)/build/atomic.c \
@@ -177,8 +176,7 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/failsafe.c \
-		$(USER_DIR)/pg/autopilot.c
+		$(USER_DIR)/flight/failsafe.c
 
 
 flight_imu_unittest_SRC := \

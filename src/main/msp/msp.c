@@ -111,7 +111,6 @@
 #include "osd/osd_elements.h"
 #include "osd/osd_warnings.h"
 
-#include "pg/autopilot.h"
 #include "pg/beeper.h"
 #include "pg/board.h"
 #include "pg/gyrodev.h"
