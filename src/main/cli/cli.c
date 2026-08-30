@@ -334,23 +334,17 @@ static void cliWriterFlush(void)
     cliWriterFlushInternal(cliWriter);
 }
 
-#ifdef USE_CLI_DEBUG_PRINT
-#define CLI_DEBUG_EXPORT /* empty */
-#else
-#define CLI_DEBUG_EXPORT static
-#endif
-
-CLI_DEBUG_EXPORT void cliPrint(const char *str)
+static void cliPrint(const char *str)
 {
     cliPrintInternal(cliWriter, str);
 }
 
-CLI_DEBUG_EXPORT void cliPrintLinefeed(void)
+static void cliPrintLinefeed(void)
 {
     cliPrint("\r\n");
 }
 
-CLI_DEBUG_EXPORT void cliPrintLine(const char *str)
+static void cliPrintLine(const char *str)
 {
     cliPrint(str);
     cliPrintLinefeed();
@@ -416,7 +410,7 @@ static bool cliDefaultPrintLinef(dumpFlags_t dumpMask, bool equalsDefault, const
     }
 }
 
-CLI_DEBUG_EXPORT void cliPrintf(const char *format, ...)
+static void cliPrintf(const char *format, ...)
 {
     va_list va;
     va_start(va, format);
@@ -424,7 +418,7 @@ CLI_DEBUG_EXPORT void cliPrintf(const char *format, ...)
     va_end(va);
 }
 
-CLI_DEBUG_EXPORT void cliPrintLinef(const char *format, ...)
+static void cliPrintLinef(const char *format, ...)
 {
     va_list va;
     va_start(va, format);
