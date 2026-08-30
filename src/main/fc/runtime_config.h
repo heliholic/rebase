@@ -66,7 +66,7 @@ typedef enum {
     ARMING_DISABLED_ACC_CALIBRATION = (1 << 23),
     ARMING_DISABLED_MOTOR_PROTOCOL  = (1 << 24),
     ARMING_DISABLED_UNUSED_25       = (1 << 25),
-    ARMING_DISABLED_ALTHOLD         = (1 << 26),
+    ARMING_DISABLED_UNUSED_26       = (1 << 26),
     ARMING_DISABLED_UNUSED_27       = (1 << 27),
     ARMING_DISABLED_UNUSED_28       = (1 << 28),
     ARMING_DISABLED_ARM_SWITCH      = (1 << 29) // Needs to be the last element, since it's always activated if one of the others is active when arming
@@ -83,7 +83,7 @@ const char *getArmingDisableFlagName(armingDisableFlags_e flag);
 typedef enum {
     ANGLE_MODE      = (1 << 0),
     HORIZON_MODE    = (1 << 1),
-    ALT_HOLD_MODE    = (1 << 3),
+//    ALT_HOLD_MODE   = (1 << 3),
 //    GPS_HOME_MODE   = (1 << 4),
 //    POS_HOLD_MODE   = (1 << 5),
 //    HEADFREE_MODE   = (1 << 6),
@@ -103,7 +103,6 @@ extern uint16_t flightModeFlags;
 #define BOXID_TO_FLIGHT_MODE_MAP_INITIALIZER {           \
    [BOXANGLE]       = LOG2(ANGLE_MODE),                  \
    [BOXHORIZON]     = LOG2(HORIZON_MODE),                \
-   [BOXALTHOLD]     = LOG2(ALT_HOLD_MODE),               \
    [BOXFAILSAFE]    = LOG2(FAILSAFE_MODE),               \
 }                                                        \
 /**/

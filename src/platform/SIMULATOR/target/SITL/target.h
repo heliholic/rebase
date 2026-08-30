@@ -117,7 +117,6 @@
 
 #define USE_GPS
 #define USE_VIRTUAL_GPS
-#define USE_ALTITUDE_HOLD
 
 #define USE_PARAMETER_GROUPS
 
