@@ -157,7 +157,6 @@ typedef enum tpaSpeedType_e {
 #define MAX_PROFILE_NAME_LENGTH 8u
 
 typedef struct pidProfile_s {
-    uint16_t yaw_lowpass_hz;                // Additional yaw filter when yaw axis too noisy
     uint16_t dterm_lpf1_static_hz;          // Static Dterm lowpass 1 filter cutoff value in hz
     uint16_t dterm_notch_hz;                // SVF dterm notch hz
     uint16_t dterm_notch_cutoff;            // SVF dterm notch low cutoff
@@ -318,8 +317,6 @@ typedef struct pidRuntime_s {
     dtermLowpass_t dtermLowpass[XYZ_AXIS_COUNT];
     filterApplyFnPtr dtermLowpass2ApplyFn;
     dtermLowpass_t dtermLowpass2[XYZ_AXIS_COUNT];
-    filterApplyFnPtr ptermYawLowpassApplyFn;
-    pt1Filter_t ptermYawLowpass;
     bool antiGravityEnabled;
     pt2Filter_t antiGravityLpf;
     float antiGravityOsdCutoff;
