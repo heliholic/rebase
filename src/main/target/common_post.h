@@ -651,14 +651,6 @@
 #undef USE_SIGNATURE
 #endif
 
-#if !defined(USE_ACC)
-#undef USE_GPS_RESCUE
-#endif
-
-#if (!defined(USE_GPS_RESCUE) || !defined(USE_CMS_FAILSAFE_MENU))
-#undef USE_CMS_GPS_RESCUE_MENU
-#endif
-
 #ifndef USE_BEEPER
 #undef BEEPER_PIN
 #undef BEEPER_PWM_HZ
@@ -701,10 +693,6 @@
 #define USE_OPTICALFLOW
 #endif
 #endif // USE_OPTICALFLOW_XXX
-
-#ifndef USE_GPS_RESCUE
-#undef USE_CMS_GPS_RESCUE_MENU
-#endif
 
 #if defined(CONFIG_IN_RAM) || defined(CONFIG_IN_FILE) || defined(CONFIG_IN_EXTERNAL_FLASH) || defined(CONFIG_IN_SDCARD) || defined(CONFIG_IN_MEMORY_MAPPED_FLASH)
 #ifndef EEPROM_SIZE
@@ -749,9 +737,7 @@ extern struct linker_symbol __fontdata_end;
 #endif // USE_PINIO
 
 // GPS secondary defines - here (not common_pre.h) because SITL defines
-// USE_GPS in target.h which is included after common_pre.h. USE_GPS_RESCUE
-// additionally requires USE_ACC to match the earlier "!USE_ACC undef"
-// invariant; re-apply USE_CMS_GPS_RESCUE_MENU gating afterwards.
+// USE_GPS in target.h which is included after common_pre.h.
 #ifdef USE_GPS
 #if !defined(USE_GPS_NMEA)
 #define USE_GPS_NMEA
@@ -759,14 +745,7 @@ extern struct linker_symbol __fontdata_end;
 #if !defined(USE_GPS_UBLOX)
 #define USE_GPS_UBLOX
 #endif
-#if !defined(USE_GPS_RESCUE) && defined(USE_ACC)
-#define USE_GPS_RESCUE
-#endif
 #endif // USE_GPS
-
-#if (!defined(USE_GPS_RESCUE) || !defined(USE_CMS_FAILSAFE_MENU))
-#undef USE_CMS_GPS_RESCUE_MENU
-#endif
 
 /*****************************************************
 

@@ -85,7 +85,6 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXUSER4, .boxName = BOX_USER4_NAME, .permanentId = 43 },
 //    { .boxId = BOXPIDAUDIO, .boxName = "PID AUDIO", .permanentId = 44 }, (removed)
     { .boxId = BOXPARALYZE, .boxName = "PARALYZE", .permanentId = 45 },
-    { .boxId = BOXGPSRESCUE, .boxName = "GPS RESCUE", .permanentId = 46 },
 //    { .boxId = BOXACROTRAINER, .boxName = "ACRO TRAINER", .permanentId = 47 }, (removed)
     { .boxId = BOXVTXCONTROLDISABLE, .boxName = "VTX CONTROL DISABLE", .permanentId = 48},
 //    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50}, (removed)
@@ -209,11 +208,6 @@ void initActiveBoxIds(void)
 
 #ifdef USE_GPS
     if (featureIsEnabled(FEATURE_GPS)) {
-#ifdef USE_GPS_RESCUE
-        if (!isFixedWing()) {
-            BME(BOXGPSRESCUE);
-        }
-#endif
         BME(BOXBEEPGPSCOUNT);
     }
 #endif

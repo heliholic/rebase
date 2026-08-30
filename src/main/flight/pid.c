@@ -45,7 +45,6 @@
 #include "fc/runtime_config.h"
 
 #include "flight/autopilot.h"
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 
@@ -188,12 +187,6 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // use acro rates for the angle target in both horizon and angle modes, converted to -1 to +1 range using maxRate
 
 
-#ifdef USE_GPS_RESCUE
-    if (FLIGHT_MODE(GPS_RESCUE_MODE)) {
-        angleTarget = autopilotAngle[axis]; // autopilotAngle in degrees
-        angleLimit = (float)autopilotConfig()->maxAngle;
-    }
-#endif
 #if defined(USE_POSITION_HOLD)
     if (FLIGHT_MODE(POS_HOLD_MODE)) {
         if (isAutopilotInControl()) {
@@ -217,7 +210,7 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // earthRef code here takes about 76 cycles, if conditional on angleEarthRef it takes about 100.  sin_approx costs most of those cycles.
     float sinAngle = sin_approx(DEGREES_TO_RADIANS(pidRuntime.angleTarget[axis == FD_ROLL ? FD_PITCH : FD_ROLL]));
     sinAngle *= (axis == FD_ROLL) ? -1.0f : 1.0f; // must be negative for Roll
-    const float earthRefGain = FLIGHT_MODE(GPS_RESCUE_MODE | ALT_HOLD_MODE) ? 1.0f : pidRuntime.angleEarthRef;
+    const float earthRefGain = FLIGHT_MODE(ALT_HOLD_MODE) ? 1.0f : pidRuntime.angleEarthRef;
     angleRate += pidRuntime.angleYawSetpoint * sinAngle * earthRefGain;
     pidRuntime.angleTarget[axis] = angleTarget;  // set target for alternate axis to current axis, for use in preceding calculation
 
@@ -225,7 +218,7 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // this filter runs at ATTITUDE_CUTOFF_HZ, currently 50hz, so GPS roll may be a bit steppy
     angleRate = pt3FilterApply(&pidRuntime.attitudeFilter[axis], angleRate);
 
-    if (FLIGHT_MODE(ANGLE_MODE| GPS_RESCUE_MODE | POS_HOLD_MODE)) {
+    if (FLIGHT_MODE(ANGLE_MODE | POS_HOLD_MODE)) {
         currentPidSetpoint = angleRate;
     } else {
         // can only be HORIZON mode - crossfade Angle rate and Acro rate
@@ -310,7 +303,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     const rollAndPitchTrims_t *angleTrim = &accelerometerConfig()->accelerometerTrims;
     float horizonLevelStrength = 0.0f;
 
-    const bool isExternalAngleModeRequest = FLIGHT_MODE(GPS_RESCUE_MODE)
+    const bool isExternalAngleModeRequest = false
 #ifdef USE_ALTITUDE_HOLD
                 || FLIGHT_MODE(ALT_HOLD_MODE) // todo - check if this is needed
 #endif
@@ -319,12 +312,12 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
 #endif
                 ;
     levelMode_e levelMode;
-    if (FLIGHT_MODE(ANGLE_MODE | HORIZON_MODE | GPS_RESCUE_MODE)) {
+    if (FLIGHT_MODE(ANGLE_MODE | HORIZON_MODE)) {
         levelMode = LEVEL_MODE_RP;
 
         // Keep track of when we entered a self-level mode so that we can
         // add a guard time before crash recovery can activate.
-        // Also reset the guard time whenever GPS Rescue is activated.
+        // Also reset the guard time whenever an external angle mode is activated.
         if ((levelModeStartTimeUs == 0) || (isExternalAngleModeRequest && !prevExternalAngleRequest)) {
             levelModeStartTimeUs = currentTimeUs;
         }
@@ -383,7 +376,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
                 // if earth referencing is requested, attenuate yaw axis setpoint when pitched or rolled
                 // and send yawSetpoint to Angle code to modulate pitch and roll
                 // code cost is 107 cycles when earthRef enabled, 20 otherwise, nearly all in cos_approx
-                const float earthRefGain = FLIGHT_MODE(GPS_RESCUE_MODE) ? 1.0f : pidRuntime.angleEarthRef;
+                const float earthRefGain = pidRuntime.angleEarthRef;
                 if (earthRefGain) {
                     pidRuntime.angleYawSetpoint = currentPidSetpoint;
                     float maxAngleTargetAbs = earthRefGain * fmaxf( fabsf(pidRuntime.angleTarget[FD_ROLL]), fabsf(pidRuntime.angleTarget[FD_PITCH]) );

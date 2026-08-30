@@ -715,19 +715,18 @@ static void detectAndApplySignalLossBehaviour(void)
 
         if (failsafeIsActive()) {
             // we are in failsafe Stage 2, whether Rx loss or BOXFAILSAFE induced
-            // pass valid incoming flight channel values to FC,
-            // so that GPS Rescue can get the 30% requirement for termination of the rescue
+            // pass valid incoming flight channel values to FC
             if (channel < NON_AUX_CHANNEL_COUNT) {
                 if (!thisChannelValid) {
                     if (channel == THROTTLE ) {
                         sample = failsafeConfig()->failsafe_throttle;
-                        // stage 2 failsafe throttle value. In GPS Rescue Flight mode, altitude control overrides, late in mixer.c
+                        // stage 2 failsafe throttle value
                     } else {
                         sample = rxConfig()->midrc;
                     }
                 }
             } else {
-                // set aux channels as per Stage 1 failsafe hold/set values, allow all for Failsafe and GPS rescue MODE switches
+                // set aux channels as per Stage 1 failsafe hold/set values
                 sample = getRxfailValue(channel);
             }
         } else {

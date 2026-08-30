@@ -59,7 +59,6 @@
 #include "fc/stats.h"
 
 #include "flight/failsafe.h"
-#include "flight/gps_rescue.h"
 #include "flight/alt_hold.h"
 #include "flight/pos_hold.h"
 #include "flight/imu.h"
@@ -168,8 +167,7 @@ static bool accNeedsCalibration(void)
         if (isModeActivationConditionPresent(BOXANGLE) ||
             isModeActivationConditionPresent(BOXHORIZON) ||
             isModeActivationConditionPresent(BOXALTHOLD) ||
-            isModeActivationConditionPresent(BOXPOSHOLD) ||
-            isModeActivationConditionPresent(BOXGPSRESCUE)) {
+            isModeActivationConditionPresent(BOXPOSHOLD)) {
             return true;
         }
 
@@ -183,12 +181,6 @@ static bool accNeedsCalibration(void)
         }
 #endif
 
-#ifdef USE_GPS_RESCUE
-        // Check if failsafe will use GPS Rescue
-        if (failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE) {
-            return true;
-        }
-#endif
     }
 
     return false;
@@ -285,22 +277,6 @@ void updateArmingStatus(void)
                 setArmingDisabled(ARMING_DISABLED_NOPREARM);
             }
         }
-
-#ifdef USE_GPS_RESCUE
-        if (gpsRescueIsConfigured()) {
-            if (gpsRescueConfig()->allowArmingWithoutFix || (STATE(GPS_FIX) && (gpsSol.numSat >= gpsRescueConfig()->minSats)) ||
-                ARMING_FLAG(WAS_EVER_ARMED)) {
-                unsetArmingDisabled(ARMING_DISABLED_GPS);
-            } else {
-                setArmingDisabled(ARMING_DISABLED_GPS);
-            }
-            if (IS_RC_MODE_ACTIVE(BOXGPSRESCUE)) {
-                setArmingDisabled(ARMING_DISABLED_RESC);
-            } else {
-                unsetArmingDisabled(ARMING_DISABLED_RESC);
-            }
-        }
-#endif
 
 #ifdef USE_DSHOT_TELEMETRY
         // If Dshot Telemetry is enabled and any motor isn't providing telemetry, then disable arming
@@ -470,7 +446,7 @@ if (isMotorProtocolDshot()) {
         if (featureIsEnabled(FEATURE_GPS)) {
             GPS_reset_home_position();
             canUseGPSHeading = false; // block use of GPS Heading in position hold after each arm, until quad can set IMU to GPS COG
-            if (STATE(GPS_FIX) && gpsSol.numSat >= gpsRescueConfig()->minSats) {
+            if (STATE(GPS_FIX) && gpsSol.numSat >= GPS_HOME_MIN_SATS) {
                 beeper(BEEPER_ARMING_GPS_FIX);
             } else {
                 beeper(BEEPER_ARMING_GPS_NO_FIX);
@@ -509,18 +485,6 @@ static bool canUpdateVTX(void)
 }
 #endif
 
-#if defined(USE_GPS_RESCUE)
-// determine if the R/P/Y stick deflection exceeds the specified limit - integer math is good enough here.
-bool areSticksActive(uint8_t stickPercentLimit)
-{
-    for (int axis = FD_ROLL; axis <= FD_YAW; axis ++) {
-        if (getRcDeflectionAbs(axis) * 100.f >= stickPercentLimit) {
-            return true;
-        }
-    }
-    return false;
-}
-#endif
 
 
 // calculate the throttle stick percent - integer math is good enough here.
@@ -591,7 +555,6 @@ void processRxModes(timeUs_t currentTimeUs)
     const timeUs_t autoDisarmDelayUs = armingConfig()->auto_disarm_delay * 1e6f;
     if (ARMING_FLAG(ARMED)
         && !isFixedWing()
-        && !FLIGHT_MODE(GPS_RESCUE_MODE)  // disable auto-disarm when GPS Rescue is active
     ) {
         if (isUsingSticksForArming()) {
             if (throttleStatus == THROTTLE_LOW) {
@@ -661,24 +624,10 @@ void processRxModes(timeUs_t currentTimeUs)
         DISABLE_FLIGHT_MODE(ANGLE_MODE); // failsafe support
     }
 
-#ifdef USE_GPS_RESCUE
-    // The pilot's switch and the failsafe procedure both fly the GPS_RESCUE_MODE
-    // controller.
-    if (ARMING_FLAG(ARMED) && (IS_RC_MODE_ACTIVE(BOXGPSRESCUE)
-        || (failsafeIsActive() && failsafeConfig()->failsafe_procedure == FAILSAFE_PROCEDURE_GPS_RESCUE))) {
-        if (!FLIGHT_MODE(GPS_RESCUE_MODE)) {
-            ENABLE_FLIGHT_MODE(GPS_RESCUE_MODE);
-        }
-    } else {
-        DISABLE_FLIGHT_MODE(GPS_RESCUE_MODE);
-    }
-#endif
 
 #ifdef USE_ALTITUDE_HOLD
     // only if armed; can coexist with position hold
     if (ARMING_FLAG(ARMED)
-        // and not in GPS_RESCUE_MODE, to give it priority over Altitude Hold
-        && !FLIGHT_MODE(GPS_RESCUE_MODE)
         // and either the alt_hold switch is activated, or are in failsafe landing mode
         && (IS_RC_MODE_ACTIVE(BOXALTHOLD) || failsafeIsActive())
         // and we have Acc for self-levelling
@@ -698,8 +647,6 @@ void processRxModes(timeUs_t currentTimeUs)
 #ifdef USE_POSITION_HOLD
     // only if armed; can coexist with altitude hold
     if (ARMING_FLAG(ARMED)
-        // and not in GPS_RESCUE_MODE, to give it priority over Position Hold
-        && !FLIGHT_MODE(GPS_RESCUE_MODE)
         // and either the pos_hold switch is activated, or are in failsafe landing mode,
         // or an autopilot mission needs the position controller
         && (IS_RC_MODE_ACTIVE(BOXPOSHOLD) || failsafeIsActive())
