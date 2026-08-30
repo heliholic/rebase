@@ -87,7 +87,6 @@
 #include "flight/pid.h"
 #include "flight/pid_init.h"
 #include "flight/position.h"
-#include "flight/rpm_filter.h"
 #include "flight/servos.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
@@ -1880,13 +1879,8 @@ case MSP_NAME:
         sbufWriteU16(dst, 0);
         sbufWriteU16(dst, 0);
 #endif
-#if defined(USE_RPM_FILTER)
-        sbufWriteU8(dst, rpmFilterConfig()->rpm_filter_harmonics);
-        sbufWriteU8(dst, rpmFilterConfig()->rpm_filter_min_hz);
-#else
-        sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
-#endif
+        sbufWriteU8(dst, 0); // rpmFilterConfig()->rpm_filter_harmonics
+        sbufWriteU8(dst, 0); // rpmFilterConfig()->rpm_filter_min_hz
 #if defined(USE_DYN_NOTCH_FILTER)
         // Added in MSP API 1.43
         sbufWriteU16(dst, dynNotchConfig()->dyn_notch_max_hz);
@@ -1900,19 +1894,11 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
 #endif
         // Added in MSP API 1.48
-#if defined(USE_RPM_FILTER)
-        sbufWriteU16(dst, rpmFilterConfig()->rpm_filter_fade_range_hz);
-        sbufWriteU16(dst, rpmFilterConfig()->rpm_filter_q);
-        for (int i = 0; i < RPM_FILTER_HARMONICS_MAX; i++) {
-            sbufWriteU8(dst, rpmFilterConfig()->rpm_filter_weights[i]);
+        sbufWriteU16(dst, 0); // rpmFilterConfig()->rpm_filter_fade_range_hz
+        sbufWriteU16(dst, 0); // rpmFilterConfig()->rpm_filter_q
+        for (int i = 0; i < 3; i++) { // was RPM_FILTER_HARMONICS_MAX
+            sbufWriteU8(dst, 0); // rpmFilterConfig()->rpm_filter_weights[i]
         }
-#else
-        sbufWriteU16(dst, 0);
-        sbufWriteU16(dst, 0);
-        for (int i = 0; i < RPM_FILTER_HARMONICS_MAX; i++) {
-            sbufWriteU8(dst, 0);
-        }
-#endif
         break;
 
     case MSP_PID_ADVANCED:
@@ -2944,13 +2930,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU16(src);
             sbufReadU16(src);
 #endif
-#if defined(USE_RPM_FILTER)
-            rpmFilterConfigMutable()->rpm_filter_harmonics = sbufReadU8(src);
-            rpmFilterConfigMutable()->rpm_filter_min_hz = sbufReadU8(src);
-#else
-            sbufReadU8(src);
-            sbufReadU8(src);
-#endif
+            sbufReadU8(src); // rpmFilterConfigMutable()->rpm_filter_harmonics
+            sbufReadU8(src); // rpmFilterConfigMutable()->rpm_filter_min_hz
         }
         if (sbufBytesRemaining(src) >= 2) {
 #if defined(USE_DYN_NOTCH_FILTER)
@@ -2976,35 +2957,11 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
         if (sbufBytesRemaining(src) >= 7) {
             // Added in MSP API 1.48
-#if defined(USE_RPM_FILTER)
-            {
-                const uint16_t fadeRangeHz = sbufReadU16(src);
-                const uint16_t q = sbufReadU16(src);
-                uint8_t weights[RPM_FILTER_HARMONICS_MAX];
-                for (int j = 0; j < RPM_FILTER_HARMONICS_MAX; j++) {
-                    weights[j] = sbufReadU8(src);
-                }
-                if (q < 250 || q > 3000 || fadeRangeHz > 1000) {
-                    return MSP_RESULT_ERROR;
-                }
-                for (int j = 0; j < RPM_FILTER_HARMONICS_MAX; j++) {
-                    if (weights[j] > 100) {
-                        return MSP_RESULT_ERROR;
-                    }
-                }
-                rpmFilterConfigMutable()->rpm_filter_fade_range_hz = fadeRangeHz;
-                rpmFilterConfigMutable()->rpm_filter_q = q;
-                for (int j = 0; j < RPM_FILTER_HARMONICS_MAX; j++) {
-                    rpmFilterConfigMutable()->rpm_filter_weights[j] = weights[j];
-                }
+            sbufReadU16(src); // rpmFilterConfigMutable()->rpm_filter_fade_range_hz
+            sbufReadU16(src); // rpmFilterConfigMutable()->rpm_filter_q
+            for (int j = 0; j < 3; j++) { // was RPM_FILTER_HARMONICS_MAX
+                sbufReadU8(src); // rpmFilterConfigMutable()->rpm_filter_weights[j]
             }
-#else
-            sbufReadU16(src);
-            sbufReadU16(src);
-            for (int j = 0; j < RPM_FILTER_HARMONICS_MAX; j++) {
-                sbufReadU8(src);
-            }
-#endif
         }
 
         // reinitialize the gyro filters with the new values

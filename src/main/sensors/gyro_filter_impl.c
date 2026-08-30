@@ -46,13 +46,6 @@ static FAST_CODE void GYRO_FILTER_FUNCTION_NAME(void)
         // DEBUG_GYRO_SAMPLE(1) Record the post-downsample value for the selected debug axis
         GYRO_FILTER_AXIS_DEBUG_SET(axis, DEBUG_GYRO_SAMPLE, 1, lrintf(gyroADCfVec[axis]));
 
-#ifdef USE_RPM_FILTER
-    }
-    
-    rpmFilterRun(gyroADCfVec);
-
-    for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
-#endif
         float gyroADCf = gyroADCfVec[axis];
         // DEBUG_GYRO_SAMPLE(2) Record the post-RPM Filter value for the selected debug axis
         GYRO_FILTER_AXIS_DEBUG_SET(axis, DEBUG_GYRO_SAMPLE, 2, lrintf(gyroADCf));

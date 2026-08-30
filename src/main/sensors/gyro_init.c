@@ -66,10 +66,6 @@
 #include "flight/dyn_notch_filter.h"
 #endif
 
-#ifdef USE_RPM_FILTER
-#include "flight/rpm_filter.h"
-#endif
-
 #include "pg/gyrodev.h"
 
 #include "sensors/gyro.h"
@@ -219,9 +215,6 @@ void gyroInitFilters(void)
     gyroInitFilterNotch2(gyroConfig()->gyro_soft_notch_hz_2, gyroConfig()->gyro_soft_notch_cutoff_2);
 #ifdef USE_DYN_NOTCH_FILTER
     dynNotchInit(dynNotchConfig(), gyro.targetLooptime * 1e-6f);
-#endif
-#ifdef USE_RPM_FILTER
-    rpmFilterInit(rpmFilterConfig(), gyro.targetLooptime);
 #endif
 
     const float k = pt1FilterGain(GYRO_IMU_DOWNSAMPLE_CUTOFF_HZ, gyro.targetLooptime * 1e-6f);
