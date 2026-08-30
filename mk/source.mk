@@ -39,9 +39,9 @@ PG_SRC = \
             pg/vtx_table.c
 
 COMMON_SRC = \
+            build/main.c \
             build/debug.c \
             build/version.c \
-            main.c \
             common/bitarray.c \
             common/colorconversion.c \
             common/crc.c \
