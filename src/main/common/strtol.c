@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-#include "platform.h"
+#include <platform.h>
 
 #include "common/utils.h"
 
