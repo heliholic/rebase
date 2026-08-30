@@ -47,7 +47,6 @@ extern "C" {
     #include "io/beeper.h"
     #include "io/gps.h"
 
-    #include "pg/autopilot.h"
     #include "pg/motor.h"
     #include "pg/rx.h"
 
@@ -79,7 +78,6 @@ extern "C" {
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
     PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION, 0);
-    PG_REGISTER(autopilotConfig_t, autopilotConfig, PG_AUTOPILOT, 0);
 
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
     uint16_t averageSystemLoadPercent = 0;
@@ -699,7 +697,7 @@ void GPS_distance2d(const gpsLocation_t* /*from*/, const gpsLocation_t* /*to*/, 
     float getMaxRcRate(int axis)
     {
         UNUSED(axis);
-        return 720.0f; // nonzero: autopilotInit divides maxVelocity by this
+        return 720.0f;
     }
 
     float getGpsCosLat(void) { return 1.0f; }

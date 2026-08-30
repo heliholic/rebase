@@ -76,7 +76,6 @@
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
-#include "pg/autopilot.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
 #include "pg/rx.h"
@@ -1533,22 +1532,6 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ALTITUDE_LPF, "%d",         positionConfig()->altitude_lpf);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ALTITUDE_D_LPF, "%d",       positionConfig()->altitude_d_lpf);
 
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_LANDING_ALTITUDE_M, "%d", autopilotConfig()->landingAltitudeM);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_HOVER_THROTTLE, "%d",     autopilotConfig()->hoverThrottle);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_THROTTLE_MIN, "%d",       autopilotConfig()->throttleMin);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_THROTTLE_MAX, "%d",       autopilotConfig()->throttleMax);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_ALTITUDE_P, "%d",         autopilotConfig()->altitudeP);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_ALTITUDE_I, "%d",         autopilotConfig()->altitudeI);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_ALTITUDE_D, "%d",         autopilotConfig()->altitudeD);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_ALTITUDE_F, "%d",         autopilotConfig()->altitudeF);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_P, "%d",         autopilotConfig()->positionP);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_I, "%d",         autopilotConfig()->positionI);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_D, "%d",         autopilotConfig()->positionD);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_A, "%d",         autopilotConfig()->positionA);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_F, "%d",         autopilotConfig()->positionF);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_POSITION_CUTOFF, "%d",    autopilotConfig()->positionCutoff);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_STOP_THRESHOLD, "%d",     autopilotConfig()->stopThreshold);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_AP_MAX_ANGLE, "%d",          autopilotConfig()->maxAngle);
 
 #ifdef USE_MAG
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_MAG_HARDWARE, "%d",           compassConfig()->mag_hardware);
