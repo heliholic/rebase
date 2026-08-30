@@ -336,15 +336,12 @@ bool dronecanMotorDevInit(motorDevice_t *device, uint8_t motorCount)
 }
 
 void dronecanMotorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit,
-                                float *outputLow, float *outputHigh, float *disarm,
-                                float *deadbandMotor3dHigh, float *deadbandMotor3dLow)
+                                float *outputLow, float *outputHigh, float *disarm)
 {
     UNUSED(motorConfig);
-    UNUSED(deadbandMotor3dHigh);
-    UNUSED(deadbandMotor3dLow);
 
     // Map the mixer's normalised output onto the int14 throttle range, mirroring
-    // the DShot endpoint model. 3D/reverse is not yet wired, so forward-only.
+    // the DShot endpoint model.
     const float range = UAVCAN_ESC_RAWCOMMAND_MAX;
 
     *disarm = 0;                                            // RawCommand 0 = stop

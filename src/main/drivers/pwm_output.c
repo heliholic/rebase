@@ -22,8 +22,6 @@
 #include "platform.h"
 
 #include "pg/motor.h"
-#include "fc/rc_controls.h" // for flight3DConfig_t
-#include "config/feature.h"
 #include "drivers/pwm_output.h"
 
 #if defined(USE_PWM_OUTPUT) && defined(USE_MOTOR)
@@ -31,20 +29,11 @@
 FAST_DATA_ZERO_INIT pwmOutputPort_t pwmMotors[MAX_SUPPORTED_MOTORS];
 FAST_DATA_ZERO_INIT uint8_t pwmMotorCount;
 
-void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm, float *deadbandMotor3dHigh, float *deadbandMotor3dLow)
+void analogInitEndpoints(const motorConfig_t *motorConfig, float outputLimit, float *outputLow, float *outputHigh, float *disarm)
 {
-    if (featureIsEnabled(FEATURE_3D)) {
-        const float outputLimitOffset = (flight3DConfig()->limit3d_high - flight3DConfig()->limit3d_low) * (1 - outputLimit) / 2;
-        *disarm = flight3DConfig()->neutral3d;
-        *outputLow = flight3DConfig()->limit3d_low + outputLimitOffset;
-        *outputHigh = flight3DConfig()->limit3d_high - outputLimitOffset;
-        *deadbandMotor3dHigh = flight3DConfig()->deadband3d_high;
-        *deadbandMotor3dLow = flight3DConfig()->deadband3d_low;
-    } else {
-        *disarm = motorConfig->mincommand;
-        *outputLow = motorConfig->mincommand;
-        *outputHigh = motorConfig->maxthrottle - ((motorConfig->maxthrottle - motorConfig->mincommand) * (1 - outputLimit));
-    }
+    *disarm = motorConfig->mincommand;
+    *outputLow = motorConfig->mincommand;
+    *outputHigh = motorConfig->maxthrottle - ((motorConfig->maxthrottle - motorConfig->mincommand) * (1 - outputLimit));
 }
 
 IO_t pwmGetMotorIO(unsigned index)
