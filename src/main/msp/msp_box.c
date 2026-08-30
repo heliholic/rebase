@@ -61,7 +61,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
 //    { .boxId = BOXLEDMAX, .boxName = "LEDMAX", .permanentId = 14 }, (removed)
     { .boxId = BOXLEDLOW, .boxName = "LEDLOW", .permanentId = 15 },
 //    { .boxId = BOXLLIGHTS, .boxName = "LLIGHTS", .permanentId = 16 }, (removed)
-    { .boxId = BOXCALIB, .boxName = "CALIB", .permanentId = 17 },
+//    { .boxId = BOXCALIB, .boxName = "CALIB", .permanentId = 17 }, (removed)
 //    { .boxId = BOXGOV, .boxName = "GOVERNOR", .permanentId = 18 }, (removed)
     { .boxId = BOXOSD, .boxName = "OSD DISABLE", .permanentId = 19 },
     { .boxId = BOXTELEMETRY, .boxName = "TELEMETRY", .permanentId = 20 },
@@ -209,9 +209,6 @@ void initActiveBoxIds(void)
 #endif
         BME(BOXHEADFREE);
         BME(BOXHEADADJ);
-        if (featureIsEnabled(FEATURE_INFLIGHT_ACC_CAL)) {
-            BME(BOXCALIB);
-        }
     }
 
 #ifdef USE_MAG

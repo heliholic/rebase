@@ -240,12 +240,6 @@ void processRcStickPositions(void)
         return;
     }
 
-    if (featureIsEnabled(FEATURE_INFLIGHT_ACC_CAL) && (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_HI)) {
-        // Inflight ACC Calibration
-        handleInflightCalibrationStickPosition();
-        return;
-    }
-
     // Change PID profile
     switch (rcSticks) {
     case THR_LO + YAW_LO + PIT_CE + ROL_LO:
