@@ -188,7 +188,7 @@ TEST(FlightImuTest, TestSmallAngle)
 
     // given
     imuConfigMutable()->small_angle = 25;
-    imuConfigure(0, 0);
+    imuConfigure();
     attitudeIsEstablished = true;
 
     // and
@@ -267,7 +267,7 @@ protected:
         dcmKp = .25;     // default dcm_kp
         dt = 1e-2;       // 100Hz update
 
-        imuConfigure(0, 0);
+        imuConfigure();
         // level, poiting north
         setOrientationAA(0, {{1,0,0}});        // identity
     }
@@ -427,7 +427,6 @@ extern "C" {
     float baroCalculateAltitude(void) { return 0; }
     bool gyroGetAccumulationAverage(float *) { return false; }
     bool accGetAccumulationAverage(float *) { return false; }
-    void mixerSetThrottleAngleCorrection(int) {};
     bool gpsRescueIsRunning(void) { return false; }
     bool isFixedWing(void) { return false; }
     void pinioBoxTaskControl(void) {}
