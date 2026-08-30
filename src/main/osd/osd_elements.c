@@ -550,8 +550,6 @@ static char osdGetTimerSymbol(osd_timer_source_e src)
         return SYM_FLY_M;
     case OSD_TIMER_SRC_ON_OR_ARMED:
         return ARMING_FLAG(ARMED) ? SYM_FLY_M : SYM_ON_M;
-    case OSD_TIMER_SRC_LAUNCH_TIME:
-        return 'L';
     default:
         return ' ';
     }
@@ -570,8 +568,6 @@ static timeUs_t osdGetTimerValue(osd_timer_source_e src)
     }
     case OSD_TIMER_SRC_ON_OR_ARMED:
         return ARMING_FLAG(ARMED) ? osdFlyTime : micros();
-    case OSD_TIMER_SRC_LAUNCH_TIME:
-        return osdLaunchTime;
     default:
         return 0;
     }
