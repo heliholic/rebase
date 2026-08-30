@@ -231,7 +231,6 @@ static struct {
     bool landingDescentEstablished;
 } fp;
 
-static flightPlanWaypointReachedFn reachedListener = NULL;
 
 static void onWaypointReached(void *userData);
 static void clearModifierState(void);
@@ -1198,12 +1197,6 @@ static void onWaypointReached(void *userData)
         return;
     }
 
-    // Listener indices refer to the PG mission; injected-plan progress is
-    // meaningless to a MAVLink partner tracking the uploaded plan.
-    if (reachedListener && fp.injectedCount == 0) {
-        reachedListener(fp.currentIndex);
-    }
-
 #if ENABLE_RESCUE_PLAN
     // Rescue climb complete but the IMU heading is untrusted: hold here and
     // pitch forward so GPS course-over-ground can teach the estimator its
@@ -1620,11 +1613,6 @@ void flightPlanNavSetCurrentIndex(uint8_t index)
     } else {
         fp.pendingStartIndex = index;
     }
-}
-
-void flightPlanNavSetReachedListener(flightPlanWaypointReachedFn fn)
-{
-    reachedListener = fn;
 }
 
 #endif

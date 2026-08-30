@@ -74,9 +74,6 @@
 
 #include "telemetry/telemetry.h"
 #include "telemetry/mavlink.h"
-#if ENABLE_TELEMETRY_MAVLINK_MISSION
-#include "telemetry/mavlink_mission.h"
-#endif
 
 #include "build/debug.h"
 #include "build/version.h"
@@ -149,8 +146,7 @@ static void mavlinkSerialWrite(uint8_t * buf, uint16_t length)
         serialWrite(mavlinkPort, buf[i]);
 }
 
-// Pack-to-buffer + write helper shared with telemetry/mavlink_mission so the
-// mission module reuses this file's static mavBuffer/mavlinkPort path.
+// Pack-to-buffer + write helper using this file's static mavBuffer/mavlinkPort path.
 void mavlinkSendMessage(mavlink_message_t *msg)
 {
     if (!mavlinkPort) {
@@ -550,9 +546,6 @@ static void mavlinkDispatch(const mavlink_message_t *msg)
         handleCommandLong(msg);
         break;
     default:
-#if ENABLE_TELEMETRY_MAVLINK_MISSION
-        mavMissionHandleMessage(msg);
-#endif
         break;
     }
 }
@@ -620,9 +613,6 @@ void configureMAVLinkTelemetryPort(void)
     mavlinkPortOwned = true;
     mavlink_reset_channel_status(MAVLINK_COMM_1);
     mavlinkTelemetryEnabled = true;
-#if ENABLE_TELEMETRY_MAVLINK_MISSION
-    mavMissionInit();
-#endif
 }
 
 static void mavlinkSendSystemStatus(void)
@@ -1317,10 +1307,6 @@ void handleMAVLinkTelemetry(void)
         mavlinkProcessIncoming();
     }
 #endif
-#if ENABLE_TELEMETRY_MAVLINK_MISSION
-    mavMissionUpdate(millis());
-#endif
-
     bool shouldSendTelemetry = false;
     uint32_t now = micros();
     if (isValidMavlinkTxBuffer()) {

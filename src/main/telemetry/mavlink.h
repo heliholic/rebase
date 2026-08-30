@@ -36,9 +36,7 @@ void configureMAVLinkTelemetryPort(void);
 typedef struct __mavlink_message mavlink_message_t;
 
 // Pack a fully-formed mavlink_message_t into the shared TX buffer and write it
-// to the open MAVLink serial port. Implemented in telemetry/mavlink.c; shared
-// with telemetry/mavlink_mission.c so the mission module reuses the same
-// buffer/port path.
+// to the open MAVLink serial port.
 void mavlinkSendMessage(mavlink_message_t *msg);
 
 typedef struct mavlinkTelemetryOutputMessage_s {
