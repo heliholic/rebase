@@ -66,7 +66,6 @@
 
 typedef enum {
     LEVEL_MODE_OFF = 0,
-    LEVEL_MODE_R,
     LEVEL_MODE_RP,
 } levelMode_e;
 
@@ -162,7 +161,6 @@ void resetPidProfile(pidProfile_t *pidProfile)
         .feedforward_jitter_factor = 7,
         .feedforward_boost = 15,
         .dterm_lpf1_dyn_expo = 5,
-        .level_race_mode = false,
         .vbat_sag_compensation = 0,
         .simplified_pids_mode = PID_SIMPLIFIED_TUNING_RPY,
         .simplified_master_multiplier = SIMPLIFIED_TUNING_DEFAULT,
@@ -669,11 +667,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
                 ;
     levelMode_e levelMode;
     if (FLIGHT_MODE(ANGLE_MODE | HORIZON_MODE | GPS_RESCUE_MODE)) {
-        if (pidRuntime.levelRaceMode && !isExternalAngleModeRequest) {
-            levelMode = LEVEL_MODE_R;
-        } else {
-            levelMode = LEVEL_MODE_RP;
-        }
+        levelMode = LEVEL_MODE_RP;
 
         // Keep track of when we entered a self-level mode so that we can
         // add a guard time before crash recovery can activate.
@@ -741,11 +735,10 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
             currentPidSetpoint = accelerationLimit(axis, currentPidSetpoint);
         }
         // Yaw control is GYRO based, direct sticks control is applied to rate PID
-        // When Race Mode is active PITCH control is also GYRO based in level or horizon mode
 #if defined(USE_ACC)
         pidRuntime.axisInAngleMode[axis] = false;
         if (axis < FD_YAW) {
-            if (levelMode == LEVEL_MODE_RP || (levelMode == LEVEL_MODE_R && axis == FD_ROLL)) {
+            if (levelMode == LEVEL_MODE_RP) {
                 pidRuntime.axisInAngleMode[axis] = true;
                 currentPidSetpoint = pidLevel(axis, pidProfile, angleTrim, currentPidSetpoint, horizonLevelStrength);
             }

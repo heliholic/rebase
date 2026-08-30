@@ -157,7 +157,6 @@ void setDefaultTestSettings(void)
     pidProfile->iterm_relax = ITERM_RELAX_OFF,
     pidProfile->iterm_relax_cutoff = 11,
     pidProfile->iterm_relax_type = ITERM_RELAX_SETPOINT,
-    pidProfile->level_race_mode = false,
 
     gyro.targetLooptime = 8000;
 }
