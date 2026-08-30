@@ -80,9 +80,6 @@ uint32_t featuresSupportedByBuild =
 #ifdef USE_OSD
     | FEATURE_OSD
 #endif
-#ifdef USE_RX_SPI
-    | FEATURE_RX_SPI
-#endif
 #ifdef USE_ESC_SENSOR
     | FEATURE_ESC_SENSOR
 #endif

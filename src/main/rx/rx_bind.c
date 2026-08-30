@@ -22,7 +22,6 @@
 
 #if defined(USE_RX_BIND)
 
-#include "rx/rx_spi_common.h"
 #include "rx/srxl2.h"
 #include "rx/crsf.h"
 
@@ -30,7 +29,7 @@
 
 static bool doRxBind(bool doBind)
 {
-#if !defined(USE_SERIALRX_SRXL2) && !defined(USE_RX_FRSKY_SPI) && !defined(USE_RX_SFHSS_SPI) && !defined(USE_RX_FLYSKY) && !defined(USE_RX_SPEKTRUM) && !defined(USE_RX_EXPRESSLRS) && !defined(USE_SERIALRX_CRSF)
+#if !defined(USE_SERIALRX_SRXL2) && !defined(USE_SERIALRX_CRSF)
     UNUSED(doBind);
 #endif
 
@@ -60,49 +59,6 @@ static bool doRxBind(bool doBind)
         }
 
         break;
-#if defined(USE_RX_SPI)
-    case RX_PROVIDER_SPI:
-        switch (rxSpiConfig()->rx_spi_protocol) {
-        default:
-            return false;
-#if defined(USE_RX_FRSKY_SPI)
-#if defined(USE_RX_FRSKY_SPI_D)
-        case RX_SPI_FRSKY_D:
-#endif
-#if defined(USE_RX_FRSKY_SPI_X)
-        case RX_SPI_FRSKY_X:
-        case RX_SPI_FRSKY_X_LBT:
-        case RX_SPI_FRSKY_X_V2:
-        case RX_SPI_FRSKY_X_LBT_V2:
-#endif
-#if defined(USE_RX_REDPINE_SPI)
-        case RX_SPI_REDPINE:
-#endif
-#endif // USE_RX_FRSKY_SPI
-#ifdef USE_RX_SFHSS_SPI
-        case RX_SPI_SFHSS:
-#endif
-#ifdef USE_RX_FLYSKY
-        case RX_SPI_A7105_FLYSKY:
-        case RX_SPI_A7105_FLYSKY_2A:
-#endif
-#ifdef USE_RX_SPEKTRUM
-        case RX_SPI_CYRF6936_DSM:
-#endif
-#ifdef USE_RX_EXPRESSLRS
-        case RX_SPI_EXPRESSLRS:
-#endif
-#if defined(USE_RX_FRSKY_SPI) || defined(USE_RX_SFHSS_SPI) || defined(USE_RX_FLYSKY) || defined(USE_RX_SPEKTRUM) || defined(USE_RX_EXPRESSLRS)
-            if (doBind) {
-                rxSpiBind();
-            }
-
-            break;
-#endif
-        }
-
-        break;
-#endif
     }
 
     return true;

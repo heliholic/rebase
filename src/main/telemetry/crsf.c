@@ -1443,7 +1443,7 @@ void handleCrsfTelemetry(timeUs_t currentTimeUs)
 #endif
 }
 
-#if defined(UNIT_TEST) || defined(USE_RX_EXPRESSLRS)
+#if defined(UNIT_TEST)
 static int crsfFinalizeBuf(sbuf_t *dst, uint8_t *frame)
 {
     crc8_dvb_s2_sbuf_append(dst, &crsfFrame[2]); // start at byte 2, since CRC does not include device address and frame length
