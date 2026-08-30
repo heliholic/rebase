@@ -91,7 +91,6 @@ extern uint32_t systemUniqueId[3];
 #define DMA_TRAIT_MUX             1
 
 #define USE_FAST_DATA
-#define USE_DYN_NOTCH_FILTER
 
 #define CANDEV_COUNT 8
 #define ENABLE_CAN 1
