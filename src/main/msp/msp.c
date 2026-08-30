@@ -4642,28 +4642,7 @@ RAM_CODE static mspResult_e mspFcProcessOutCommand(mspDescriptor_t srcDesc, int1
 
 RAM_CODE void mspFcProcessReply(mspPacket_t *reply)
 {
-    sbuf_t *src = &reply->buf;
-    UNUSED(src); // potentially unused depending on compile options.
-
-    switch (reply->cmd) {
-    case MSP_ANALOG:
-        {
-            uint8_t batteryVoltage = sbufReadU8(src);
-            uint16_t mAhDrawn = sbufReadU16(src);
-            uint16_t rssi = sbufReadU16(src);
-            uint16_t amperage = sbufReadU16(src);
-
-            UNUSED(rssi);
-            UNUSED(batteryVoltage);
-            UNUSED(amperage);
-            UNUSED(mAhDrawn);
-
-#ifdef USE_MSP_CURRENT_METER
-            currentMeterMSPSet(amperage, mAhDrawn);
-#endif
-        }
-        break;
-    }
+    UNUSED(reply);
 }
 
 RAM_CODE void mspInit(void)
