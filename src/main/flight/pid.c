@@ -187,18 +187,6 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // use acro rates for the angle target in both horizon and angle modes, converted to -1 to +1 range using maxRate
 
 
-#if defined(USE_POSITION_HOLD)
-    if (FLIGHT_MODE(POS_HOLD_MODE)) {
-        if (isAutopilotInControl()) {
-            // sticks are not deflected
-            angleTarget = autopilotAngle[axis]; // autopilotAngle in degrees
-            angleLimit = 85.0f; // allow autopilot to use whatever angle it needs to stop
-        }
-        // limit pilot requested angle to max autopilot angle to avoid excess speed
-        angleLimit = fminf((float)autopilotConfig()->maxAngle, angleLimit);
-    }
-#endif
-
     angleTarget = constrainf(angleTarget, -angleLimit, angleLimit);
 
     const float currentAngle = (attitude.raw[axis] - angleTrim->raw[axis]) / 10.0f; // stepped at 500hz with some 4ms flat spots
@@ -218,7 +206,7 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // this filter runs at ATTITUDE_CUTOFF_HZ, currently 50hz, so GPS roll may be a bit steppy
     angleRate = pt3FilterApply(&pidRuntime.attitudeFilter[axis], angleRate);
 
-    if (FLIGHT_MODE(ANGLE_MODE | POS_HOLD_MODE)) {
+    if (FLIGHT_MODE(ANGLE_MODE)) {
         currentPidSetpoint = angleRate;
     } else {
         // can only be HORIZON mode - crossfade Angle rate and Acro rate
@@ -306,9 +294,6 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     const bool isExternalAngleModeRequest = false
 #ifdef USE_ALTITUDE_HOLD
                 || FLIGHT_MODE(ALT_HOLD_MODE) // todo - check if this is needed
-#endif
-#ifdef USE_POSITION_HOLD
-                || FLIGHT_MODE(POS_HOLD_MODE)
 #endif
                 ;
     levelMode_e levelMode;

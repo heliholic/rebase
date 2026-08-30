@@ -132,10 +132,6 @@
 #define PARAM_NAME_ALT_HOLD_CLIMB_RATE "alt_hold_climb_rate"
 #endif
 
-#ifdef USE_POSITION_HOLD
-#define PARAM_NAME_POS_HOLD_DEADBAND "pos_hold_deadband"
-#endif
-
 #define PARAM_NAME_IMU_DCM_KP "imu_dcm_kp"
 #define PARAM_NAME_IMU_DCM_KI "imu_dcm_ki"
 #define PARAM_NAME_IMU_PROCESS_DENOM "imu_process_denom"
