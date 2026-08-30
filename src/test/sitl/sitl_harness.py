@@ -1167,7 +1167,6 @@ RESCUE_CFG = [
     "set ap_yaw_mode = FIXED",
     "set ap_waypoint_hold_radius = 400",
     "set ap_landing_descent_rate = 200",
-    "set landing_disarm_threshold = 10",   # jerk-based touchdown disarm
     "aux 3 3 3 1700 2100 0 0",   # ALTHOLD on AUX4: pilot-flown hold after the mission leg
     "aux 4 11 3 1700 2100 0 0",  # POSHOLD on AUX4
     "feature BLACKBOX",
@@ -1448,7 +1447,6 @@ SCENARIOS = {
             # 3D gate keeps arrival deterministic
             "set ap_waypoint_hold_radius = 400",
             "set ap_landing_descent_rate = 200",  # keep the descent short
-            "set landing_disarm_threshold = 10",   # jerk-based touchdown disarm
         ],
     ),
     "mission_takeoff": (
@@ -1489,7 +1487,6 @@ SCENARIOS = {
             "set ap_max_distance_from_home = 50",
             "set ap_geofence_action = LAND",
             "set ap_landing_descent_rate = 200",  # keep the descent short
-            "set landing_disarm_threshold = 10",   # jerk-based touchdown disarm
         ],
     ),
     "geofence_rth": (
@@ -1501,7 +1498,6 @@ SCENARIOS = {
             "set gps_rescue_return_alt = 15",     # short climb keeps the return quick
             "set ap_waypoint_hold_radius = 400",
             "set ap_landing_descent_rate = 200",
-            "set landing_disarm_threshold = 10",
         ],
     ),
     "geofence_rth_rxloss": (
@@ -1515,7 +1511,6 @@ SCENARIOS = {
             "set gps_rescue_return_alt = 15",
             "set ap_waypoint_hold_radius = 400",
             "set ap_landing_descent_rate = 200",
-            "set landing_disarm_threshold = 10",
         ],
     ),
     "rescue": (
