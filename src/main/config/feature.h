@@ -49,7 +49,6 @@ typedef enum {
     FEATURE_RX_UDP = 1 << 1,
     FEATURE_INFLIGHT_ACC_CAL = 1 << 2,
     FEATURE_RX_SERIAL = 1 << 3,
-    FEATURE_SERVO_TILT = 1 << 5,
     FEATURE_SOFTSERIAL = 1 << 6,
     FEATURE_GPS = 1 << 7,
     FEATURE_OPTICALFLOW = 1 << 8,
