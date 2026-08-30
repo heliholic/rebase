@@ -40,13 +40,11 @@
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
-#include "flight/autopilot.h"
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/pid.h"
 #include "flight/pid_init.h"
 
-#include "pg/autopilot.h"
 
 #include "pg/rx.h"
 
