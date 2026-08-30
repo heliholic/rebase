@@ -196,8 +196,6 @@
 #define MSP_GPS_CONFIG                  132  // out message: GPS configuration
 #define MSP_COMPASS_CONFIG              133  // out message: Compass configuration
 #define MSP_ESC_SENSOR_DATA             134  // out message: Extra ESC data from 32-Bit ESCs (Temperature, RPM)
-#define MSP_GPS_RESCUE                  135  // out message: GPS Rescue angle, returnAltitude, descentDistance, groundSpeed, sanityChecks and minSats
-#define MSP_GPS_RESCUE_PIDS             136  // out message: GPS Rescue throttleP and velocity PIDS + yaw P
 #define MSP_VTXTABLE_BAND               137  // out message: VTX table band/channel data
 #define MSP_VTXTABLE_POWERLEVEL         138  // out message: VTX table powerLevel data
 #define MSP_MOTOR_TELEMETRY             139  // out message: Per-motor telemetry data (RPM, packet stats, ESC temp, etc.)
@@ -242,8 +240,6 @@
 #define MSP_SET_MOTOR_CONFIG            222  // in message:  Motor configuration (min/max throttle, etc)
 #define MSP_SET_GPS_CONFIG              223  // in message:  GPS configuration
 #define MSP_SET_COMPASS_CONFIG          224  // in message:  Compass configuration
-#define MSP_SET_GPS_RESCUE              225  // in message:  Set GPS Rescue parameters
-#define MSP_SET_GPS_RESCUE_PIDS         226  // in message:  Set GPS Rescue PID values
 #define MSP_SET_VTXTABLE_BAND           227  // in message:  Set vtxTable band/channel data
 #define MSP_SET_VTXTABLE_POWERLEVEL     228  // in message:  Set vtxTable powerLevel data
 

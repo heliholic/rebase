@@ -124,12 +124,6 @@ static bool positionEstimatorWantXYFusion(void)
     }
 #endif
 
-#ifdef USE_GPS_RESCUE
-    if (FLIGHT_MODE(GPS_RESCUE_MODE)) {
-        return true;
-    }
-#endif
-
 #ifdef USE_GPS
     if (sensors(SENSOR_GPS) && STATE(GPS_FIX)) {
 #if defined(USE_POSITION_HOLD)
