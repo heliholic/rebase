@@ -49,6 +49,10 @@
 #define DEFAULT_AUX_CHANNEL_COUNT       6
 #endif
 
+#ifndef NOINLINE
+#define NOINLINE __attribute__((noinline))
+#endif
+
 #ifndef FAST_CODE
 #define FAST_CODE
 #endif

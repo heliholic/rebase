@@ -24,8 +24,6 @@
 #include "unittest_platform.h"
 #else
 
-#define NOINLINE __attribute__((noinline))
-
 #ifdef USE_CONFIG
 #include "config.h"
 #endif
