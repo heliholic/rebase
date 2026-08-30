@@ -414,9 +414,8 @@ static float imuCalcGroundspeedGain(float dt)
     const float rollSuppression = (absRollAngle < rollMax) ? (rollMax - absRollAngle) / rollMax : 0.0f;
 
     // 4. attenuate heading correction by pitch angle, no correction if flat or negative (e.g. when pitched back to fly tail first)
-    // allow faster adaptation for quads at higher pitch angles; returns 1.0 at 45 degrees
-    // ignored for wings because they typically are flat when flying and may fly forwards at negative angles.
-    // In position hold the pilot may fly backwards.
+    // allow faster adaptation at higher pitch angles; returns 1.0 at 45 degrees
+    // The pilot may fly backwards.
     float pitchSuppression = 1.0f;
     if (!isWing) {
         const float pitchFactor = attitude.values.pitch * 0.1f / 10.0f; // negative is backwards
@@ -574,8 +573,7 @@ static void imuComputeQuaternionFromRPY(quaternionProducts *quatProd, int16_t in
 static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
 {
     // Attitude is ground truth from the simulator, so heading is valid by
-    // definition; without this, position hold and missions can never gain
-    // XY authority (imuIsHeadingValid() would be false forever with no mag).
+    // definition; without this, imuIsHeadingValid() would be false forever with no mag.
     canUseGPSHeading = true;
 
     // unused static functions
@@ -609,7 +607,6 @@ static void updateGpsHeadingUsable(float groundspeedGain, float imuCourseError, 
         // 2s time constant to require some time to reach the threshold
         // time constant accurate enough for dt's from 0.1 to 0.001s
         canUseGPSHeading = gpsHeadingConfidence > 1.5f;
-        // canUseGPSHeading, when true, allows position hold and GPS Rescue
     } else {
         gpsHeadingConfidence = 0.0f;
         // re-evaluate from scratch on arming

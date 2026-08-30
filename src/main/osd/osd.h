@@ -198,10 +198,6 @@ typedef enum {
     OSD_CUSTOM_SERIAL_TEXT,
     OSD_BATTERY_PROFILE_NAME,
 
-#ifdef USE_POSITION_HOLD
-    OSD_POS_HOLD_READY,         // pre-engagement Position Hold readiness indicator
-#endif
-
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 
@@ -290,7 +286,6 @@ typedef enum {
     OSD_WARNING_OVER_CAP,
     OSD_WARNING_RSNR,
     OSD_WARNING_LOAD,
-    OSD_WARNING_POSHOLD_FAILED,
     OSD_WARNING_COUNT // MUST BE LAST
 } osdWarningsFlags_e;
 

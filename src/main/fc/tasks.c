@@ -57,7 +57,6 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
-#include "flight/pos_hold.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
 #include "io/beeper.h"
@@ -387,10 +386,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_ALTHOLD] = DEFINE_TASK("ALTHOLD", NULL, NULL, updateAltHold, TASK_PERIOD_HZ(ALTHOLD_TASK_RATE_HZ), TASK_PRIORITY_LOW),
 #endif
 
-#ifdef USE_POSITION_HOLD
-    [TASK_POSHOLD] = DEFINE_TASK("POSHOLD", NULL, NULL, updatePosHold, TASK_PERIOD_HZ(POSHOLD_TASK_RATE_HZ), TASK_PRIORITY_LOW),
-#endif
-
 #ifdef USE_MAG
     [TASK_COMPASS] = DEFINE_TASK("COMPASS", NULL, NULL, taskUpdateMag, TASK_PERIOD_HZ(TASK_COMPASS_RATE_HZ), TASK_PRIORITY_LOW),
 #endif
@@ -555,10 +550,6 @@ void tasksInit(void)
     setTaskEnabled(TASK_ALTHOLD, sensors(SENSOR_BARO) ||
                                  sensors(SENSOR_RANGEFINDER) ||
                                  featureIsEnabled(FEATURE_GPS));
-#endif
-
-#ifdef USE_POSITION_HOLD
-    setTaskEnabled(TASK_POSHOLD, featureIsEnabled(FEATURE_GPS) || sensors(SENSOR_OPTICALFLOW));
 #endif
 
 #ifdef USE_MAG
