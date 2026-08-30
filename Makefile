@@ -67,7 +67,7 @@ SRC_DIR         := $(ROOT)/src/main
 LIB_MAIN_DIR    := $(ROOT)/lib/main
 LIB_MODULES_DIR := $(ROOT)/lib/modules
 OBJECT_DIR      := $(ROOT)/obj/main
-SRC_MANIFEST    := $(OBJECT_DIR)/.src_manifest
+SRC_MANIFEST     = $(TARGET_OBJ_DIR)/.src_manifest
 BIN_DIR         := $(ROOT)/obj
 CMSIS_DIR       := $(ROOT)/lib/main/CMSIS
 INCLUDE_DIRS    := $(SRC_DIR)
@@ -747,14 +747,18 @@ $(AUTOHYDRATE_STAMPS):
 # the current source list against it. If any sources were removed all .d
 # files are deleted so gcc can regenerate them cleanly. If nothing changed
 # the cost is a single cmp call.
+#
+# Both the manifest and the .d sweep are scoped to $(TARGET_OBJ_DIR): they must
+# never touch a sibling target's objects, or building target B silently strips
+# target A's header dependencies.
 .PHONY: validate-deps
 validate-deps:
-	$(V1) mkdir -p "$(OBJECT_DIR)"; \
+	$(V1) mkdir -p "$(TARGET_OBJ_DIR)"; \
 	printf '%s\n' $(SRC) | sort > "$(SRC_MANIFEST).new"; \
 	if [ -f "$(SRC_MANIFEST)" ] && ! cmp -s "$(SRC_MANIFEST)" "$(SRC_MANIFEST).new"; then \
 	    if comm -23 "$(SRC_MANIFEST)" "$(SRC_MANIFEST).new" | grep -q .; then \
 	        echo "Sources removed — clearing stale dependency files"; \
-	        find "$(OBJECT_DIR)" -name '*.d' -delete 2>/dev/null; \
+	        find "$(TARGET_OBJ_DIR)" -name '*.d' -delete 2>/dev/null; \
 	    fi; \
 	fi; \
 	mv -f "$(SRC_MANIFEST).new" "$(SRC_MANIFEST)"
