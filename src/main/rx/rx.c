@@ -68,7 +68,6 @@
 #include "rx/jetiexbus.h"
 #include "rx/crsf.h"
 #include "rx/ghst.h"
-#include "rx/rx_spi.h"
 #include "rx/targetcustomserial.h"
 #include "rx/msp_override.h"
 #include "rx/mavlink.h"
@@ -333,8 +332,6 @@ void rxInit(void)
         rxRuntimeState.rxProvider = RX_PROVIDER_SERIAL;
     } else if (featureIsEnabled(FEATURE_RX_MSP)) {
         rxRuntimeState.rxProvider = RX_PROVIDER_MSP;
-    } else if (featureIsEnabled(FEATURE_RX_SPI)) {
-        rxRuntimeState.rxProvider = RX_PROVIDER_SPI;
     } else {
         rxRuntimeState.rxProvider = RX_PROVIDER_NONE;
     }
@@ -394,19 +391,6 @@ void rxInit(void)
 #ifdef USE_RX_MSP
     case RX_PROVIDER_MSP:
         rxMspInit(rxConfig(), &rxRuntimeState);
-
-        break;
-#endif
-
-#ifdef USE_RX_SPI
-    case RX_PROVIDER_SPI:
-        {
-            const bool enabled = rxSpiInit(rxSpiConfig(), &rxRuntimeState);
-            if (!enabled) {
-                rxRuntimeState.rcReadRawFn = nullReadRawRC;
-                rxRuntimeState.rcFrameStatusFn = nullFrameStatus;
-            }
-        }
 
         break;
 #endif
@@ -599,7 +583,6 @@ FAST_CODE_NOINLINE void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t current
 #endif
     case RX_PROVIDER_SERIAL:
     case RX_PROVIDER_MSP:
-    case RX_PROVIDER_SPI:
     case RX_PROVIDER_UDP:
         {
             const uint8_t frameStatus = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);

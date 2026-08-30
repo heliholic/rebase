@@ -119,9 +119,9 @@
 #define PG_SPI_PIN_CONFIG           520
 #define PG_ESCSERIAL_CONFIG         521
 #define PG_CAMERA_CONTROL_CONFIG    522
-#define PG_RX_CC2500_SPI_CONFIG     523
+//#define PG_RX_CC2500_SPI_CONFIG     523  // removed with USE_RX_SPI
 #define PG_MAX7456_CONFIG           524
-#define PG_FLYSKY_CONFIG            525
+//#define PG_FLYSKY_CONFIG            525  // removed with USE_RX_SPI
 #define PG_TIME_CONFIG              526
 #define PG_RANGEFINDER_CONFIG       527 // iNav
 #define PG_TRICOPTER_CONFIG         528
@@ -133,12 +133,12 @@
 #define PG_TIMER_IO_CONFIG          534 // used to store the index for timer use in timerHardware array in target.c
 #define PG_SPI_PREINIT_IPU_CONFIG   535
 #define PG_SPI_PREINIT_OPU_CONFIG   536
-#define PG_RX_SPI_CONFIG            537
+//#define PG_RX_SPI_CONFIG            537  // removed with USE_RX_SPI
 #define PG_BOARD_CONFIG             538
 #define PG_RCDEVICE_CONFIG          539
 #define PG_GYRO_DEVICE_CONFIG       540
 #define PG_MCO_CONFIG               541
-#define PG_RX_SPEKTRUM_SPI_CONFIG   542
+//#define PG_RX_SPEKTRUM_SPI_CONFIG   542  // removed with USE_RX_SPI
 #define PG_SERIAL_UART_CONFIG       543
 #define PG_LED_STRIP_STATUS_MODE_CONFIG 545 // Used to hold the configuration for the LED_STRIP status mode (not built on targets with limited flash)
 #define PG_VTX_TABLE_CONFIG         546
@@ -149,7 +149,7 @@
 #define PG_PULLUP_CONFIG            551
 #define PG_PULLDOWN_CONFIG          552
 #define PG_MODE_ACTIVATION_CONFIG   553
-#define PG_RX_EXPRESSLRS_SPI_CONFIG 555
+//#define PG_RX_EXPRESSLRS_SPI_CONFIG 555  // removed with USE_RX_SPI
 #define PG_SCHEDULER_CONFIG         556
 #define PG_MSP_CONFIG               557
 //#define PG_SOFTSERIAL_PIN_CONFIG    558  // removed, merged into SERIAL_PIN_CONFIG

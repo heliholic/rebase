@@ -263,30 +263,6 @@
 
 #endif // USE_OPTICALFLOW
 
-#if defined(USE_RX_CC2500)
-
-#if !defined(USE_RX_SPI)
-#define USE_RX_SPI
-#endif
-
-#define USE_RX_CC2500_SPI_PA_LNA
-#define USE_RX_CC2500_SPI_DIVERSITY
-
-#define USE_RX_SFHSS_SPI
-#define USE_RX_REDPINE_SPI
-
-#define USE_RX_FRSKY_SPI_D
-#define USE_RX_FRSKY_SPI_X
-#define USE_RX_FRSKY_SPI
-#define USE_RX_FRSKY_SPI_TELEMETRY
-
-#define USE_RX_FLYSKY
-#define USE_RX_FLYSKY_SPI_LED
-#define USE_RX_SPEKTRUM
-#define USE_RX_SPEKTRUM_TELEMETRY
-
-#endif // defined(USE_RX_CC2500)
-
 #if defined(CAMERA_CONTROL_PIN) && defined(USE_OSD_SD) && !defined(USE_CAMERA_CONTROL)
 #define USE_CAMERA_CONTROL
 #endif
@@ -395,7 +371,7 @@
 #undef USE_CRSF_ACCGYRO_TELEMETRY
 #endif
 
-#if !defined(USE_RX_EXPRESSLRS) && !defined(USE_SERIALRX_CRSF) && !defined(USE_SERIALRX_MAVLINK)
+#if !defined(USE_SERIALRX_CRSF) && !defined(USE_SERIALRX_MAVLINK)
 #undef USE_RX_RSSI_DBM
 #endif
 
@@ -586,11 +562,6 @@
 #define USE_GYRO
 #endif
 
-// CX10 is a special case of SPI RX which requires XN297
-#if defined(USE_RX_CX10)
-#define USE_RX_XN297
-#endif
-
 // Setup crystal frequency on F4 for backward compatibility
 // Should be set to zero for generic targets to ensure USB is working
 // when unconfigured for targets with non-standard crystal.
@@ -759,23 +730,7 @@ extern struct linker_symbol __fontdata_end;
 #endif
 #endif
 
-#if defined(USE_RX_EXPRESSLRS)
-// ELRS depends on CRSF telemetry
-#if !defined(USE_TELEMETRY)
-#define USE_TELEMETRY
-#endif
-#if !defined(USE_TELEMETRY_CRSF)
-#define USE_TELEMETRY_CRSF
-#endif
-#if !defined(USE_CRSF_LINK_STATISTICS)
-#define USE_CRSF_LINK_STATISTICS
-#endif
-#if !defined(USE_SERIALRX_CRSF)
-#define USE_SERIALRX_CRSF
-#endif
-#endif
-
-#if defined(USE_RX_SPI) || defined(USE_SERIALRX_SRXL2) || defined(USE_SERIALRX_CRSF)
+#if defined(USE_SERIALRX_SRXL2) || defined(USE_SERIALRX_CRSF)
 #define USE_RX_BIND
 #endif
 

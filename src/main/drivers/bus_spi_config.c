@@ -32,12 +32,10 @@
 
 #include "drivers/flash/flash.h"
 #include "drivers/max7456.h"
-#include "drivers/rx/rx_spi.h"
 #include "drivers/sdcard.h"
 
 #include "pg/flash.h"
 #include "pg/max7456.h"
-#include "pg/rx_spi.h"
 #include "pg/sdcard.h"
 
 void spiPreinit(void)
@@ -52,10 +50,6 @@ void spiPreinit(void)
 
 #ifdef USE_FLASH_CHIP
     flashPreinit(flashConfig());
-#endif
-
-#if defined(USE_RX_SPI)
-    rxSpiDevicePreinit(rxSpiConfig());
 #endif
 
 #ifdef USE_MAX7456

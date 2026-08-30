@@ -27,7 +27,6 @@ MCU_FLASH_SIZE  := 2048
 ARM_SDK_PREFIX  =
 
 MCU_EXCLUDES = \
-        drivers/rx/rx_xn297.c \
         drivers/display_ug2864hsweg01.c \
         telemetry/crsf.c \
         telemetry/ghst.c \
