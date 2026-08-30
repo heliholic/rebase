@@ -26,7 +26,7 @@
 
 #include "platform.h"
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#if defined(USE_RX_PPM)
 
 #include "common/utils.h"
 
@@ -41,12 +41,6 @@
 #include "rx/rx.h"
 #include "rx/pwm.h"
 
-static float pwmReadRawRC(const rxRuntimeState_t *rxRuntimeState, uint8_t channel)
-{
-    UNUSED(rxRuntimeState);
-    return pwmRead(channel);
-}
-
 static float ppmReadRawRC(const rxRuntimeState_t *rxRuntimeState, uint8_t channel)
 {
     UNUSED(rxRuntimeState);
@@ -57,14 +51,8 @@ void rxPwmInit(const rxConfig_t *rxConfig, rxRuntimeState_t *rxRuntimeState)
 {
     UNUSED(rxConfig);
 
-    // configure PWM/CPPM read function and max number of channels. serial rx below will override both of these, if enabled
     switch (rxRuntimeState->rxProvider) {
     default:
-
-        break;
-    case RX_PROVIDER_PARALLEL_PWM:
-        rxRuntimeState->channelCount = MAX_SUPPORTED_RC_PARALLEL_PWM_CHANNEL_COUNT;
-        rxRuntimeState->rcReadRawFn = pwmReadRawRC;
 
         break;
     case RX_PROVIDER_PPM:
