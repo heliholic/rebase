@@ -1179,7 +1179,7 @@ case MSP_NAME:
             sbufWriteU16(dst, servoParams(i)->max);
             sbufWriteU16(dst, servoParams(i)->middle);
             sbufWriteU8(dst, servoParams(i)->rate);
-            sbufWriteU8(dst, servoParams(i)->forwardFromChannel);
+            sbufWriteU8(dst, 0);
             sbufWriteU32(dst, servoParams(i)->reversedSources);
         }
         break;
@@ -3056,7 +3056,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             servoParamsMutable(i)->max = sbufReadU16(src);
             servoParamsMutable(i)->middle = sbufReadU16(src);
             servoParamsMutable(i)->rate = sbufReadU8(src);
-            servoParamsMutable(i)->forwardFromChannel = sbufReadU8(src);
+            sbufReadU8(src);
             servoParamsMutable(i)->reversedSources = sbufReadU32(src);
         }
 #endif
