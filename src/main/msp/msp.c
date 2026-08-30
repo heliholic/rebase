@@ -2007,11 +2007,7 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
 #endif
         sbufWriteU8(dst, 0); // was abs_control_gain
-#if defined(USE_THROTTLE_BOOST)
-        sbufWriteU8(dst, currentPidProfile->throttle_boost);
-#else
         sbufWriteU8(dst, 0);
-#endif
 #if defined(USE_ACRO_TRAINER)
         sbufWriteU8(dst, currentPidProfile->acro_trainer_angle_limit);
 #else
@@ -3386,11 +3382,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU8(src);
 #endif
             sbufReadU8(src); // was abs_control_gain
-#if defined(USE_THROTTLE_BOOST)
-            currentPidProfile->throttle_boost = sbufReadU8(src);
-#else
             sbufReadU8(src);
-#endif
 #if defined(USE_ACRO_TRAINER)
             currentPidProfile->acro_trainer_angle_limit = sbufReadU8(src);
 #else
