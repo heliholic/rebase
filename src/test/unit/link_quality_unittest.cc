@@ -498,10 +498,8 @@ extern "C" {
     bool telemetryCheckRxPortShared(const serialPortConfig_t *) {return false;}
     bool cmsDisplayPortRegister(displayPort_t *) { return false; }
     uint16_t getCoreTemperatureCelsius(void) { return 0; }
-    float pidItermAccelerator(void) { return 1.0; }
     uint8_t getMotorCount(void){ return 4; }
     bool areMotorsRunning(void){ return true; }
-    bool pidOsdAntiGravityActive(void) { return false; }
     bool failsafeIsActive(void) { return false; }
     bool failsafeIsReceivingRxData(void) { return true; }
     bool gpsIsHealthy(void) { return true; }

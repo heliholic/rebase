@@ -868,7 +868,6 @@ extern "C" {
     void rescheduleTask(taskId_e, timeDelta_t) {}
     bool usbCableIsInserted(void) { return false; }
     bool usbVcpIsConnected(void) { return false; }
-    void pidSetAntiGravityState(bool) {}
     void osdSuppressStats(bool) {}
     float scaleRangef(float, float, float, float, float) { return 0.0f; }
     int32_t getEstimatedAltitudeCm(void) { return 0; }
