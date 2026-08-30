@@ -471,23 +471,6 @@
 #define USE_TELEMETRY_MAVLINK
 #endif
 
-// USE_RACE_PRO feature pack
-#ifdef USE_RACE_PRO
-
-#ifdef USE_OSD
-#ifndef USE_OSD_QUICK_MENU
-#define USE_OSD_QUICK_MENU
-#endif
-#ifndef USE_RC_STATS
-#define USE_RC_STATS
-#endif
-#ifndef USE_SPEC_PREARM_SCREEN
-#define USE_SPEC_PREARM_SCREEN
-#endif
-#endif
-
-#endif // USE_RACE_PRO
-
 // backwards compatibility for older config.h targets
 #ifndef GYRO_CONFIG_USE_GYRO_1
 #define GYRO_CONFIG_USE_GYRO_1 0
