@@ -49,7 +49,6 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXARM, .boxName = "ARM", .permanentId = 0 },
     { .boxId = BOXANGLE, .boxName = "ANGLE", .permanentId = 1 },
     { .boxId = BOXHORIZON, .boxName = "HORIZON", .permanentId = 2 },
-    { .boxId = BOXALTHOLD, .boxName = "ALTHOLD", .permanentId = 3 },
 //    { .boxId = BOXANTIGRAVITY, .boxName = "ANTI GRAVITY", .permanentId = 4 }, (removed)
 //    { .boxId = BOXMAG, .boxName = "MAG", .permanentId = 5 }, (removed)
 //    { .boxId = BOXHEADFREE, .boxName = "HEADFREE", .permanentId = 6 },
@@ -197,9 +196,6 @@ void initActiveBoxIds(void)
     if (sensors(SENSOR_ACC)) {
         BME(BOXANGLE);
         BME(BOXHORIZON);
-#ifdef USE_ALTITUDE_HOLD
-        BME(BOXALTHOLD);
-#endif
     }
 
 #ifdef USE_GPS
