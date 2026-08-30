@@ -40,7 +40,6 @@ uint32_t featuresSupportedByBuild =
 #ifdef USE_RX_PPM
     | FEATURE_RX_PPM
 #endif
-    | FEATURE_INFLIGHT_ACC_CAL // always available
 #ifdef USE_SERIALRX
     | FEATURE_RX_SERIAL
 #endif
