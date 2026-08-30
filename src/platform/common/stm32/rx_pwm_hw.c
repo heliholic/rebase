@@ -41,7 +41,7 @@ void timerChannelDisable(const timerHardware_t *timHw)
     TIM_CCxChannelCmd((TIM_TypeDef *)timHw->tim, timHw->channel, TIM_CCx_DISABLE);
 }
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#if defined(USE_RX_PPM)
 
 void pwmICConfig(timerResource_t *tim, uint8_t channel, uint16_t polarity, uint8_t filter)
 {
@@ -73,7 +73,7 @@ void timerChannelDisable(const timerHardware_t *timHw)
     TIM_CCxCmd((TIM_TypeDef *)timHw->tim, timHw->channel, TIM_CCx_Disable);
 }
 
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+#if defined(USE_RX_PPM)
 
 void pwmICConfig(timerResource_t *tim, uint8_t channel, uint16_t polarity, uint8_t filter)
 {

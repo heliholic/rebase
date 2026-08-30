@@ -104,7 +104,7 @@
 #define PG_STATUS_LED_CONFIG        505
 #define PG_FLASH_CONFIG             506
 #define PG_PPM_CONFIG               507
-#define PG_PWM_CONFIG               508
+//#define PG_PWM_CONFIG               508  // removed with USE_RX_PWM
 #define PG_SERIAL_PIN_CONFIG        509
 #define PG_ADC_CONFIG               510
 #define PG_SDCARD_CONFIG            511

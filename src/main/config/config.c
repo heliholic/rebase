@@ -277,7 +277,6 @@ static void validateAndFixConfig(void)
 #endif // USE_ACC
 
     bool hasConfiguredRxFeature =
-        featureIsConfigured(FEATURE_RX_PARALLEL_PWM) ||
         featureIsConfigured(FEATURE_RX_PPM) ||
         featureIsConfigured(FEATURE_RX_SERIAL) ||
         featureIsConfigured(FEATURE_RX_MSP);
@@ -289,24 +288,20 @@ static void validateAndFixConfig(void)
     }
 
     if (featureIsConfigured(FEATURE_RX_PPM)) {
-        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PARALLEL_PWM | FEATURE_RX_MSP | FEATURE_RX_UDP);
+        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_MSP | FEATURE_RX_UDP);
     }
 
     if (featureIsConfigured(FEATURE_RX_MSP)) {
-        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PARALLEL_PWM | FEATURE_RX_PPM | FEATURE_RX_UDP);
+        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PPM | FEATURE_RX_UDP);
     }
 
     if (featureIsConfigured(FEATURE_RX_SERIAL)) {
-        featureDisableImmediate(FEATURE_RX_PARALLEL_PWM | FEATURE_RX_MSP | FEATURE_RX_PPM | FEATURE_RX_UDP);
-    }
-
-    if (featureIsConfigured(FEATURE_RX_PARALLEL_PWM)) {
-        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_MSP | FEATURE_RX_PPM | FEATURE_RX_UDP);
+        featureDisableImmediate(FEATURE_RX_MSP | FEATURE_RX_PPM | FEATURE_RX_UDP);
     }
 
 #if ENABLE_RX_UDP
     if (featureIsConfigured(FEATURE_RX_UDP)) {
-        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PARALLEL_PWM | FEATURE_RX_PPM | FEATURE_RX_MSP);
+        featureDisableImmediate(FEATURE_RX_SERIAL | FEATURE_RX_PPM | FEATURE_RX_MSP);
     }
 #endif // ENABLE_RX_UDP
 
@@ -317,8 +312,8 @@ static void validateAndFixConfig(void)
     } else
 #endif
     if (rxConfigMutable()->rssi_channel
-#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
-        || featureIsConfigured(FEATURE_RX_PPM) || featureIsConfigured(FEATURE_RX_PARALLEL_PWM)
+#if defined(USE_RX_PPM)
+        || featureIsConfigured(FEATURE_RX_PPM)
 #endif
         ) {
         rxConfigMutable()->rssi_src_frame_errors = false;

@@ -557,20 +557,11 @@ void initPhase2(void)
     systemState |= SYSTEM_STATE_MOTORS_READY;
 #endif
 
-    do {
-#if defined(USE_RX_PPM)
-        if (featureIsEnabled(FEATURE_RX_PPM)) {
-            ppmRxInit(ppmConfig());
-            break;
-        }
+#ifdef USE_RX_PPM
+    if (featureIsEnabled(FEATURE_RX_PPM)) {
+        ppmRxInit(ppmConfig());
+    }
 #endif
-#if defined(USE_RX_PWM)
-        if (featureIsEnabled(FEATURE_RX_PARALLEL_PWM)) {
-            pwmRxInit(pwmConfig());
-            break;
-        }
-#endif
-    } while (false);
 
 #ifdef USE_BEEPER
     beeperInit(beeperDevConfig());

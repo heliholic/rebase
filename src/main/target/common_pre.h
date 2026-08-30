@@ -199,7 +199,6 @@
 #endif // !defined(USE_CONFIG)
 
 #define USE_RX_PPM
-#define USE_RX_PWM
 
 #define USE_PINIO
 

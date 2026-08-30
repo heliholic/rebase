@@ -137,7 +137,6 @@
 #undef USE_VCP
 #undef USE_OSD
 #undef USE_RX_PPM
-#undef USE_RX_PWM
 #undef USE_SERIALRX
 #undef USE_SERIALRX_CRSF
 #undef USE_SERIALRX_GHST

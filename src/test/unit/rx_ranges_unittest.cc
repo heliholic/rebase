@@ -235,11 +235,6 @@ bool isPPMDataBeingReceived(void)
     return false;
 }
 
-bool isPWMDataBeingReceived(void)
-{
-    return false;
-}
-
 void resetPPMDataReceivedState(void)
 {
 }

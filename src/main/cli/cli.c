@@ -239,7 +239,6 @@ static const char * const featureNames[] = {
     _R(FEATURE_RANGEFINDER, "RANGEFINDER"),
     _R(FEATURE_OPTICALFLOW, "OPTICALFLOW"),
     _R(FEATURE_TELEMETRY, "TELEMETRY"),
-    _R(FEATURE_RX_PARALLEL_PWM, "RX_PARALLEL_PWM"),
     _R(FEATURE_RX_MSP, "RX_MSP"),
     _R(FEATURE_RSSI_ADC, "RSSI_ADC"),
     _R(FEATURE_LED_STRIP, "LED_STRIP"),
@@ -6635,9 +6634,6 @@ const cliResourceValue_t resourceTable[] = {
 #endif
 #if defined(USE_RX_PPM)
     DEFS( OWNER_PPMINPUT,      PG_PPM_CONFIG, ppmConfig_t, ioTag ),
-#endif
-#if defined(USE_RX_PWM)
-    DEFA( OWNER_PWMINPUT,      PG_PWM_CONFIG, pwmConfig_t, ioTags[0], PWM_INPUT_PORT_COUNT ),
 #endif
 #if defined(USE_RANGEFINDER_HCSR04)
     DEFS( OWNER_SONAR_TRIGGER, PG_SONAR_CONFIG, sonarConfig_t, triggerTag ),
