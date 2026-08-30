@@ -231,9 +231,6 @@ void pidInitConfig(const pidProfile_t *pidProfile)
     pidRuntime.itermLimitYaw = 0.01f * pidProfile->itermWindup * pidProfile->pidSumLimitYaw;
 
     pidRuntime.itermRotation = pidProfile->iterm_rotation;
-
-    pidRuntime.useEzDisarm = pidProfile->landing_disarm_threshold > 0;
-    pidRuntime.landingDisarmThreshold = pidProfile->landing_disarm_threshold * 10.0f;
 }
 
 void pidCopyProfile(uint8_t dstPidProfileIndex, uint8_t srcPidProfileIndex)
