@@ -53,7 +53,6 @@
 #include "fc/runtime_config.h"
 
 #include "flight/alt_hold.h"
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
@@ -250,17 +249,6 @@ static void taskUpdateRxMain(timeUs_t currentTimeUs)
     schedulerSetNextStateTime(rxStateDurationFractionUs[rxState] >> RX_TASK_DECAY_SHIFT);
 }
 
-#ifdef USE_GPS_RESCUE
-static void taskGpsRescue(timeUs_t currentTimeUs)
-{
-    UNUSED(currentTimeUs);
-
-    if (gpsRescueIsConfigured()) {
-        gpsRescueUpdate();
-    }
-}
-#endif
-
 #ifdef USE_BARO
 static void taskUpdateBaro(timeUs_t currentTimeUs)
 {
@@ -393,10 +381,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
 
 #ifdef USE_GPS
     [TASK_GPS] = DEFINE_TASK("GPS", NULL, NULL, gpsUpdate, TASK_PERIOD_HZ(TASK_GPS_RATE), TASK_PRIORITY_MEDIUM), // Required to prevent buffer overruns if running at 115200 baud (115 bytes / period < 256 bytes buffer)
-#endif
-
-#ifdef USE_GPS_RESCUE
-    [TASK_GPS_RESCUE] = DEFINE_TASK("GPS_RESCUE", NULL, NULL, taskGpsRescue, TASK_PERIOD_HZ(TASK_GPS_RESCUE_RATE_HZ), TASK_PRIORITY_MEDIUM),
 #endif
 
 #ifdef USE_ALTITUDE_HOLD
@@ -565,10 +549,6 @@ void tasksInit(void)
 
 #ifdef USE_GPS
     setTaskEnabled(TASK_GPS, featureIsEnabled(FEATURE_GPS));
-#endif
-
-#ifdef USE_GPS_RESCUE
-    setTaskEnabled(TASK_GPS_RESCUE, featureIsEnabled(FEATURE_GPS));
 #endif
 
 #ifdef USE_ALTITUDE_HOLD

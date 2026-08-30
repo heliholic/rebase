@@ -85,7 +85,7 @@ static bool sensorsOk(void)
 
 void updatePosHold(timeUs_t currentTimeUs) {
     UNUSED(currentTimeUs);
-    if (FLIGHT_MODE(POS_HOLD_MODE) || FLIGHT_MODE(GPS_RESCUE_MODE)) {
+    if (FLIGHT_MODE(POS_HOLD_MODE)) {
         if (!posHold.isEnabled) {
             resetPositionControl(POSHOLD_TASK_RATE_HZ);
             posHold.isControlOk = true;

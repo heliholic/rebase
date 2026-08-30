@@ -63,7 +63,6 @@
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
-#include "flight/gps_rescue.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
@@ -1575,23 +1574,6 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_SET_HOME_POINT_ONCE, "%d",    gpsConfig()->gps_set_home_point_once);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_USE_3D_SPEED, "%d",           gpsConfig()->gps_use_3d_speed);
 
-#ifdef USE_GPS_RESCUE
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_MIN_START_DIST, "%d",  gpsRescueConfig()->minStartDistM);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_ALT_MODE, "%d",        gpsRescueConfig()->altitudeMode);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_INITIAL_CLIMB, "%d",   gpsRescueConfig()->initialClimbM);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_ASCEND_RATE, "%d",     gpsRescueConfig()->ascendRate);
-
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_RETURN_ALT, "%d",      gpsRescueConfig()->returnAltitudeM);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_GROUND_SPEED, "%d",    gpsRescueConfig()->groundSpeedCmS);
-
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_DESCENT_DIST, "%d",    gpsRescueConfig()->descentDistanceM);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_DESCEND_RATE, "%d",    gpsRescueConfig()->descendRate);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_SANITY_CHECKS, "%d",   gpsRescueConfig()->sanityChecks);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_MIN_SATS, "%d",        gpsRescueConfig()->minSats);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_ALLOW_ARMING_WITHOUT_FIX, "%d", gpsRescueConfig()->allowArmingWithoutFix);
-
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_RESCUE_YAW_P, "%d",           gpsRescueConfig()->yawP);
-#endif // USE_GPS_RESCUE
 #endif // USE_GPS
 
 #ifdef USE_ALTITUDE_HOLD

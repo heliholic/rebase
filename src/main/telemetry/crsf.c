@@ -50,7 +50,6 @@
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/pid.h"
 #include "flight/position.h"
@@ -618,8 +617,6 @@ static void crsfFrameFlightMode(sbuf_t *dst)
     // Flight modes in decreasing order of importance
     if (FLIGHT_MODE(FAILSAFE_MODE) || IS_RC_MODE_ACTIVE(BOXFAILSAFE)) {
         flightMode = "!FS!";
-    } else if (FLIGHT_MODE(GPS_RESCUE_MODE) || IS_RC_MODE_ACTIVE(BOXGPSRESCUE)) {
-        flightMode = "RTH";
     } else if (FLIGHT_MODE(ANGLE_MODE)) {
         flightMode = "ANGL";
     } else if (FLIGHT_MODE(POS_HOLD_MODE)) {
@@ -635,12 +632,7 @@ static void crsfFrameFlightMode(sbuf_t *dst)
     if (!ARMING_FLAG(ARMED) && !FLIGHT_MODE(FAILSAFE_MODE)) {
         // * = ready to arm
         // ! = arming disabled
-        // ? = GPS rescue disabled
-        bool isGpsRescueDisabled = false;
-#ifdef USE_GPS
-        isGpsRescueDisabled = featureIsEnabled(FEATURE_GPS) && gpsRescueIsConfigured() && gpsSol.numSat < gpsRescueConfig()->minSats && !STATE(GPS_FIX);
-#endif
-        sbufWriteU8(dst, isArmingDisabled() ? '!' : isGpsRescueDisabled ? '?' : '*');
+        sbufWriteU8(dst, isArmingDisabled() ? '!' : '*');
     }
 
     sbufWriteU8(dst, '\0');     // zero-terminate string

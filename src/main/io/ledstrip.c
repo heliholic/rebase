@@ -55,7 +55,6 @@
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
@@ -660,10 +659,7 @@ static void applyLedFixedLayers(void)
 #ifdef USE_GPS
         case LED_FUNCTION_GPS_BAR:
             {
-                uint8_t minSats = 8;
-#ifdef USE_GPS_RESCUE
-                minSats = gpsRescueConfig()->minSats;
-#endif
+                const uint8_t minSats = GPS_HOME_MIN_SATS;
                 if (gpsSol.numSat == 0 || !sensors(SENSOR_GPS)) {
                     color = HSV(RED);
                 } else {

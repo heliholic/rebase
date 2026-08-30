@@ -46,7 +46,6 @@ extern "C" {
     #include "fc/rc_modes.h"
 
     #include "flight/pid.h"
-    #include "flight/gps_rescue.h"
     #include "flight/imu.h"
 
     #include "io/gps.h"
@@ -84,7 +83,6 @@ extern "C" {
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
     PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 0);
-    PG_REGISTER(gpsRescueConfig_t, gpsRescueConfig, PG_GPS_RESCUE, 0);
 }
 
 #include "unittest_macros.h"
@@ -392,5 +390,4 @@ bool isBatteryVoltageConfigured(void) { return true; }
 bool isAmperageConfigured(void) { return true; }
 timeUs_t rxFrameTimeUs(void) { return 0; }
 bool IS_RC_MODE_ACTIVE(boxId_e) { return false; }
-bool gpsRescueIsConfigured(void) { return false; }
 }

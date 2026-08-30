@@ -37,7 +37,6 @@
 
 #include "fc/runtime_config.h"
 
-#include "flight/gps_rescue.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
@@ -488,37 +487,6 @@ STATIC_UNIT_TESTED float imuCalcCourseErr(float courseOverGround)
 
 #endif
 
-#if defined(USE_MAG) && defined(USE_GPS_RESCUE)
-// refactored from old debug code, to be removed/optimized eventually
-static void imuDebug_GPS_RESCUE_HEADING(void)
-{
-    // Encapsulate additional operations in a block so that it is only executed when the according debug mode is used
-    // Only re-calculate magYaw when there is a new Mag data reading, to avoid spikes
-    if (debugMode == DEBUG_GPS_RESCUE_HEADING && mag.isNewMagADCFlag) {
-
-        vector3_t mag_bf = mag.magADC;
-        vector3_t mag_ef;
-        matrixVectorMul(&mag_ef, &rMat, &mag_bf); // BF->EF true north
-
-        matrix33_t rMatZTrans;
-        yawToRotationMatrixZ(&rMatZTrans, -atan2_approx(rMat.m[NWU_W][X], rMat.m[NWU_N][X]));
-
-        vector3_t mag_ef_yawed;
-        matrixVectorMul(&mag_ef_yawed, &rMatZTrans, &mag_ef); // EF->EF yawed
-
-        // Magnetic yaw is the angle between true north and the X axis of the body frame
-        int16_t magYaw = lrintf((atan2_approx(mag_ef_yawed.v[NWU_W], mag_ef_yawed.v[NWU_N]) * (1800.0f / M_PIf)));
-        if (magYaw < 0) {
-            magYaw += 3600;
-        }
-        DEBUG_SET(DEBUG_GPS_RESCUE_HEADING, 4, magYaw); // mag heading in degrees * 10
-        // reset new mag data flag to false to initiate monitoring for new Mag data.
-        // note that if the debug doesn't run, this reset will not occur, and we won't waste cycles on the comparison
-        mag.isNewMagADCFlag = false;
-    }
-}
-#endif // defined(USE_MAG) && defined(USE_GPS_RESCUE)
-
 #ifdef USE_MAG
 // Calculate heading error derived from magnetometer
 // return value rotation around earth Z axis, pointing in directipon of smaller error, [rad/s]
@@ -619,7 +587,6 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
 
 #if defined(USE_GPS)
     UNUSED(imuComputeQuaternionFromRPY);
-    UNUSED(imuDebug_GPS_RESCUE_HEADING);
     UNUSED(imuCalcCourseErr);
     UNUSED(imuCalcGroundspeedGain);
 #endif
@@ -676,11 +643,6 @@ static void imuCalculateEstimatedAttitude(timeUs_t currentTimeUs)
         useMag = true;
         magErr = imuCalcMagErr();
     }
-#endif
-
-#if defined(USE_MAG) && defined(USE_GPS_RESCUE)
-    // fill in GPS rescue debug value (leftover from code refactoring)
-    imuDebug_GPS_RESCUE_HEADING();
 #endif
 
     // *** GPS COG based heading error estimate ***

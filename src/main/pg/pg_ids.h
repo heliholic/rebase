@@ -76,7 +76,6 @@
 #define PG_SERVO_CONFIG 52
 #define PG_IBUS_TELEMETRY_CONFIG 53 // CF 1.x
 //#define PG_VTX_CONFIG 54 // CF 1.x
-#define PG_GPS_RESCUE 55 // struct OK
 #define PG_POSITION 56
 #define PG_VTX_IO_CONFIG 57
 //#define PG_GPS_LAP_TIMER 58

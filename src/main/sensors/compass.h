@@ -58,7 +58,6 @@ typedef enum {
 } magSensor_e;
 
 typedef struct mag_s {
-    bool isNewMagADCFlag;
     vector3_t magADC;
 } mag_t;
 
