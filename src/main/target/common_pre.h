@@ -192,15 +192,6 @@
 #define USE_MAX7456
 #endif
 
-#if !defined(USE_RX_SPI)
-#define USE_RX_SPI
-
-#define USE_RX_CC2500
-#define USE_RX_EXPRESSLRS
-#define USE_RX_SX1280
-#define USE_RX_SX127X
-#endif // !USE_RX_SPI
-
 #if !defined(USE_EXST) && !defined(USE_SDCARD)
 #define USE_SDCARD
 #endif
