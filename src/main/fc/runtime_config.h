@@ -59,7 +59,7 @@ typedef enum {
     ARMING_DISABLED_MSP             = (1 << 16),
     ARMING_DISABLED_PARALYZE        = (1 << 17),
     ARMING_DISABLED_GPS             = (1 << 18),
-    ARMING_DISABLED_RESC            = (1 << 19),
+    ARMING_DISABLED_UNUSED_19       = (1 << 19),
     ARMING_DISABLED_DSHOT_TELEM     = (1 << 20),
     ARMING_DISABLED_REBOOT_REQUIRED = (1 << 21),
     ARMING_DISABLED_DSHOT_BITBANG   = (1 << 22),
@@ -90,7 +90,6 @@ typedef enum {
 //    PASSTHRU_MODE   = (1 << 8),
 //    RANGEFINDER_MODE= (1 << 9),
     FAILSAFE_MODE   = (1 << 10),
-    GPS_RESCUE_MODE = (1 << 11),
 } flightModeFlags_e;
 
 extern uint16_t flightModeFlags;
@@ -107,7 +106,6 @@ extern uint16_t flightModeFlags;
    [BOXALTHOLD]     = LOG2(ALT_HOLD_MODE),               \
    [BOXPOSHOLD]     = LOG2(POS_HOLD_MODE),               \
    [BOXFAILSAFE]    = LOG2(FAILSAFE_MODE),               \
-   [BOXGPSRESCUE]   = LOG2(GPS_RESCUE_MODE),             \
 }                                                        \
 /**/
 
