@@ -111,7 +111,6 @@ void resetPidProfile(pidProfile_t *pidProfile)
         .pidSumLimitYaw = PIDSUM_LIMIT_YAW,
         .dterm_notch_hz = 0,
         .dterm_notch_cutoff = 0,
-        .itermWindup = 80,         // sets iTerm limit to this percentage below pidSumLimit
         .angle_limit = 60,
         .yawRateAccelLimit = 0,
         .rateAccelLimit = 0,
@@ -410,10 +409,10 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
 
         // -----calculate I component
         float Ki = pidRuntime.pidCoefficient[axis].Ki;
-        float itermLimit = pidRuntime.itermLimit; // windup fraction of pidSumLimit
+        float itermLimit = pidRuntime.itermLimit;
 
         if (axis == FD_YAW) {
-            itermLimit = pidRuntime.itermLimitYaw; // windup fraction of pidSumLimitYaw
+            itermLimit = pidRuntime.itermLimitYaw;
         }
 
         float iTermChange = Ki * pidRuntime.dT * itermErrorRate;
