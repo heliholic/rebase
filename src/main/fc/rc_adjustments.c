@@ -50,7 +50,6 @@
 
 #include "io/beeper.h"
 #include "io/ledstrip.h"
-#include "io/pidaudio.h"
 
 #include "osd/osd.h"
 
@@ -70,21 +69,6 @@ PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRange
 
 // Track whether the multiplier center has been initialized
 static bool potBasePositionInitialized = false;
-
-uint8_t pidAudioPositionToModeMap[7] = {
-    // on a pot with a center detent, it's easy to have center area for off/default, then three positions to the left and three to the right.
-    // current implementation yields RC values as below.
-
-    PID_AUDIO_PIDSUM_X,     //   900 - ~1071 - Min
-    PID_AUDIO_PIDSUM_Y,     // ~1071 - ~1242
-    PID_AUDIO_PIDSUM_XY,    // ~1242 - ~1414
-    PID_AUDIO_OFF,          // ~1414 - ~1585 - Center
-    PID_AUDIO_OFF,          // ~1585 - ~1757
-    PID_AUDIO_OFF,          // ~1757 - ~1928
-    PID_AUDIO_OFF,          // ~1928 -  2100 - Max
-
-    // Note: Last 3 positions are currently pending implementations and use PID_AUDIO_OFF for now.
-};
 
 STATIC_UNIT_TESTED int stepwiseAdjustmentCount = ADJUSTMENT_RANGE_COUNT_INVALID;
 STATIC_UNIT_TESTED timedAdjustmentState_t stepwiseAdjustments[MAX_ADJUSTMENT_RANGE_COUNT];
@@ -203,10 +187,6 @@ static const adjustmentConfig_t defaultAdjustmentConfigs[ADJUSTMENT_FUNCTION_COU
         .mode = ADJUSTMENT_MODE_SELECT,
         .data = { .switchPositions = 255 }
     }, {
-        .adjustmentFunction = ADJUSTMENT_PID_AUDIO,
-        .mode = ADJUSTMENT_MODE_SELECT,
-        .data = { .switchPositions = ARRAYLEN(pidAudioPositionToModeMap) }
-    }, {
         .adjustmentFunction = ADJUSTMENT_PITCH_F,
         .mode = ADJUSTMENT_MODE_STEP,
         .data = { .step = 1 }
@@ -267,7 +247,6 @@ static const char * const adjustmentLabels[] = {
     "PITCH/ROLL F",
     "FF TRANSITION",
     "HORIZON STRENGTH",
-    "PID AUDIO",
     "PITCH F",
     "ROLL F",
     "YAW F",
@@ -620,16 +599,6 @@ static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, ui
             }
             return currentPidProfile->simplified_master_multiplier;
         }
-        break;
-    case ADJUSTMENT_PID_AUDIO:
-#ifdef USE_PID_AUDIO
-        {
-            pidAudioModes_e newMode = pidAudioPositionToModeMap[position];
-            if (newMode != pidAudioGetMode()) {
-                pidAudioSetMode(newMode);
-            }
-        }
-#endif
         break;
     case ADJUSTMENT_OSD_PROFILE:
 #ifdef USE_OSD_PROFILES
