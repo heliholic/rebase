@@ -93,7 +93,6 @@
 #include "fc/stats.h"
 #include "fc/tasks.h"
 
-#include "flight/alt_hold.h"
 #include "flight/autopilot.h"
 #include "flight/failsafe.h"
 #include "flight/imu.h"
@@ -1012,10 +1011,6 @@ void initPhase3(void)
 #endif
 
 // autopilot must be initialised before modes that require the autopilot pids
-#ifdef USE_ALTITUDE_HOLD
-    altHoldInit();
-#endif
-
     debugInit();
 
 #if ENABLE_UNUSED_PINS_INIT

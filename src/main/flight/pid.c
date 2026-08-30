@@ -44,17 +44,14 @@
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
-#include "flight/autopilot.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
 
 #include "io/gps.h"
 
-#include "pg/autopilot.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
-#include "pg/autopilot.h"
 
 #include "sensors/acceleration.h"
 #include "sensors/battery.h"
@@ -198,7 +195,7 @@ STATIC_UNIT_TESTED FAST_CODE_NOINLINE float pidLevel(int axis, const pidProfile_
     // earthRef code here takes about 76 cycles, if conditional on angleEarthRef it takes about 100.  sin_approx costs most of those cycles.
     float sinAngle = sin_approx(DEGREES_TO_RADIANS(pidRuntime.angleTarget[axis == FD_ROLL ? FD_PITCH : FD_ROLL]));
     sinAngle *= (axis == FD_ROLL) ? -1.0f : 1.0f; // must be negative for Roll
-    const float earthRefGain = FLIGHT_MODE(ALT_HOLD_MODE) ? 1.0f : pidRuntime.angleEarthRef;
+    const float earthRefGain = pidRuntime.angleEarthRef;
     angleRate += pidRuntime.angleYawSetpoint * sinAngle * earthRefGain;
     pidRuntime.angleTarget[axis] = angleTarget;  // set target for alternate axis to current axis, for use in preceding calculation
 
@@ -291,11 +288,7 @@ void FAST_CODE pidController(const pidProfile_t *pidProfile, timeUs_t currentTim
     const rollAndPitchTrims_t *angleTrim = &accelerometerConfig()->accelerometerTrims;
     float horizonLevelStrength = 0.0f;
 
-    const bool isExternalAngleModeRequest = false
-#ifdef USE_ALTITUDE_HOLD
-                || FLIGHT_MODE(ALT_HOLD_MODE) // todo - check if this is needed
-#endif
-                ;
+    const bool isExternalAngleModeRequest = false;
     levelMode_e levelMode;
     if (FLIGHT_MODE(ANGLE_MODE | HORIZON_MODE)) {
         levelMode = LEVEL_MODE_RP;
