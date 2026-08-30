@@ -24,7 +24,6 @@
 #include "common/vector.h"
 
 
-#ifndef USE_WING
 
 #define AP_HOVER_THROTTLE_DEFAULT 1275U
 
@@ -54,4 +53,3 @@ float autopilotGetYawRate(void);
 bool autopilotYawControlActive(void);
 void autopilotSetYawRateLimit(float rateLimitDps); // deg/s, 0 = no mission cap
 
-#endif // !USE_WING

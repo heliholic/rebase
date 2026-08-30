@@ -17,7 +17,6 @@
 
 #pragma once
 
-#ifndef USE_WING
 
 #include <stdbool.h>
 
@@ -50,4 +49,3 @@ bool gpsRescueIsAvailable(void);
 bool gpsRescueIsHeadingOK(void);
 bool gpsRescueIsOK(void);
 
-#endif // !USE_WING

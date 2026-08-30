@@ -23,7 +23,7 @@
 
 #include "platform.h"
 
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
 
 #include "common/printf.h"
 #include "common/time.h"
@@ -154,4 +154,4 @@ void flightPlanCaptureResetForTest(void)
 }
 #endif
 
-#endif // ENABLE_FLIGHT_PLAN && !USE_WING
+#endif

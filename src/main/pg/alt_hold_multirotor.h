@@ -21,7 +21,6 @@
 
 #pragma once
 
-#ifndef USE_WING
 
 #include <stdint.h>
 
@@ -34,4 +33,3 @@ typedef struct altHoldConfig_s {
 
 PG_DECLARE(altHoldConfig_t, altHoldConfig);
 
-#endif // !USE_WING

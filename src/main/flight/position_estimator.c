@@ -62,7 +62,7 @@
 #if defined(USE_POSITION_HOLD)
 #include "pg/autopilot.h"
 #endif
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
 #include "pg/pos_hold.h"
 #endif
 
@@ -118,7 +118,7 @@ static bool positionEstimatorWantXYFusion(void)
         return false;
     }
 
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
     if (FLIGHT_MODE(POS_HOLD_MODE)) {
         return true;
     }
@@ -132,7 +132,7 @@ static bool positionEstimatorWantXYFusion(void)
 
 #ifdef USE_GPS
     if (sensors(SENSOR_GPS) && STATE(GPS_FIX)) {
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
         if (posHoldConfig()->positionSource != POSHOLD_SOURCE_OPTICALFLOW_ONLY) {
             return true;
         }
@@ -145,7 +145,7 @@ static bool positionEstimatorWantXYFusion(void)
 #if defined(USE_OPTICALFLOW) && defined(USE_RANGEFINDER)
     if (sensors(SENSOR_OPTICALFLOW) && sensors(SENSOR_RANGEFINDER) &&
         isOpticalflowHealthy() && rangefinderIsHealthy()) {
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
         if (posHoldConfig()->positionSource != POSHOLD_SOURCE_GPS_ONLY) {
             return true;
         }
@@ -329,7 +329,7 @@ static uint16_t gpsDopOrFallback(uint16_t preferredDop, uint16_t fallbackDop)
 #ifdef USE_OPTICALFLOW
 static float opticalFlowR(int16_t quality)
 {
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
     const int minQuality = posHoldConfig()->opticalflowQualityMin;
 #else
     const int minQuality = 30;
@@ -355,7 +355,7 @@ static void feedGPSMeasurements(timeUs_t nowUs)
     }
 
     // Determine which measurements are allowed by source settings
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
     const uint8_t posSource = posHoldConfig()->positionSource;
     const bool gpsXYAllowed = (posSource != POSHOLD_SOURCE_OPTICALFLOW_ONLY);
 #else
@@ -502,7 +502,7 @@ static void feedOpticalFlowMeasurements(timeUs_t nowUs)
         return;
     }
 
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
     const uint8_t posSource = posHoldConfig()->positionSource;
     if (posSource == POSHOLD_SOURCE_GPS_ONLY) {
         return;
@@ -516,7 +516,7 @@ static void feedOpticalFlowMeasurements(timeUs_t nowUs)
 
 #ifdef USE_RANGEFINDER
     float maxRangeCm = positionConfig()->rangefinder_max_range_cm;
-#if defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_POSITION_HOLD)
     maxRangeCm = fminf(maxRangeCm, (float)posHoldConfig()->opticalflowMaxRange);
 #endif
     float altitudeCmF;
@@ -679,7 +679,7 @@ float positionEstimatorGetTrustXY(void)
 bool positionEstimatorIsHeadingRequired(void)
 {
     // If configured for optical flow only, heading is not required
-#if defined(USE_GPS) && defined(USE_POSITION_HOLD) && !defined(USE_WING)
+#if defined(USE_GPS) && defined(USE_POSITION_HOLD)
     if (posHoldConfig()->positionSource == POSHOLD_SOURCE_OPTICALFLOW_ONLY) {
         return false;
     }

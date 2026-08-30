@@ -64,7 +64,7 @@
 #include "flight/alt_hold.h"
 #include "flight/pos_hold.h"
 
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
 #include "flight/flight_plan_capture.h"
 #endif
 #include "flight/flight_plan_nav.h"
@@ -372,7 +372,7 @@ if (crashFlipModeActive) {
             unsetArmingDisabled(ARMING_DISABLED_POSHOLD);
         }
 
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
         if (IS_RC_MODE_ACTIVE(BOXAUTOPILOT)) {
             setArmingDisabled(ARMING_DISABLED_AUTOPILOT);
         } else {
@@ -1073,7 +1073,7 @@ void processRxModes(timeUs_t currentTimeUs)
     }
 #endif
 
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
     // Waypoint capture runs whether or not the mission is engaged - the whole
     // point is marking waypoints while flying around before engaging. The
     // channel-validity guard keeps rxfail aux substitution from ghost-editing

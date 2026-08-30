@@ -22,7 +22,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 
 #include "build/debug.h"
 #include "common/axis.h"
@@ -1023,4 +1022,3 @@ float getAutopilotThrottle(void)
     return throttleOut;
 }
 
-#endif // !USE_WING

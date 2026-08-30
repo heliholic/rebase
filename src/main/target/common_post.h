@@ -879,24 +879,23 @@ extern struct linker_symbol __fontdata_end;
 // GPS rescue (both the BOXGPSRESCUE switch and the failsafe procedure) flown as
 // a synthesised flight-plan mission through the unified autopilot, instead of
 // the legacy gps_rescue controller. Default-on wherever the flight-plan engine
-// is available; targets without it (or wing, or flash-constrained) fall back to
+// is available; targets without it (or flash-constrained) fall back to
 // the legacy rescue controller.
 #if !defined(ENABLE_RESCUE_PLAN)
-#if ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE) && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE)
 #define ENABLE_RESCUE_PLAN 1
 #else
 #define ENABLE_RESCUE_PLAN 0
 #endif
 #endif
-#if ENABLE_RESCUE_PLAN && !(ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE) && !defined(USE_WING))
-#error "ENABLE_RESCUE_PLAN requires ENABLE_FLIGHT_PLAN, USE_GPS_RESCUE and !USE_WING"
+#if ENABLE_RESCUE_PLAN && !(ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE))
+#error "ENABLE_RESCUE_PLAN requires ENABLE_FLIGHT_PLAN and USE_GPS_RESCUE"
 #endif
 
 // Flight-plan OSD minimap: draws the stored mission, home and the flown trail
-// as a character-cell map. Follows the flight-plan executor's multirotor-only
-// gate and additionally needs an OSD and GPS. Derived here so every consumer
-// (pg, osd, cli, core) shares one gate.
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING) && defined(USE_OSD) && defined(USE_GPS)
+// as a character-cell map. Needs the flight-plan executor, an OSD and GPS.
+// Derived here so every consumer (pg, osd, cli, core) shares one gate.
+#if ENABLE_FLIGHT_PLAN && defined(USE_OSD) && defined(USE_GPS)
 #define USE_OSD_NAV_MAP
 #endif
 
@@ -905,10 +904,9 @@ extern struct linker_symbol __fontdata_end;
 #endif
 
 #if !defined(ENABLE_TELEMETRY_MAVLINK_MISSION)
-// flight_plan_nav.c (and the autopilot hook in fc/core.c) are gated on
-// !defined(USE_WING); the mission module reaches into those symbols, so match
-// the same shape here to keep wing builds linkable when USE_FLIGHT_PLAN lands.
-#if defined(USE_TELEMETRY_MAVLINK) && ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+// flight_plan_nav.c (and the autopilot hook in fc/core.c) must be present
+// for the mission module to reach those symbols.
+#if defined(USE_TELEMETRY_MAVLINK) && ENABLE_FLIGHT_PLAN
 #define ENABLE_TELEMETRY_MAVLINK_MISSION 1
 #else
 #define ENABLE_TELEMETRY_MAVLINK_MISSION 0

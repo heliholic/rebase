@@ -17,7 +17,6 @@
 
 #include "platform.h"
 
-#ifndef USE_WING
 
 #ifdef USE_POSITION_HOLD
 
@@ -137,4 +136,3 @@ bool posHoldReady(void) {
 
 #endif // USE_POSITION_HOLD
 
-#endif // !USE_WING

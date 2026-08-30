@@ -257,9 +257,7 @@ void initActiveBoxIds(void)
     }
 #if ENABLE_FLIGHT_PLAN
     BME(BOXAUTOPILOT);
-#if !defined(USE_WING)
     BME(BOXWPCAPTURE);
-#endif
 #endif
 #endif
 

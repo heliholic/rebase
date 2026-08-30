@@ -20,7 +20,6 @@
 
 #pragma once
 
-#ifndef USE_WING
 
 #include <stdint.h>
 
@@ -47,4 +46,3 @@ typedef struct gpsRescue_s {
 
 PG_DECLARE(gpsRescueConfig_t, gpsRescueConfig);
 
-#endif // !USE_WING

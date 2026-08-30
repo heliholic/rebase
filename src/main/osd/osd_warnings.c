@@ -392,7 +392,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     // position-hold failure path too; let the specific WP warning below own it
     // rather than masking it with the generic POSHOLD FAIL.
     bool missionAbortActive = false;
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
     missionAbortActive = FLIGHT_MODE(AUTOPILOT_MODE) && flightPlanNavGetAbortReason() != FP_ABORT_NONE;
 #endif
     if (osdWarnGetState(OSD_WARNING_POSHOLD_FAILED) && posHoldFailure() && !missionAbortActive) {
@@ -403,7 +403,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
     }
 #endif
 
-#if ENABLE_FLIGHT_PLAN && !defined(USE_WING)
+#if ENABLE_FLIGHT_PLAN
     if (osdWarnGetState(OSD_WARNING_AUTOPILOT_ABORT)
         && FLIGHT_MODE(AUTOPILOT_MODE)
         && flightPlanNavGetAbortReason() != FP_ABORT_NONE) {
