@@ -17,7 +17,6 @@
 
 #pragma once
 
-#ifndef USE_WING
 #ifdef USE_POSITION_HOLD
 
 #include "common/time.h"
@@ -32,4 +31,3 @@ bool posHoldFailure(void);
 bool posHoldReady(void);
 
 #endif // USE_POSITION_HOLD
-#endif // !USE_WING
