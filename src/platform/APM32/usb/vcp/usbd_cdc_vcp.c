@@ -27,7 +27,7 @@
 
 #include "platform.h"
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "drivers/nvic.h"
 #include "drivers/serial_usb_vcp.h"

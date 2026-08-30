@@ -24,7 +24,7 @@
 
 #include "platform.h"
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #ifdef USE_SPI
 

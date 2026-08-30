@@ -22,7 +22,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include "build/atomic.h"
+#include "common/atomic.h"
 }
 
 TEST(AtomicUnittest, TestAtomicBlock)
