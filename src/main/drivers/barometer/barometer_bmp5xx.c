@@ -497,7 +497,7 @@ static bool bmp5xxStartUP(baroDev_t *baro)
  */
 static bool bmp5xxReadUP(baroDev_t *baro)
 {
-    // Use synchronous read for I2C - async reads can get stuck on PICO
+    // Use synchronous read for I2C - async reads can stall on some buses
     // Read temperature and pressure data (6 bytes starting from TEMP_DATA_XLSB)
     // Registers are: TEMP_XLSB (0x1D), TEMP_LSB (0x1E), TEMP_MSB (0x1F),
     //                PRESS_XLSB (0x20), PRESS_LSB (0x21), PRESS_MSB (0x22)

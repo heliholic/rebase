@@ -236,7 +236,7 @@ static bool flashQuadSpiInit(const flashConfig_t *flashConfig)
 
 
 #if defined(QUADSPI_TRAIT_CS_SOFTWARE)
-    // Required for RP2350, but not for STM32 MCUs where the CS is controlled by hardware.
+    // Required when chip-select is software-controlled rather than by the QSPI peripheral.
 
     if (flashConfig->csTag) {
         dev->busType_u.spi.csnPin = IOGetByTag(flashConfig->csTag);
