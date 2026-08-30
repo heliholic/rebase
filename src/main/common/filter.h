@@ -86,11 +86,6 @@ typedef struct rpmNotch_s {
     float ic2[3];
 } rpmNotch_t;
 
-typedef struct phaseComp_s {
-    float b0, b1, a1;
-    float x1, y1;
-} phaseComp_t;
-
 typedef struct slewFilter_s {
     float state;
     float slewLimit;
@@ -149,10 +144,6 @@ float svfNotchApply(svfNotchFilter_t *filter, float input);
 void rpmNotchInit(rpmNotch_t *filter, float filterFreq, float dt, float Q, float weight);
 void rpmNotchUpdate(rpmNotch_t *filter, float filterFreq, float dt, float Q, float weight);
 void rpmNotchApply(rpmNotch_t *filter, float input[3]);
-
-void phaseCompInit(phaseComp_t *filter, const float centerFreq, const float centerPhase, const uint32_t looptimeUs);
-void phaseCompUpdate(phaseComp_t *filter, const float centerFreq, const float centerPhase, const uint32_t looptimeUs);
-float phaseCompApply(phaseComp_t *filter, const float input);
 
 void slewFilterInit(slewFilter_t *filter, float slewLimit, float threshold);
 float slewFilterApply(slewFilter_t *filter, float input);

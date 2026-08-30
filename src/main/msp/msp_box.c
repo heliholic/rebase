@@ -101,7 +101,6 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
     { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
     { .boxId = BOXLAPTIMERRESET, .boxName = "LAP TIMER RESET", .permanentId = 54},
-    { .boxId = BOXCHIRP, .boxName = "CHIRP", .permanentId = 55},
     { .boxId = BOXAUTOPILOT, .boxName = "AUTOPILOT", .permanentId = 56},
     { .boxId = BOXWPCAPTURE, .boxName = "WP CAPTURE", .permanentId = 57}
 };
@@ -372,10 +371,6 @@ void initActiveBoxIds(void)
 
 #if defined(USE_GPS_LAP_TIMER)
     BME(BOXLAPTIMERRESET);
-#endif
-
-#if defined(USE_CHIRP)
-    BME(BOXCHIRP);
 #endif
 
 #undef BME
