@@ -237,9 +237,6 @@ void batteryUpdatePresence(void)
         } else {
             batteryCellCount = autoDetectCellCount();
         }
-#ifdef USE_RPM_LIMIT
-        mixerResetRpmLimiter();
-#endif
         recalculateBatteryThresholds();
         lowVoltageCutoff.percentage = 100;
         lowVoltageCutoff.startTime = 0;
