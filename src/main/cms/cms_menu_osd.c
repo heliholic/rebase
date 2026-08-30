@@ -170,7 +170,6 @@ const OSD_Entry menuOsdActiveElemsEntries[] =
 #ifdef USE_BLACKBOX
     {"LOG STATUS",         OME_VISIBLE | DYNAMIC, NULL, &osdConfig_item_pos[OSD_LOG_STATUS]},
 #endif
-    {"FLIP ARROW",         OME_VISIBLE | DYNAMIC, NULL, &osdConfig_item_pos[OSD_FLIP_ARROW]},
 #ifdef USE_RX_LINK_QUALITY_INFO
     {"LINK QUALITY",       OME_VISIBLE | DYNAMIC, NULL, &osdConfig_item_pos[OSD_LINK_QUALITY]},
 #endif
