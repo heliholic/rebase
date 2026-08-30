@@ -8,8 +8,6 @@
 #
 # Release date: July 04, 2024
 #
-# PICO SDK Version: 2.X - July 03, 2025
-#
 ###############################################################
 
 ##############################
@@ -332,7 +330,7 @@ breakpad_clean:
 
 # Platform-specific tools
 # Each platform tools.mk appends to PLATFORM_SDKS and defines per-SDK properties:
-#   PLATFORM_SDK_<name>_SUBMODULE  - submodule path (e.g. lib/modules/pico-sdk)
+#   PLATFORM_SDK_<name>_SUBMODULE  - submodule path (e.g. lib/modules/esp-idf)
 #   PLATFORM_SDK_<name>_HYDRATE   - make target to hydrate the SDK
 #   PLATFORM_SDK_<name>_TOOLS     - make targets to install required toolchains and tools
 #

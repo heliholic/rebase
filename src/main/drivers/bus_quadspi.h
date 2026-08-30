@@ -126,7 +126,7 @@ bool quadSpiSetBusInstance(extDevice_t *dev, uint32_t device);
 void quadSpiInitBusDMA(busDevice_t *bus);
 
 // QSPI non-blocking sequence API (modeled on SPI sequence API)
-// Launch a sequence of segments. Non-blocking on PICO; blocking shim on other platforms.
+// Launch a sequence of segments. Blocking or non-blocking depending on the platform.
 void quadSpiSequence(const extDevice_t *dev, busSegment_t *segments);
 void quadSpiWait(const extDevice_t *dev);
 bool quadSpiIsBusy(const extDevice_t *dev);

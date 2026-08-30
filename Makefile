@@ -78,7 +78,7 @@ INCLUDE_DIRS    := $(SRC_DIR)
 # Auto-hydrate submodules from .gitmodules that are not marked
 # `update = none`. Currently that's `src/config` (board configs) and
 # `lib/modules/dronecan/libcanard` (DroneCAN transport). Heavy vendor
-# SDKs (pico-sdk, esp-idf, STM32H5/N6/C5, APM32F4) keep `update = none`
+# SDKs (esp-idf, STM32H5/N6/C5, APM32F4) keep `update = none`
 # and stay opt-in through their platform-SDK hydration targets.
 AUTOHYDRATE_SUBMODULES := $(shell \
     git config --file .gitmodules -l 2>/dev/null | \
@@ -437,7 +437,7 @@ CPPCHECK        = cppcheck $(CSOURCES) --enable=all --platform=unix64 \
                   $(addprefix -isystem,$(SYS_INCLUDE_DIRS)) \
                   -I/usr/include -I/usr/include/linux
 
-ifneq ($(filter fwo hex uf2 bin elf zip, $(MAKECMDGOALS)),)
+ifneq ($(filter fwo hex bin elf zip, $(MAKECMDGOALS)),)
     ifeq ($(TARGET),)
         $(error "You must specify a target to build.")
     endif
@@ -461,7 +461,6 @@ TARGET_FULLNAME = $(FORKNAME)_$(FC_VER)_$(TARGET_NAME)
 #
 TARGET_BIN      := $(BIN_DIR)/$(TARGET_FULLNAME).bin
 TARGET_HEX      := $(BIN_DIR)/$(TARGET_FULLNAME).hex
-TARGET_UF2      := $(BIN_DIR)/$(TARGET_FULLNAME).uf2
 TARGET_EXE      := $(BIN_DIR)/$(TARGET_FULLNAME)
 TARGET_DFU      := $(BIN_DIR)/$(TARGET_FULLNAME).dfu
 TARGET_ZIP      := $(BIN_DIR)/$(TARGET_FULLNAME).zip
@@ -565,10 +564,6 @@ $(TARGET_ELF): $(TARGET_OBJS) $(LD_SCRIPT) $(LD_SCRIPTS)
 	@echo "Linking $(TARGET_NAME)" "$(STDOUT)"
 	$(V1) $(CROSS_CC) -o $@ $(filter-out %.ld,$^) $(LD_FLAGS)
 	$(V1) $(SIZE) $(TARGET_ELF)
-
-$(TARGET_UF2): $(TARGET_ELF)
-	@echo "Creating UF2 $(TARGET_UF2)" "$(STDOUT)"
-	$(V1) $(PICOTOOL) uf2 convert $< $@ || { echo "Failed to convert ELF to UF2 format"; exit 1; }
 
 $(TARGET_EXE): $(TARGET_ELF)
 	@echo "Creating exe - copying $< to $@" "$(STDOUT)"
@@ -781,10 +776,6 @@ binary: $(PLATFORM_SDK_STAMP) $(AUTOHYDRATE_STAMPS) validate-deps
 hex: $(PLATFORM_SDK_STAMP) $(AUTOHYDRATE_STAMPS) validate-deps
 	$(V1) $(MAKE) $(MAKE_PARALLEL) $(TARGET_HEX)
 
-.PHONY: uf2
-uf2: $(PLATFORM_SDK_STAMP) $(AUTOHYDRATE_STAMPS) validate-deps
-	$(V1) $(MAKE) $(MAKE_PARALLEL) $(TARGET_UF2)
-
 .PHONY: exe
 exe: $(AUTOHYDRATE_STAMPS) validate-deps
 	$(V1) $(MAKE) $(MAKE_PARALLEL) $(TARGET_EXE)
@@ -794,8 +785,6 @@ exe: $(AUTOHYDRATE_STAMPS) validate-deps
 fwo:
 ifeq ($(DEFAULT_OUTPUT),exe)
 	$(V1) $(MAKE) exe
-else ifeq ($(DEFAULT_OUTPUT),uf2)
-	$(V1) $(MAKE) uf2
 else ifeq ($(DEFAULT_OUTPUT),bin)
 	$(V1) $(MAKE) binary
 else
