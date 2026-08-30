@@ -717,9 +717,8 @@ bool dshotBitbangDevInit(motorDevice_t *device, const motorDevConfig_t *motorCon
     memset(bbOutputBuffer, 0, sizeof(bbOutputBuffer));
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
-        const unsigned reorderedMotorIndex = motorConfig->motorOutputReordering[motorIndex];
-        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorConfig->ioTags[reorderedMotorIndex]);
-        const IO_t io = IOGetByTag(motorConfig->ioTags[reorderedMotorIndex]);
+        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorConfig->ioTags[motorIndex]);
+        const IO_t io = IOGetByTag(motorConfig->ioTags[motorIndex]);
 
         if (!io || !timerHardware) {
             device->vTable = NULL;

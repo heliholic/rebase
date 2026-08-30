@@ -153,4 +153,3 @@ float erpmToRpm(uint32_t erpm);
 
 int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex);
 bool getDshotSensorData(escSensorData_t *dest, int motorIndex);
-void validateAndfixMotorOutputReordering(uint8_t *array, const unsigned size);

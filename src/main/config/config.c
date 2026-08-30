@@ -36,7 +36,6 @@
 #include "config/config_eeprom.h"
 #include "config/feature.h"
 
-#include "drivers/dshot.h"
 #include "drivers/dshot_command.h"
 #include "drivers/motor.h"
 #include "drivers/system.h"
@@ -537,8 +536,6 @@ static void validateAndFixConfig(void)
         }
     }
 #endif
-
-    validateAndfixMotorOutputReordering(motorConfigMutable()->dev.motorOutputReordering, MAX_SUPPORTED_MOTORS);
 
     // validate battery profile voltages and field bounds, reset to defaults if invalid
     for (unsigned i = 0; i < BATTERY_PROFILE_COUNT; i++) {
