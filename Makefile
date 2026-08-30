@@ -115,13 +115,8 @@ include $(MAKE_SCRIPT_DIR)/local.mk
 endif
 
 # some targets use parallel build by default
-# MAKEFLAGS is valid only inside target, do not use this at parse phase
-DEFAULT_PARALLEL_JOBS 	:=    # all jobs in parallel (for backward compatibility)
-# MinGW's make requires a numeric argument for -j; detect CPU count via nproc
-ifeq ($(MINGW),1)
-  DEFAULT_PARALLEL_JOBS := $(shell nproc 2>/dev/null || echo 4)
-endif
-MAKE_PARALLEL 		     = $(if $(filter -j%, $(MAKEFLAGS)),$(EMPTY),-j$(DEFAULT_PARALLEL_JOBS))
+PARALLEL_JOBS ?= $(shell nproc)
+MAKE_PARALLEL := $(if $(filter -j%,$(MAKEFLAGS)),$(EMPTY),-j$(PARALLEL_JOBS))
 
 # pre-build sanity checks
 include $(MAKE_SCRIPT_DIR)/checks.mk
