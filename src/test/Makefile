@@ -401,7 +401,8 @@ sensor_gyro_unittest_SRC := \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
 		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/pg/gyrodev.c \
-		$(USER_DIR)/pg/alignment.c
+		$(USER_DIR)/pg/alignment.c \
+		$(USER_DIR)/pg/gyro.c
 
 sitl_gyro_unittest_SRC := \
 		$(TEST_DIR)/sitl_gyro_unittest_c.c
