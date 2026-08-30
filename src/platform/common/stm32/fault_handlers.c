@@ -23,7 +23,7 @@
 
 #include "drivers/light_led.h"
 
-#include "fc/faults.h"
+#include "build/faults.h"
 
 #if defined(STM32C5)
 /* C5 fault frame capture: each configurable-fault handler writes its
