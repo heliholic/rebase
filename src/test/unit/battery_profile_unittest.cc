@@ -233,9 +233,6 @@ extern "C" {
         UNUSED(pidProfileIndex);
     }
 
-    void changePidProfileFromCellCount(uint8_t) {
-    }
-
     // Voltage/current meter stubs
     void voltageMeterADCInit(void) {}
     void voltageMeterADCRefresh(void) {}
