@@ -119,7 +119,8 @@ battery_profile_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/pg/pg.c
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/battery.c
 
 blackbox_unittest_SRC :=  \
 		$(USER_DIR)/blackbox/blackbox.c \
