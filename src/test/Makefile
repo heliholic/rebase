@@ -149,7 +149,8 @@ cli_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/drivers/serial.c \
 		$(USER_DIR)/drivers/serial_impl.c \
-		$(USER_DIR)/common/typeconversion.c
+		$(USER_DIR)/common/typeconversion.c \
+		$(USER_DIR)/pg/feature.c
 
 cli_unittest_DEFINES := \
 		USE_OSD= \
@@ -187,7 +188,8 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/fc/feature.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/flight/position.c \
-		$(USER_DIR)/flight/imu.c
+		$(USER_DIR)/flight/imu.c \
+		$(USER_DIR)/pg/feature.c
 
 
 flight_mixer_unittest :=  \
@@ -347,7 +349,8 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/fc/feature.c \
-		$(USER_DIR)/pg/rx.c
+		$(USER_DIR)/pg/rx.c \
+		$(USER_DIR)/pg/feature.c
 
 rx_sumd_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
