@@ -103,9 +103,6 @@ STATIC_UNIT_TESTED bool attitudeIsEstablished = false;
 // quaternion of sensor frame relative to earth frame
 STATIC_UNIT_TESTED quaternion_t q = QUATERNION_INITIALIZE;
 STATIC_UNIT_TESTED quaternionProducts qP = QUATERNION_PRODUCTS_INITIALIZE;
-// headfree quaternions
-quaternion_t headfree = QUATERNION_INITIALIZE;
-quaternion_t offset = QUATERNION_INITIALIZE;
 
 // absolute angle inclination in multiple of 0.1 degree    180 deg = 1800
 attitudeEulerAngles_t attitude = EULER_INITIALIZE;
@@ -306,21 +303,10 @@ STATIC_UNIT_TESTED void imuMahonyAHRSupdate(float dt,
 
 STATIC_UNIT_TESTED void imuUpdateEulerAngles(void)
 {
-    quaternionProducts buffer;
-
-    if (FLIGHT_MODE(HEADFREE_MODE)) {
-       imuQuaternionComputeProducts(&headfree, &buffer);
-
-       attitude.values.roll = lrintf(atan2_approx((+2.0f * (buffer.wx + buffer.yz)), (+1.0f - 2.0f * (buffer.xx + buffer.yy))) * (1800.0f / M_PIf));
-       attitude.values.pitch = lrintf(((0.5f * M_PIf) - acos_approx(+2.0f * (buffer.wy - buffer.xz))) * (1800.0f / M_PIf));
-       attitude.values.yaw = lrintf((-atan2_approx((+2.0f * (buffer.wz + buffer.xy)), (+1.0f - 2.0f * (buffer.yy + buffer.zz))) * (1800.0f / M_PIf)));
-       imuAttitudeQuaternion = headfree;
-    } else {
-       attitude.values.roll = lrintf(atan2_approx(rMat.m[NWU_U][Y], rMat.m[NWU_U][Z]) * (1800.0f / M_PIf));
-       attitude.values.pitch = lrintf(((0.5f * M_PIf) - acos_approx(-rMat.m[NWU_U][X])) * (1800.0f / M_PIf));
-       attitude.values.yaw = lrintf((-atan2_approx(rMat.m[NWU_W][X], rMat.m[NWU_N][X]) * (1800.0f / M_PIf)));
-       imuAttitudeQuaternion = q; //using current q quaternion  for blackbox log
-    }
+    attitude.values.roll = lrintf(atan2_approx(rMat.m[NWU_U][Y], rMat.m[NWU_U][Z]) * (1800.0f / M_PIf));
+    attitude.values.pitch = lrintf(((0.5f * M_PIf) - acos_approx(-rMat.m[NWU_U][X])) * (1800.0f / M_PIf));
+    attitude.values.yaw = lrintf((-atan2_approx(rMat.m[NWU_W][X], rMat.m[NWU_N][X]) * (1800.0f / M_PIf)));
+    imuAttitudeQuaternion = q; //using current q quaternion  for blackbox log
 
     if (attitude.values.yaw < 0) {
         attitude.values.yaw += 3600;
@@ -838,57 +824,6 @@ void imuSetHasNewData(uint32_t dt)
     IMU_UNLOCK;
 }
 #endif
-
-bool imuQuaternionHeadfreeOffsetSet(void)
-{
-    if ((abs(attitude.values.roll) < 450)  && (abs(attitude.values.pitch) < 450)) {
-        const float yaw = -atan2_approx((+2.0f * (qP.wz + qP.xy)), (+1.0f - 2.0f * (qP.yy + qP.zz)));
-        float sin, cos;
-        sincosf_approx(yaw/2, &sin, &cos);
-
-        offset.w = cos;
-        offset.x = 0;
-        offset.y = 0;
-        offset.z = sin;
-
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static void imuQuaternionMultiplication(quaternion_t *q1, quaternion_t *q2, quaternion_t *result)
-{
-    const float A = (q1->w + q1->x) * (q2->w + q2->x);
-    const float B = (q1->z - q1->y) * (q2->y - q2->z);
-    const float C = (q1->w - q1->x) * (q2->y + q2->z);
-    const float D = (q1->y + q1->z) * (q2->w - q2->x);
-    const float E = (q1->x + q1->z) * (q2->x + q2->y);
-    const float F = (q1->x - q1->z) * (q2->x - q2->y);
-    const float G = (q1->w + q1->y) * (q2->w - q2->z);
-    const float H = (q1->w - q1->y) * (q2->w + q2->z);
-
-    result->w = B + (- E - F + G + H) / 2.0f;
-    result->x = A - (+ E + F + G + H) / 2.0f;
-    result->y = C + (+ E - F + G - H) / 2.0f;
-    result->z = D + (+ E - F - G + H) / 2.0f;
-}
-
-void imuQuaternionHeadfreeTransformVectorEarthToBody(vector3_t *v)
-{
-    quaternionProducts buffer;
-
-    imuQuaternionMultiplication(&offset, &q, &headfree);
-    imuQuaternionComputeProducts(&headfree, &buffer);
-
-    const float x = (buffer.ww + buffer.xx - buffer.yy - buffer.zz) * v->x + 2.0f * (buffer.xy + buffer.wz) * v->y + 2.0f * (buffer.xz - buffer.wy) * v->z;
-    const float y = 2.0f * (buffer.xy - buffer.wz) * v->x + (buffer.ww - buffer.xx + buffer.yy - buffer.zz) * v->y + 2.0f * (buffer.yz + buffer.wx) * v->z;
-    const float z = 2.0f * (buffer.xz + buffer.wy) * v->x + 2.0f * (buffer.yz - buffer.wx) * v->y + (buffer.ww - buffer.xx - buffer.yy + buffer.zz) * v->z;
-
-    v->x = x;
-    v->y = y;
-    v->z = z;
-}
 
 // Tilt limit for isUpright(); was the small_angle setting, kept at its
 // former default.
