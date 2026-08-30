@@ -70,7 +70,6 @@
 #define BUILD_OPTION_OSD_HD                     16417
 #define BUILD_OPTION_FRSKYOSD                   16411
 #define BUILD_OPTION_PINIO                      16418
-#define BUILD_OPTION_POSITION_HOLD              16425
 #define BUILD_OPTION_RANGEFINDER                16429
 #define BUILD_OPTION_SOFTSERIAL                 16423
 #define BUILD_OPTION_SERVOS                     16420

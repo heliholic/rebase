@@ -128,9 +128,6 @@ typedef enum {
 #ifdef USE_ALTITUDE_HOLD
     TASK_ALTHOLD,
 #endif
-#ifdef USE_POSITION_HOLD
-    TASK_POSHOLD,
-#endif
 #ifdef USE_MAG
     TASK_COMPASS,
 #endif
