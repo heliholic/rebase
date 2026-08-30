@@ -191,7 +191,7 @@ void currentMeterVirtualRefresh(int32_t lastUpdateAt, bool armed, bool throttleL
             throttleOffset = 0;
         }
 
-        int throttleFactor = throttleOffset + (throttleOffset * throttleOffset / 50); // FIXME magic number 50. Possibly use thrustLinearization if configured.
+        int throttleFactor = throttleOffset + (throttleOffset * throttleOffset / 50); // FIXME magic number 50
         currentMeterVirtualState.amperage += throttleFactor * (int32_t)currentSensorVirtualConfig()->scale / 1000;
     }
     updateCurrentmAhDrawnState(&currentMeterVirtualState.mahDrawnState, currentMeterVirtualState.amperage, lastUpdateAt);
