@@ -891,12 +891,8 @@ void imuQuaternionHeadfreeTransformVectorEarthToBody(vector3_t *v)
 }
 
 // Tilt limit for isUpright(); was the small_angle setting, kept at its
-// former defaults (180 degrees, i.e. always upright, for race pro).
-#ifdef USE_RACE_PRO
-#define UPRIGHT_COS_TILT_ANGLE  -1.0f
-#else
+// former default.
 #define UPRIGHT_COS_TILT_ANGLE  0.9063f  // cos(25 degrees)
-#endif
 
 bool isUpright(void)
 {

@@ -150,9 +150,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_POSITION_HOLD
         BUILD_OPTION_POSITION_HOLD,
 #endif
-#ifdef USE_RACE_PRO
-        BUILD_OPTION_RACE_PRO,
-#endif
 #ifdef USE_RANGEFINDER
         BUILD_OPTION_RANGEFINDER,
 #endif
