@@ -24,6 +24,7 @@ PG_SRC = \
             pg/feature.c \
             pg/flash.c \
             pg/gps.c \
+            pg/gyro.c \
             pg/gyrodev.c \
             pg/imu.c \
             pg/max7456.c \
