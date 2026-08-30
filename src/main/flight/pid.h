@@ -309,7 +309,6 @@ bool pidAntiGravityEnabled(void);
 
 #ifdef UNIT_TEST
 #include "sensors/acceleration.h"
-extern float axisError[XYZ_AXIS_COUNT];
 void applyItermRelax(const int axis, const float iterm,
     const float gyroRate, float *itermErrorRate, float *currentPidSetpoint);
 void rotateItermAndAxisError();
