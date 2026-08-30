@@ -1951,11 +1951,7 @@ case MSP_NAME:
         sbufWriteU16(dst, 0); // was pidProfile.yaw_p_limit
         sbufWriteU8(dst, 0); // reserved
         sbufWriteU8(dst, 0); // was vbatPidCompensation
-#if defined(USE_FEEDFORWARD)
-        sbufWriteU8(dst, currentPidProfile->feedforward_transition);
-#else
-        sbufWriteU8(dst, 0);
-#endif
+        sbufWriteU8(dst, 0); // was feedforward_transition
         sbufWriteU8(dst, 0); // was low byte of currentPidProfile->dtermSetpointWeight
         sbufWriteU8(dst, 0); // reserved
         sbufWriteU8(dst, 0); // reserved
@@ -2009,19 +2005,11 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
 #endif
         // Added in MSP API 1.44
-#if defined(USE_FEEDFORWARD)
-        sbufWriteU8(dst, currentPidProfile->feedforward_averaging);
-        sbufWriteU8(dst, currentPidProfile->feedforward_smooth_factor);
-        sbufWriteU8(dst, currentPidProfile->feedforward_boost);
-        sbufWriteU8(dst, currentPidProfile->feedforward_max_rate_limit);
-        sbufWriteU8(dst, currentPidProfile->feedforward_jitter_factor);
-#else
-        sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, 0);
-#endif
+        sbufWriteU8(dst, 0); // currentPidProfile->feedforward_averaging
+        sbufWriteU8(dst, 0); // currentPidProfile->feedforward_smooth_factor
+        sbufWriteU8(dst, 0); // currentPidProfile->feedforward_boost
+        sbufWriteU8(dst, 0); // currentPidProfile->feedforward_max_rate_limit
+        sbufWriteU8(dst, 0); // currentPidProfile->feedforward_jitter_factor
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0); // currentPidProfile->tpa_mode
@@ -3290,11 +3278,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         sbufReadU16(src); // was pidProfile.yaw_p_limit
         sbufReadU8(src); // reserved
         sbufReadU8(src); // was vbatPidCompensation
-#if defined(USE_FEEDFORWARD)
-        currentPidProfile->feedforward_transition = sbufReadU8(src);
-#else
-        sbufReadU8(src);
-#endif
+        sbufReadU8(src); // was feedforward_transition
         sbufReadU8(src); // was low byte of currentPidProfile->dtermSetpointWeight
         sbufReadU8(src); // reserved
         sbufReadU8(src); // reserved
@@ -3366,23 +3350,11 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
         if (sbufBytesRemaining(src) >= 7) {
             // Added in MSP API 1.44
-#if defined(USE_FEEDFORWARD)
-            i = sbufReadU8(src);
-            if (i > 3) {
-                return MSP_RESULT_ERROR;
-            }
-            currentPidProfile->feedforward_averaging = i;
-            currentPidProfile->feedforward_smooth_factor = sbufReadU8(src);
-            currentPidProfile->feedforward_boost = sbufReadU8(src);
-            currentPidProfile->feedforward_max_rate_limit = sbufReadU8(src);
-            currentPidProfile->feedforward_jitter_factor = sbufReadU8(src);
-#else
-            sbufReadU8(src);
-            sbufReadU8(src);
-            sbufReadU8(src);
-            sbufReadU8(src);
-            sbufReadU8(src);
-#endif
+            sbufReadU8(src); // currentPidProfile->feedforward_averaging
+            sbufReadU8(src); // currentPidProfile->feedforward_smooth_factor
+            sbufReadU8(src); // currentPidProfile->feedforward_boost
+            sbufReadU8(src); // currentPidProfile->feedforward_max_rate_limit
+            sbufReadU8(src); // currentPidProfile->feedforward_jitter_factor
             sbufReadU8(src);
             sbufReadU8(src);
         }

@@ -147,7 +147,6 @@ static float throttleOut = 0.0f;
 static vector2_t targetPosition;
 static vector2_t targetVelocity;
 static vector2_t previousTargetVelocity; // for the target-velocity-delta feedforward
-static vector2_t targetAcceleration;     // stick feedforward driver, earth frame
 static vector2_t posHoldStartPosition;
 static vector2_t distanceError;          // deviation from intended position (real or virtual)
 static vector2_t distanceErrorIntegral;  // integral of position error
@@ -426,8 +425,6 @@ void initPositionHold(void)
     setBrakingMode(); // arrest entry speed only when starting fast
     targetVelocity.v[EF_EAST]  = 0.0f;
     targetVelocity.v[EF_NORTH] = 0.0f;
-    targetAcceleration.v[EF_EAST]  = 0.0f;
-    targetAcceleration.v[EF_NORTH] = 0.0f;
     previousTargetVelocity.v[EF_EAST]  = 0.0f;
     previousTargetVelocity.v[EF_NORTH] = 0.0f;
     // nb: we do not reset the distanceError integral, to hold its opposition to wind between quick stick inputs
@@ -454,8 +451,6 @@ static void initNavMode(void)
     resetDistanceErrorIntegral();
     previousTargetVelocity.v[EF_EAST]  = 0.0f;
     previousTargetVelocity.v[EF_NORTH] = 0.0f;
-    targetAcceleration.v[EF_EAST]  = 0.0f;
-    targetAcceleration.v[EF_NORTH] = 0.0f;
     ap.isPosHoldBraking = false;
 }
 
@@ -531,13 +526,6 @@ void sticksSetTargetVelocity(void)
 
     targetVelocity.v[EF_NORTH] = (stickPitch * cosYaw) - (stickRoll * sinYaw);
     targetVelocity.v[EF_EAST]  = (stickPitch * sinYaw) + (stickRoll * cosYaw);
-
-#ifdef USE_FEEDFORWARD
-    const float ffPitch = getFeedforward(PITCH) * velocityGainPitch;
-    const float ffRoll  = getFeedforward(ROLL)  * velocityGainRoll;
-    targetAcceleration.v[EF_NORTH] = (ffPitch * cosYaw) - (ffRoll * sinYaw);
-    targetAcceleration.v[EF_EAST]  = (ffPitch * sinYaw) + (ffRoll * cosYaw);
-#endif
 }
 
 void autopilotSetYawRateLimit(float rateLimitDps)
@@ -758,8 +746,6 @@ bool positionControl(void)
             // No stick input: commanded velocity and its feedforward are zero.
             targetVelocity.v[EF_EAST]  = 0.0f;
             targetVelocity.v[EF_NORTH] = 0.0f;
-            targetAcceleration.v[EF_EAST]  = 0.0f;
-            targetAcceleration.v[EF_NORTH] = 0.0f;
             if (ap.wasSticksActive) {
                 // Sticks just released: capture the current point and decide
                 // whether to brake, based on the speed being carried.
@@ -911,11 +897,6 @@ bool positionControl(void)
         // stick setpoint feedforward when the pilot is commanding.
         float targetVelDelta = (targetVelocity.v[axis] - previousTargetVelocity.v[axis]) * POSHOLD_TASK_RATE_HZ;
         previousTargetVelocity.v[axis] = targetVelocity.v[axis];
-#ifdef USE_FEEDFORWARD
-        if (ap.sticksActive) {
-            targetVelDelta = targetAcceleration.v[axis];
-        }
-#endif
 
         const float brakeBoost = ap.isPosHoldBraking ? (1.0f + fabsf(velocity.v[axis]) * 0.0005f) : 1.0f; // ~2x at 20 m/s
 
