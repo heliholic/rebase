@@ -44,7 +44,6 @@ typedef enum {
 } flightLogDisarmReason_e;
 
 union rollAndPitchTrims_u;
-void handleInflightCalibrationStickPosition(void);
 
 void resetArmingDisabled(void);
 

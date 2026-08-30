@@ -31,8 +31,6 @@
 #include "common/filter.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
-
 #include "sensors/acceleration_init.h"
 #include "sensors/boardalignment.h"
 #include "sensors/gyro.h"
@@ -72,10 +70,6 @@ static inline void calibrateAccelerometer(void)
     if (!accIsCalibrationComplete()) {
         // acc.accADC is held at 0 until calibration is completed
         performAccelerometerCalibration(&accelerometerConfigMutable()->accelerometerTrims);
-    }
-
-    if (featureIsEnabled(FEATURE_INFLIGHT_ACC_CAL)) {
-        performInflightAccelerationCalibration(&accelerometerConfigMutable()->accelerometerTrims);
     }
 }
 
