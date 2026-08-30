@@ -43,7 +43,6 @@
 #include "flight/failsafe.h"
 #include "flight/imu.h"
 #include "flight/pid.h"
-#include "flight/pid_init.h"
 
 
 #include "pg/rx.h"
