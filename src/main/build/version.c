@@ -23,6 +23,16 @@
 #include "version.h"
 
 const char * const targetName = __TARGET__;
+
+#ifndef __MCU_NAME__
+#define __MCU_NAME__ "Unknown"
+#endif
+
+const char *getMcuTypeName(void)
+{
+    return __MCU_NAME__;
+}
+
 const char * const shortGitRevision = __REVISION__;
 #if defined(__CONFIG_REVISION__)
 const char * const shortConfigGitRevision = __CONFIG_REVISION__;

@@ -54,6 +54,11 @@
 
 extern const char* const targetName;
 
+// Legacy MSP MCU-type byte value: the configurator reads the MCU name from the CLI "env" command instead.
+#define MCU_TYPE_ID_PROVIDED_BY_NAME 254
+
+const char *getMcuTypeName(void);
+
 #define GIT_SHORT_REVISION_LENGTH   7 // lower case hexadecimal digits.
 extern const char* const shortGitRevision;
 
