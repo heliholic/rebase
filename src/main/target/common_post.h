@@ -852,28 +852,6 @@ extern struct linker_symbol __fontdata_end;
 #define ENABLE_BOOT0_PIN_SELECT 1
 #endif
 
-#if defined(USE_FLIGHT_PLAN) && !defined(ENABLE_FLIGHT_PLAN)
-#define ENABLE_FLIGHT_PLAN 1
-#elif !defined(ENABLE_FLIGHT_PLAN)
-#define ENABLE_FLIGHT_PLAN 0
-#endif
-
-// GPS rescue (both the BOXGPSRESCUE switch and the failsafe procedure) flown as
-// a synthesised flight-plan mission through the unified autopilot, instead of
-// the legacy gps_rescue controller. Default-on wherever the flight-plan engine
-// is available; targets without it (or flash-constrained) fall back to
-// the legacy rescue controller.
-#if !defined(ENABLE_RESCUE_PLAN)
-#if ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE)
-#define ENABLE_RESCUE_PLAN 1
-#else
-#define ENABLE_RESCUE_PLAN 0
-#endif
-#endif
-#if ENABLE_RESCUE_PLAN && !(ENABLE_FLIGHT_PLAN && defined(USE_GPS_RESCUE))
-#error "ENABLE_RESCUE_PLAN requires ENABLE_FLIGHT_PLAN and USE_GPS_RESCUE"
-#endif
-
 #if defined(USE_POSITION_HOLD) && !(defined(USE_GPS) || defined(USE_OPTICALFLOW))
 #error "USE_POSITION_HOLD requires USE_GPS and/or USE_OPTICALFLOW to be defined"
 #endif
