@@ -25,7 +25,7 @@
 
 #include "platform.h"
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 #include "build/build_config.h"
 #include "build/debug.h"
 

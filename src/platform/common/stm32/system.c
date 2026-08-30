@@ -24,7 +24,7 @@
 
 #include "platform.h"
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "drivers/io.h"
 #include "drivers/light_led.h"

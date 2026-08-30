@@ -23,7 +23,7 @@
 
 extern "C" {
 #include "drivers/dshot.h"
-#include "build/atomic.h"
+#include "common/atomic.h"
 }
 
 #include "unittest_macros.h"

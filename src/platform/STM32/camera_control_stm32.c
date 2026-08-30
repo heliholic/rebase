@@ -29,7 +29,7 @@
 #include "drivers/nvic.h"
 
 #ifdef CAMERA_CONTROL_SOFTWARE_PWM_AVAILABLE
-#include "build/atomic.h"
+#include "common/atomic.h"
 #endif
 
 #ifdef CAMERA_CONTROL_HARDWARE_PWM_AVAILABLE

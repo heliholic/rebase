@@ -1,4 +1,4 @@
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 struct barrierTrace {
     int enter, leave;

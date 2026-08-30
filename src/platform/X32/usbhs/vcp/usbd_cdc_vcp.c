@@ -46,7 +46,7 @@
 
 #include "platform.h"
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "usbd_cdc_vcp.h"
 #include "drivers/nvic.h"
