@@ -101,7 +101,6 @@
 #define PARAM_NAME_YAW_LOWPASS_HZ "yaw_lowpass_hz"
 #define PARAM_NAME_D_MAX_GAIN "d_max_gain"
 #define PARAM_NAME_D_MAX_ADVANCE "d_max_advance"
-#define PARAM_NAME_MOTOR_OUTPUT_LIMIT "motor_output_limit"
 #define PARAM_NAME_FEEDFORWARD_TRANSITION "feedforward_transition"
 #define PARAM_NAME_FEEDFORWARD_AVERAGING "feedforward_averaging"
 #define PARAM_NAME_FEEDFORWARD_SMOOTH_FACTOR "feedforward_smooth_factor"

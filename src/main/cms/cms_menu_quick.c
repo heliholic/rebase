@@ -52,7 +52,6 @@
 static controlRateConfig_t rateProfile;
 static uint8_t rateProfileIndex;
 static batteryProfile_t cmsx_batteryProfile;
-static uint8_t  cmsx_motorOutputLimit;
 static uint8_t pidProfileIndex;
 static pidProfile_t *pidProfile;
 static uint8_t batteryProfileIndex;
@@ -68,8 +67,6 @@ static const void *quickMenuOnEnter(displayPort_t *pDisp)
     batteryProfileIndex = systemConfig()->activeBatteryProfile;
     memcpy(&cmsx_batteryProfile, batteryProfilesMutable(batteryProfileIndex), sizeof(batteryProfile_t));
 
-    cmsx_motorOutputLimit = pidProfile->motor_output_limit;
-
     return NULL;
 }
 
@@ -81,11 +78,6 @@ static const void *cmsx_RateProfileWriteback(displayPort_t *pDisp, const OSD_Ent
     memcpy(controlRateProfilesMutable(rateProfileIndex), &rateProfile, sizeof(controlRateConfig_t));
     memcpy(batteryProfilesMutable(batteryProfileIndex), &cmsx_batteryProfile, sizeof(batteryProfile_t));
 
-    pidProfile_t *pidProfile = pidProfilesMutable(pidProfileIndex);
-    pidProfile->motor_output_limit = cmsx_motorOutputLimit;
-
-    pidInitConfig(currentPidProfile);
-
     return NULL;
 }
 
@@ -96,7 +88,6 @@ static const OSD_Entry menuMainEntries[] =
 #if defined(USE_RPM_LIMIT)
     { "RPM LIM", OME_Submenu, cmsMenuChange, &cmsx_menuRpmLimit },
 #endif
-    { "MTR OUT LIM %", OME_UINT8,  NULL, &(OSD_UINT8_t) { &cmsx_motorOutputLimit, MOTOR_OUTPUT_LIMIT_PERCENT_MIN,  MOTOR_OUTPUT_LIMIT_PERCENT_MAX,  1 } },
     { "FORCE CELLS",   OME_UINT8,  NULL, &(OSD_UINT8_t) { &cmsx_batteryProfile.forceBatteryCellCount, 0, 24, 1 } },
 #if defined(USE_VTX_CONTROL)
 #if defined(USE_VTX_RTC6705) || defined(USE_VTX_SMARTAUDIO) || defined(USE_VTX_TRAMP)
