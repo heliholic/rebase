@@ -77,7 +77,6 @@
 #include "drivers/system.h"
 #include "drivers/time.h"
 #include "drivers/timer.h"
-#include "drivers/transponder_ir.h"
 #include "drivers/usb_io.h"
 #ifdef USE_USB_MSC
 #include "drivers/usb_msc.h"
@@ -127,7 +126,6 @@
 #include "io/piniobox.h"
 #include "io/rcdevice_cam.h"
 #include "io/serial.h"
-#include "io/transponder_ir.h"
 #include "io/vtx.h"
 #include "io/vtx_control.h"
 #include "io/vtx_msp.h"
@@ -830,13 +828,6 @@ void initPhase3(void)
     usbCableDetectInit();
 #endif
 
-#ifdef USE_TRANSPONDER
-    if (featureIsEnabled(FEATURE_TRANSPONDER)) {
-        transponderInit();
-        transponderStartRepeating();
-        systemState |= SYSTEM_STATE_TRANSPONDER_ENABLED;
-    }
-#endif
 
 #ifdef USE_FLASH_CHIP
     if (!(initFlags & FLASH_INIT_ATTEMPTED)) {

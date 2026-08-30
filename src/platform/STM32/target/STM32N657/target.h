@@ -135,7 +135,6 @@
 #define USE_TIMER_UP_CONFIG
 
 // Transponder not yet supported on N6
-#undef USE_TRANSPONDER
 
 #define FLASH_PAGE_SIZE ((uint32_t)0x20000) // 128K sectors
 
