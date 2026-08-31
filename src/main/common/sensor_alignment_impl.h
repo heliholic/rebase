@@ -47,7 +47,7 @@
 // [5:4] indicates 90 degree rotations on roll
 #define ALIGNMENT_TO_BITMASK(alignment) (((alignment - CW0_DEG) & 0x3) | (((alignment - CW0_DEG) & 0x4) << 1))
 
-// build sensorAlignment_t from sensor_align_e as compile-time constant
+// build alignment_t from sensor_align_e as compile-time constant
 #define SENSOR_ALIGNMENT_FROM_STD(std_)                                 \
     ( ((std_) >= CW0_DEG && (std_) <= CW270_DEG_FLIP)                   \
       ? SENSOR_ALIGNMENT(ALIGNMENT_ROLL_ROTATIONS(ALIGNMENT_TO_BITMASK(std_)) * 90, \

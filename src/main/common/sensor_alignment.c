@@ -29,7 +29,7 @@
 #include "common/sensor_alignment_impl.h"
 #include "common/vector.h"
 
-void buildRotationMatrixFromAngles(matrix33_t *rm, const sensorAlignment_t *rpy)
+void buildRotationMatrixFromAngles(matrix33_t *rm, const alignment_t *rpy)
 {
     fp_angles_t rotationAngles;
     rotationAngles.angles.roll  = DECIDEGREES_TO_RADIANS(rpy->roll);
@@ -39,7 +39,7 @@ void buildRotationMatrixFromAngles(matrix33_t *rm, const sensorAlignment_t *rpy)
     buildRotationMatrix(rm, &rotationAngles);
 }
 
-void buildAlignmentFromStandardAlignment(sensorAlignment_t* rpy, sensor_align_e stdAlignment)
+void buildAlignmentFromStandardAlignment(alignment_t *rpy, sensor_align_e stdAlignment)
 {
     if (stdAlignment == ALIGN_CUSTOM || stdAlignment == ALIGN_DEFAULT) {
         return;
@@ -47,7 +47,7 @@ void buildAlignmentFromStandardAlignment(sensorAlignment_t* rpy, sensor_align_e 
 
     uint8_t alignmentBits = ALIGNMENT_TO_BITMASK(stdAlignment);
 
-    memset(rpy, 0x00, sizeof(sensorAlignment_t));
+    memset(rpy, 0x00, sizeof(alignment_t));
 
     for (int axis = 0; axis < FLIGHT_DYNAMICS_INDEX_COUNT; axis++) {
         rpy->raw[axis] = DEGREES_TO_DECIDEGREES(90) * ALIGNMENT_AXIS_ROTATIONS(alignmentBits, axis);

@@ -20,8 +20,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <math.h>
-#include <string.h>
 
 #include "platform.h"
 
@@ -35,12 +33,12 @@
 static bool standardBoardAlignment = true;     // board orientation correction
 static matrix33_t boardRotation;
 
-static bool isBoardAlignmentStandard(const boardAlignment_t *boardAlignment)
+static bool isBoardAlignmentStandard(const alignment_t *boardAlignment)
 {
-    return !boardAlignment->rollDegrees && !boardAlignment->pitchDegrees && !boardAlignment->yawDegrees;
+    return !boardAlignment->roll && !boardAlignment->pitch && !boardAlignment->yaw;
 }
 
-void initBoardAlignment(const boardAlignment_t *boardAlignment)
+void initBoardAlignment(const alignment_t *boardAlignment)
 {
     if (isBoardAlignmentStandard(boardAlignment)) {
         return;
@@ -48,12 +46,7 @@ void initBoardAlignment(const boardAlignment_t *boardAlignment)
 
     standardBoardAlignment = false;
 
-    fp_angles_t rotationAngles;
-    rotationAngles.angles.roll  = degreesToRadians(boardAlignment->rollDegrees );
-    rotationAngles.angles.pitch = degreesToRadians(boardAlignment->pitchDegrees);
-    rotationAngles.angles.yaw   = degreesToRadians(boardAlignment->yawDegrees  );
-
-    buildRotationMatrix(&boardRotation, &rotationAngles);
+    buildRotationMatrixFromAngles(&boardRotation, boardAlignment);
 }
 
 static void alignBoard(vector3_t *vec)

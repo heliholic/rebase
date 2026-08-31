@@ -1304,9 +1304,9 @@ case MSP_NAME:
         break;
 
     case MSP_BOARD_ALIGNMENT_CONFIG:
-        sbufWriteU16(dst, boardAlignment()->rollDegrees);
-        sbufWriteU16(dst, boardAlignment()->pitchDegrees);
-        sbufWriteU16(dst, boardAlignment()->yawDegrees);
+        sbufWriteU16(dst, boardAlignment()->roll);
+        sbufWriteU16(dst, boardAlignment()->pitch);
+        sbufWriteU16(dst, boardAlignment()->yaw);
         break;
 
     case MSP_ARMING_CONFIG:
@@ -3253,9 +3253,9 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 #endif
 
     case MSP_SET_BOARD_ALIGNMENT_CONFIG:
-        boardAlignmentMutable()->rollDegrees = sbufReadU16(src);
-        boardAlignmentMutable()->pitchDegrees = sbufReadU16(src);
-        boardAlignmentMutable()->yawDegrees = sbufReadU16(src);
+        boardAlignmentMutable()->roll = sbufReadU16(src);
+        boardAlignmentMutable()->pitch = sbufReadU16(src);
+        boardAlignmentMutable()->yaw = sbufReadU16(src);
         break;
 
     case MSP_SET_MIXER_CONFIG:

@@ -375,7 +375,7 @@ bool accInit(uint16_t accSampleRateHz)
     // Exception is STM32F411DISCOVERY, and (may be) handled in future enhancement.
 
     sensor_align_e alignment = gyroDeviceConfig(firstEnabledGyro())->alignment;
-    const sensorAlignment_t* customAlignment = &gyroDeviceConfig(firstEnabledGyro())->customAlignment;
+    const alignment_t *customAlignment = &gyroDeviceConfig(firstEnabledGyro())->customAlignment;
 
     acc.dev.accAlign = alignment;
     buildRotationMatrixFromAngles(&acc.dev.rotationMatrix, customAlignment);

@@ -21,6 +21,8 @@
 
 #include "platform.h"
 
+#include "common/maths.h"
+
 #include "config/config_reset.h"
 
 #include "pg/pg.h"
@@ -38,11 +40,10 @@
 #define DEFAULT_ALIGN_BOARD_YAW 0
 #endif
 
-PG_REGISTER_WITH_RESET_TEMPLATE(boardAlignment_t, boardAlignment, PG_BOARD_ALIGNMENT, 1);
+PG_REGISTER_WITH_RESET_TEMPLATE(alignment_t, boardAlignment, PG_BOARD_ALIGNMENT, 1);
 
-PG_RESET_TEMPLATE(boardAlignment_t, boardAlignment,
-    .rollDegrees = DEFAULT_ALIGN_BOARD_ROLL,
-    .pitchDegrees = DEFAULT_ALIGN_BOARD_PITCH,
-    .yawDegrees = DEFAULT_ALIGN_BOARD_YAW,
+PG_RESET_TEMPLATE(alignment_t, boardAlignment,
+    .roll = DEGREES_TO_DECIDEGREES(DEFAULT_ALIGN_BOARD_ROLL),
+    .pitch = DEGREES_TO_DECIDEGREES(DEFAULT_ALIGN_BOARD_PITCH),
+    .yaw = DEGREES_TO_DECIDEGREES(DEFAULT_ALIGN_BOARD_YAW),
 );
-
