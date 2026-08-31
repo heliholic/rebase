@@ -25,6 +25,13 @@
 
 #include "pg/pg.h"
 
+typedef enum {
+    VOLTAGE_METER_NONE = 0,
+    VOLTAGE_METER_ADC,
+    VOLTAGE_METER_ESC,
+    VOLTAGE_METER_COUNT
+} voltageMeterSource_e;
+
 #ifndef MAX_VOLTAGE_SENSOR_ADC
 #define MAX_VOLTAGE_SENSOR_ADC 1
 #endif

@@ -27,9 +27,8 @@
 #include "platform.h"
 
 #include "pg/pg.h"
-
-#include "sensors/current.h"
-#include "sensors/voltage.h"
+#include "pg/current.h"
+#include "pg/voltage.h"
 
 #define MAX_BATTERY_PROFILE_NAME_LENGTH 8
 
