@@ -25,6 +25,15 @@
 
 #include "pg/pg.h"
 
+typedef enum {
+    CURRENT_METER_NONE = 0,
+    CURRENT_METER_ADC,
+    CURRENT_METER_VIRTUAL,
+    CURRENT_METER_ESC,
+    CURRENT_METER_MSP,
+    CURRENT_METER_COUNT
+} currentMeterSource_e;
+
 typedef struct {
     int16_t scale;              // scale the current sensor output voltage to milliamps. Value in mV/10A
     int16_t offset;             // offset of the current sensor in mA
