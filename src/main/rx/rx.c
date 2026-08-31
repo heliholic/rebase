@@ -69,7 +69,6 @@
 #include "rx/crsf.h"
 #include "rx/ghst.h"
 #include "rx/targetcustomserial.h"
-#include "rx/msp_override.h"
 #include "rx/mavlink.h"
 
 const char rcChannelLetters[] = "AERT12345678abcdefgh";
@@ -604,16 +603,6 @@ FAST_CODE_NOINLINE void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t current
         }
     }
 
-#if defined(USE_RX_MSP_OVERRIDE)
-    if (IS_RC_MODE_ACTIVE(BOXMSPOVERRIDE) && rxConfig()->msp_override_channels_mask && rxConfig()->msp_override_failsafe) {
-        if (rxMspOverrideFrameStatus() & RX_FRAME_COMPLETE) {
-            rxSignalReceived = true;
-            rxDataProcessingRequired = true;
-            needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
-        }
-    }
-#endif
-
     DEBUG_SET(DEBUG_FAILSAFE, 1, rxSignalReceived);
     DEBUG_SET(DEBUG_RX_SIGNAL_LOSS, 0, rxSignalReceived);
 }
@@ -695,15 +684,7 @@ static void readRxChannelsApplyRanges(void)
         const uint8_t rawChannel = channel < RX_MAPPABLE_CHANNEL_COUNT ? rxConfig()->rcmap[channel] : channel;
 
         // sample the channel
-        float sample;
-#if defined(USE_RX_MSP_OVERRIDE)
-        if (rxConfig()->msp_override_channels_mask) {
-            sample = rxMspOverrideReadRawRc(&rxRuntimeState, rxConfig(), rawChannel);
-        } else
-#endif
-        {
-            sample = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
-        }
+        float sample = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
 
         // apply the rx calibration
         if (channel < NON_AUX_CHANNEL_COUNT) {

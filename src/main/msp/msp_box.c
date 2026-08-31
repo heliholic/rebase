@@ -88,7 +88,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXGPSRESCUE, .boxName = "GPS RESCUE", .permanentId = 46 },
 //    { .boxId = BOXACROTRAINER, .boxName = "ACRO TRAINER", .permanentId = 47 }, (removed)
     { .boxId = BOXVTXCONTROLDISABLE, .boxName = "VTX CONTROL DISABLE", .permanentId = 48},
-    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50},
+//    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50}, (removed)
     { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51},
     { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
     { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
@@ -310,12 +310,6 @@ void initActiveBoxIds(void)
                 }
             }
         }
-    }
-#endif
-
-#if defined(USE_RX_MSP_OVERRIDE)
-    if (rxConfig()->msp_override_channels_mask) {
-        BME(BOXMSPOVERRIDE);
     }
 #endif
 

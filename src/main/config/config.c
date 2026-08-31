@@ -475,19 +475,6 @@ static void validateAndFixConfig(void)
 
     validateAndFixRatesSettings();  // constrain the various rates settings to limits imposed by the rates type
 
-#if defined(USE_RX_MSP_OVERRIDE)
-    if (!rxConfig()->msp_override_channels_mask) {
-        removeModeActivationCondition(BOXMSPOVERRIDE);
-    }
-
-    for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
-        const modeActivationCondition_t *mac = modeActivationConditions(i);
-        if (mac->modeId == BOXMSPOVERRIDE && ((1 << (mac->auxChannelIndex + NON_AUX_CHANNEL_COUNT) & (rxConfig()->msp_override_channels_mask)))) {
-            rxConfigMutable()->msp_override_channels_mask &= ~(1 << (mac->auxChannelIndex + NON_AUX_CHANNEL_COUNT));
-        }
-    }
-#endif
-
     // validate battery profile voltages and field bounds, reset to defaults if invalid
     for (unsigned i = 0; i < BATTERY_PROFILE_COUNT; i++) {
         const batteryProfile_t *profile = batteryProfiles(i);
