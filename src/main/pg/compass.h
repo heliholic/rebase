@@ -39,7 +39,7 @@ typedef struct {
     ioTag_t mag_spi_csn;
     ioTag_t interruptTag;
     flightDynamicsTrims_t magZero;
-    sensorAlignment_t mag_customAlignment;
+    alignment_t mag_customAlignment;
 } compassConfig_t;
 
 PG_DECLARE(compassConfig_t, compassConfig);

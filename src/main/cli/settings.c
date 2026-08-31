@@ -694,9 +694,9 @@ const clivalue_t valueTable[] = {
     { "failsafe_recovery_delay",    VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 1, 200 }, PG_FAILSAFE_CONFIG, offsetof(failsafeConfig_t, failsafe_recovery_delay) },
 
 // PG_BOARDALIGNMENT_CONFIG
-    { "align_board_roll",           VAR_INT16  | MASTER_VALUE, .config.minmax = { -180, 360 }, PG_BOARD_ALIGNMENT, offsetof(boardAlignment_t, rollDegrees) },
-    { "align_board_pitch",          VAR_INT16  | MASTER_VALUE, .config.minmax = { -180, 360 }, PG_BOARD_ALIGNMENT, offsetof(boardAlignment_t, pitchDegrees) },
-    { "align_board_yaw",            VAR_INT16  | MASTER_VALUE, .config.minmax = { -180, 360 }, PG_BOARD_ALIGNMENT, offsetof(boardAlignment_t, yawDegrees) },
+    { "align_board_roll",           VAR_INT16  | MASTER_VALUE, .config.minmax = { -3600, 3600 }, PG_BOARD_ALIGNMENT, offsetof(alignment_t, roll) },
+    { "align_board_pitch",          VAR_INT16  | MASTER_VALUE, .config.minmax = { -3600, 3600 }, PG_BOARD_ALIGNMENT, offsetof(alignment_t, pitch) },
+    { "align_board_yaw",            VAR_INT16  | MASTER_VALUE, .config.minmax = { -3600, 3600 }, PG_BOARD_ALIGNMENT, offsetof(alignment_t, yaw) },
 
 // PG_BATTERY_PROFILES (per-profile settings)
 #ifdef USE_PROFILE_NAMES

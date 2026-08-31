@@ -23,10 +23,11 @@
 #include "common/axis.h"
 #include "common/maths.h"
 #include "common/vector.h"
+#include "common/sensor_alignment.h"
 
 #include "pg/alignment.h"
 
 void alignSensorViaMatrix(vector3_t *dest, matrix33_t *rotationMatrix);
 void alignSensorViaRotation(vector3_t *dest, sensor_align_e rotation);
 
-void initBoardAlignment(const boardAlignment_t *boardAlignment);
+void initBoardAlignment(const alignment_t *boardAlignment);

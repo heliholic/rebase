@@ -25,21 +25,14 @@
 
 #include "pg/pg.h"
 
-// Custom sensor mounting angles in decidegrees. Value order matches axis_e.
-typedef union sensorAlignment_u {
+// Mounting angles in decidegrees. Value order matches axis_e.
+typedef union alignment_u {
     int16_t raw[3];
     struct {
         int16_t roll;
         int16_t pitch;
         int16_t yaw;
     };
-} sensorAlignment_t;
+} alignment_t;
 
-typedef struct {
-    int32_t rollDegrees;
-    int32_t pitchDegrees;
-    int32_t yawDegrees;
-} boardAlignment_t;
-
-PG_DECLARE(boardAlignment_t, boardAlignment);
-
+PG_DECLARE(alignment_t, boardAlignment);
