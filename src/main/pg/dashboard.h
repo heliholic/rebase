@@ -21,11 +21,12 @@
 #pragma once
 
 #include <stdint.h>
-#include "pg/bus_i2c.h"
+
+#include "pg/pg.h"
 
 typedef struct dashboardConfig_s {
-    i2cDevice_e device;
-    uint8_t   address;
+    uint8_t device;              // I2C bus number (I2C_DEV_TO_CFG)
+    uint8_t address;
 } dashboardConfig_t;
 
 PG_DECLARE(dashboardConfig_t, dashboardConfig);
