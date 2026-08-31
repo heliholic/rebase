@@ -24,8 +24,7 @@
 #include <stdint.h>
 
 #include "pg/pg.h"
-
-#include "common/color.h"
+#include "pg/color.h"
 
 #include "drivers/io_types.h"
 
