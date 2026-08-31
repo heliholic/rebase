@@ -103,7 +103,7 @@ static void alignSensorViaMatrixFromRotation(vector3_t *dest, sensor_align_e ali
 {
     matrix33_t sensorRotationMatrix;
 
-    sensorAlignment_t sensorAlignment;
+    alignment_t sensorAlignment;
 
     buildAlignmentFromStandardAlignment(&sensorAlignment, alignment);
 
@@ -282,9 +282,9 @@ TEST(AlignSensorTest, ClockwiseTwoSeventyDegreesFlip)
     testCWFlip(CW270_DEG_FLIP, 270);
 }
 
-static void testBuildAlignmentWithStandardAlignment(sensor_align_e alignment, sensorAlignment_t expectedSensorAlignment)
+static void testBuildAlignmentWithStandardAlignment(sensor_align_e alignment, alignment_t expectedSensorAlignment)
 {
-    sensorAlignment_t sensorAlignment = SENSOR_ALIGNMENT(6, 6, 6);
+    alignment_t sensorAlignment = SENSOR_ALIGNMENT(6, 6, 6);
 
     buildAlignmentFromStandardAlignment(&sensorAlignment, alignment);
 
@@ -307,11 +307,11 @@ TEST(AlignSensorTest, AttemptBuildAlignmentWithStandardAlignment)
 
 TEST(AlignSensorTest, AttemptBuildAlignmentFromCustomAlignment)
 {
-    sensorAlignment_t sensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
+    alignment_t sensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
 
     buildAlignmentFromStandardAlignment(&sensorAlignment, ALIGN_CUSTOM);
 
-    sensorAlignment_t expectedSensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
+    alignment_t expectedSensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
 
     for (unsigned i = 0; i < ARRAYLEN(sensorAlignment.raw); i++) {
         EXPECT_EQ(expectedSensorAlignment.raw[i], sensorAlignment.raw[i]) << "Custom alignment should not be updated.";
@@ -320,11 +320,11 @@ TEST(AlignSensorTest, AttemptBuildAlignmentFromCustomAlignment)
 
 TEST(AlignSensorTest, AttemptBuildAlignmentFromDefaultAlignment)
 {
-    sensorAlignment_t sensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
+    alignment_t sensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
 
     buildAlignmentFromStandardAlignment(&sensorAlignment, ALIGN_DEFAULT);
 
-    sensorAlignment_t expectedSensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
+    alignment_t expectedSensorAlignment = SENSOR_ALIGNMENT(1, 2, 3);
 
     for (unsigned i = 0; i < ARRAYLEN(sensorAlignment.raw); i++) {
         EXPECT_EQ(expectedSensorAlignment.raw[i], sensorAlignment.raw[i]) << "Default alignment should not be updated.";

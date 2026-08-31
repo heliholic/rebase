@@ -38,7 +38,7 @@ typedef struct gyroDeviceConfig_s {
     uint8_t i2cAddress;
     ioTag_t extiTag;
     uint8_t alignment;        // sensor_align_e
-    sensorAlignment_t customAlignment;
+    alignment_t customAlignment;
     ioTag_t clkIn;
 } gyroDeviceConfig_t;
 

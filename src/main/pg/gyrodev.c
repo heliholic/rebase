@@ -217,7 +217,7 @@ STATIC_ASSERT(GYRO_4_ALIGN == ALIGN_CUSTOM, "GYRO_4_ALIGN and GYRO_4_CUSTOM_ALIG
 #endif // GYRO_4_CUSTOM_ALIGN
 
 #if defined(USE_SPI_GYRO) && (defined(GYRO_1_SPI_INSTANCE) || defined(GYRO_2_SPI_INSTANCE))
-static void gyroResetSpiDeviceConfig(gyroDeviceConfig_t *devconf, spiResource_t *instance, ioTag_t csnTag, ioTag_t extiTag, ioTag_t clkInTag, uint8_t alignment, sensorAlignment_t customAlignment)
+static void gyroResetSpiDeviceConfig(gyroDeviceConfig_t *devconf, spiResource_t *instance, ioTag_t csnTag, ioTag_t extiTag, ioTag_t clkInTag, uint8_t alignment, alignment_t customAlignment)
 {
     devconf->busType = BUS_TYPE_SPI;
     devconf->spiBus = SPI_DEV_TO_CFG(spiDeviceByInstance(instance));
@@ -230,7 +230,7 @@ static void gyroResetSpiDeviceConfig(gyroDeviceConfig_t *devconf, spiResource_t 
 #endif
 
 #if defined(USE_I2C_GYRO) && !(GYRO_COUNT > 1)
-static void gyroResetI2cDeviceConfig(gyroDeviceConfig_t *devconf, i2cDevice_e i2cbus, ioTag_t extiTag, uint8_t alignment, sensorAlignment_t customAlignment)
+static void gyroResetI2cDeviceConfig(gyroDeviceConfig_t *devconf, i2cDevice_e i2cbus, ioTag_t extiTag, uint8_t alignment, alignment_t customAlignment)
 {
     devconf->busType = BUS_TYPE_I2C;
     devconf->i2cBus = I2C_DEV_TO_CFG(i2cbus);
