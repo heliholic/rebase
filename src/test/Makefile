@@ -548,7 +548,8 @@ vtx_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
-		$(USER_DIR)/pg/modes.c
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/vtx.c
 
 vtx_unittest_DEFINES := \
 		USE_VTX_COMMON= \
@@ -565,6 +566,7 @@ vtx_msp_unittest_SRC := \
 		$(USER_DIR)/io/vtx_control.c \
 		$(USER_DIR)/io/vtx.c \
 		$(USER_DIR)/io/vtx_msp.c \
+		$(USER_DIR)/pg/vtx.c \
 
 vtx_msp_unittest_DEFINES := \
 		USE_VTX_COMMON= \
