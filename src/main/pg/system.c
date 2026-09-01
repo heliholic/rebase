@@ -23,10 +23,14 @@
 
 #include "build/debug.h"
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
 #include "pg/system.h"
+
+STATIC_ASSERT(sizeof(TARGET_BOARD_IDENTIFIER) <= MAX_BOARD_IDENTIFIER_LENGTH + 1, board_identifier_too_long);
 
 PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 4);
 
