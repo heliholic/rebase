@@ -31,13 +31,9 @@
 #include "drivers/serial.h"
 #include "io/serial.h"
 #include "osd/osd_custom_text.h"
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
 
 #define INPUT_BUFFER_SIZE 64
 #define DISPLAY_BUFFER_SIZE 32
-
-PG_REGISTER_WITH_RESET_FN(osdCustomTextConfig_t, osdCustomTextConfig, PG_OSD_CUSTOM_TEXT_CONFIG, 0);
 
 void pgResetFn_osdCustomTextConfig(osdCustomTextConfig_t *config)
 {
