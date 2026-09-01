@@ -39,7 +39,6 @@ PG_SRC = \
             pg/vtx_table.c
 
 COMMON_SRC = \
-            build/build_config.c \
             build/debug.c \
             build/version.c \
             main.c \
