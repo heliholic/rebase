@@ -21,12 +21,25 @@
 #pragma once
 
 #ifdef USE_VTX_TABLE
+#define VTX_TABLE_MAX_BANDS             8 // Maximum number of bands
+#define VTX_TABLE_MAX_CHANNELS          8 // Maximum number of channels per band
+#define VTX_TABLE_MAX_POWER_LEVELS      8 // Maximum number of power levels
+#else
+#define VTX_TABLE_MAX_BANDS             5 // default freq table has 5 bands
+#define VTX_TABLE_MAX_CHANNELS          8 // and eight channels
+#define VTX_TABLE_MAX_POWER_LEVELS      5 // max of VTX_TRAMP_POWER_COUNT, VTX_SMARTAUDIO_POWER_COUNT and VTX_RTC6705_POWER_COUNT
+#endif
+
+#define VTX_TABLE_CHANNEL_NAME_LENGTH   1
+#define VTX_TABLE_BAND_NAME_LENGTH      8
+#define VTX_TABLE_POWER_LABEL_LENGTH    3
+
+#ifdef USE_VTX_TABLE
 
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "pg/pg.h"
-#include "drivers/vtx_table.h"
 
 typedef struct vtxTableConfig_s {
     uint8_t  bands;

@@ -29,21 +29,7 @@
 /* Utilities and attribute macros (e.g. NONSTRING) */
 #include "common/utils.h"
 
-#ifdef USE_VTX_TABLE
-#define VTX_TABLE_MAX_BANDS             8 // Maximum number of bands
-#define VTX_TABLE_MAX_CHANNELS          8 // Maximum number of channels per band
-#define VTX_TABLE_MAX_POWER_LEVELS      8 // Maximum number of power levels
-#define VTX_TABLE_CHANNEL_NAME_LENGTH   1
-#define VTX_TABLE_BAND_NAME_LENGTH      8
-#define VTX_TABLE_POWER_LABEL_LENGTH    3
-#else
-#define VTX_TABLE_MAX_BANDS             5 // default freq table has 5 bands
-#define VTX_TABLE_MAX_CHANNELS          8 // and eight channels
-#define VTX_TABLE_MAX_POWER_LEVELS      5 //max of VTX_TRAMP_POWER_COUNT, VTX_SMARTAUDIO_POWER_COUNT and VTX_RTC6705_POWER_COUNT
-#define VTX_TABLE_CHANNEL_NAME_LENGTH   1
-#define VTX_TABLE_BAND_NAME_LENGTH      8
-#define VTX_TABLE_POWER_LABEL_LENGTH    3
-#endif
+#include "pg/vtx_table.h"
 
 #define VTX_TABLE_MIN_USER_FREQ         5000
 #define VTX_TABLE_MAX_USER_FREQ         5999
