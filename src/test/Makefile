@@ -492,7 +492,8 @@ pid_unittest_SRC :=  \
 		$(USER_DIR)/fc/controlrate_profile.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/pid.c \
-		$(USER_DIR)/pg/pg.c
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/rates.c
 
 pid_unittest_DEFINES := \
 
