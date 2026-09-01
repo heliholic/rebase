@@ -27,7 +27,7 @@
 
 #include "stats.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(statsConfig_t, statsConfig, PG_STATS_CONFIG, 4);
+PG_REGISTER_WITH_RESET_TEMPLATE(statsConfig_t, statsConfig, PG_STATS_CONFIG);
 
 PG_RESET_TEMPLATE(statsConfig_t, statsConfig,
     .stats_min_armed_time_s = STATS_OFF,

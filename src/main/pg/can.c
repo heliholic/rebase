@@ -139,7 +139,7 @@ static const canDefaultConfig_t canDefaultConfig[] = {
 #endif
 };
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(canPinConfig_t, CANDEV_COUNT, canPinConfig, PG_CAN_PIN_CONFIG, 1);
+PG_REGISTER_ARRAY_WITH_RESET_FN(canPinConfig_t, CANDEV_COUNT, canPinConfig, PG_CAN_PIN_CONFIG);
 
 void pgResetFn_canPinConfig(canPinConfig_t *config)
 {
@@ -151,7 +151,7 @@ void pgResetFn_canPinConfig(canPinConfig_t *config)
     }
 }
 
-PG_REGISTER_WITH_RESET_TEMPLATE(canConfig_t, canConfig, PG_CAN_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(canConfig_t, canConfig, PG_CAN_CONFIG);
 
 PG_RESET_TEMPLATE(canConfig_t, canConfig,
     .bitrate_khz = 1000U,

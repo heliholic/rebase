@@ -32,7 +32,7 @@ extern "C" {
 
 //PG_DECLARE(motorConfig_t, motorConfig);
 
-PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 1);
+PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
 
 PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
     .dev = {
@@ -53,6 +53,37 @@ PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
     .kv = 1000,
     .motorPoleCount = 14,
 );
+
+// A scalar PG with no reset at all: pgResetInstance() must still zero it.
+typedef struct pgTestZeroed_s {
+    uint32_t a;
+    uint16_t b;
+    uint8_t  c;
+} pgTestZeroed_t;
+
+PG_DECLARE(pgTestZeroed_t, pgTestZeroed);
+PG_REGISTER(pgTestZeroed_t, pgTestZeroed, PG_RESERVED_FOR_TESTING_1);
+
+// An array PG reset by function, so every element can be given a distinct
+// value and a truncated reset is visible.
+#define PG_TEST_ARRAY_LEN 8
+
+typedef struct pgTestElem_s {
+    uint16_t index;
+    uint16_t value;
+} pgTestElem_t;
+
+PG_DECLARE_ARRAY(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray);
+PG_REGISTER_ARRAY_WITH_RESET_FN(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray,
+                                PG_RESERVED_FOR_TESTING_2);
+
+extern "C" void pgResetFn_pgTestArray(pgTestElem_t *elems)
+{
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        elems[i].index = i;
+        elems[i].value = 100 + i;
+    }
+}
 }
 
 
@@ -91,6 +122,160 @@ TEST(ParameterGroupsfTest, Test_pgFind)
     EXPECT_EQ(1850, motorConfig3.maxthrottle);
     EXPECT_EQ(1000, motorConfig3.mincommand);
     EXPECT_EQ(400, motorConfig3.dev.motorPwmRate);
+}
+
+// An array PG must register the size of the whole array, not of one element.
+// Getting this wrong truncates every array group to its first element in
+// pgReset(), loadEEPROM() and writeSettingsToEEPROM().
+TEST(ParameterGroupsfTest, Test_pgRegistryArrayGeometry)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+
+    EXPECT_EQ(PG_TEST_ARRAY_LEN, reg->length);
+    EXPECT_EQ(sizeof(pgTestElem_t) * PG_TEST_ARRAY_LEN, pgSize(reg));
+    EXPECT_EQ(sizeof(pgTestElem_t), pgElementSize(reg));
+
+    // Every registered PG must agree with itself, not just this one.
+    PG_FOREACH(r) {
+        ASSERT_GT(r->length, 0);
+        EXPECT_EQ(0, pgSize(r) % r->length)
+            << "PG " << pgN(r) << " size " << pgSize(r)
+            << " is not a multiple of length " << (int)r->length;
+        EXPECT_EQ(pgSize(r), pgElementSize(r) * r->length)
+            << "PG " << pgN(r) << " element size does not span the group";
+    }
+}
+
+// The reset must reach the last element, not just the first.
+TEST(ParameterGroupsfTest, Test_pgResetArray)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+
+    memset(pgTestArray_array(), 0xA5, sizeof(*pgTestArray_array()));
+    pgReset(reg);
+
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(i, pgTestArray(i)->index) << "element " << i;
+        EXPECT_EQ(100 + i, pgTestArray(i)->value) << "element " << i;
+    }
+}
+
+// A PG with no reset template and no reset function is zeroed.
+TEST(ParameterGroupsfTest, Test_pgResetNoResetIsZeroed)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_1);
+    ASSERT_NE(nullptr, reg);
+
+    memset(pgTestZeroedMutable(), 0x5A, sizeof(pgTestZeroed_t));
+    pgReset(reg);
+
+    EXPECT_EQ(0u, pgTestZeroed()->a);
+    EXPECT_EQ(0u, pgTestZeroed()->b);
+    EXPECT_EQ(0u, pgTestZeroed()->c);
+}
+
+TEST(ParameterGroupsfTest, Test_pgFindUnknownPgn)
+{
+    EXPECT_EQ(nullptr, pgFind(PG_RESERVED_FOR_TESTING_3));
+    EXPECT_FALSE(pgResetCopy(nullptr, PG_RESERVED_FOR_TESTING_3));
+}
+
+// pgLoad() restores stored bytes only when the layout hash matches; on a
+// mismatch the group keeps its defaults rather than adopting a stale layout.
+TEST(ParameterGroupsfTest, Test_pgLoadHashMatch)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+
+    pgTestElem_t stored[PG_TEST_ARRAY_LEN];
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        stored[i].index = 900 + i;
+        stored[i].value = 800 + i;
+    }
+
+    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgHash(reg)));
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(900 + i, pgTestArray(i)->index) << "element " << i;
+        EXPECT_EQ(800 + i, pgTestArray(i)->value) << "element " << i;
+    }
+}
+
+TEST(ParameterGroupsfTest, Test_pgLoadHashMismatchKeepsDefaults)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+
+    pgTestElem_t stored[PG_TEST_ARRAY_LEN];
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        stored[i].index = 900 + i;
+        stored[i].value = 800 + i;
+    }
+
+    EXPECT_FALSE(pgLoad(reg, stored, sizeof(stored), pgHash(reg) ^ 1u));
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(i, pgTestArray(i)->index) << "element " << i;
+        EXPECT_EQ(100 + i, pgTestArray(i)->value) << "element " << i;
+    }
+}
+
+// A record shorter than the group (an older, smaller layout) fills what it can
+// and leaves the remaining elements at their defaults.
+TEST(ParameterGroupsfTest, Test_pgLoadShortRecord)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+
+    pgTestElem_t stored[2];
+    for (int i = 0; i < 2; i++) {
+        stored[i].index = 900 + i;
+        stored[i].value = 800 + i;
+    }
+
+    // Dirty a trailing element so the defaults below are known to come from
+    // the reset inside pgLoad(), not from whatever a previous test left.
+    pgTestArrayMutable(PG_TEST_ARRAY_LEN - 1)->value = 0xFFFF;
+
+    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgHash(reg)));
+
+    for (int i = 0; i < 2; i++) {
+        EXPECT_EQ(900 + i, pgTestArray(i)->index) << "element " << i;
+        EXPECT_EQ(800 + i, pgTestArray(i)->value) << "element " << i;
+    }
+    for (int i = 2; i < PG_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(i, pgTestArray(i)->index) << "element " << i;
+        EXPECT_EQ(100 + i, pgTestArray(i)->value) << "element " << i;
+    }
+}
+
+// pgStore() must copy the whole array and never write past the destination.
+TEST(ParameterGroupsfTest, Test_pgStoreArray)
+{
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
+    ASSERT_NE(nullptr, reg);
+    pgReset(reg);
+
+    pgTestElem_t dest[PG_TEST_ARRAY_LEN];
+    memset(dest, 0, sizeof(dest));
+    EXPECT_EQ((int)sizeof(dest), pgStore(reg, dest, sizeof(dest)));
+    for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(i, dest[i].index) << "element " << i;
+        EXPECT_EQ(100 + i, dest[i].value) << "element " << i;
+    }
+
+    // A destination smaller than the group is clamped, not overrun.
+    struct {
+        pgTestElem_t head[2];
+        uint32_t guard;
+    } small;
+    memset(&small, 0, sizeof(small));
+    small.guard = 0xDEADBEEF;
+
+    EXPECT_EQ((int)sizeof(small.head), pgStore(reg, small.head, sizeof(small.head)));
+    EXPECT_EQ(0xDEADBEEFu, small.guard);
+    EXPECT_EQ(0, small.head[0].index);
+    EXPECT_EQ(101, small.head[1].value);
 }
 
 // STUBS

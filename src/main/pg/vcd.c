@@ -28,7 +28,7 @@
 #include "vcd.h"
 
 // no template required since defaults are zero
-PG_REGISTER_WITH_RESET_FN(vcdProfile_t, vcdProfile, PG_VCD_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(vcdProfile_t, vcdProfile, PG_VCD_CONFIG);
 
 void pgResetFn_vcdProfile(vcdProfile_t *vcdProfile)
 {

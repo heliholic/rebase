@@ -28,7 +28,7 @@
 #include "pg/pg_ids.h"
 
 // Reset to all-empty (every nodeId 0). Zero-init via the default template.
-PG_REGISTER_WITH_RESET_TEMPLATE(dronecanDnaConfig_t, dronecanDnaConfig, PG_DRONECAN_DNA_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(dronecanDnaConfig_t, dronecanDnaConfig, PG_DRONECAN_DNA_CONFIG);
 
 PG_RESET_TEMPLATE(dronecanDnaConfig_t, dronecanDnaConfig, );
 

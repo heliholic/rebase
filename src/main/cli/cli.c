@@ -746,13 +746,13 @@ static const char *cliPrintSectionHeading(dumpFlags_t dumpMask, bool outputFlag,
 
 static void backupPgConfig(const pgRegistry_t *pg)
 {
-    memcpy(pg->copy, pg->address, pg->size);
+    memcpy(pgCopy(pg), pgAddress(pg), pgSize(pg));
 }
 
 static void restorePgConfig(const pgRegistry_t *pg, uint16_t notToRestoreGroupId)
 {
     if (!notToRestoreGroupId || pgN(pg) != notToRestoreGroupId) {
-        memcpy(pg->address, pg->copy, pg->size);
+        memcpy(pgAddress(pg), pgCopy(pg), pgSize(pg));
     }
 }
 
@@ -836,9 +836,9 @@ STATIC_UNIT_TESTED void *cliGetValuePointer(const clivalue_t *value)
 {
     const pgRegistry_t* rec = pgFind(value->pgn);
     if (isWritingConfigToCopy()) {
-        return CONST_CAST(void *, rec->copy + getValueOffset(value));
+        return CONST_CAST(void *, pgCopy(rec) + getValueOffset(value));
     } else {
-        return CONST_CAST(void *, rec->address + getValueOffset(value));
+        return CONST_CAST(void *, pgAddress(rec) + getValueOffset(value));
     }
 }
 
@@ -855,17 +855,17 @@ static const char *dumpPgValue(const char *cmdName, const clivalue_t *value, dum
     const char *format = "set %s = ";
     const char *defaultFormat = "#set %s = ";
     const int valueOffset = getValueOffset(value);
-    const bool equalsDefault = valuePtrEqualsDefault(value, pg->copy + valueOffset, pg->address + valueOffset);
+    const bool equalsDefault = valuePtrEqualsDefault(value, pgCopy(pg) + valueOffset, pgAddress(pg) + valueOffset);
 
     headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
     if (((dumpMask & DO_DIFF) == 0) || !equalsDefault) {
         if (dumpMask & SHOW_DEFAULTS && !equalsDefault) {
             cliPrintf(defaultFormat, value->name);
-            printValuePointer(cmdName, value, (uint8_t*)pg->address + valueOffset, false);
+            printValuePointer(cmdName, value, pgAddress(pg) + valueOffset, false);
             cliPrintLinefeed();
         }
         cliPrintf(format, value->name);
-        printValuePointer(cmdName, value, pg->copy + valueOffset, false);
+        printValuePointer(cmdName, value, pgCopy(pg) + valueOffset, false);
         cliPrintLinefeed();
     }
     return headingStr;
@@ -4197,10 +4197,10 @@ static void cliPrintVarDefault(const char *cmdName, const clivalue_t *value)
     if (pg) {
         const char *defaultFormat = "Default value: ";
         const int valueOffset = getValueOffset(value);
-        const bool equalsDefault = valuePtrEqualsDefault(value, pg->copy + valueOffset, pg->address + valueOffset);
+        const bool equalsDefault = valuePtrEqualsDefault(value, pgCopy(pg) + valueOffset, pgAddress(pg) + valueOffset);
         if (!equalsDefault) {
             cliPrintf(defaultFormat, value->name);
-            printValuePointer(cmdName, value, (uint8_t*)pg->address + valueOffset, false);
+            printValuePointer(cmdName, value, pgAddress(pg) + valueOffset, false);
             cliPrintLinefeed();
         }
     }
@@ -4628,7 +4628,7 @@ int cliGetSettingByName(const char *name, char *buf, int bufLen)
         return -1;
     }
 
-    const void *ptr = rec->address + getValueOffset(val);
+    const void *ptr = pgAddress(rec) + getValueOffset(val);
 
     // write prefix "name = " bounded by bufLen
     const int nameLen = strlen(val->name);
@@ -4896,7 +4896,7 @@ bool cliSetSettingByName(const char *cmdline)
         return false;
     }
 
-    void *ptr = CONST_CAST(void *, rec->address + getValueOffset(val));
+    void *ptr = CONST_CAST(void *, pgAddress(rec) + getValueOffset(val));
 
     switch (val->type & VALUE_MODE_MASK) {
     case MODE_DIRECT: {
@@ -5892,7 +5892,7 @@ const cliResourceValue_t resourceTable[] = {
 static ioTag_t* getIoTag(const cliResourceValue_t value, uint8_t index)
 {
     const pgRegistry_t* rec = pgFind(value.pgn);
-    return (ioTag_t *)(rec->address + value.stride * index + value.offset);
+    return (ioTag_t *)(pgAddress(rec) + value.stride * index + value.offset);
 }
 
 static void printResource(dumpFlags_t dumpMask, const char *headingStr)
@@ -5904,10 +5904,10 @@ static void printResource(dumpFlags_t dumpMask, const char *headingStr)
         const void *currentConfig;
         const void *defaultConfig;
         if (isReadingConfigFromCopy()) {
-            currentConfig = pg->copy;
-            defaultConfig = pg->address;
+            currentConfig = pgCopy(pg);
+            defaultConfig = pgAddress(pg);
         } else {
-            currentConfig = pg->address;
+            currentConfig = pgAddress(pg);
             defaultConfig = NULL;
         }
 
@@ -6194,10 +6194,10 @@ static const char *printPeripheralDmaopt(dmaoptEntry_t *entry, int index, dumpFl
     const void *defaultConfig;
 
     if (isReadingConfigFromCopy()) {
-        currentConfig = pg->copy;
-        defaultConfig = pg->address;
+        currentConfig = pgCopy(pg);
+        defaultConfig = pgAddress(pg);
     } else {
-        currentConfig = pg->address;
+        currentConfig = pgAddress(pg);
         defaultConfig = NULL;
     }
 
@@ -6306,10 +6306,10 @@ static void printDmaopt(dumpFlags_t dumpMask, const char *headingStr)
     const timerIOConfig_t *defaultConfig;
 
     if (isReadingConfigFromCopy()) {
-        currentConfig = (timerIOConfig_t *)pg->copy;
-        defaultConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgCopy(pg);
+        defaultConfig = (timerIOConfig_t *)pgAddress(pg);
     } else {
-        currentConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgAddress(pg);
         defaultConfig = NULL;
     }
 
@@ -6383,9 +6383,9 @@ RAM_CODE static void cliDmaopt(const char *cmdName, char *cmdline)
         const pgRegistry_t* pg = pgFind(entry->pgn);
         const void *currentConfig;
         if (isWritingConfigToCopy()) {
-            currentConfig = pg->copy;
+            currentConfig = pgCopy(pg);
         } else {
-            currentConfig = pg->address;
+            currentConfig = pgAddress(pg);
         }
         optaddr = (dmaoptValue_t *)((uint8_t *)currentConfig + entry->stride * index + entry->offset);
         orgval = *optaddr;
@@ -6542,10 +6542,10 @@ static void printTimer(dumpFlags_t dumpMask, const char *headingStr)
 
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
     if (isReadingConfigFromCopy()) {
-        currentConfig = (timerIOConfig_t *)pg->copy;
-        defaultConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgCopy(pg);
+        defaultConfig = (timerIOConfig_t *)pgAddress(pg);
     } else {
-        currentConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgAddress(pg);
         defaultConfig = NULL;
     }
 

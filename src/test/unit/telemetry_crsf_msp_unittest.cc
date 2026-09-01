@@ -83,11 +83,11 @@ extern "C" {
     sbuf_t payloadOutputBuf;
     int32_t testmAhDrawn = 0;
 
-    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
-    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG, 0);
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
-    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
-    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG,0);
+    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
+    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
+    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
+    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG);
 
     extern bool crsfFrameDone;
     extern crsfFrame_t crsfFrame;

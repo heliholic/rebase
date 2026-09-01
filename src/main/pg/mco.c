@@ -30,5 +30,5 @@
 #include "pg/pg_ids.h"
 #include "pg/mco.h"
 
-PG_REGISTER_ARRAY(mcoConfig_t, 2, mcoConfig, PG_MCO_CONFIG, 0);
+PG_REGISTER_ARRAY(mcoConfig_t, 2, mcoConfig, PG_MCO_CONFIG);
 #endif // USE_MCO

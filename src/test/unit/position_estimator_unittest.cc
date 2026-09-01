@@ -30,7 +30,7 @@ void getLinearAccelENU(float *accelEast, float *accelNorth, float *accelUp);
 #include "sensors/rangefinder.h"
 #include "sensors/sensors.h"
 
-PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION, 0);
+PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION);
 }
 
 #include "gtest/gtest.h"

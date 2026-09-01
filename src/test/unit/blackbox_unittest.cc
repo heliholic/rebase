@@ -333,10 +333,10 @@ TEST(BlackboxTest, Test_CalculateRates)
 // STUBS
 extern "C" {
 
-PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 0);
-PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
-PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
-PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
+PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
+PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
+PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE);
 
 uint8_t armingFlags;
 uint8_t stateFlags;

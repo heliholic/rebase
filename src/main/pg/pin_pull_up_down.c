@@ -33,14 +33,14 @@ static void resetPullUpDownConfig(pinPullUpDownConfig_t* config)
     }
 }
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(pinPullUpDownConfig_t, PIN_PULL_UP_DOWN_COUNT, pinPullupConfig, PG_PULLUP_CONFIG, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(pinPullUpDownConfig_t, PIN_PULL_UP_DOWN_COUNT, pinPullupConfig, PG_PULLUP_CONFIG);
 
 void pgResetFn_pinPullupConfig(pinPullUpDownConfig_t *config)
 {
     resetPullUpDownConfig(config);
 }
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(pinPullUpDownConfig_t, PIN_PULL_UP_DOWN_COUNT, pinPulldownConfig, PG_PULLDOWN_CONFIG, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(pinPullUpDownConfig_t, PIN_PULL_UP_DOWN_COUNT, pinPulldownConfig, PG_PULLDOWN_CONFIG);
 
 void pgResetFn_pinPulldownConfig(pinPullUpDownConfig_t *config)
 {

@@ -46,31 +46,20 @@
 
 static uint16_t eepromConfigSize;
 
-typedef enum {
-    CR_CLASSICATION_SYSTEM   = 0,
-    CR_CLASSICATION_PROFILE_LAST = CR_CLASSICATION_SYSTEM,
-} configRecordFlags_e;
-
-#define CR_CLASSIFICATION_MASK  (0x3)
 #define CRC_START_VALUE         0xFFFF
 #define CRC_CHECK_VALUE         0x1D0F  // pre-calculated value of CRC that includes the CRC itself
 
 // Header for the saved copy.
 typedef struct {
-    uint8_t eepromConfigVersion;
-    uint8_t magic_be;           // magic number, should be 0xBE
+    uint32_t magic;           // magic number, should be EEPROM_CONFIG_MAGIC
+    uint32_t version;
 } PG_PACKED configHeader_t;
 
 // Header for each stored PG.
 typedef struct {
-    // split up.
-    uint16_t size;
     pgn_t pgn;
-    uint8_t version;
-
-    // lower 2 bits used to indicate system or profile number, see CR_CLASSIFICATION_MASK
-    uint8_t flags;
-
+    pgSize_t size;
+    pgHash_t hash;
     uint8_t pg[];
 } PG_PACKED configRecord_t;
 
@@ -91,7 +80,6 @@ static MMFLASH_CODE bool loadEEPROMFromExternalFlash(void)
 {
     const flashPartition_t *flashPartition = flashPartitionFindByType(FLASH_PARTITION_TYPE_CONFIG);
     const flashGeometry_t *flashGeometry = flashGetGeometry();
-
     uint32_t flashStartAddress = flashPartition->startSector * flashGeometry->sectorSize;
 
     uint32_t totalBytesRead = 0;
@@ -123,7 +111,6 @@ MMFLASH_CODE_NOINLINE void saveEEPROMToMemoryMappedFlash(void)
 
     uint32_t flashSectorSize = flashGeometry->sectorSize;
     uint32_t flashPageSize = flashGeometry->pageSize;
-
     uint32_t flashStartAddress = flashPartition->startSector * flashGeometry->sectorSize;
 
     uint32_t bytesRemaining = EEPROM_SIZE;
@@ -294,7 +281,7 @@ void initEEPROM(void)
     STATIC_ASSERT(sizeof(packingTest_t) == 5, overall_packing_test_failed);
 
     STATIC_ASSERT(sizeof(configFooter_t) == 2, footer_size_failed);
-    STATIC_ASSERT(sizeof(configRecord_t) == 6, record_size_failed);
+    STATIC_ASSERT(sizeof(configRecord_t) == 8, record_size_failed);
 
 #if defined(CONFIG_IN_FILE)
     bool eepromLoaded = loadEEPROMFromFile();
@@ -319,58 +306,53 @@ void initEEPROM(void)
 
 bool isEEPROMVersionValid(void)
 {
-    const uint8_t *p = (const uint8_t*)&__config_start;
-    const configHeader_t *header = (const configHeader_t *)p;
+    const uint8_t *ptr = (const uint8_t*)&__config_start;
+    const configHeader_t *header = (const configHeader_t *)ptr;
 
-    if (header->eepromConfigVersion != EEPROM_CONF_VERSION) {
-        return false;
-    }
-
-    return true;
+    return (header->version == EEPROM_CONFIG_VERSION);
 }
 
 // Scan the EEPROM config. Returns true if the config is valid.
 bool isEEPROMStructureValid(void)
 {
-    const uint8_t *p = (const uint8_t*)&__config_start;
-    const configHeader_t *header = (const configHeader_t *)p;
+    const uint8_t *ptr = (const uint8_t*)&__config_start;
+    const configHeader_t *header = (const configHeader_t *)ptr;
 
-    if (header->magic_be != 0xBE) {
+    if (header->magic != EEPROM_CONFIG_MAGIC)
         return false;
-    }
 
     uint16_t crc = CRC_START_VALUE;
     crc = crc16_ccitt_update(crc, header, sizeof(*header));
-    p += sizeof(*header);
+    ptr += sizeof(*header);
 
     for (;;) {
-        const configRecord_t *record = (const configRecord_t *)p;
+        const configRecord_t *record = (const configRecord_t *)ptr;
 
+        // Found the end.  Stop scanning.
         if (record->size == 0) {
-            // Found the end.  Stop scanning.
             break;
         }
-        if (p + record->size >= (const uint8_t*)&__config_end
-            || record->size < sizeof(*record)) {
-            // Too big or too small.
+
+        // Too big or too small.
+        if (ptr + record->size >= (const uint8_t*)&__config_end ||
+            record->size < sizeof(*record)) {
             return false;
         }
 
-        crc = crc16_ccitt_update(crc, p, record->size);
-
-        p += record->size;
+        crc = crc16_ccitt_update(crc, ptr, record->size);
+        ptr += record->size;
     }
 
-    const configFooter_t *footer = (const configFooter_t *)p;
+    const configFooter_t *footer = (const configFooter_t *)ptr;
     crc = crc16_ccitt_update(crc, footer, sizeof(*footer));
-    p += sizeof(*footer);
+    ptr += sizeof(*footer);
 
     // include stored CRC in the CRC calculation
-    const uint16_t *storedCrc = (const uint16_t *)p;
+    const uint16_t *storedCrc = (const uint16_t *)ptr;
     crc = crc16_ccitt_update(crc, storedCrc, sizeof(*storedCrc));
-    p += sizeof(storedCrc);
+    ptr += sizeof(storedCrc);
 
-    eepromConfigSize = p - (const uint8_t*)&__config_start;
+    eepromConfigSize = ptr - (const uint8_t*)&__config_start;
 
     // CRC has the property that if the CRC itself is included in the calculation the resulting CRC will have constant value
     return crc == CRC_CHECK_VALUE;
@@ -395,25 +377,25 @@ size_t getEEPROMStorageSize(void)
 #endif
 }
 
-// find config record for reg + classification (profile info) in EEPROM
+// find config record for reg in EEPROM
 // return NULL when record is not found
 // this function assumes that EEPROM content is valid
-static const configRecord_t *findEEPROM(const pgRegistry_t *reg, configRecordFlags_e classification)
+static const configRecord_t *findEEPROM(const pgRegistry_t *reg)
 {
-    const uint8_t *p = (const uint8_t*)&__config_start;
-    p += sizeof(configHeader_t);             // skip header
+    const uint8_t *ptr = (const uint8_t*)&__config_start;
+    ptr += sizeof(configHeader_t);
+
     while (true) {
-        const configRecord_t *record = (const configRecord_t *)p;
-        if (record->size == 0
-            || p + record->size >= (const uint8_t*)&__config_end
-            || record->size < sizeof(*record))
+        const configRecord_t *record = (const configRecord_t *)ptr;
+        if (record->size == 0 ||
+            ptr + record->size >= (const uint8_t*)&__config_end ||
+            record->size < sizeof(*record))
             break;
-        if (pgN(reg) == record->pgn
-            && (record->flags & CR_CLASSIFICATION_MASK) == classification)
+        if (pgN(reg) == record->pgn)
             return record;
-        p += record->size;
+        ptr += record->size;
     }
-    // record not found
+
     return NULL;
 }
 
@@ -425,18 +407,17 @@ bool loadEEPROM(void)
     bool success = true;
 
     PG_FOREACH(reg) {
-        const configRecord_t *rec = findEEPROM(reg, CR_CLASSICATION_SYSTEM);
+        const configRecord_t *rec = findEEPROM(reg);
         if (rec) {
             // config from EEPROM is available, use it to initialize PG. pgLoad will handle version mismatch
-            if (!pgLoad(reg, rec->pg, rec->size - offsetof(configRecord_t, pg), rec->version)) {
+            if (!pgLoad(reg, rec->pg, rec->size - offsetof(configRecord_t, pg), rec->hash)) {
                 success = false;
             }
         } else {
             pgReset(reg);
-
             success = false;
         }
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, reg->address, pgSize(reg));
+        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg));
     }
 
     return success;
@@ -447,12 +428,12 @@ static bool writeSettingsToEEPROM(void)
     bool dirtyConfig = !isEEPROMVersionValid() || !isEEPROMStructureValid();
 
     configHeader_t header = {
-        .eepromConfigVersion =  EEPROM_CONF_VERSION,
-        .magic_be =             0xBE,
+        .magic = EEPROM_CONFIG_MAGIC,
+        .version = EEPROM_CONFIG_VERSION,
     };
 
     PG_FOREACH(reg) {
-        if (*reg->fnv_hash != fnv_update(FNV_OFFSET_BASIS, reg->address, pgSize(reg))) {
+        if (*reg->fnv_hash != fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg))) {
             dirtyConfig = true;
         }
     }
@@ -461,26 +442,23 @@ static bool writeSettingsToEEPROM(void)
     if (dirtyConfig) {
         config_streamer_t streamer;
         config_streamer_init(&streamer);
-
         config_streamer_start(&streamer, (uintptr_t)&__config_start, (const uint8_t*)&__config_end - (const uint8_t*)&__config_start);
-
         config_streamer_write(&streamer, (uint8_t *)&header, sizeof(header));
+
         uint16_t crc = CRC_START_VALUE;
         crc = crc16_ccitt_update(crc, (uint8_t *)&header, sizeof(header));
+
         PG_FOREACH(reg) {
-            const uint16_t regSize = pgSize(reg);
             configRecord_t record = {
-                .size = sizeof(configRecord_t) + regSize,
                 .pgn = pgN(reg),
-                .version = pgVersion(reg),
-                .flags = 0,
+                .size = sizeof(configRecord_t) + pgSize(reg),
+                .hash = pgHash(reg),
             };
 
-            record.flags |= CR_CLASSICATION_SYSTEM;
             config_streamer_write(&streamer, (uint8_t *)&record, sizeof(record));
             crc = crc16_ccitt_update(crc, (uint8_t *)&record, sizeof(record));
-            config_streamer_write(&streamer, reg->address, regSize);
-            crc = crc16_ccitt_update(crc, reg->address, regSize);
+            config_streamer_write(&streamer, pgAddress(reg), pgSize(reg));
+            crc = crc16_ccitt_update(crc, pgAddress(reg), pgSize(reg));
         }
 
         configFooter_t footer = {
@@ -493,13 +471,12 @@ static bool writeSettingsToEEPROM(void)
         // include inverted CRC in big endian format in the CRC
         const uint16_t invertedBigEndianCrc = ~(((crc & 0xFF) << 8) | (crc >> 8));
         config_streamer_write(&streamer, (uint8_t *)&invertedBigEndianCrc, sizeof(crc));
-
         config_streamer_flush(&streamer);
 
         return (config_streamer_finish(&streamer) == 0);
-    } else {
-        return true;
     }
+
+    return true;
 }
 
 void writeConfigToEEPROM(void)
@@ -521,10 +498,8 @@ void writeConfigToEEPROM(void)
         }
     }
 
-    if (success) {
-        return;
+    if (!success) {
+        // Flash write failed - just die now
+        failureMode(FAILURE_CONFIG_STORE_FAILURE);
     }
-
-    // Flash write failed - just die now
-    failureMode(FAILURE_CONFIG_STORE_FAILURE);
 }
