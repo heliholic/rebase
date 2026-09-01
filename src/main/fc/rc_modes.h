@@ -22,7 +22,7 @@
 
 #include <stdbool.h>
 
-#include "pg/pg.h"
+#include "pg/modes.h"
 
 #define BOXID_NONE 255
 
@@ -65,6 +65,10 @@ typedef enum {
     CHECKBOX_ITEM_COUNT
 } boxId_e;
 
+#ifdef USE_CUSTOM_BOX_NAMES
+STATIC_ASSERT(BOXUSER4 + 1 - BOXUSER1 == BOX_USER_NAME_COUNT, "Invalid BOX_USER_NAME_COUNT");
+#endif
+
 typedef enum {
     MODELOGIC_OR = 0,
     MODELOGIC_AND
@@ -72,8 +76,6 @@ typedef enum {
 
 // type to hold enough bits for CHECKBOX_ITEM_COUNT. Struct used for value-like behavior
 typedef struct boxBitmask_s { uint32_t bits[(CHECKBOX_ITEM_COUNT + 31) / 32]; } boxBitmask_t;
-
-#define MAX_MODE_ACTIVATION_CONDITION_COUNT 20
 
 #define STICKY_MODE_BOOT_DELAY_US (5 * 1000 * 1000)
 
@@ -85,37 +87,6 @@ typedef struct boxBitmask_s { uint32_t bits[(CHECKBOX_ITEM_COUNT + 31) / 32]; } 
 
 #define MIN_MODE_RANGE_STEP 0
 #define MAX_MODE_RANGE_STEP ((CHANNEL_RANGE_MAX - CHANNEL_RANGE_MIN) / 25)
-
-// steps are 25 apart
-// a value of 0 corresponds to a channel value of 900 or less
-// a value of 48 corresponds to a channel value of 2100 or more
-// 48 steps between 900 and 2100
-typedef struct channelRange_s {
-    uint8_t startStep;
-    uint8_t endStep;
-} channelRange_t;
-
-typedef struct modeActivationCondition_s {
-    boxId_e modeId;
-    uint8_t auxChannelIndex;
-    channelRange_t range;
-    modeLogic_e modeLogic;
-    boxId_e linkedTo;
-} modeActivationCondition_t;
-
-PG_DECLARE_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions);
-
-#if defined(USE_CUSTOM_BOX_NAMES)
-
-#define MAX_BOX_USER_NAME_LENGTH 16
-#define BOX_USER_NAME_COUNT      4
-STATIC_ASSERT(BOXUSER4 + 1 - BOXUSER1 == BOX_USER_NAME_COUNT, "Invalid BOX_USER_NAME_COUNT");
-typedef struct modeActivationConfig_s {
-    char box_user_names[BOX_USER_NAME_COUNT][MAX_BOX_USER_NAME_LENGTH];
-} modeActivationConfig_t;
-
-PG_DECLARE(modeActivationConfig_t, modeActivationConfig);
-#endif
 
 typedef struct modeActivationProfile_s {
     modeActivationCondition_t modeActivationConditions[MAX_MODE_ACTIVATION_CONDITION_COUNT];
