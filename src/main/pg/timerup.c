@@ -18,8 +18,6 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-
 #include "platform.h"
 
 #if defined(USE_TIMER_MGMT) && defined(USE_TIMER_UP_CONFIG)
