@@ -15,6 +15,7 @@ PG_SRC = \
             pg/bus_spi.c \
             pg/can.c \
             pg/compass.c \
+            pg/current.c \
             pg/dashboard.c \
             pg/dronecan.c \
             pg/dronecan_dna.c \
