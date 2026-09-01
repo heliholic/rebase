@@ -19,27 +19,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <stdint.h>
+#include "platform.h"
 
 #include "pg/pg.h"
+#include "pg/pg_ids.h"
+
 #include "pg/modes.h"
 
-#define MAX_ADJUSTMENT_RANGE_COUNT 30
+PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 5);
 
-typedef struct {
-    // when aux channel is in range...
-    uint8_t auxChannelIndex;
-    channelRange_t range;
+#if defined(USE_CUSTOM_BOX_NAMES)
 
-    // ..then apply the adjustment function to the auxSwitchChannel ...
-    uint8_t adjustmentConfig;
-    uint8_t auxSwitchChannelIndex;
+PG_REGISTER(modeActivationConfig_t, modeActivationConfig, PG_MODE_ACTIVATION_CONFIG, 0);
 
-    uint16_t adjustmentCenter;
-    uint16_t adjustmentScale;
-
-} adjustmentRange_t;
-
-PG_DECLARE_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges);
+#endif
