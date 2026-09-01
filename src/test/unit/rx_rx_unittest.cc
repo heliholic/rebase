@@ -49,7 +49,7 @@ extern "C" {
         .enabledFeatures = 0
     );
 
-    PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
+    PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG);
 }
 
 #include "unittest_macros.h"

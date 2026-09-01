@@ -27,7 +27,7 @@
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig, PG_DRONECAN_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig, PG_DRONECAN_CONFIG);
 
 PG_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig,
     .enabled = 0,

@@ -25,12 +25,12 @@
 
 #ifdef USE_OSD
 
-PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG, 13);
+PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG);
 
-PG_REGISTER_WITH_RESET_FN(osdElementConfig_t, osdElementConfig, PG_OSD_ELEMENT_CONFIG, 3);
+PG_REGISTER_WITH_RESET_FN(osdElementConfig_t, osdElementConfig, PG_OSD_ELEMENT_CONFIG);
 
 #ifdef USE_OSD_CUSTOM_TEXT
-PG_REGISTER_WITH_RESET_FN(osdCustomTextConfig_t, osdCustomTextConfig, PG_OSD_CUSTOM_TEXT_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(osdCustomTextConfig_t, osdCustomTextConfig, PG_OSD_CUSTOM_TEXT_CONFIG);
 #endif
 
 #endif

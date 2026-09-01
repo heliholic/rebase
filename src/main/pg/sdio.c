@@ -57,7 +57,7 @@
 #define SDIO_D3_PIN NONE
 #endif
 
-PG_REGISTER_WITH_RESET_TEMPLATE(sdioConfig_t, sdioConfig, PG_SDIO_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(sdioConfig_t, sdioConfig, PG_SDIO_CONFIG);
 
 PG_RESET_TEMPLATE(sdioConfig_t, sdioConfig,
     .clockBypass = 0,
@@ -68,7 +68,7 @@ PG_RESET_TEMPLATE(sdioConfig_t, sdioConfig,
 );
 
 #if ENABLE_SDIO_PIN_CONFIG
-PG_REGISTER_WITH_RESET_TEMPLATE(sdioPinConfig_t, sdioPinConfig, PG_SDIO_PIN_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(sdioPinConfig_t, sdioPinConfig, PG_SDIO_PIN_CONFIG);
 
 PG_RESET_TEMPLATE(sdioPinConfig_t, sdioPinConfig,
     .CKPin = IO_TAG(SDIO_CK_PIN),

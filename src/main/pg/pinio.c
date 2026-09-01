@@ -85,7 +85,7 @@
 #define PINIO8_CONFIG PINIO_CONFIG_MODE_OUT_PP
 #endif
 
-PG_REGISTER_WITH_RESET_FN(pinioConfig_t, pinioConfig, PG_PINIO_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(pinioConfig_t, pinioConfig, PG_PINIO_CONFIG);
 
 void pgResetFn_pinioConfig(pinioConfig_t *config)
 {

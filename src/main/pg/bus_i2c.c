@@ -39,7 +39,7 @@
 
 #include "pg/bus_i2c.h"
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(i2cConfig_t, I2CDEV_COUNT, i2cConfig, PG_I2C_CONFIG, 1);
+PG_REGISTER_ARRAY_WITH_RESET_FN(i2cConfig_t, I2CDEV_COUNT, i2cConfig, PG_I2C_CONFIG);
 
 #ifndef I2C0_SCL_PIN
 #define I2C0_SCL_PIN NONE

@@ -802,6 +802,32 @@ test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 # param $1 = expanded test name in the form of test.target
 target = $(1:$(basename $1).%=%)
 
+# Generated pg_hash.h for unit tests.
+#
+# pg/pg.h needs a PG_<NAME>_HASH define for every PG a TU registers, because
+# PG_REGISTER* pastes _pgn ## _HASH. The firmware derives those from the DWARF
+# layout of the TARGET build (mk/pg_hash.mk); tests are host builds with no
+# TARGET and never persist to real EEPROM, so the values only have to exist and
+# be distinct. Derive them from the PGN names in pg_ids.h (which reserves the
+# PG_RESERVED_FOR_TESTING_* ids the tests register).
+PG_TEST_HASH_DIR    := $(OBJECT_DIR)/pg_hash
+PG_TEST_HASH_HEADER := $(PG_TEST_HASH_DIR)/pg_hash.h
+PG_IDS_HEADER       := $(USER_DIR)/pg/pg_ids.h
+
+$(PG_TEST_HASH_HEADER): $(PG_IDS_HEADER) Makefile
+	@echo "generating $@" "$(STDOUT)"
+	$(V1) mkdir -p $(dir $@)
+	$(V1) { \
+		echo "/* AUTO-GENERATED for unit tests. DO NOT EDIT. */"; \
+		echo "#pragma once"; \
+		sed -n 's|^[[:space:]]*\(PG_[A-Z0-9_]*\)[[:space:]]*=.*|\1|p' $(PG_IDS_HEADER) \
+		| while read -r pg; do echo "#define $${pg}_HASH ($${pg} + 0x50470000u)"; done; \
+	} > $@
+
+C_FLAGS   += -I$(PG_TEST_HASH_DIR)
+CXX_FLAGS += -I$(PG_TEST_HASH_DIR)
+
+
 # canned recipe for all test builds
 #
 # variable expansion rules of thumb (number of $'s):
@@ -841,14 +867,14 @@ endif
 -include $$($1_OBJS:.o=.d)
 -include $(OBJECT_DIR)/$1/$(basename $1).d
 
-$(OBJECT_DIR)/$1/%.c.o: $(USER_DIR)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(USER_DIR)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
                 $$(foreach def,$$($1_DEFINES),-D $$(def)) \
                 -c $$< -o $$@
 
-$(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling test c file: $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
@@ -857,7 +883,7 @@ $(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c
 
 ifneq ($1,$(basename $1))
 # per-target tests may compile files from the target directory
-$(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling target c file: $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
@@ -865,7 +891,7 @@ $(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c
                 -c $$< -o $$@
 endif
 
-$(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc
+$(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc $(PG_TEST_HASH_HEADER)
 	@echo "compiling $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CXX) $(CXX_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \

@@ -50,8 +50,8 @@ extern "C" {
     #include "telemetry/telemetry.h"
     #include "telemetry/hott.h"
 
-    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG, 0);
-    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
+    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG);
+    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
 
     uint16_t testBatteryVoltage = 0;
     int32_t testAmperage = 0;

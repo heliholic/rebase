@@ -828,7 +828,7 @@ version:
 	@echo '$(FC_VER)'
 
 ## help              : print this help message and exit
-help: Makefile mk/tools.mk
+help: Makefile mk/tools.mk mk/pg_hash.mk
 	@echo ""
 	@echo "Makefile for the $(FORKNAME) firmware"
 	@echo ""
@@ -958,3 +958,5 @@ $(TARGET_OBJS): $(TARGET_EF_HASH_FILE) Makefile $(TARGET_DIR)/target.mk $(wildca
 
 # include auto-generated dependencies
 -include $(TARGET_DEPS)
+
+include $(MAKE_SCRIPT_DIR)/pg_hash.mk

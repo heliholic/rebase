@@ -57,7 +57,7 @@ extern "C" {
 
     uint32_t dummyTimeUs;
 
-    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
+    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
 }
 
 #include "unittest_macros.h"

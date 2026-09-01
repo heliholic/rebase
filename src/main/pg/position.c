@@ -28,7 +28,7 @@
 
 #include "pg/position.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(positionConfig_t, positionConfig, PG_POSITION, 7);
+PG_REGISTER_WITH_RESET_TEMPLATE(positionConfig_t, positionConfig, PG_POSITION);
 
 PG_RESET_TEMPLATE(positionConfig_t, positionConfig,
     .altitude_source = ALTITUDE_SOURCE_DEFAULT,

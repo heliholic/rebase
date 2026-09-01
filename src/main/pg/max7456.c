@@ -42,7 +42,7 @@
 #define MAX7456_SPI_INSTANCE            NULL
 #endif
 
-PG_REGISTER_WITH_RESET_FN(max7456Config_t, max7456Config, PG_MAX7456_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(max7456Config_t, max7456Config, PG_MAX7456_CONFIG);
 
 void pgResetFn_max7456Config(max7456Config_t *config)
 {

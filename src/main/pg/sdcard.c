@@ -54,7 +54,7 @@
 #define SDCARD_DETECT_IS_INVERTED 0
 #endif
 
-PG_REGISTER_WITH_RESET_FN(sdcardConfig_t, sdcardConfig, PG_SDCARD_CONFIG, 2);
+PG_REGISTER_WITH_RESET_FN(sdcardConfig_t, sdcardConfig, PG_SDCARD_CONFIG);
 
 void pgResetFn_sdcardConfig(sdcardConfig_t *config)
 {
