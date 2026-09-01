@@ -25,6 +25,8 @@
 
 #include "pg/pg.h"
 
+#define MAX_BOARD_IDENTIFIER_LENGTH 7
+
 typedef enum {
     CONFIGURATION_STATE_UNCONFIGURED = 0,
     CONFIGURATION_STATE_CONFIGURED,
@@ -37,7 +39,7 @@ typedef struct systemConfig_s {
     uint8_t task_statistics;
     uint8_t cpu_overclock;
     uint8_t powerOnArmingGraceTime; // in seconds
-    char boardIdentifier[sizeof(TARGET_BOARD_IDENTIFIER) + 1];
+    char boardIdentifier[MAX_BOARD_IDENTIFIER_LENGTH + 1];
     uint8_t hseMhz;                 // Only used for F4 and G4 targets
     configurationState_e configurationState; // The state of the configuration (defaults / configured)
     uint8_t enableStickArming; // boolean that determines whether stick arming can be used
@@ -45,4 +47,3 @@ typedef struct systemConfig_s {
 } systemConfig_t;
 
 PG_DECLARE(systemConfig_t, systemConfig);
-
