@@ -23,24 +23,14 @@
 
 #include <stdint.h>
 
-#include "pg/alignment.h"
-#include "pg/pg.h"
-#include "pg/trims.h"
+typedef struct int16_flightDynamicsTrims_s {
+    int16_t roll;
+    int16_t pitch;
+    int16_t yaw;
+    int16_t calibrationCompleted;
+} flightDynamicsTrims_def_t;
 
-#include "drivers/io_types.h"
-
-typedef struct {
-    uint8_t mag_alignment;                  // mag alignment
-    uint8_t mag_hardware;                   // Which mag hardware to use on boards with more than one device
-    uint8_t mag_busType;
-    uint8_t mag_i2c_device;
-    uint8_t mag_i2c_address;
-    uint8_t mag_spi_device;
-    ioTag_t mag_spi_csn;
-    ioTag_t interruptTag;
-    flightDynamicsTrims_t magZero;
-    sensorAlignment_t mag_customAlignment;
-} compassConfig_t;
-
-PG_DECLARE(compassConfig_t, compassConfig);
-
+typedef union flightDynamicsTrims_u {
+    int16_t raw[4];
+    flightDynamicsTrims_def_t values;
+} flightDynamicsTrims_t;
