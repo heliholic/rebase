@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "io/displayport_msp.h"
+#include "drivers/display.h"
 #include "pg/pg.h"
 
 typedef struct displayPortProfile_s {

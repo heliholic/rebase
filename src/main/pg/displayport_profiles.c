@@ -22,8 +22,6 @@
 
 #include "platform.h"
 
-#include "io/serial.h"
-
 #include "pg/displayport_profiles.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
