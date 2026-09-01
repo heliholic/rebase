@@ -73,7 +73,8 @@ OBJECT_DIR      := $(ROOT)/obj/main
 SRC_MANIFEST     = $(TARGET_OBJ_DIR)/.src_manifest
 BIN_DIR         := $(ROOT)/obj
 CMSIS_DIR       := $(ROOT)/lib/main/CMSIS
-INCLUDE_DIRS    := $(SRC_DIR)
+INCLUDE_DIRS    := $(SRC_DIR) \
+                   $(SRC_DIR)/build
 
 # Auto-hydrate submodules from .gitmodules that are not marked
 # `update = none`. Currently that's `src/config` (board configs) and
