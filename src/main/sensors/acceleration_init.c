@@ -122,8 +122,6 @@ void pgResetFn_accelerometerConfig(accelerometerConfig_t *instance)
     resetFlightDynamicsTrims(&instance->accZero);
 }
 
-PG_REGISTER_WITH_RESET_FN(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 2);
-
 static bool accDetect(accDev_t *dev, accelerationSensor_e accHardwareToUse)
 {
     accelerationSensor_e accHardware = ACC_NONE;
