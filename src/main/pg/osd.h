@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "drivers/display.h"
+#include "common/utils.h"
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
@@ -241,7 +241,7 @@ typedef struct osdConfig_s {
 #ifdef USE_SPEC_PREARM_SCREEN
     uint8_t osd_show_spec_prearm;
 #endif // USE_SPEC_PREARM_SCREEN
-    displayPortSeverity_e arming_logo;        // font from which to display logo on arming
+    uint8_t arming_logo;                      // displayPortSeverity_e: font from which to display logo on arming
 } osdConfig_t;
 
 PG_DECLARE(osdConfig_t, osdConfig);
