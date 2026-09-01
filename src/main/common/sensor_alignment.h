@@ -24,6 +24,8 @@
 #include "common/maths.h"
 #include "common/vector.h"
 
+#include "pg/alignment.h"
+
 typedef enum {
     ALIGN_DEFAULT = 0, // driver-provided alignment
 
@@ -41,19 +43,6 @@ typedef enum {
 
     ALIGN_CUSTOM = 9,    // arbitrary sensor angles, e.g. for external sensors
 } sensor_align_e;
-
-typedef union sensorAlignment_u {
-    // value order is the same as axis_e
-
-    // values are in DECIDEGREES, and should be limited to +/- 3600
-
-    int16_t raw[XYZ_AXIS_COUNT];
-    struct {
-        int16_t roll;
-        int16_t pitch;
-        int16_t yaw;
-    };
-} sensorAlignment_t;
 
 #define SENSOR_ALIGNMENT(ROLL, PITCH, YAW) ((const sensorAlignment_t) { \
     .roll = DEGREES_TO_DECIDEGREES(ROLL),                               \
