@@ -27,9 +27,8 @@
 
 #if defined(USE_ACC)
 
-#include "sensors/sensors.h"
-
 #include "pg/pg.h"
+#include "pg/trims.h"
 
 typedef struct {
     int16_t roll;
