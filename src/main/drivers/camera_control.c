@@ -32,13 +32,10 @@
 
 #include "drivers/io.h"
 #include "drivers/time.h"
-#include "pg/pg_ids.h"
 
 #ifdef USE_OSD
 #include "osd/osd.h"
 #endif
-
-PG_REGISTER_WITH_RESET_FN(cameraControlConfig_t, cameraControlConfig, PG_CAMERA_CONTROL_CONFIG, 0);
 
 void pgResetFn_cameraControlConfig(cameraControlConfig_t *cameraControlConfig)
 {
