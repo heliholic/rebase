@@ -122,7 +122,6 @@
 #include "scheduler/scheduler.h"
 
 #include "telemetry/frsky_hub.h"
-#include "telemetry/ibus_shared.h"
 #include "telemetry/telemetry.h"
 
 #include "settings.h"
