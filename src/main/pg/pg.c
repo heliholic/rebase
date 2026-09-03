@@ -27,8 +27,14 @@
 
 #include "common/crc.h"
 #include "common/maths.h"
+#include "common/utils.h"
 
 #include "pg.h"
+
+// PG_REGISTER_ATTRIBUTES aligns the structure to 4-byte boundary,
+// while PG_FOREACH walks them with pointer arithmetic.
+// The two agree only if sizeof() is a multiple of 4
+STATIC_ASSERT(sizeof(pgRegistry_t) % 4 == 0, pg_registry_size_not_multiple_of_4);
 
 const pgRegistry_t* pgFind(pgn_t pgn)
 {
