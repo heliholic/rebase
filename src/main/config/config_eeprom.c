@@ -57,15 +57,14 @@ typedef struct {
 
 // Header for each stored PG.
 typedef struct {
-    pgn_t pgn;
-    pgSize_t size;
     pgHash_t hash;
+    pgSize_t size;
     uint8_t pg[];
 } PG_PACKED configRecord_t;
 
 // Footer for the saved copy.
 typedef struct {
-    uint16_t terminator;
+    pgHash_t terminator;
 } PG_PACKED configFooter_t;
 // checksum is appended just after footer. It is not included in footer to make checksum calculation consistent
 
@@ -280,8 +279,8 @@ void initEEPROM(void)
     STATIC_ASSERT(offsetof(packingTest_t, word) == 1, word_packing_test_failed);
     STATIC_ASSERT(sizeof(packingTest_t) == 5, overall_packing_test_failed);
 
-    STATIC_ASSERT(sizeof(configFooter_t) == 2, footer_size_failed);
-    STATIC_ASSERT(sizeof(configRecord_t) == 8, record_size_failed);
+    STATIC_ASSERT(sizeof(configFooter_t) == 4, footer_size_failed);
+    STATIC_ASSERT(sizeof(configRecord_t) == 6, record_size_failed);
 
 #if defined(CONFIG_IN_FILE)
     bool eepromLoaded = loadEEPROMFromFile();
@@ -329,7 +328,7 @@ bool isEEPROMStructureValid(void)
         const configRecord_t *record = (const configRecord_t *)ptr;
 
         // Found the end.  Stop scanning.
-        if (record->size == 0) {
+        if (record->hash == 0) {
             break;
         }
 
@@ -391,7 +390,7 @@ static const configRecord_t *findEEPROM(const pgRegistry_t *reg)
             ptr + record->size >= (const uint8_t*)&__config_end ||
             record->size < sizeof(*record))
             break;
-        if (pgN(reg) == record->pgn)
+        if (pgHash(reg) == record->hash)
             return record;
         ptr += record->size;
     }
@@ -450,9 +449,8 @@ static bool writeSettingsToEEPROM(void)
 
         PG_FOREACH(reg) {
             configRecord_t record = {
-                .pgn = pgN(reg),
-                .size = sizeof(configRecord_t) + pgSize(reg),
                 .hash = pgHash(reg),
+                .size = sizeof(configRecord_t) + pgSize(reg),
             };
 
             config_streamer_write(&streamer, (uint8_t *)&record, sizeof(record));

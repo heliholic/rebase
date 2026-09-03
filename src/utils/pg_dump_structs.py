@@ -568,10 +568,28 @@ def split_macro_args(text):
     return args
 
 
-def camel_to_pgn(name):
-    stepped = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name)
-    stepped = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", stepped)
-    return "PG_%s" % stepped.upper()
+PGN_ID_RE = re.compile(
+    r"^[ \t]*(PG_[A-Z0-9_]+)[ \t]*=[ \t]*(0[xX][0-9a-fA-F]+|\d+)[ \t]*,?[ \t]*$",
+    re.M,
+)
+
+
+def load_pgn_ids(pg_dir):
+    """Map PGN macro (PG_GYRO_CONFIG, ...) -> its number, from pg_ids.h.
+
+    Retired ids are left in the file commented out; strip_c_comments drops
+    them so they cannot be resolved by accident.
+    """
+    path = os.path.join(pg_dir, "pg_ids.h")
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = strip_c_comments(fh.read())
+    except OSError as exc:
+        raise SystemExit("cannot read %s: %s" % (path, exc))
+    ids = {name: int(value, 0) for name, value in PGN_ID_RE.findall(text)}
+    if not ids:
+        raise SystemExit("%s: no PGN enumerators found" % path)
+    return ids
 
 
 def load_pgn_map(pg_dir):
@@ -594,11 +612,23 @@ def load_pgn_map(pg_dir):
     return mapping
 
 
-def hash_define_name(pg_name, pgn_map):
+def resolve_pgn(pg_name, pgn_map, pgn_ids, pg_dir):
+    """(PG_<NAME>_HASH define, PGN number) for a PG instance name.
+
+    Both lookups must succeed. The number goes into the hash, and the hash
+    is what identifies the record in EEPROM, so a guessed or missing PGN
+    would hand the record the wrong identity rather than fail loudly.
+    """
     pgn = pgn_map.get(pg_name)
-    if pgn:
-        return "%s_HASH" % pgn
-    return "%s_HASH" % camel_to_pgn(pg_name)
+    if pgn is None:
+        raise SystemExit(
+            "no PG_REGISTER* found for PG %s in %s/*.c; the PGN is part of the "
+            "layout hash and cannot be inferred from the name" % (pg_name, pg_dir))
+    if pgn not in pgn_ids:
+        raise SystemExit(
+            "PG %s registers as %s, which is not defined in %s/pg_ids.h"
+            % (pg_name, pgn, pg_dir))
+    return "%s_HASH" % pgn, pgn_ids[pgn]
 
 
 def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
@@ -610,6 +640,7 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
     produce identical hashes.
     """
     pgn_map = load_pgn_map(header_dir)
+    pgn_ids = load_pgn_ids(header_dir)
     hashes = {}
 
     shared = DwarfTypes(obj) if obj else None
@@ -649,7 +680,13 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
                             % (header_path, pg_name, array_len, pg_name, obj_path)
                         )
                     fingerprint = "pg_array[%d]:%s" % (count, fingerprint)
-                define = hash_define_name(pg_name, pgn_map)
+                define, pgn = resolve_pgn(pg_name, pgn_map, pgn_ids, header_dir)
+                # The hash alone identifies the record in EEPROM - findEEPROM()
+                # matches on it and nothing else - so the PGN has to be in it.
+                # Without it, PGs that share a struct type (the three
+                # displayPortProfile_t groups, pinPullup/pinPulldown) hash
+                # identically and would all load the first record on flash.
+                fingerprint = "pgn:%d:%s" % (pgn, fingerprint)
                 hashes[define] = (fnv1(fingerprint.encode("utf-8")), pg_name, type_name)
         finally:
             if shared is None:
@@ -658,6 +695,26 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
     if shared is not None:
         shared.close()
 
+    # The stored record carries the hash and nothing else, so two properties
+    # the EEPROM format relies on have to hold before we emit the header.
+    # Both are astronomically unlikely; both are silent data loss if missed.
+    for define, (value, pg_name, _type) in sorted(hashes.items()):
+        if value == 0:
+            raise SystemExit(
+                "%s hashes to 0, which config_eeprom.c uses as the "
+                "end-of-records terminator: every PG stored after %s would be "
+                "lost. Perturb the layout of %s to move the hash."
+                % (define, pg_name, pg_name))
+    collisions = {}
+    for define, (value, pg_name, _type) in hashes.items():
+        collisions.setdefault(value, []).append((define, pg_name))
+    for value, owners in sorted(collisions.items()):
+        if len(owners) > 1:
+            raise SystemExit(
+                "hash collision on 0x%08X between %s; findEEPROM() matches on "
+                "the hash alone, so these PGs cannot be told apart in EEPROM"
+                % (value, ", ".join("%s (%s)" % o for o in sorted(owners))))
+
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
     lines = [
         "/*",
@@ -665,6 +722,10 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
         " *",
         " * Parameter group layout hashes for TARGET %s." % (target or "unknown"),
         " * Algorithm: 32-bit FNV-1 (src/main/common/crc.c).",
+        " *",
+        " * Covers the PGN and the resolved memory layout of the group, so the",
+        " * hash both identifies the record in EEPROM and rejects it when the",
+        " * layout no longer matches.",
         " */",
         "",
         "#pragma once",
