@@ -570,6 +570,12 @@ COMMON_FLAGS = \
 	-MMD -MP \
 	-pipe
 
+# arm-none-eabi defaults to -fshort-enums, so an enum member of a parameter
+# group is one byte on the target. Match that here: without it a PG holding
+# enum members lays out differently under test than in the firmware, and the
+# valueTable widths in cli/settings.c stop describing the members the tests see.
+COMMON_FLAGS += -fshort-enums
+
 CC_VERSION = $(shell $(CC) -dumpversion)
 CXX_VERSION = $(shell $(CXX) -dumpversion)
 
