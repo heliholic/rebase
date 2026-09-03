@@ -57,14 +57,14 @@ typedef struct {
 
 // Header for each stored PG.
 typedef struct {
-    pgHash_t hash;
-    pgSize_t size;
+    uint32_t hash;
+    uint16_t size;
     uint8_t pg[];
 } PG_PACKED configRecord_t;
 
 // Footer for the saved copy.
 typedef struct {
-    pgHash_t terminator;
+    uint32_t terminator;
 } PG_PACKED configFooter_t;
 // checksum is appended just after footer. It is not included in footer to make checksum calculation consistent
 

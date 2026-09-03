@@ -33,7 +33,8 @@
 #define PG_PACKED __attribute__((packed))
 
 typedef uint16_t pgn_t;
-typedef uint16_t pgSize_t;
+typedef uint16_t pgLength_t;
+typedef uint32_t pgSize_t;
 typedef uint32_t pgHash_t;
 
 // function that resets a single parameter group instance
@@ -43,9 +44,9 @@ typedef void (pgResetFunc)(void * /* base */);
 // packed layout makes sizeof() smaller than the stride PG_FOREACH walks.
 typedef struct pgRegistry_s {
     pgn_t pgn;             // The parameter group number
+    pgLength_t length;     // The number of elements in the group
     pgSize_t size;         // Size of the group in RAM
     pgHash_t hash;         // The parameter group version hash
-    uint8_t length;        // The number of elements in the group
     uint8_t *addr;         // Address of the group in RAM.
     uint8_t *copy;         // Address of the copy in RAM.
     uint8_t **ptr;         // The pointer to update after loading the record into ram.
@@ -112,9 +113,9 @@ extern const uint8_t __pg_resetdata_end[];
     extern const pgRegistry_t _name ## _Registry;                       \
     const pgRegistry_t _name ##_Registry PG_REGISTER_ATTRIBUTES = {     \
         .pgn = _pgn,                                                    \
+        .length = 1,                                                    \
         .size = sizeof(_type),                                          \
         .hash = _pgn ## _HASH,                                          \
-        .length = 1,                                                    \
         .addr = (uint8_t*)&_name ## _Data,                              \
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .ptr = 0,                                                       \
@@ -144,9 +145,9 @@ extern const uint8_t __pg_resetdata_end[];
     extern const pgRegistry_t _name ##_Registry;                        \
     const pgRegistry_t _name ## _Registry PG_REGISTER_ATTRIBUTES = {    \
         .pgn = _pgn,                                                    \
+        .length = _length,                                              \
         .size = sizeof(_type) * _length,                                \
         .hash = _pgn ## _HASH,                                          \
-        .length = _length,                                              \
         .addr = (uint8_t*)&_name ## _DataArray,                         \
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .ptr = 0,                                                       \
