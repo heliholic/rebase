@@ -44,7 +44,6 @@ typedef struct pgRegistry_s {
     pgSize_t size;         // Size of the group in RAM
     pgHash_t hash;         // The parameter group version hash
     uint8_t length;        // The number of elements in the group
-    uint8_t flags;         // Flags of the parameter group
     uint8_t *addr;         // Address of the group in RAM.
     uint8_t *copy;         // Address of the copy in RAM.
     uint8_t **ptr;         // The pointer to update after loading the record into ram.
@@ -59,7 +58,6 @@ static inline pgn_t pgN(const pgRegistry_t* reg) { return reg->pgn; }
 static inline pgHash_t pgHash(const pgRegistry_t* reg) { return reg->hash; }
 static inline pgSize_t pgSize(const pgRegistry_t* reg) { return reg->size; }
 static inline pgSize_t pgElementSize(const pgRegistry_t* reg) { return reg->size / reg->length; }
-static inline uint8_t  pgFlags(const pgRegistry_t* reg) { return reg->flags; }
 static inline uint8_t* pgAddress(const pgRegistry_t* reg) { return reg->addr; }
 static inline uint8_t* pgCopy(const pgRegistry_t* reg) { return reg->copy; }
 
@@ -114,7 +112,6 @@ extern const uint8_t __pg_resetdata_end[];
         .size = sizeof(_type),                                          \
         .hash = _pgn ## _HASH,                                          \
         .length = 1,                                                    \
-        .flags = 0,                                                     \
         .addr = (uint8_t*)&_name ## _System,                            \
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .ptr = 0,                                                       \
@@ -147,7 +144,6 @@ extern const uint8_t __pg_resetdata_end[];
         .size = sizeof(_type) * _length,                                \
         .hash = _pgn ## _HASH,                                          \
         .length = _length,                                              \
-        .flags = 0,                                                     \
         .addr = (uint8_t*)&_name ## _SystemArray,                       \
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .ptr = 0,                                                       \
