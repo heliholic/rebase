@@ -64,17 +64,17 @@ typedef enum {
 } dshotEdt_e;
 
 typedef struct motorDevConfig_s {
-    uint16_t motorPwmRate;               // The update rate of motor outputs (50-498Hz)
-    uint8_t  motorProtocol;              // Pwm Protocol
-    uint8_t  motorInversion;             // Active-High vs Active-Low. Useful for brushed FCs converted for brushless operation
-    uint8_t  useContinuousUpdate;
-    uint8_t  useBurstDshot;
-    uint8_t  useDshotTelemetry;
-    uint8_t  useDshotEdt;
-    ioTag_t  ioTags[MAX_SUPPORTED_MOTORS];
-    uint8_t  motorTransportProtocol;
-    uint8_t  useDshotBitbang;
-    uint8_t  useDshotBitbangedTimer;
+    uint16_t              motorPwmRate;           // The update rate of motor outputs (50-498Hz)
+    uint8_t               motorProtocol;          // Pwm Protocol
+    uint8_t               motorInversion;         // Active-High vs Active-Low. Useful for brushed FCs converted for brushless operation
+    uint8_t               useContinuousUpdate;
+    dshotDmar_e           useBurstDshot;
+    dshotTelemetry_e      useDshotTelemetry;
+    dshotEdt_e            useDshotEdt;
+    ioTag_t               ioTags[MAX_SUPPORTED_MOTORS];
+    uint8_t               motorTransportProtocol;
+    dshotBitbangMode_e    useDshotBitbang;
+    dshotBitbangedTimer_e useDshotBitbangedTimer;
 } motorDevConfig_t;
 
 typedef struct motorConfig_s {
