@@ -82,7 +82,14 @@ $(PG_HASH_DIR) $(PG_DEFS_DIR) $(PG_HASH_OBJ_DIR):
 # preprocessor environment as firmware. The production .c is not used:
 # many PG sources wrap the types in USE_* ifdefs or pull reset-template
 # code that is not needed to recover the layout.
-$(PG_DEFS_DIR)/%.def: $(PG_HEADER_DIR)/%.h $(PG_DUMP_SCRIPT) | $(PG_HASH_OBJ_DIR) $(PG_DEFS_DIR)
+#
+# The probe carries $(TARGET_BUILD_INPUTS) for the same reason the firmware
+# objects do. The auto-generated .d covers every header the TU reached, but
+# not a -D that only ever exists at the make level: a USE_* toggled in
+# target.mk, an EXTRA_FLAGS, or the PG_HASH_CFLAGS below. Without these, a
+# flag change rebuilds the firmware and leaves the hashes behind it, and a
+# stale hash makes the FC accept a record whose layout no longer matches.
+$(PG_DEFS_DIR)/%.def: $(PG_HEADER_DIR)/%.h $(PG_DUMP_SCRIPT) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR) $(PG_DEFS_DIR)
 	@echo "%% (pg-def) pg/$*.h" "$(STDOUT)"
 	$(V1) printf '#include <stdbool.h>\n#include <stdint.h>\n#include "platform.h"\n#include "pg/%s.h"\n' $* > $(PG_HASH_OBJ_DIR)/$*.c
 	$(V1) $(CROSS_CC) -c -o $(PG_HASH_OBJ_DIR)/$*.o $(PG_HASH_CFLAGS) \
@@ -103,7 +110,7 @@ $(PG_DEFS_DIR)/%.def: $(PG_HEADER_DIR)/%.h $(PG_DUMP_SCRIPT) | $(PG_HASH_OBJ_DIR
 PG_ALL_SRC      := $(PG_HASH_OBJ_DIR)/pg_all.c
 PG_ALL_OBJ      := $(PG_HASH_OBJ_DIR)/pg_all.o
 
-$(PG_ALL_OBJ): $(PG_HEADERS) | $(PG_HASH_OBJ_DIR)
+$(PG_ALL_OBJ): $(PG_HEADERS) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR)
 	@echo "%% (pg-hash) pg_all.c" "$(STDOUT)"
 	$(V1) { printf '#include <stdbool.h>\n#include <stdint.h>\n#include "platform.h"\n'; \
 		for h in $(notdir $(PG_HEADERS)); do printf '#include "pg/%s"\n' "$$h"; done; \
