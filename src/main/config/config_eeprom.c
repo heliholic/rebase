@@ -416,7 +416,7 @@ bool loadEEPROM(void)
             pgReset(reg);
             success = false;
         }
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg));
+        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg));
     }
 
     return success;
@@ -432,7 +432,7 @@ static bool writeSettingsToEEPROM(void)
     };
 
     PG_FOREACH(reg) {
-        if (*reg->fnv_hash != fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg))) {
+        if (*pgChecksum(reg) != fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg))) {
             dirtyConfig = true;
         }
     }
