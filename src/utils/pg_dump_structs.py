@@ -246,14 +246,14 @@ class DwarfTypes:
 
     def array_length(self, pg_name):
         """Resolved element count of a PG_DECLARE_ARRAY, from the
-        <name>_SystemArray variable the macro emits.
+        <name>_DataArray variable the macro emits.
 
         The declaration spells the length as a macro (PID_PROFILE_COUNT),
         so the source text says nothing about its value. The compiler has
         already resolved it here, which is what actually determines the
         size of the stored record.
         """
-        die = self.variables.get(pg_name + "_SystemArray")
+        die = self.variables.get(pg_name + "_DataArray")
         if die is None:
             return None
         array = unwrap(follow_type(die))
@@ -676,7 +676,7 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
                     if count is None:
                         raise SystemExit(
                             "%s: cannot resolve array length for PG %s (%s); "
-                            "expected a %s_SystemArray symbol in %s"
+                            "expected a %s_DataArray symbol in %s"
                             % (header_path, pg_name, array_len, pg_name, obj_path)
                         )
                     fingerprint = "pg_array[%d]:%s" % (count, fingerprint)

@@ -103,8 +103,8 @@ extern "C" {
     serialPortIdentifier_e displayPortMspGetSerial(void) { return (serialPortIdentifier_e)-1; }
 
     // --- PG backing storage + tables referenced by the unit under test ---
-    serialConfig_t serialConfig_System;
-    mspConfig_t mspConfig_System;
+    serialConfig_t serialConfig_Data;
+    mspConfig_t mspConfig_Data;
     const uint32_t baudRates[BAUD_COUNT] = { 0 };
 
     // --- MSP command/reply sinks ---
@@ -133,9 +133,9 @@ protected:
 
         memset(&fakeSerialPort, 0, sizeof(fakeSerialPort));
         memset(&fakePortConfig, 0, sizeof(fakePortConfig));
-        memset(&serialConfig_System, 0, sizeof(serialConfig_System));
-        memset(&mspConfig_System, 0, sizeof(mspConfig_System));
-        serialConfig_System.reboot_character = 'R';
+        memset(&serialConfig_Data, 0, sizeof(serialConfig_Data));
+        memset(&mspConfig_Data, 0, sizeof(mspConfig_Data));
+        serialConfig_Data.reboot_character = 'R';
 
         // memset all ports + re-allocate one from the mocked config above.
         mspSerialInit();

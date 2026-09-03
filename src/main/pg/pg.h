@@ -87,26 +87,26 @@ extern const uint8_t __pg_resetdata_end[];
 
 // Declare system config
 #define PG_DECLARE(_type, _name)                                        \
-    extern _type _name ## _System;                                      \
+    extern _type _name ## _Data;                                        \
     extern _type _name ## _Copy;                                        \
-    static inline const _type * _name(void) { return &_name ## _System; } \
-    static inline _type * _name ## Mutable(void) { return &_name ## _System; } \
+    static inline const _type * _name(void) { return &_name ## _Data; } \
+    static inline _type * _name ## Mutable(void) { return &_name ## _Data; } \
     struct _dummy                                                       \
     /**/
 
 // Declare system config array
 #define PG_DECLARE_ARRAY(_type, _length, _name)                         \
-    extern _type _name ## _SystemArray[_length];                        \
+    extern _type _name ## _DataArray[_length];                          \
     extern _type _name ## _CopyArray[_length];                          \
-    static inline const _type * _name(int _index) { return &_name ## _SystemArray[_index]; } \
-    static inline _type * _name ## Mutable(int _index) { return &_name ## _SystemArray[_index]; } \
-    static inline _type (* _name ## _array(void))[_length] { return &_name ## _SystemArray; } \
+    static inline const _type * _name(int _index) { return &_name ## _DataArray[_index]; } \
+    static inline _type * _name ## Mutable(int _index) { return &_name ## _DataArray[_index]; } \
+    static inline _type (* _name ## _array(void))[_length] { return &_name ## _DataArray; } \
     struct _dummy                                                       \
     /**/
 
 // Register system config
 #define PG_REGISTER_I(_type, _name, _pgn, _reset)                       \
-    _type _name ## _System;                                             \
+    _type _name ## _Data;                                               \
     _type _name ## _Copy;                                               \
     uint32_t _name ## _checksum;                                        \
     extern const pgRegistry_t _name ## _Registry;                       \
@@ -115,7 +115,7 @@ extern const uint8_t __pg_resetdata_end[];
         .size = sizeof(_type),                                          \
         .hash = _pgn ## _HASH,                                          \
         .length = 1,                                                    \
-        .addr = (uint8_t*)&_name ## _System,                            \
+        .addr = (uint8_t*)&_name ## _Data,                              \
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .ptr = 0,                                                       \
         .reset = _reset,                                                \
@@ -138,7 +138,7 @@ extern const uint8_t __pg_resetdata_end[];
     /**/
 
 #define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _reset)        \
-    _type _name ## _SystemArray[_length];                               \
+    _type _name ## _DataArray[_length];                                 \
     _type _name ## _CopyArray[_length];                                 \
     uint32_t _name ## _checksum;                                        \
     extern const pgRegistry_t _name ##_Registry;                        \
@@ -147,7 +147,7 @@ extern const uint8_t __pg_resetdata_end[];
         .size = sizeof(_type) * _length,                                \
         .hash = _pgn ## _HASH,                                          \
         .length = _length,                                              \
-        .addr = (uint8_t*)&_name ## _SystemArray,                       \
+        .addr = (uint8_t*)&_name ## _DataArray,                         \
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .ptr = 0,                                                       \
         .reset = _reset,                                                \
