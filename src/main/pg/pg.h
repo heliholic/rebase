@@ -39,6 +39,8 @@ typedef uint32_t pgHash_t;
 // function that resets a single parameter group instance
 typedef void (pgResetFunc)(void * /* base */);
 
+// Must not be packed: PG_REGISTER_ATTRIBUTES aligns every entry to 4, so a
+// packed layout makes sizeof() smaller than the stride PG_FOREACH walks.
 typedef struct pgRegistry_s {
     pgn_t pgn;             // The parameter group number
     pgSize_t size;         // Size of the group in RAM
@@ -51,7 +53,7 @@ typedef struct pgRegistry_s {
         void *ptr;         // Pointer to init template
         pgResetFunc *fn;   // Popinter to pgResetFunc
     } reset;
-    uint32_t *fnv_hash;    // Used to detect if config has changed prior to write
+    pgHash_t *checksum;    // Used to detect if config has changed prior to write
 } pgRegistry_t;
 
 static inline pgn_t pgN(const pgRegistry_t* reg) { return reg->pgn; }
@@ -60,6 +62,7 @@ static inline pgSize_t pgSize(const pgRegistry_t* reg) { return reg->size; }
 static inline pgSize_t pgElementSize(const pgRegistry_t* reg) { return reg->size / reg->length; }
 static inline uint8_t* pgAddress(const pgRegistry_t* reg) { return reg->addr; }
 static inline uint8_t* pgCopy(const pgRegistry_t* reg) { return reg->copy; }
+static inline pgHash_t *pgChecksum(const pgRegistry_t* reg) { return reg->checksum; }
 
 extern const pgRegistry_t __pg_registry_start[];
 extern const pgRegistry_t __pg_registry_end[];
@@ -105,7 +108,7 @@ extern const uint8_t __pg_resetdata_end[];
 #define PG_REGISTER_I(_type, _name, _pgn, _reset)                       \
     _type _name ## _System;                                             \
     _type _name ## _Copy;                                               \
-    uint32_t _name ## _fnv_hash;                                        \
+    uint32_t _name ## _checksum;                                        \
     extern const pgRegistry_t _name ## _Registry;                       \
     const pgRegistry_t _name ##_Registry PG_REGISTER_ATTRIBUTES = {     \
         .pgn = _pgn,                                                    \
@@ -116,7 +119,7 @@ extern const uint8_t __pg_resetdata_end[];
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .ptr = 0,                                                       \
         .reset = _reset,                                                \
-        .fnv_hash = &_name ## _fnv_hash,                                \
+        .checksum = &_name ## _checksum,                                \
     }                                                                   \
     /**/
 
@@ -137,7 +140,7 @@ extern const uint8_t __pg_resetdata_end[];
 #define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _reset)        \
     _type _name ## _SystemArray[_length];                               \
     _type _name ## _CopyArray[_length];                                 \
-    uint32_t _name ## _fnv_hash;                                        \
+    uint32_t _name ## _checksum;                                        \
     extern const pgRegistry_t _name ##_Registry;                        \
     const pgRegistry_t _name ## _Registry PG_REGISTER_ATTRIBUTES = {    \
         .pgn = _pgn,                                                    \
@@ -148,7 +151,7 @@ extern const uint8_t __pg_resetdata_end[];
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .ptr = 0,                                                       \
         .reset = _reset,                                                \
-        .fnv_hash = &_name ## _fnv_hash,                                \
+        .checksum = &_name ## _checksum,                                \
     }                                                                   \
     /**/
 

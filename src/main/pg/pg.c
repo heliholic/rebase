@@ -86,7 +86,7 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t h
         const int take = MIN(size, pgSize(reg));
         memcpy(pgAddress(reg), from, take);
 
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, from, take);
+        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, from, take);
 
         return true;
     }
