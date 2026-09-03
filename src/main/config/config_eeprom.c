@@ -279,8 +279,9 @@ void initEEPROM(void)
     STATIC_ASSERT(offsetof(packingTest_t, word) == 1, word_packing_test_failed);
     STATIC_ASSERT(sizeof(packingTest_t) == 5, overall_packing_test_failed);
 
-    STATIC_ASSERT(sizeof(configFooter_t) == 4, footer_size_failed);
+    STATIC_ASSERT(sizeof(configHeader_t) == 8, header_size_failed);
     STATIC_ASSERT(sizeof(configRecord_t) == 6, record_size_failed);
+    STATIC_ASSERT(sizeof(configFooter_t) == 4, footer_size_failed);
 
 #if defined(CONFIG_IN_FILE)
     bool eepromLoaded = loadEEPROMFromFile();
