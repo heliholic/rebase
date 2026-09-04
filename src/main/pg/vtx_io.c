@@ -35,7 +35,7 @@
 
 PG_REGISTER_WITH_RESET_FN(vtxIOConfig_t, vtxIOConfig, PG_VTX_IO_CONFIG);
 
-void pgResetFn_vtxIOConfig(vtxIOConfig_t *vtxIOConfig)
+PG_RESET_FN(vtxIOConfig_t, vtxIOConfig)
 {
     // common
     vtxIOConfig->csTag = IO_TAG(RTC6705_CS_PIN);

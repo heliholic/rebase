@@ -32,9 +32,10 @@ PG_REGISTER_WITH_RESET_FN(vtxSettingsConfig_t, vtxSettingsConfig, PG_VTX_SETTING
 #ifdef USE_VTX_CONTROL
 PG_REGISTER_WITH_RESET_TEMPLATE(vtxConfig_t, vtxConfig, PG_VTX_CONFIG);
 
-PG_RESET_TEMPLATE(vtxConfig_t, vtxConfig,
+PG_RESET_TEMPLATE(vtxConfig_t, vtxConfig)
+{
     .halfDuplex = true,
-);
+};
 #endif
 
 #endif

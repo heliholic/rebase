@@ -34,10 +34,11 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(pidConfig_t, pidConfig, PG_PID_CONFIG);
 
-PG_RESET_TEMPLATE(pidConfig_t, pidConfig,
+PG_RESET_TEMPLATE(pidConfig_t, pidConfig)
+{
     .pid_process_denom = DEFAULT_PID_PROCESS_DENOM,
-);
+};
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(pidProfile_t, PID_PROFILE_COUNT, pidProfiles, PG_PID_PROFILE);
 
-void pgResetFn_pidProfiles(pidProfile_t *pidProfiles);
+PG_RESET_FN(pidProfile_t, pidProfiles);

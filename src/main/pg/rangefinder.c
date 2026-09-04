@@ -33,15 +33,17 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig, PG_RANGEFINDER_CONFIG);
 
-PG_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig,
+PG_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig)
+{
     .rangefinder_hardware = RANGEFINDER_NONE,
-);
+};
 
 #ifdef USE_RANGEFINDER_HCSR04
 PG_REGISTER_WITH_RESET_TEMPLATE(sonarConfig_t, sonarConfig, PG_SONAR_CONFIG);
 
-PG_RESET_TEMPLATE(sonarConfig_t, sonarConfig,
+PG_RESET_TEMPLATE(sonarConfig_t, sonarConfig)
+{
     .triggerTag = IO_TAG(RANGEFINDER_HCSR04_TRIGGER_PIN),
     .echoTag = IO_TAG(RANGEFINDER_HCSR04_ECHO_PIN),
-);
+};
 #endif

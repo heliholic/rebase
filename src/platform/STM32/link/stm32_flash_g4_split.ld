@@ -107,16 +107,30 @@ SECTIONS
   } >FLASH1
   .pg_registry :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_registry_start = .);
     KEEP (*(.pg_registry))
     KEEP (*(SORT(.pg_registry.*)))
     PROVIDE_HIDDEN (__pg_registry_end = .);
+    . = ALIGN(4);
   } >FLASH1
   .pg_resetdata :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_resetdata_start = .);
     KEEP (*(.pg_resetdata))
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
+    . = ALIGN(4);
+  } >FLASH1
+
+  .pg_resetfunc :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetfunc_start = .);
+    KEEP (*(.pg_resetfunc))
+    KEEP (*(SORT(.pg_resetfunc.*)))
+    PROVIDE_HIDDEN (__pg_resetfunc_end = .);
+    . = ALIGN(4);
   } >FLASH1
 
   /* used by the startup to initialize data */
@@ -148,6 +162,16 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
+  } >RAM
+
+  . = ALIGN(4);
+  .pg_data (NOLOAD) :
+  {
+    PROVIDE_HIDDEN (__pg_data_start = .);
+    *(.pg_data)
+    *(SORT_BY_ALIGNMENT(.pg_data*))
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_data_end = .);
   } >RAM
 
   /* used during startup to initialized fastram_data */

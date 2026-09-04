@@ -34,7 +34,8 @@ extern "C" {
 
 PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
 
-PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
+PG_RESET_TEMPLATE(motorConfig_t, motorConfig)
+{
     .dev = {
         .motorPwmRate = 400,
         .motorProtocol = 0,
@@ -52,7 +53,7 @@ PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
     .mincommand = 1000,
     .kv = 1000,
     .motorPoleCount = 14,
-);
+};
 
 // A scalar PG with no reset at all: pgResetInstance() must still zero it.
 typedef struct pgTestZeroed_s {
@@ -77,11 +78,11 @@ PG_DECLARE_ARRAY(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray);
 PG_REGISTER_ARRAY_WITH_RESET_FN(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray,
                                 PG_RESERVED_FOR_TESTING_2);
 
-extern "C" void pgResetFn_pgTestArray(pgTestElem_t *elems)
+extern "C" PG_RESET_FN(pgTestElem_t, pgTestArray)
 {
     for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
-        elems[i].index = i;
-        elems[i].value = 100 + i;
+        pgTestArray[i].index = i;
+        pgTestArray[i].value = 100 + i;
     }
 }
 }

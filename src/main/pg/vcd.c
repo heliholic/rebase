@@ -30,7 +30,7 @@
 // no template required since defaults are zero
 PG_REGISTER_WITH_RESET_FN(vcdProfile_t, vcdProfile, PG_VCD_CONFIG);
 
-void pgResetFn_vcdProfile(vcdProfile_t *vcdProfile)
+PG_RESET_FN(vcdProfile_t, vcdProfile)
 {
     // Make it obvious on the configurator that the FC doesn't support HD
 #ifdef USE_OSD_HD

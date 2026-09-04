@@ -34,7 +34,8 @@ STATIC_ASSERT(sizeof(TARGET_BOARD_IDENTIFIER) <= MAX_BOARD_IDENTIFIER_LENGTH + 1
 
 PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
 
-PG_RESET_TEMPLATE(systemConfig_t, systemConfig,
+PG_RESET_TEMPLATE(systemConfig_t, systemConfig)
+{
     .pidProfileIndex = 0,
     .activeRateProfile = 0,
     .debug_mode = DEBUG_MODE,
@@ -46,4 +47,4 @@ PG_RESET_TEMPLATE(systemConfig_t, systemConfig,
     .configurationState = CONFIGURATION_STATE_UNCONFIGURED,
     .enableStickArming = false,
     .activeBatteryProfile = 0,
-);
+};

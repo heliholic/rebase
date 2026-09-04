@@ -44,7 +44,7 @@
 #include "vtx.h"
 
 
-void pgResetFn_vtxSettingsConfig(vtxSettingsConfig_t *vtxSettingsConfig)
+PG_RESET_FN(vtxSettingsConfig_t, vtxSettingsConfig)
 {
 #ifdef USE_VTX_TABLE
     vtxSettingsConfig->band = 0;

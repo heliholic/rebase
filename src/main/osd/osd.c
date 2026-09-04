@@ -314,7 +314,7 @@ const uint16_t osdTimerDefault[OSD_TIMER_COUNT] = {
         OSD_TIMER(OSD_TIMER_SRC_TOTAL_ARMED, OSD_TIMER_PREC_SECOND, 10)
 };
 
-void pgResetFn_osdConfig(osdConfig_t *osdConfig)
+PG_RESET_FN(osdConfig_t, osdConfig)
 {
     // Enable the default stats
     osdConfig->enabled_stats = 0; // reset all to off and enable only a few initially
@@ -411,7 +411,7 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 #endif // USE_OSD_QUICK_MENU
 }
 
-void pgResetFn_osdElementConfig(osdElementConfig_t *osdElementConfig)
+PG_RESET_FN(osdElementConfig_t, osdElementConfig)
 {
 // If user includes OSD_HD in the build assume they want to use it as default
 #ifdef USE_OSD_HD

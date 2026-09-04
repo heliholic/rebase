@@ -33,7 +33,8 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG);
 
-PG_RESET_TEMPLATE(telemetryConfig_t, telemetryConfig,
+PG_RESET_TEMPLATE(telemetryConfig_t, telemetryConfig)
+{
     .telemetry_inverted = false,
     .halfDuplex = 1,
     .gpsNoFixLatitude = 0,
@@ -59,5 +60,5 @@ PG_RESET_TEMPLATE(telemetryConfig_t, telemetryConfig,
     .mavlink_extra2_rate = 2,
     .mavlink_extra3_rate = 1,
     .crsf_tlm_accgyro = 0,
-);
+};
 

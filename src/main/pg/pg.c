@@ -31,10 +31,11 @@
 
 #include "pg.h"
 
-// PG_REGISTER_ATTRIBUTES aligns the structure to 4-byte boundary,
-// while PG_FOREACH walks them with pointer arithmetic.
-// The two agree only if sizeof() is a multiple of 4
+// PG_REGISTER_ATTRIBUTES and the linker pack entries on a 4-byte stride.
+// PG_FOREACH walks by sizeof(pgRegistry_t), so size and alignment must be
+// multiples of 4 (4 on MCUs, 8 on 64-bit hosts).
 STATIC_ASSERT(sizeof(pgRegistry_t) % 4 == 0, pg_registry_size_not_multiple_of_4);
+STATIC_ASSERT(_Alignof(pgRegistry_t) % 4 == 0, pg_registry_alignment_not_multiple_of_4);
 
 const pgRegistry_t* pgFind(pgn_t pgn)
 {
@@ -50,13 +51,14 @@ void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
 {
     memset(base, 0, pgSize(reg));
 
-    if (reg->reset.ptr) {
-        if (reg->reset.ptr >= (void*)__pg_resetdata_start && reg->reset.ptr < (void*)__pg_resetdata_end) {
-            // pointer points to resetdata section, to it is data template
-            memcpy(base, reg->reset.ptr, pgSize(reg));
-        } else {
-            // reset function, call it
-            reg->reset.fn(base);
+    if (reg->reset.data) {
+        if (reg->reset.data >= (void*)__pg_resetdata_start && reg->reset.data < (void*)__pg_resetdata_end) {
+            // pointer points into .pg_resetdata, so it is a data template
+            memcpy(base, reg->reset.data, pgSize(reg));
+        }
+        else if (reg->reset.data >= (void*)__pg_resetfunc_start && reg->reset.data < (void*)__pg_resetfunc_end) {
+            // pointer points into .pg_resetfunc (or is otherwise a reset function)
+            reg->reset.func(base);
         }
     }
 }

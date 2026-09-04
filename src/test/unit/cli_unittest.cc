@@ -265,7 +265,7 @@ const box_t *findBoxByBoxId(boxId_e) { return &boxes[0]; }
 
 int8_t unitTestDataArray[3];
 
-void pgResetFn_unitTestData(int8_t *)
+PG_RESET_FN(int8_t, unitTestData)
 {}
 
 uint32_t getBeeperOffMask(void) { return 0; }

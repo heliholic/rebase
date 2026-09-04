@@ -141,20 +141,21 @@ static const canDefaultConfig_t canDefaultConfig[] = {
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(canPinConfig_t, CANDEV_COUNT, canPinConfig, PG_CAN_PIN_CONFIG);
 
-void pgResetFn_canPinConfig(canPinConfig_t *config)
+PG_RESET_FN(canPinConfig_t, canPinConfig)
 {
     for (size_t i = 0; i < ARRAYLEN(canDefaultConfig); i++) {
         const canDefaultConfig_t *defconf = &canDefaultConfig[i];
-        config[defconf->device].ioTagTx = defconf->tx;
-        config[defconf->device].ioTagRx = defconf->rx;
-        config[defconf->device].ioTagSilent = defconf->silent;
+        canPinConfig[defconf->device].ioTagTx = defconf->tx;
+        canPinConfig[defconf->device].ioTagRx = defconf->rx;
+        canPinConfig[defconf->device].ioTagSilent = defconf->silent;
     }
 }
 
 PG_REGISTER_WITH_RESET_TEMPLATE(canConfig_t, canConfig, PG_CAN_CONFIG);
 
-PG_RESET_TEMPLATE(canConfig_t, canConfig,
+PG_RESET_TEMPLATE(canConfig_t, canConfig)
+{
     .bitrate_khz = 1000U,
-);
+};
 
 #endif // ENABLE_CAN
