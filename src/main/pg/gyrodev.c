@@ -243,64 +243,64 @@ static void gyroResetI2cDeviceConfig(gyroDeviceConfig_t *devconf, i2cDevice_e i2
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(gyroDeviceConfig_t, MAX_GYRODEV_COUNT, gyroDeviceConfig, PG_GYRO_DEVICE_CONFIG);
 
-void pgResetFn_gyroDeviceConfig(gyroDeviceConfig_t *devconf)
+PG_RESET_FN(gyroDeviceConfig_t, gyroDeviceConfig)
 {
-    devconf[0].index = 0;
+    gyroDeviceConfig[0].index = 0;
     // All multi-gyro boards use SPI based gyros.
 #ifdef USE_SPI_GYRO
 
 #define GYRO_RESET(index, num) \
-    gyroResetSpiDeviceConfig(&devconf[index], (spiResource_t *)GYRO_##num##_SPI_INSTANCE, \
+    gyroResetSpiDeviceConfig(&gyroDeviceConfig[index], (spiResource_t *)GYRO_##num##_SPI_INSTANCE, \
         IO_TAG(GYRO_##num##_CS_PIN), IO_TAG(GYRO_##num##_EXTI_PIN), \
         IO_TAG(GYRO_##num##_CLKIN_PIN), GYRO_##num##_ALIGN, GYRO_##num##_CUSTOM_ALIGN)
 
 #ifdef GYRO_1_SPI_INSTANCE
     GYRO_RESET(0, 1);
 #else
-    devconf[0].busType = BUS_TYPE_NONE;
+    gyroDeviceConfig[0].busType = BUS_TYPE_NONE;
 #endif
 
 #if GYRO_COUNT > 1
-    devconf[1].index = 1;
+    gyroDeviceConfig[1].index = 1;
 #ifdef GYRO_2_SPI_INSTANCE
     // TODO: CLKIN gyro 2 on separate pin is not supported yet. need to implement it
     GYRO_RESET(1, 2);
 #else
-    devconf[1].busType = BUS_TYPE_NONE;
+    gyroDeviceConfig[1].busType = BUS_TYPE_NONE;
 #endif
 #endif // GYRO_COUNT 2
 
 #if GYRO_COUNT > 2
-    devconf[2].index = 2;
+    gyroDeviceConfig[2].index = 2;
 #ifdef GYRO_3_SPI_INSTANCE
     // TODO: CLKIN gyro 3 on separate pin is not supported yet. need to implement it
     GYRO_RESET(2, 3);
 #else
-    devconf[2].busType = BUS_TYPE_NONE;
+    gyroDeviceConfig[2].busType = BUS_TYPE_NONE;
 #endif
 #endif // GYRO_COUNT 3
 
 #if GYRO_COUNT > 3
-    devconf[3].index = 3;
+    gyroDeviceConfig[3].index = 3;
 #ifdef GYRO_4_SPI_INSTANCE
     // TODO: CLKIN gyro 4 on separate pin is not supported yet. need to implement it
     GYRO_RESET(3, 4);
 #else
-    devconf[3].busType = BUS_TYPE_NONE;
+    gyroDeviceConfig[3].busType = BUS_TYPE_NONE;
 #endif
 #endif // GYRO_COUNT 4
 
 #if GYRO_COUNT > 4
     // reset all gyro greater than gyro 5
     for (int i = 4; i < 8; i++) {
-        devconf[i].busType = BUS_TYPE_NONE;
+        gyroDeviceConfig[i].busType = BUS_TYPE_NONE;
     }
 #endif
 #endif // USE_SPI_GYRO
 
     // I2C gyros appear as a sole gyro in single gyro boards.
 #if defined(USE_I2C_GYRO) && !(GYRO_COUNT > 1)
-    devconf[0].i2cBus = I2C_DEV_TO_CFG(I2CINVALID); // XXX Not required?
-    gyroResetI2cDeviceConfig(&devconf[0], I2C_DEVICE, IO_TAG(GYRO_1_EXTI_PIN), GYRO_1_ALIGN, GYRO_1_CUSTOM_ALIGN);
+    gyroDeviceConfig[0].i2cBus = I2C_DEV_TO_CFG(I2CINVALID); // XXX Not required?
+    gyroResetI2cDeviceConfig(&gyroDeviceConfig[0], I2C_DEVICE, IO_TAG(GYRO_1_EXTI_PIN), GYRO_1_ALIGN, GYRO_1_CUSTOM_ALIGN);
 #endif
 }

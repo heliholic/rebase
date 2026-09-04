@@ -33,28 +33,33 @@
 #define PG_PACKED __attribute__((packed))
 
 typedef uint16_t pgn_t;
-typedef uint16_t pgLength_t;
+typedef uint16_t pgLen_t;
 typedef uint32_t pgSize_t;
 typedef uint32_t pgHash_t;
 
-// function that resets a single parameter group instance
+// function to reset the Parameter Group to default values
 typedef void (pgResetFunc)(void * /* base */);
 
-// Must not be packed: PG_REGISTER_ATTRIBUTES aligns every entry to 4, so a
-// packed layout makes sizeof() smaller than the stride PG_FOREACH walks.
+// Function to load the PG data into the active parameters.
+typedef bool (pgLoadFunc)(void * /* base */);
+
+// The PG registry is a table of all parameter groups, their sizes, etc.
 typedef struct pgRegistry_s {
     pgn_t pgn;             // The parameter group number
-    pgLength_t length;     // The number of elements in the group
+    pgLen_t length;        // The number of elements in the group
     pgSize_t size;         // Size of the group in RAM
     pgHash_t hash;         // The parameter group version hash
     uint8_t *addr;         // Address of the group in RAM.
     uint8_t *copy;         // Address of the copy in RAM.
-    uint8_t **ptr;         // The pointer to update after loading the record into ram.
     union {
-        void *ptr;         // Pointer to init template
-        pgResetFunc *fn;   // Popinter to pgResetFunc
+        void *data;        // Pointer to init template
+        pgResetFunc *func; // Pointer to pgResetFunc
     } reset;
-    pgHash_t *checksum;    // Used to detect if config has changed prior to write
+    union {
+        void *ptr;         // Raw pointer
+        pgLoadFunc *func;  // Pointer to pgLoadFunc
+    } load;
+    pgHash_t *checksum;    // Used to detect if config has changed
 } pgRegistry_t;
 
 static inline pgn_t pgN(const pgRegistry_t* reg) { return reg->pgn; }
@@ -73,6 +78,10 @@ extern const pgRegistry_t __pg_registry_end[];
 extern const uint8_t __pg_resetdata_start[];
 extern const uint8_t __pg_resetdata_end[];
 #define PG_RESETDATA_ATTRIBUTES __attribute__ ((section(".pg_resetdata"), used, aligned(2)))
+
+extern const uint8_t __pg_resetfunc_start[];
+extern const uint8_t __pg_resetfunc_end[];
+#define PG_RESETFUNC_ATTRIBUTES __attribute__ ((section(".pg_resetfunc"), used))
 
 // Helper to iterate over the PG register.  Cheaper than a visitor style callback.
 #define PG_FOREACH(_name) \
@@ -106,7 +115,7 @@ extern const uint8_t __pg_resetdata_end[];
     /**/
 
 // Register system config
-#define PG_REGISTER_I(_type, _name, _pgn, _reset)                       \
+#define PG_REGISTER_I(_type, _name, _pgn, _reset,_load)                 \
     _type _name ## _Data;                                               \
     _type _name ## _Copy;                                               \
     uint32_t _name ## _checksum;                                        \
@@ -118,27 +127,27 @@ extern const uint8_t __pg_resetdata_end[];
         .hash = _pgn ## _HASH,                                          \
         .addr = (uint8_t*)&_name ## _Data,                              \
         .copy = (uint8_t*)&_name ## _Copy,                              \
-        .ptr = 0,                                                       \
         .reset = _reset,                                                \
+        .load = _load,                                                  \
         .checksum = &_name ## _checksum,                                \
     }                                                                   \
     /**/
 
 #define PG_REGISTER(_type, _name, _pgn)                                 \
-    PG_REGISTER_I(_type, _name, _pgn, {.ptr = 0})                       \
+    PG_REGISTER_I(_type, _name, _pgn, {.data = 0}, {.ptr = 0})          \
     /**/
 
 #define PG_REGISTER_WITH_RESET_FN(_type, _name, _pgn)                   \
-    extern void pgResetFn_ ## _name(_type *);                           \
-    PG_REGISTER_I(_type, _name, _pgn, {.fn = (pgResetFunc*)&pgResetFn_ ## _name}) \
+    extern PG_RESET_FN(_type, _name);                                   \
+    PG_REGISTER_I(_type, _name, _pgn, {.func = (pgResetFunc*)&pgResetFn_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_REGISTER_WITH_RESET_TEMPLATE(_type, _name, _pgn)             \
     extern const _type pgResetTemplate_ ## _name;                       \
-    PG_REGISTER_I(_type, _name, _pgn, {.ptr = (void*)&pgResetTemplate_ ## _name}) \
+    PG_REGISTER_I(_type, _name, _pgn, {.data = (void*)&pgResetTemplate_ ## _name}, {.ptr = 0}) \
     /**/
 
-#define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _reset)        \
+#define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _reset, _load) \
     _type _name ## _DataArray[_length];                                 \
     _type _name ## _CopyArray[_length];                                 \
     uint32_t _name ## _checksum;                                        \
@@ -150,27 +159,29 @@ extern const uint8_t __pg_resetdata_end[];
         .hash = _pgn ## _HASH,                                          \
         .addr = (uint8_t*)&_name ## _DataArray,                         \
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
-        .ptr = 0,                                                       \
         .reset = _reset,                                                \
+        .load = _load,                                                  \
         .checksum = &_name ## _checksum,                                \
     }                                                                   \
     /**/
 
 #define PG_REGISTER_ARRAY(_type, _length, _name, _pgn)                  \
-    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, {.ptr = 0})        \
+    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, {.data = 0}, {.ptr = 0}) \
     /**/
 
 #define PG_REGISTER_ARRAY_WITH_RESET_FN(_type, _length, _name, _pgn)    \
-    extern void pgResetFn_ ## _name(_type *);    \
-    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, {.fn = (pgResetFunc*)&pgResetFn_ ## _name}) \
+    extern PG_RESET_FN(_type, _name);                                   \
+    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, {.func = (pgResetFunc*)&pgResetFn_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_ARRAY_ELEMENT_OFFSET(type, index, member) (index * sizeof(type) + offsetof(type, member))
 
-#define PG_RESET_TEMPLATE(_type, _name, ...)                            \
-    const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES = {   \
-        __VA_ARGS__                                                     \
-    }                                                                   \
+#define PG_RESET_TEMPLATE(_type, _name)                                 \
+    const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES =     \
+    /**/
+
+#define PG_RESET_FN(_type, _name)                                       \
+    void PG_RESETFUNC_ATTRIBUTES pgResetFn_ ## _name(_type *_name)      \
     /**/
 
 const pgRegistry_t* pgFind(pgn_t pgn);

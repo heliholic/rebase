@@ -48,11 +48,12 @@ extern "C" {
 
     PG_DECLARE(eeTestScalar_t, eeTestScalar);
     PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1);
-    PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar,
+    PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar)
+    {
         .a = 0xA5A5A5A5,
         .b = 0x1234,
         .c = 0x5A,
-    );
+    };
 
     #define EE_TEST_ARRAY_LEN 4
 
@@ -65,11 +66,11 @@ extern "C" {
     PG_REGISTER_ARRAY_WITH_RESET_FN(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray,
                                     PG_RESERVED_FOR_TESTING_2);
 
-    void pgResetFn_eeTestArray(eeTestElem_t *elems)
+    PG_RESET_FN(eeTestElem_t, eeTestArray)
     {
         for (int i = 0; i < EE_TEST_ARRAY_LEN; i++) {
-            elems[i].index = i;
-            elems[i].value = 100 + i;
+            eeTestArray[i].index = i;
+            eeTestArray[i].value = 100 + i;
         }
     }
 }

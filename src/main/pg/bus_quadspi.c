@@ -148,7 +148,7 @@ const quadSpiDefaultConfig_t quadSpiDefaultConfig[] = {
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(quadSpiConfig_t, QUADSPIDEV_COUNT, quadSpiConfig, PG_QUADSPI_CONFIG);
 
-void pgResetFn_quadSpiConfig(quadSpiConfig_t *quadSpiConfig)
+PG_RESET_FN(quadSpiConfig_t, quadSpiConfig)
 {
     for (size_t i = 0 ; i < ARRAYLEN(quadSpiDefaultConfig) ; i++) {
         const quadSpiDefaultConfig_t *defconf = &quadSpiDefaultConfig[i];

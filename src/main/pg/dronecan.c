@@ -29,12 +29,13 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig, PG_DRONECAN_CONFIG);
 
-PG_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig,
+PG_RESET_TEMPLATE(dronecanConfig_t, dronecanConfig)
+{
     .enabled = 0,
     .node_id = 10,
     .device = 1,
     .esc_rate_hz = 200,
     .dna_enabled = 1,
-);
+};
 
 #endif // ENABLE_DRONECAN

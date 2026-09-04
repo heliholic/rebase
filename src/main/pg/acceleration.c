@@ -29,5 +29,3 @@
 #include "pg/acceleration.h"
 
 PG_REGISTER_WITH_RESET_FN(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG);
-
-void pgResetFn_accelerometerConfig(accelerometerConfig_t *instance);

@@ -64,15 +64,15 @@
 
 PG_REGISTER_WITH_RESET_FN(pinioBoxConfig_t, pinioBoxConfig, PG_PINIOBOX_CONFIG);
 
-void pgResetFn_pinioBoxConfig(pinioBoxConfig_t *config)
+PG_RESET_FN(pinioBoxConfig_t, pinioBoxConfig)
 {
-    config->permanentId[0] = PINIO1_BOX;
-    config->permanentId[1] = PINIO2_BOX;
-    config->permanentId[2] = PINIO3_BOX;
-    config->permanentId[3] = PINIO4_BOX;
+    pinioBoxConfig->permanentId[0] = PINIO1_BOX;
+    pinioBoxConfig->permanentId[1] = PINIO2_BOX;
+    pinioBoxConfig->permanentId[2] = PINIO3_BOX;
+    pinioBoxConfig->permanentId[3] = PINIO4_BOX;
    // rest is reset to NONE
    for (unsigned i = 4; i < PINIO_COUNT; i++) {
-       config->permanentId[i] = PERMANENT_ID_NONE;
+       pinioBoxConfig->permanentId[i] = PERMANENT_ID_NONE;
    }
 }
 

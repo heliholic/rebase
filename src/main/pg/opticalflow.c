@@ -29,10 +29,11 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(opticalflowConfig_t, opticalflowConfig, PG_OPTICALFLOW_CONFIG);
 
-PG_RESET_TEMPLATE(opticalflowConfig_t, opticalflowConfig,
+PG_RESET_TEMPLATE(opticalflowConfig_t, opticalflowConfig)
+{
     .opticalflow_hardware = OPTICALFLOW_NONE,
     .rotation = 0,
     .flip_x = 0,
     .flow_lpf = 100
-);
+};
 

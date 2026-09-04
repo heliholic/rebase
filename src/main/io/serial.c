@@ -280,7 +280,7 @@ const serialPortConfig_t* serialFindPortConfiguration(serialPortIdentifier_e ide
     return findInPortConfigs_identifier(serialConfig()->portConfigs, ARRAYLEN(serialConfig()->portConfigs), identifier);
 }
 
-void pgResetFn_serialConfig(serialConfig_t *serialConfig)
+PG_RESET_FN(serialConfig_t, serialConfig)
 {
     memset(serialConfig, 0, sizeof(serialConfig_t));
 

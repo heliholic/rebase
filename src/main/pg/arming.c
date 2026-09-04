@@ -28,8 +28,9 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG);
 
-PG_RESET_TEMPLATE(armingConfig_t, armingConfig,
+PG_RESET_TEMPLATE(armingConfig_t, armingConfig)
+{
     .gyro_cal_on_first_arm = 0,
     .auto_disarm_delay = 5,
     .prearm_allow_rearm = 0,
-);
+};

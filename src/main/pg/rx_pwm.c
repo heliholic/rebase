@@ -31,7 +31,7 @@
 
 PG_REGISTER_WITH_RESET_FN(ppmConfig_t, ppmConfig, PG_PPM_CONFIG);
 
-void pgResetFn_ppmConfig(ppmConfig_t *ppmConfig)
+PG_RESET_FN(ppmConfig_t, ppmConfig)
 {
 #ifdef RX_PPM_PIN
     ppmConfig->ioTag = IO_TAG(RX_PPM_PIN);

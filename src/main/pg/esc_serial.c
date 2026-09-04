@@ -36,6 +36,7 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(escSerialConfig_t, escSerialConfig, PG_ESCSERIAL_CONFIG);
 
-PG_RESET_TEMPLATE(escSerialConfig_t, escSerialConfig,
+PG_RESET_TEMPLATE(escSerialConfig_t, escSerialConfig)
+{
     .ioTag = IO_TAG(ESCSERIAL_PIN),
-);
+};

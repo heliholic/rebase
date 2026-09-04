@@ -179,7 +179,7 @@ static hsvColor_t getHsvFromVtxFrequency(uint16_t freq)
 #define LED_STRIP_DEFAULT_BRIGHTNESS 100
 #endif
 
-void pgResetFn_ledStripConfig(ledStripConfig_t *ledStripConfig)
+PG_RESET_FN(ledStripConfig_t, ledStripConfig)
 {
     ledStripConfig->ledstrip_visual_beeper = 1;
 #ifdef USE_LED_STRIP_STATUS_MODE
@@ -249,7 +249,7 @@ static const specialColorIndexes_t defaultSpecialColors[] = {
     }}
 };
 
-void pgResetFn_ledStripStatusModeConfig(ledStripStatusModeConfig_t *ledStripStatusModeConfig)
+PG_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig)
 {
     memset(ledStripStatusModeConfig->ledConfigs, 0, LED_STRIP_MAX_LENGTH * sizeof(ledConfig_t));
 #ifdef LED_STRIP_DEFAULT_LED0

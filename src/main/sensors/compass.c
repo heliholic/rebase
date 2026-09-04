@@ -117,7 +117,7 @@ static uint32_t compassReadIntervalUs = TASK_PERIOD_HZ(TASK_COMPASS_RATE_HZ);
 #define MAG_I2C_ADDRESS 0
 #endif
 
-void pgResetFn_compassConfig(compassConfig_t *compassConfig)
+PG_RESET_FN(compassConfig_t, compassConfig)
 {
     compassConfig->mag_alignment = MAG_ALIGN;
     compassConfig->mag_hardware = MAG_DEFAULT;

@@ -38,8 +38,9 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig, PG_CURRENT_SENSOR_ADC_CONFIG);
 
-PG_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig,
+PG_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig)
+{
     .scale = DEFAULT_CURRENT_METER_SCALE,
     .offset = DEFAULT_CURRENT_METER_OFFSET,
-);
+};
 
