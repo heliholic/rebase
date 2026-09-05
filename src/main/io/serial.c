@@ -272,13 +272,18 @@ static serialPortConfig_t* findInPortConfigs_identifier(const serialPortConfig_t
 
 serialPortConfig_t* serialFindPortConfigurationMutable(serialPortIdentifier_e identifier)
 {
-    return findInPortConfigs_identifier(serialConfigMutable()->portConfigs, ARRAYLEN(serialConfigMutable()->portConfigs), identifier);
+    return findInPortConfigs_identifier(serialConfigMutable()->portConfigs, SERIAL_PORT_COUNT, identifier);
 }
 
 const serialPortConfig_t* serialFindPortConfiguration(serialPortIdentifier_e identifier)
 {
-    return findInPortConfigs_identifier(serialConfig()->portConfigs, ARRAYLEN(serialConfig()->portConfigs), identifier);
+    return findInPortConfigs_identifier(serialConfig()->portConfigs, SERIAL_PORT_COUNT, identifier);
 }
+
+// portConfigs is stored at PG_MAX_SERIAL_PORTS so the group's layout does not
+// depend on how many ports this target has. Everything that walks it stops at
+// SERIAL_PORT_COUNT.
+STATIC_ASSERT(SERIAL_PORT_COUNT <= PG_MAX_SERIAL_PORTS, serial_port_count_exceeds_stored_bound);
 
 PG_RESET_FN(serialConfig_t, serialConfig)
 {
@@ -291,6 +296,13 @@ PG_RESET_FN(serialConfig_t, serialConfig)
         pCfg->gps_baudrateIndex = BAUD_57600;
         pCfg->telemetry_baudrateIndex = BAUD_AUTO;
         pCfg->blackbox_baudrateIndex = BAUD_115200;
+    }
+
+    // Slots the layout reserves but this build has no port for. Zero, which
+    // the memset above leaves behind, is SERIAL_PORT_LEGACY_START_IDENTIFIER
+    // and would read as a real port.
+    for (int i = SERIAL_PORT_COUNT; i < PG_MAX_SERIAL_PORTS; i++) {
+        serialConfig->portConfigs[i].identifier = SERIAL_PORT_NONE;
     }
 
     serialConfig->portConfigs[0].functionMask = FUNCTION_MSP;
@@ -448,7 +460,7 @@ const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e function)
 
 const serialPortConfig_t *findNextSerialPortConfig(serialPortFunction_e function)
 {
-    while (findSerialPortConfigState.lastIndex < ARRAYLEN(serialConfig()->portConfigs)) {
+    while (findSerialPortConfigState.lastIndex < SERIAL_PORT_COUNT) {
         const serialPortConfig_t *candidate = &serialConfig()->portConfigs[findSerialPortConfigState.lastIndex++];
 
         if (candidate->functionMask & function) {
@@ -474,7 +486,7 @@ bool isSerialPortShared(const serialPortConfig_t *portConfig, uint16_t functionM
 serialPort_t *findSharedSerialPort(uint16_t functionMask, serialPortFunction_e sharedWithFunction)
 {
     for (const serialPortConfig_t *candidate = serialConfig()->portConfigs;
-         candidate < ARRAYEND(serialConfig()->portConfigs);
+         candidate < serialConfig()->portConfigs + SERIAL_PORT_COUNT;
          candidate++) {
         if (isSerialPortShared(candidate, functionMask, sharedWithFunction)) {
             const serialPortUsage_t *serialPortUsage = findSerialPortUsageByIdentifier(candidate->identifier);
@@ -506,7 +518,7 @@ bool isSerialConfigValid(serialConfig_t *serialConfigToCheck)
      */
     uint8_t mspPortCount = 0;
 
-    for (unsigned index = 0; index < ARRAYLEN(serialConfigToCheck->portConfigs); index++) {
+    for (unsigned index = 0; index < SERIAL_PORT_COUNT; index++) {
         const serialPortConfig_t *portConfig = &serialConfigToCheck->portConfigs[index];
 
 #ifdef USE_SOFTSERIAL
