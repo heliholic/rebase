@@ -76,7 +76,7 @@ void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
 
 void pgReset(const pgRegistry_t* reg)
 {
-    pgResetInstance(reg, pgAddress(reg));
+    pgResetInstance(reg, pgData(reg));
 }
 
 bool pgResetCopy(void *copy, pgn_t pgn)
@@ -98,7 +98,7 @@ void pgResetAll(void)
 
 bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t hash)
 {
-    pgResetInstance(reg, pgAddress(reg));
+    pgResetInstance(reg, pgData(reg));
 
     // restore only matching version hash, keep defaults otherwise
     if (hash == pgHash(reg)) {
@@ -106,7 +106,7 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t h
         // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
         // take what fits and leave the rest at the defaults reset above.
         const int take = MIN(size, pgSize(reg));
-        memcpy(pgAddress(reg), from, take);
+        memcpy(pgData(reg), from, take);
 
         return true;
     }
@@ -117,6 +117,6 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t h
 int pgStore(const pgRegistry_t* reg, void *to, pgSize_t size)
 {
     const size_t take = MIN(size, pgSize(reg));
-    memcpy(to, pgAddress(reg), take);
+    memcpy(to, pgData(reg), take);
     return take;
 }

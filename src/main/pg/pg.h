@@ -63,8 +63,8 @@ typedef struct pgRegistry_s {
     pgLen_t length;        // The number of elements in the group
     pgSize_t size;         // Size of the group in RAM
     pgHash_t hash;         // The parameter group version hash
-    uint8_t *addr;         // Address of the group in RAM.
-    uint8_t *copy;         // Address of the copy in RAM.
+    uint8_t *data;         // Pointer to the group in RAM.
+    uint8_t *copy;         // Pointer to the copy in RAM.
     union {
         void *data;        // Pointer to init template
         pgResetFunc *func; // Pointer to pgResetFunc
@@ -80,7 +80,7 @@ static inline pgn_t pgN(const pgRegistry_t* reg) { return reg->pgn; }
 static inline pgHash_t pgHash(const pgRegistry_t* reg) { return reg->hash; }
 static inline pgSize_t pgSize(const pgRegistry_t* reg) { return reg->size; }
 static inline pgSize_t pgElementSize(const pgRegistry_t* reg) { return reg->size / reg->length; }
-static inline uint8_t* pgAddress(const pgRegistry_t* reg) { return reg->addr; }
+static inline uint8_t* pgData(const pgRegistry_t* reg) { return reg->data; }
 static inline uint8_t* pgCopy(const pgRegistry_t* reg) { return reg->copy; }
 static inline pgHash_t *pgChecksum(const pgRegistry_t* reg) { return reg->checksum; }
 
@@ -145,7 +145,7 @@ extern const uint8_t __pg_resetfunc_end[];
         .length = 1,                                                    \
         .size = sizeof(_type),                                          \
         .hash = _pgn ## _HASH,                                          \
-        .addr = (uint8_t*)&_name ## _Data,                              \
+        .data = (uint8_t*)&_name ## _Data,                              \
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .reset = _reset,                                                \
         .load = _load,                                                  \
@@ -177,7 +177,7 @@ extern const uint8_t __pg_resetfunc_end[];
         .length = _length,                                              \
         .size = sizeof(_type) * _length,                                \
         .hash = _pgn ## _HASH,                                          \
-        .addr = (uint8_t*)&_name ## _DataArray,                         \
+        .data = (uint8_t*)&_name ## _DataArray,                         \
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .reset = _reset,                                                \
         .load = _load,                                                  \

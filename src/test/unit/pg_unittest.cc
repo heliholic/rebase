@@ -177,7 +177,7 @@ TEST(ParameterGroupsfTest, Test_pgRegistryIsAContiguousArray)
             << " is not " << alignof(pgRegistry_t) << "-byte aligned";
 
         // An entry straddling padding reads as a group that never registered.
-        EXPECT_NE(nullptr, pgAddress(r)) << "PG " << pgN(r) << " has no data";
+        EXPECT_NE(nullptr, pgData(r)) << "PG " << pgN(r) << " has no data";
         EXPECT_NE(nullptr, pgCopy(r)) << "PG " << pgN(r) << " has no copy";
         EXPECT_NE(nullptr, pgChecksum(r)) << "PG " << pgN(r) << " has no checksum";
         EXPECT_GT(pgSize(r), 0u) << "PG " << pgN(r) << " is empty";

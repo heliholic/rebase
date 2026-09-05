@@ -417,7 +417,7 @@ bool loadEEPROM(void)
             pgReset(reg);
             success = false;
         }
-        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg));
+        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, pgData(reg), pgSize(reg));
     }
 
     return success;
@@ -433,7 +433,7 @@ static bool writeSettingsToEEPROM(void)
     };
 
     PG_FOREACH(reg) {
-        if (*pgChecksum(reg) != fnv_update(FNV_OFFSET_BASIS, pgAddress(reg), pgSize(reg))) {
+        if (*pgChecksum(reg) != fnv_update(FNV_OFFSET_BASIS, pgData(reg), pgSize(reg))) {
             dirtyConfig = true;
         }
     }
@@ -456,8 +456,8 @@ static bool writeSettingsToEEPROM(void)
 
             config_streamer_write(&streamer, (uint8_t *)&record, sizeof(record));
             crc = crc16_ccitt_update(crc, (uint8_t *)&record, sizeof(record));
-            config_streamer_write(&streamer, pgAddress(reg), pgSize(reg));
-            crc = crc16_ccitt_update(crc, pgAddress(reg), pgSize(reg));
+            config_streamer_write(&streamer, pgData(reg), pgSize(reg));
+            crc = crc16_ccitt_update(crc, pgData(reg), pgSize(reg));
         }
 
         configFooter_t footer = {
