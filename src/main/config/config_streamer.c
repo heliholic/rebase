@@ -116,6 +116,13 @@ static int write_word(config_streamer_t *c, config_streamer_buffer_type_t *buffe
     flashPageProgramContinue(buffers, bufferSizes, 1);
 
 #elif defined(CONFIG_IN_RAM) || defined(CONFIG_IN_SDCARD) || defined(CONFIG_IN_MEMORY_MAPPED_FLASH)
+    // eepromData is the store itself here, so a config that outgrows
+    // EEPROM_SIZE would be written straight past the end of it. The external
+    // flash path above refuses the same way.
+    if (c->address + CONFIG_STREAMER_BUFFER_SIZE > (uintptr_t)&eepromData[0] + sizeof(eepromData)) {
+        return CONFIG_RESULT_ADDRESS_INVALID;
+    }
+
     if (c->address == (uintptr_t)&eepromData[0]) {
         memset(eepromData, 0, sizeof(eepromData));
     }
