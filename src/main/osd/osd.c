@@ -387,9 +387,7 @@ PG_RESET_FN(osdConfig_t, osdConfig)
     osdConfig->stat_show_cell_value = false;
     osdConfig->framerate_hz = OSD_FRAMERATE_DEFAULT_HZ;
     osdConfig->cms_background_type = DISPLAY_BACKGROUND_TRANSPARENT;
-    #ifdef USE_CRAFTNAME_MSGS
     osdConfig->osd_craftname_msgs = false;   // Insert LQ/RSSI-dBm and warnings into CraftName
-    #endif //USE_CRAFTNAME_MSGS
 
     osdConfig->aux_channel = 1;
     osdConfig->aux_scale = 200;
@@ -406,9 +404,7 @@ PG_RESET_FN(osdConfig_t, osdConfig)
     osdConfig->canvas_rows = OSD_SD_ROWS;
 #endif
 
-#ifdef USE_OSD_QUICK_MENU
     osdConfig->osd_use_quick_menu = true;
-#endif // USE_OSD_QUICK_MENU
 }
 
 PG_RESET_FN(osdElementConfig_t, osdElementConfig)
