@@ -48,3 +48,15 @@
 
 // serialConfig.portConfigs. Largest today is X32M7B at 16.
 #define PG_MAX_SERIAL_PORTS 20
+
+// serialPinConfig.ioTagTx / ioTagRx and serialUartConfig, which are addressed by
+// a linear resource index built from fixed per-kind blocks. The block sizes are
+// the most ports the normalisation in target/serial_post.h can enumerate, not
+// the most any target has: the block offsets are part of the stored meaning of
+// a slot, so unlike a bound they cannot be raised later at all.
+#define PG_MAX_UART_RESOURCES 16
+#define PG_MAX_LPUART_RESOURCES 1
+#define PG_MAX_SOFTSERIAL_RESOURCES 2
+#define PG_MAX_PIOUART_RESOURCES 10
+#define PG_MAX_SERIAL_RESOURCES (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES + \
+                                 PG_MAX_SOFTSERIAL_RESOURCES + PG_MAX_PIOUART_RESOURCES)
