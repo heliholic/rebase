@@ -1,11 +1,13 @@
 
 SECTIONS {
   /* BLOCK: on Windows (PE) output section must be page-aligned. Use 4-byte alignment otherwise */
-  /* SUBALIGN: force 4-byte alignment of input sections for pg_registry.
-     Gcc defaults to 32 bytes; padding is then inserted between object files, breaking the init structure. */
-  .pg_registry BLOCK( DEFINED(__section_alignment__) ? __section_alignment__ : 4 ) :   SUBALIGN(4)
+  /* SUBALIGN: force 8-byte alignment of input sections for pg_registry.
+     Gcc would otherwise pad to 32 bytes between object files, breaking the array walk.
+     8, not 4: sizeof(pgRegistry_t) is a whole multiple of it on both 32- and 64-bit
+     hosts, and 4 would under-align the 64-bit entries (pg.c asserts both). */
+  .pg_registry BLOCK( DEFINED(__section_alignment__) ? __section_alignment__ : 8 ) :   SUBALIGN(8)
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     PROVIDE_HIDDEN (__pg_registry_start = . );
     PROVIDE_HIDDEN (___pg_registry_start = . );
     KEEP (*(.pg_registry))

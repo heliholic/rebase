@@ -72,7 +72,13 @@ static inline pgHash_t *pgChecksum(const pgRegistry_t* reg) { return reg->checks
 
 extern const pgRegistry_t __pg_registry_start[];
 extern const pgRegistry_t __pg_registry_end[];
-#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(4)))
+
+// aligned() must track _Alignof(pgRegistry_t), not a constant: a literal
+// smaller than the natural alignment is honoured as a *lowering* by clang,
+// which under-aligns every entry on 64-bit hosts. Stating it explicitly also
+// keeps gcc from boosting the objects to a 32-byte alignment of its own,
+// which would pad the gaps between object files and break the array walk.
+#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(__alignof__(pgRegistry_t))))
 #define PG_REGISTRY_SIZE (__pg_registry_end - __pg_registry_start)
 
 extern const uint8_t __pg_resetdata_start[];
