@@ -30,7 +30,7 @@
 typedef enum {
     FRSKY_FORMAT_DMS = 0,
     FRSKY_FORMAT_NMEA
-} frskyGpsCoordFormat_e;
+} PG_ENUM frskyGpsCoordFormat_e;
 
 typedef enum {
     SENSOR_VOLTAGE         = 1 << 0,
