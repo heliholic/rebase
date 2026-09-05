@@ -138,7 +138,7 @@ extern const uint8_t __pg_resetfunc_end[];
 #define PG_REGISTER_I(_type, _name, _pgn, _reset,_load)                 \
     _type _name ## _Data;                                               \
     _type _name ## _Copy;                                               \
-    uint32_t _name ## _checksum;                                        \
+    uint32_t _name ## _Checksum;                                        \
     extern const pgRegistry_t _name ## _Registry;                       \
     const pgRegistry_t _name ##_Registry PG_REGISTER_ATTRIBUTES = {     \
         .pgn = _pgn,                                                    \
@@ -149,7 +149,7 @@ extern const uint8_t __pg_resetfunc_end[];
         .copy = (uint8_t*)&_name ## _Copy,                              \
         .reset = _reset,                                                \
         .load = _load,                                                  \
-        .checksum = &_name ## _checksum,                                \
+        .checksum = &_name ## _Checksum,                                \
     }                                                                   \
     /**/
 
@@ -170,7 +170,7 @@ extern const uint8_t __pg_resetfunc_end[];
 #define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _reset, _load) \
     _type _name ## _DataArray[_length];                                 \
     _type _name ## _CopyArray[_length];                                 \
-    uint32_t _name ## _checksum;                                        \
+    uint32_t _name ## _Checksum;                                        \
     extern const pgRegistry_t _name ##_Registry;                        \
     const pgRegistry_t _name ## _Registry PG_REGISTER_ATTRIBUTES = {    \
         .pgn = _pgn,                                                    \
@@ -181,7 +181,7 @@ extern const uint8_t __pg_resetfunc_end[];
         .copy = (uint8_t*)&_name ## _CopyArray,                         \
         .reset = _reset,                                                \
         .load = _load,                                                  \
-        .checksum = &_name ## _checksum,                                \
+        .checksum = &_name ## _Checksum,                                \
     }                                                                   \
     /**/
 
