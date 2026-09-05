@@ -26,6 +26,7 @@
 #include "platform.h"
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 #include "drivers/adc.h"
 #include "drivers/io_types.h"
 #include "drivers/dma_reqmap.h"
@@ -55,9 +56,9 @@ typedef struct adcConfig_s {
     uint16_t tempSensorCalibration1;
     uint16_t tempSensorCalibration2;
 
-#ifdef USE_DMA_SPEC
-    int8_t dmaopt[ADCDEV_COUNT]; // One per ADCDEV_x
-#endif
+    // One per ADCDEV_x, stored at the fixed bound so the group does not change
+    // shape with the platform's ADC count or with USE_DMA_SPEC.
+    int8_t dmaopt[PG_MAX_ADC_DEVICES];
 } adcConfig_t;
 
 PG_DECLARE(adcConfig_t, adcConfig);

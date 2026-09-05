@@ -60,3 +60,6 @@
 #define PG_MAX_PIOUART_RESOURCES 10
 #define PG_MAX_SERIAL_RESOURCES (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES + \
                                  PG_MAX_SOFTSERIAL_RESOURCES + PG_MAX_PIOUART_RESOURCES)
+
+// adcConfig.dmaopt, one per ADC peripheral. Largest today is STM32G474 at 5.
+#define PG_MAX_ADC_DEVICES 6
