@@ -75,3 +75,6 @@
 // ledStripStatusModeConfig.ledConfigs. LED_STRIP_MAX_LENGTH is 32 or 64
 // depending on USE_LED_STRIP_64.
 #define PG_MAX_LED_STRIP_LENGTH 64
+
+// osdConfig.profile. OSD_PROFILE_COUNT is 3 or 1 depending on USE_OSD_PROFILES.
+#define PG_MAX_OSD_PROFILES 3

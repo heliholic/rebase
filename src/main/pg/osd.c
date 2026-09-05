@@ -21,9 +21,13 @@
 
 #include "platform.h"
 
+#include "common/utils.h"
+
 #include "pg/osd.h"
 
 #ifdef USE_OSD
+
+STATIC_ASSERT(OSD_PROFILE_COUNT <= PG_MAX_OSD_PROFILES, osd_profile_count_exceeds_stored_bound);
 
 PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG);
 
