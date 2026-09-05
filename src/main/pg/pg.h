@@ -32,6 +32,20 @@
 
 #define PG_PACKED __attribute__((packed))
 
+// Applied to an enum whose values are stored in a parameter group.
+//
+// The width has to be the same in every build. arm-none-eabi compiles with
+// -fshort-enums and the host toolchain does not, so an unannotated enum member
+// is one byte in the firmware and four in SITL and the unit tests. That is a
+// layout difference: it moves every field behind it, changes the group's hash,
+// and leaves the two builds unable to read each other's stored config.
+//
+// Packing rather than storing the value as a plain integer keeps the enum type
+// in the struct, so its enumerator names and values stay part of the layout
+// hash. Renumbering or reordering an enum changes what a stored byte means, and
+// the hash has to catch that.
+#define PG_ENUM __attribute__((packed))
+
 typedef uint16_t pgn_t;
 typedef uint16_t pgLen_t;
 typedef uint32_t pgSize_t;
