@@ -699,11 +699,15 @@ CXX_FLAGS += $(COVERAGE_FLAGS)
 
 C_FLAGS   += -D_GNU_SOURCE
 
-# Set up the parameter group linker flags according to OS
+# Set up the parameter group linker flags according to OS.
+# PG_LINKER_SCRIPT is a link prerequisite as well as a flag: it decides where
+# .pg_registry lands, so a binary linked before an edit to it is stale.
 ifeq ($(OSFAMILY), macosx)
+PG_LINKER_SCRIPT :=
 LDFLAGS  += -Wl,-map,$(OBJECT_DIR)/$@.map
 else
-LDFLAGS  += -Wl,-T,$(TEST_DIR)/pg.ld -Wl,-Map,$(OBJECT_DIR)/$@.map
+PG_LINKER_SCRIPT := $(TEST_DIR)/pg.ld
+LDFLAGS  += -Wl,-T,$(PG_LINKER_SCRIPT) -Wl,-Map,$(OBJECT_DIR)/$@.map
 endif
 
 # Gather up all of the tests.
@@ -911,11 +915,13 @@ $(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc $(PG_TEST_HASH_
 
 $(OBJECT_DIR)/$1/$(basename $1): $$($1_OBJS) \
 	$(OBJECT_DIR)/$1/$(basename $1).o \
-	$(OBJECT_DIR)/gtest_main.a
+	$(OBJECT_DIR)/gtest_main.a \
+	$(PG_LINKER_SCRIPT)
 
 	@echo "linking $$@" "$(STDOUT)"
 	$(V1) mkdir -p $(dir $$@)
-	$(V1) $(CXX) $(CXX_FLAGS) $(LDFLAGS) $$^ -o $$@
+	$(V1) $(CXX) $(CXX_FLAGS) $(LDFLAGS) \
+		$$(filter-out $(PG_LINKER_SCRIPT),$$^) -o $$@
 
 test_$1: $(OBJECT_DIR)/$1/$(basename $1)
 	$(V1) $$< $$(EXEC_OPTS) "$(STDOUT)" && echo "running $$@: PASS"
