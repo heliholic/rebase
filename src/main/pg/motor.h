@@ -21,6 +21,7 @@
 #pragma once
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #include "drivers/io.h"
 
@@ -71,7 +72,7 @@ typedef struct motorDevConfig_s {
     dshotDmar_e           useBurstDshot;
     dshotTelemetry_e      useDshotTelemetry;
     dshotEdt_e            useDshotEdt;
-    ioTag_t               ioTags[MAX_SUPPORTED_MOTORS];
+    ioTag_t               ioTags[PG_MAX_MOTORS];   // MAX_SUPPORTED_MOTORS of these are used
     uint8_t               motorTransportProtocol;
     dshotBitbangMode_e    useDshotBitbang;
     dshotBitbangedTimer_e useDshotBitbangedTimer;

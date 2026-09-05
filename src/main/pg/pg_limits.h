@@ -63,3 +63,7 @@
 
 // adcConfig.dmaopt, one per ADC peripheral. Largest today is STM32G474 at 5.
 #define PG_MAX_ADC_DEVICES 6
+
+// motorConfig.dev.ioTags. MAX_SUPPORTED_MOTORS is overridable by a target or a
+// board config - src/config/configs/STMI/NUCLEOF446 asks for 12.
+#define PG_MAX_MOTORS 12
