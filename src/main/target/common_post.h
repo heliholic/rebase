@@ -695,8 +695,12 @@
 #endif // USE_OPTICALFLOW_XXX
 
 #if defined(CONFIG_IN_RAM) || defined(CONFIG_IN_FILE) || defined(CONFIG_IN_EXTERNAL_FLASH) || defined(CONFIG_IN_SDCARD) || defined(CONFIG_IN_MEMORY_MAPPED_FLASH)
+// The store holds every registered parameter group plus a 6-byte record header
+// each, and the groups now have one fixed layout across builds rather than
+// shrinking to whatever a target happened to enable. STM32H730 writes 3977
+// bytes of it, so 4096 no longer leaves a usable margin.
 #ifndef EEPROM_SIZE
-#define EEPROM_SIZE     4096
+#define EEPROM_SIZE     8192
 #endif
 extern uint8_t eepromData[EEPROM_SIZE];
 #define __config_start (*eepromData)
