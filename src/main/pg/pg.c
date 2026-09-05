@@ -25,7 +25,6 @@
 
 #include "platform.h"
 
-#include "common/crc.h"
 #include "common/maths.h"
 #include "common/utils.h"
 
@@ -103,10 +102,11 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t h
 
     // restore only matching version hash, keep defaults otherwise
     if (hash == pgHash(reg)) {
+        // A record may be shorter or longer than the group: the layout is
+        // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
+        // take what fits and leave the rest at the defaults reset above.
         const int take = MIN(size, pgSize(reg));
         memcpy(pgAddress(reg), from, take);
-
-        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, from, take);
 
         return true;
     }
