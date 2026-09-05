@@ -218,7 +218,6 @@ class DwarfTypes:
             raise SystemExit(f"{path}: no DWARF debug info")
         self.dwarf = self.elf.get_dwarf_info()
         self.by_name = {}
-        self.variables = {}
         for cu in self.dwarf.iter_CUs():
             for die in cu.iter_DIEs():
                 name = die_name(die)
@@ -231,8 +230,6 @@ class DwarfTypes:
                     "DW_TAG_enumeration_type",
                 ):
                     self.by_name.setdefault(name, die)
-                elif die.tag == "DW_TAG_variable":
-                    self.variables.setdefault(name, die)
 
     def close(self):
         self.fh.close()
@@ -243,26 +240,6 @@ class DwarfTypes:
             if die is not None:
                 return die
         return None
-
-    def array_length(self, pg_name):
-        """Resolved element count of a PG_DECLARE_ARRAY, from the
-        <name>_DataArray variable the macro emits.
-
-        The declaration spells the length as a macro (PID_PROFILE_COUNT),
-        so the source text says nothing about its value. The compiler has
-        already resolved it here, which is what actually determines the
-        size of the stored record.
-        """
-        die = self.variables.get(pg_name + "_DataArray")
-        if die is None:
-            return None
-        array = unwrap(follow_type(die))
-        if array is None or array.tag != "DW_TAG_array_type":
-            return None
-        bounds = array_bounds(array)
-        if len(bounds) != 1 or bounds[0] is None:
-            return None
-        return bounds[0]
 
 
 def collect_nested(die, seen):
@@ -669,17 +646,19 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
                     continue
                 fingerprint = layout_fingerprint(type_die)
                 if array_len is not None:
-                    # Hash the resolved element count, not the macro spelling:
-                    # changing PID_PROFILE_COUNT resizes the stored record, and
-                    # renaming the macro does not.
-                    count = dwarf.array_length(pg_name)
-                    if count is None:
-                        raise SystemExit(
-                            "%s: cannot resolve array length for PG %s (%s); "
-                            "expected a %s_DataArray symbol in %s"
-                            % (header_path, pg_name, array_len, pg_name, obj_path)
-                        )
-                    fingerprint = "pg_array[%d]:%s" % (count, fingerprint)
+                    # Mark the PG as an array but leave the element count out of
+                    # the hash. The count is target-derived - SPIDEV_COUNT,
+                    # I2CDEV_COUNT, GYRO_COUNT and friends differ per MCU - and
+                    # hashing it would make an otherwise identical record
+                    # unreadable across targets. pgLoad() already reconciles a
+                    # length change: it copies MIN(stored, pgSize) and leaves the
+                    # remaining elements at their defaults.
+                    #
+                    # The marker itself still matters. Without it a PG that
+                    # changed between PG_DECLARE and PG_DECLARE_ARRAY of the same
+                    # element type would keep its hash, and the old record would
+                    # be reinterpreted rather than rejected.
+                    fingerprint = "pg_array:%s" % fingerprint
                 define, pgn = resolve_pgn(pg_name, pgn_map, pgn_ids, header_dir)
                 # The hash alone identifies the record in EEPROM - findEEPROM()
                 # matches on it and nothing else - so the PGN has to be in it.
