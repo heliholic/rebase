@@ -515,6 +515,14 @@ def layout_fingerprint(die, seen=None):
 
     encoding = type_encoding(core)
     name = die_name(core) or ""
+    # Canonicalise the spelling the compiler happened to pick. uint32_t is
+    # "long unsigned int" on arm-none-eabi and "unsigned int" on the host, and
+    # plain char is unsigned on ARM but signed on x86. Both describe the same
+    # bytes, so neither may move the hash - otherwise SITL and the unit tests
+    # disagree with the firmware about groups they lay out identically.
+    name = BASE_TYPE_ALIASES.get(name, name)
+    if name == "char":
+        encoding = "char"
     return "base:%s:%s:%s" % (size_text, encoding if encoding is not None else "?", name)
 
 
