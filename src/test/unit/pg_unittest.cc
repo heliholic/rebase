@@ -148,6 +148,68 @@ TEST(ParameterGroupsfTest, Test_pgRegistryArrayGeometry)
     }
 }
 
+// The registry is not an array the compiler laid out; it is whatever the
+// linker concatenated into .pg_registry, walked by PG_FOREACH as if it were
+// one. That only holds while every object file's contribution abuts the last
+// and lands on the struct's own alignment, and neither is visible in the C.
+// The pg.c static asserts cover the struct side; these cover the linked image.
+TEST(ParameterGroupsfTest, Test_pgRegistryIsAContiguousArray)
+{
+    const ptrdiff_t span = (const char *)__pg_registry_end - (const char *)__pg_registry_start;
+
+    ASSERT_GT(span, 0) << "no parameter groups linked into .pg_registry";
+
+    // Padding between the object files that contribute entries would leave a
+    // remainder here, and PG_FOREACH would then walk into a straddled entry.
+    EXPECT_EQ(0, span % (ptrdiff_t)sizeof(pgRegistry_t))
+        << "span " << span << " is not a whole number of "
+        << sizeof(pgRegistry_t) << "-byte entries";
+
+    EXPECT_EQ(span / (ptrdiff_t)sizeof(pgRegistry_t), PG_REGISTRY_SIZE);
+
+    PG_FOREACH(r) {
+        // A literal alignment below alignof() is honoured as a lowering by
+        // some compilers, and a linker script can place the section below it
+        // too; either leaves the pointer members on a boundary the compiler
+        // has already assumed away.
+        EXPECT_EQ(0u, (uintptr_t)r % alignof(pgRegistry_t))
+            << "PG " << pgN(r) << " at " << (const void *)r
+            << " is not " << alignof(pgRegistry_t) << "-byte aligned";
+
+        // An entry straddling padding reads as a group that never registered.
+        EXPECT_NE(nullptr, pgAddress(r)) << "PG " << pgN(r) << " has no data";
+        EXPECT_NE(nullptr, pgCopy(r)) << "PG " << pgN(r) << " has no copy";
+        EXPECT_NE(nullptr, pgChecksum(r)) << "PG " << pgN(r) << " has no checksum";
+        EXPECT_GT(pgSize(r), 0u) << "PG " << pgN(r) << " is empty";
+
+        // The walk and the lookup must see the same table.
+        EXPECT_EQ(r, pgFind(pgN(r))) << "PG " << pgN(r) << " is not findable";
+    }
+}
+
+// pgResetInstance() tells a reset template from a reset function by the
+// address alone, so a group whose reset pointer escaped both sections is
+// silently zeroed instead of taking its defaults. Nothing in the C says the
+// attributes placed it there.
+TEST(ParameterGroupsfTest, Test_pgResetPointersLieInTheirSections)
+{
+    PG_FOREACH(r) {
+        if (r->reset.data == nullptr) {
+            continue;
+        }
+        const uint8_t *p = (const uint8_t *)r->reset.data;
+        const bool isTemplate = (p >= __pg_resetdata_start && p < __pg_resetdata_end);
+        const bool isFunction = (p >= __pg_resetfunc_start && p < __pg_resetfunc_end);
+
+        EXPECT_TRUE(isTemplate || isFunction)
+            << "PG " << pgN(r) << " reset pointer " << (const void *)p
+            << " is in neither .pg_resetdata nor .pg_resetfunc, so its"
+               " defaults would be dropped";
+        EXPECT_FALSE(isTemplate && isFunction)
+            << "PG " << pgN(r) << ": .pg_resetdata and .pg_resetfunc overlap";
+    }
+}
+
 // The reset must reach the last element, not just the first.
 TEST(ParameterGroupsfTest, Test_pgResetArray)
 {
