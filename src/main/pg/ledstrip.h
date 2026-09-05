@@ -51,7 +51,7 @@ typedef enum {
     COLOR_MAGENTA,
     COLOR_DEEP_PINK,
     COLOR_COUNT
-} colorId_e;
+} PG_ENUM colorId_e;
 
 typedef enum {
     LED_PROFILE_RACE = 0,
@@ -60,7 +60,7 @@ typedef enum {
     LED_PROFILE_STATUS,
 #endif
     LED_PROFILE_COUNT
-} ledProfile_e;
+} PG_ENUM ledProfile_e;
 
 typedef struct {
     ioTag_t      ioTag;
