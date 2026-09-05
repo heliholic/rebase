@@ -71,3 +71,7 @@
 // servoConfig.dev.ioTags. MAX_SUPPORTED_SERVOS is overridable the same way,
 // though nothing in tree raises it above the default 8 today.
 #define PG_MAX_SERVOS 12
+
+// ledStripStatusModeConfig.ledConfigs. LED_STRIP_MAX_LENGTH is 32 or 64
+// depending on USE_LED_STRIP_64.
+#define PG_MAX_LED_STRIP_LENGTH 64

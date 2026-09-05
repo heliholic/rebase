@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 #include "pg/color.h"
 
 #include "drivers/io_types.h"
@@ -91,7 +92,7 @@ typedef struct {
 } specialColorIndexes_t;
 
 typedef struct {
-    ledConfig_t ledConfigs[LED_STRIP_MAX_LENGTH];
+    ledConfig_t ledConfigs[PG_MAX_LED_STRIP_LENGTH]; // LED_STRIP_MAX_LENGTH of these are used
     hsvColor_t colors[LED_CONFIGURABLE_COLOR_COUNT];
     modeColorIndexes_t modeColors[LED_MODE_COUNT];
     specialColorIndexes_t specialColors;
