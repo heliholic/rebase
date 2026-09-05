@@ -34,12 +34,13 @@
 #include "platform/adc_impl.h"
 #endif
 
+// The per-channel and per-config ADC device selectors are stored whether or not
+// the platform can act on them, so the group does not change shape with
+// PLATFORM_TRAIT_ADC_DEVICE. Only the drivers that read them are conditional.
 typedef struct adcChannelConfig_t {
     bool enabled;
     ioTag_t ioTag;
-#if PLATFORM_TRAIT_ADC_DEVICE
     int8_t device; // ADCDevice
-#endif
 } adcChannelConfig_t;
 
 typedef struct adcConfig_s {
@@ -48,9 +49,7 @@ typedef struct adcConfig_s {
     adcChannelConfig_t current;
     adcChannelConfig_t external1;
 
-#if PLATFORM_TRAIT_ADC_DEVICE
     int8_t device; // ADCDevice
-#endif
 
     uint16_t vrefIntCalibration;
     uint16_t tempSensorCalibration1;
