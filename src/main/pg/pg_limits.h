@@ -67,3 +67,7 @@
 // motorConfig.dev.ioTags. MAX_SUPPORTED_MOTORS is overridable by a target or a
 // board config - src/config/configs/STMI/NUCLEOF446 asks for 12.
 #define PG_MAX_MOTORS 12
+
+// servoConfig.dev.ioTags. MAX_SUPPORTED_SERVOS is overridable the same way,
+// though nothing in tree raises it above the default 8 today.
+#define PG_MAX_SERVOS 12
