@@ -70,7 +70,7 @@ extern "C" {
 
     void reevaluateLedConfig();
 
-    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
+    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
 }
 
 TEST(LedStripTest, parseLedStripConfig)

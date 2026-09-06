@@ -242,7 +242,7 @@ TEST(BlackboxTest, TestWriteTag2_3SVariable_BITS887)
 }
 // STUBS
 extern "C" {
-PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
+PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG);
 int32_t blackboxHeaderBudget;
 void mspSerialAllocatePorts(void) {}
 void blackboxWrite(uint8_t value) {serialWrite(blackboxPort, value);}

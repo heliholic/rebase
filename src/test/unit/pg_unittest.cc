@@ -32,7 +32,7 @@ extern "C" {
 
 //PG_DECLARE(motorConfig_t, motorConfig);
 
-PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 1);
+PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
 
 PG_RESET_TEMPLATE(motorConfig_t, motorConfig)
 {
@@ -63,7 +63,7 @@ typedef struct pgTestZeroed_s {
 } pgTestZeroed_t;
 
 PG_DECLARE(pgTestZeroed_t, pgTestZeroed);
-PG_REGISTER(pgTestZeroed_t, pgTestZeroed, PG_RESERVED_FOR_TESTING_1, 0);
+PG_REGISTER(pgTestZeroed_t, pgTestZeroed, PG_RESERVED_FOR_TESTING_1);
 
 // An array PG reset by function, so every element can be given a distinct
 // value and a truncated reset is visible.
@@ -76,7 +76,7 @@ typedef struct pgTestElem_s {
 
 PG_DECLARE_ARRAY(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray);
 PG_REGISTER_ARRAY_WITH_RESET_FN(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray,
-                                PG_RESERVED_FOR_TESTING_2, 0);
+                                PG_RESERVED_FOR_TESTING_2);
 
 extern "C" PG_RESET_FN(pgTestElem_t, pgTestArray)
 {
@@ -245,9 +245,9 @@ TEST(ParameterGroupsfTest, Test_pgFindUnknownPgn)
     EXPECT_FALSE(pgResetCopy(nullptr, PG_RESERVED_FOR_TESTING_3));
 }
 
-// pgLoad() restores stored bytes only when the record's version matches; on a
-// mismatch the group keeps its defaults rather than adopting stale bytes.
-TEST(ParameterGroupsfTest, Test_pgLoadVersionMatch)
+// pgLoad() restores stored bytes only when the layout hash matches; on a
+// mismatch the group keeps its defaults rather than adopting a stale layout.
+TEST(ParameterGroupsfTest, Test_pgLoadHashMatch)
 {
     const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
     ASSERT_NE(nullptr, reg);
@@ -258,14 +258,14 @@ TEST(ParameterGroupsfTest, Test_pgLoadVersionMatch)
         stored[i].value = 800 + i;
     }
 
-    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgVersion(reg)));
+    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgHash(reg)));
     for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
         EXPECT_EQ(900 + i, pgTestArray(i)->index) << "element " << i;
         EXPECT_EQ(800 + i, pgTestArray(i)->value) << "element " << i;
     }
 }
 
-TEST(ParameterGroupsfTest, Test_pgLoadVersionMismatchKeepsDefaults)
+TEST(ParameterGroupsfTest, Test_pgLoadHashMismatchKeepsDefaults)
 {
     const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_2);
     ASSERT_NE(nullptr, reg);
@@ -276,7 +276,7 @@ TEST(ParameterGroupsfTest, Test_pgLoadVersionMismatchKeepsDefaults)
         stored[i].value = 800 + i;
     }
 
-    EXPECT_FALSE(pgLoad(reg, stored, sizeof(stored), pgVersion(reg) + 1));
+    EXPECT_FALSE(pgLoad(reg, stored, sizeof(stored), pgHash(reg) ^ 1u));
     for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
         EXPECT_EQ(i, pgTestArray(i)->index) << "element " << i;
         EXPECT_EQ(100 + i, pgTestArray(i)->value) << "element " << i;
@@ -300,7 +300,7 @@ TEST(ParameterGroupsfTest, Test_pgLoadShortRecord)
     // the reset inside pgLoad(), not from whatever a previous test left.
     pgTestArrayMutable(PG_TEST_ARRAY_LEN - 1)->value = 0xFFFF;
 
-    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgVersion(reg)));
+    EXPECT_TRUE(pgLoad(reg, stored, sizeof(stored), pgHash(reg)));
 
     for (int i = 0; i < 2; i++) {
         EXPECT_EQ(900 + i, pgTestArray(i)->index) << "element " << i;

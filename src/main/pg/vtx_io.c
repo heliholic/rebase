@@ -33,7 +33,7 @@
 
 #include "vtx_io.h"
 
-PG_REGISTER_WITH_RESET_FN(vtxIOConfig_t, vtxIOConfig, PG_VTX_IO_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(vtxIOConfig_t, vtxIOConfig, PG_VTX_IO_CONFIG);
 
 PG_RESET_FN(vtxIOConfig_t, vtxIOConfig)
 {

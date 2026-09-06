@@ -30,7 +30,7 @@
 #include "drivers/vtx_common.h"
 #include "drivers/vtx_table.h"
 
-PG_REGISTER_WITH_RESET_FN(vtxTableConfig_t, vtxTableConfig, PG_VTX_TABLE_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(vtxTableConfig_t, vtxTableConfig, PG_VTX_TABLE_CONFIG);
 
 PG_RESET_FN(vtxTableConfig_t, vtxTableConfig)
 {

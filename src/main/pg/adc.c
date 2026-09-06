@@ -33,7 +33,7 @@
 
 #include "pg/adc.h"
 
-PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG);
 
 PG_RESET_FN(adcConfig_t, adcConfig)
 {

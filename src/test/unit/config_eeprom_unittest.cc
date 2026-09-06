@@ -47,7 +47,7 @@ extern "C" {
     } eeTestScalar_t;
 
     PG_DECLARE(eeTestScalar_t, eeTestScalar);
-    PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1, 0);
+    PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1);
     PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar)
     {
         .a = 0xA5A5A5A5,
@@ -64,7 +64,7 @@ extern "C" {
 
     PG_DECLARE_ARRAY(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray);
     PG_REGISTER_ARRAY_WITH_RESET_FN(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray,
-                                    PG_RESERVED_FOR_TESTING_2, 0);
+                                    PG_RESERVED_FOR_TESTING_2);
 
     PG_RESET_FN(eeTestElem_t, eeTestArray)
     {
@@ -133,6 +133,24 @@ TEST_F(ConfigEepromTest, RoundTripPreservesValues)
     }
 }
 
+// getEEPROMConfigSize() is derived by the same scan, so it is a cheap probe
+// that the scan stopped exactly on the footer rather than running past it.
+TEST_F(ConfigEepromTest, ReportedSizeMatchesWhatWasWritten)
+{
+    writeConfigToEEPROM();
+    ASSERT_TRUE(isEEPROMStructureValid());
+
+    size_t expected = 8;                      // configHeader_t
+    PG_FOREACH(reg) {
+        expected += 6 + pgSize(reg);          // configRecord_t + payload
+    }
+    expected += 4;                            // configFooter_t
+    expected += 2;                            // stored CRC
+
+    EXPECT_EQ(expected, getEEPROMConfigSize());
+    EXPECT_LT(getEEPROMConfigSize(), getEEPROMStorageSize());
+}
+
 // An empty store must be rejected rather than parsed as zero records.
 TEST_F(ConfigEepromTest, ErasedStoreIsInvalid)
 {
@@ -152,6 +170,46 @@ TEST_F(ConfigEepromTest, CorruptedPayloadIsRejected)
 
     eepromData[16] ^= 0x01;
     EXPECT_FALSE(isEEPROMStructureValid());
+}
+
+// A record whose layout hash no longer matches is discarded and the group
+// falls back to its defaults, rather than adopting the stale bytes.
+TEST_F(ConfigEepromTest, StaleLayoutHashFallsBackToDefaults)
+{
+    dirtyAllGroups();
+    writeConfigToEEPROM();
+    ASSERT_TRUE(isEEPROMStructureValid());
+
+    // Rewrite the scalar group's stored hash, then repair the image CRC by
+    // writing it out again is not possible - so drive loadEEPROM() directly
+    // and only assert the group that lost its record.
+    const pgRegistry_t *reg = pgFind(PG_RESERVED_FOR_TESTING_1);
+    ASSERT_NE(nullptr, reg);
+
+    uint32_t stored = pgHash(reg);
+    uint8_t *found = nullptr;
+    for (size_t i = 8; i + 4 < sizeof(eepromData); i++) {
+        if (memcmp(&eepromData[i], &stored, sizeof(stored)) == 0) {
+            found = &eepromData[i];
+            break;
+        }
+    }
+    ASSERT_NE(nullptr, found) << "scalar group's record not found in the store";
+
+    uint32_t bogus = stored ^ 0xFFFFFFFFu;
+    memcpy(found, &bogus, sizeof(bogus));
+
+    // The record no longer matches any group, so loadEEPROM() reports failure
+    // and resets the group it could not find.
+    EXPECT_FALSE(loadEEPROM());
+    EXPECT_EQ(0xA5A5A5A5, eeTestScalar()->a);
+    EXPECT_EQ(0x1234, eeTestScalar()->b);
+    EXPECT_EQ(0x5A, eeTestScalar()->c);
+
+    // The untouched group still loads its stored values.
+    for (int i = 0; i < EE_TEST_ARRAY_LEN; i++) {
+        EXPECT_EQ(900 + i, eeTestArray(i)->index) << "element " << i;
+    }
 }
 
 // STUBS

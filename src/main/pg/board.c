@@ -33,7 +33,7 @@
 
 #include "board.h"
 
-PG_REGISTER_WITH_RESET_FN(boardConfig_t, boardConfig, PG_BOARD_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(boardConfig_t, boardConfig, PG_BOARD_CONFIG);
 
 PG_RESET_FN(boardConfig_t, boardConfig)
 {

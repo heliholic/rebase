@@ -63,20 +63,20 @@ extern "C" {
 
     #include "telemetry/telemetry.h"
 
-    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 0);
-    PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
-    PG_REGISTER(compassConfig_t, compassConfig, PG_COMPASS_CONFIG, 0);
-    PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 0);
-    PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG, 0);
-    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
-    PG_REGISTER(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
-    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG, 0);
-    PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 0);
-    PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 0);
-    PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
-    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
-    PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION, 0);
+    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG);
+    PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG);
+    PG_REGISTER(compassConfig_t, compassConfig, PG_COMPASS_CONFIG);
+    PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG);
+    PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG);
+    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
+    PG_REGISTER(servoConfig_t, servoConfig, PG_SERVO_CONFIG);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
+    PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG);
+    PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG);
+    PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+    PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG);
+    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
+    PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION);
 
     float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
     uint16_t averageSystemLoadPercent = 0;
