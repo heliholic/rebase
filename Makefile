@@ -828,7 +828,7 @@ version:
 	@echo '$(FC_VER)'
 
 ## help              : print this help message and exit
-help: Makefile mk/tools.mk
+help: Makefile mk/tools.mk mk/pg_hash.mk
 	@echo ""
 	@echo "Makefile for the $(FORKNAME) firmware"
 	@echo ""
@@ -953,9 +953,17 @@ $(TARGET_EF_HASH_FILE):
 	@echo "EF HASH -> $(TARGET_EF_HASH_FILE)"
 	$(V1) touch $(TARGET_EF_HASH_FILE)
 
+# Everything outside the sources that can change what a -D means, and so
+# what the sources compile to. mk/pg_hash.mk shares this list: the PG layout
+# probe has to see the same preprocessor environment as the firmware, or the
+# layout hashes compiled into the firmware stop describing its own structs.
+TARGET_BUILD_INPUTS := $(TARGET_EF_HASH_FILE) Makefile $(TARGET_DIR)/target.mk \
+                       $(wildcard $(MAKE_SCRIPT_DIR)/*) $(CONFIG_HEADER_FILE)
+
 # rebuild everything when makefile changes or the extra flags have changed
-$(TARGET_OBJS): $(TARGET_EF_HASH_FILE) Makefile $(TARGET_DIR)/target.mk \
-                 $(wildcard $(MAKE_SCRIPT_DIR)/*) $(CONFIG_HEADER_FILE) | $(PLATFORM_SDK_STAMP)
+$(TARGET_OBJS): $(TARGET_BUILD_INPUTS) | $(PLATFORM_SDK_STAMP)
 
 # include auto-generated dependencies
 -include $(TARGET_DEPS)
+
+include $(MAKE_SCRIPT_DIR)/pg_hash.mk
