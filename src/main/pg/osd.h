@@ -188,6 +188,10 @@ typedef enum {
 } osd_timer_e;
 
 
+// USE_CRAFTNAME_MSGS, USE_OSD_QUICK_MENU and USE_SPEC_PREARM_SCREEN are all
+// gated on flash size and are absent from CLOUD_BUILD, so their members are
+// stored unconditionally: the group has one layout whatever the build selected,
+// and only the code reading them is conditional.
 typedef struct osdConfig_s {
     // Alarms
     uint16_t cap_alarm;
@@ -224,20 +228,14 @@ typedef struct osdConfig_s {
     uint16_t framerate_hz;
     uint8_t cms_background_type;              // For supporting devices, determines whether the CMS background is transparent or opaque
     uint8_t stat_show_cell_value;
-#ifdef USE_CRAFTNAME_MSGS
     uint8_t osd_craftname_msgs;               // Insert LQ/RSSI-dBm and warnings into CraftName
-#endif //USE_CRAFTNAME_MSGS
     uint8_t aux_channel;
     uint16_t aux_scale;
     uint8_t aux_symbol;
     uint8_t canvas_cols;                      // Canvas dimensions for HD display
     uint8_t canvas_rows;
-#ifdef USE_OSD_QUICK_MENU
     uint8_t osd_use_quick_menu;               // use QUICK menu YES/NO
-#endif // USE_OSD_QUICK_MENU
-#ifdef USE_SPEC_PREARM_SCREEN
     uint8_t osd_show_spec_prearm;
-#endif // USE_SPEC_PREARM_SCREEN
     uint8_t arming_logo;                      // displayPortSeverity_e: font from which to display logo on arming
 } osdConfig_t;
 

@@ -68,9 +68,10 @@ typedef struct batteryConfig_s {
     uint8_t vbatDurationForWarning;         // Period voltage has to sustain before the battery state is set to BATTERY_WARNING (in 0.1 s)
     uint8_t vbatDurationForCritical;        // Period voltage has to sustain before the battery state is set to BATTERY_CRIT (in 0.1 s)
 
-#ifdef USE_BATTERY_CONTINUE
+    // Always stored, even where USE_BATTERY_CONTINUE is compiled out, so that
+    // the group's layout does not depend on the build option. Only the code
+    // that reads it is conditional.
     bool isBatteryContinueEnabled;
-#endif
 } batteryConfig_t;
 
 PG_DECLARE(batteryConfig_t, batteryConfig);
