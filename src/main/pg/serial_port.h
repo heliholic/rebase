@@ -24,16 +24,18 @@
 #include <stdint.h>
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #include "drivers/io_types.h"
 #include "drivers/serial_resource.h"
 
+// The inverter pins are stored whether or not USE_INVERTER is set, so the
+// group has one layout across targets that differ only in having an inverter.
+// Only the code that drives them is conditional.
 typedef struct serialPinConfig_s {
-    ioTag_t ioTagTx[RESOURCE_SERIAL_COUNT];
-    ioTag_t ioTagRx[RESOURCE_SERIAL_COUNT];
-#ifdef USE_INVERTER
-    ioTag_t ioTagInverter[RESOURCE_UART_COUNT];
-#endif
+    ioTag_t ioTagTx[PG_MAX_SERIAL_RESOURCES];
+    ioTag_t ioTagRx[PG_MAX_SERIAL_RESOURCES];
+    ioTag_t ioTagInverter[PG_MAX_UART_RESOURCES];
 } serialPinConfig_t;
 
 PG_DECLARE(serialPinConfig_t, serialPinConfig);
