@@ -210,14 +210,14 @@ typedef struct osdConfig_s {
     int16_t esc_rpm_alarm;
     int16_t esc_current_alarm;
     uint8_t core_temp_alarm;
-    uint8_t ahInvert;                         // invert the artificial horizon
+    bool ahInvert;                            // invert the artificial horizon
     uint8_t osdProfileIndex;
     uint8_t overlay_radio_mode;
     char profile[PG_MAX_OSD_PROFILES][OSD_PROFILE_NAME_LENGTH + 1]; // OSD_PROFILE_COUNT of these are used
     uint16_t link_quality_alarm;
     int16_t rssi_dbm_alarm;
     int16_t rsnr_alarm;
-    uint8_t gps_sats_show_pdop;
+    bool gps_sats_show_pdop;
     int8_t rcChannels[OSD_RCCHANNELS_COUNT];  // RC channel values to display, -1 if none
     uint8_t displayPortDevice;                // osdDisplayPortDevice_e
     uint16_t distance_alarm;
@@ -227,15 +227,15 @@ typedef struct osdConfig_s {
     uint8_t camera_frame_height;              // The height of the box for the camera frame element
     uint16_t framerate_hz;
     uint8_t cms_background_type;              // For supporting devices, determines whether the CMS background is transparent or opaque
-    uint8_t stat_show_cell_value;
-    uint8_t osd_craftname_msgs;               // Insert LQ/RSSI-dBm and warnings into CraftName
+    bool stat_show_cell_value;
+    bool osd_craftname_msgs;                  // Insert LQ/RSSI-dBm and warnings into CraftName
     uint8_t aux_channel;
     uint16_t aux_scale;
     uint8_t aux_symbol;
     uint8_t canvas_cols;                      // Canvas dimensions for HD display
     uint8_t canvas_rows;
-    uint8_t osd_use_quick_menu;               // use QUICK menu YES/NO
-    uint8_t osd_show_spec_prearm;
+    bool osd_use_quick_menu;                  // use QUICK menu YES/NO
+    bool osd_show_spec_prearm;
     uint8_t arming_logo;                      // displayPortSeverity_e: font from which to display logo on arming
 } osdConfig_t;
 

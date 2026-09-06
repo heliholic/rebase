@@ -36,13 +36,13 @@ typedef struct systemConfig_s {
     uint8_t pidProfileIndex;
     uint8_t activeRateProfile;
     uint8_t debug_mode;
-    uint8_t task_statistics;
+    bool task_statistics;
     uint8_t cpu_overclock;
     uint8_t powerOnArmingGraceTime; // in seconds
     char boardIdentifier[MAX_BOARD_IDENTIFIER_LENGTH + 1];
     uint8_t hseMhz;                 // Only used for F4 and G4 targets
     configurationState_e configurationState; // The state of the configuration (defaults / configured)
-    uint8_t enableStickArming; // boolean that determines whether stick arming can be used
+    bool enableStickArming; // boolean that determines whether stick arming can be used
     uint8_t activeBatteryProfile;
 } systemConfig_t;
 
