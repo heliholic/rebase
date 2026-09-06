@@ -440,6 +440,36 @@ def fnv1(data):
     return hash_value
 
 
+def pg_layout_hash(type_die, pgn, is_array):
+    """FNV-1 over the PGN and the resolved layout of one parameter group.
+
+    The single definition of a PG hash: pg_hash.h and the .def comments both
+    come through here, so a .def can be trusted as a record of what the
+    firmware will accept back from EEPROM.
+    """
+    fingerprint = layout_fingerprint(type_die)
+    if is_array:
+        # Mark the PG as an array but leave the element count out of the
+        # hash. The count is target-derived - SPIDEV_COUNT, I2CDEV_COUNT,
+        # GYRO_COUNT and friends differ per MCU - and hashing it would make an
+        # otherwise identical record unreadable across targets. pgLoad()
+        # already reconciles a length change: it copies MIN(stored, pgSize)
+        # and leaves the remaining elements at their defaults.
+        #
+        # The marker itself still matters. Without it a PG that changed
+        # between PG_DECLARE and PG_DECLARE_ARRAY of the same element type
+        # would keep its hash, and the old record would be reinterpreted
+        # rather than rejected.
+        fingerprint = "pg_array:%s" % fingerprint
+    # The hash alone identifies the record in EEPROM - findEEPROM() matches on
+    # it and nothing else - so the PGN has to be in it. Without it, PGs that
+    # share a struct type (the three displayPortProfile_t groups,
+    # pinPullup/pinPulldown) hash identically and would all load the first
+    # record on flash.
+    fingerprint = "pgn:%d:%s" % (pgn, fingerprint)
+    return fnv1(fingerprint.encode("utf-8"))
+
+
 def type_encoding(die):
     core = unwrap(die) if die is not None else None
     if core is None:
@@ -652,29 +682,9 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
                 type_die = dwarf.find(type_name)
                 if type_die is None:
                     continue
-                fingerprint = layout_fingerprint(type_die)
-                if array_len is not None:
-                    # Mark the PG as an array but leave the element count out of
-                    # the hash. The count is target-derived - SPIDEV_COUNT,
-                    # I2CDEV_COUNT, GYRO_COUNT and friends differ per MCU - and
-                    # hashing it would make an otherwise identical record
-                    # unreadable across targets. pgLoad() already reconciles a
-                    # length change: it copies MIN(stored, pgSize) and leaves the
-                    # remaining elements at their defaults.
-                    #
-                    # The marker itself still matters. Without it a PG that
-                    # changed between PG_DECLARE and PG_DECLARE_ARRAY of the same
-                    # element type would keep its hash, and the old record would
-                    # be reinterpreted rather than rejected.
-                    fingerprint = "pg_array:%s" % fingerprint
                 define, pgn = resolve_pgn(pg_name, pgn_map, pgn_ids, header_dir)
-                # The hash alone identifies the record in EEPROM - findEEPROM()
-                # matches on it and nothing else - so the PGN has to be in it.
-                # Without it, PGs that share a struct type (the three
-                # displayPortProfile_t groups, pinPullup/pinPulldown) hash
-                # identically and would all load the first record on flash.
-                fingerprint = "pgn:%d:%s" % (pgn, fingerprint)
-                hashes[define] = (fnv1(fingerprint.encode("utf-8")), pg_name, type_name)
+                value = pg_layout_hash(type_die, pgn, array_len is not None)
+                hashes[define] = (value, pg_name, type_name)
         finally:
             if shared is None:
                 dwarf.close()
@@ -763,8 +773,33 @@ def typedef_name_for(die):
     return None
 
 
+def pg_comment(pg_name, type_name, length, type_die, pgn_map, pgn_ids):
+    """The `/* PG ... */` banner that introduces a group in a .def file.
+
+    Carries the same hash pg_hash.h defines, so a .def read on its own says
+    which EEPROM record the group answers to. A group whose PG_REGISTER is
+    not in pg/*.c has no PGN and therefore no hash - `PGN ?` rather than a
+    guess, since pg-hash fails loudly on the same group anyway.
+    """
+    parts = [f"PG {pg_name} : {type_name}"]
+    if length:
+        parts.append(f"array {length}")
+    pgn = pgn_ids.get(pgn_map.get(pg_name))
+    if pgn is None:
+        parts.append("PGN ?, hash ?")
+    else:
+        parts.append(f"PGN {pgn}, hash 0x{pg_layout_hash(type_die, pgn, bool(length)):08X}")
+    return "/* %s */" % ", ".join(parts)
+
+
 def dump_def(object_path, header_path, output_path, target, extra_types):
     declares = parse_pg_declares(header_path) if header_path else []
+
+    # Both are text scans of pg/*.c and pg/pg_ids.h, so they resolve every
+    # PGN regardless of which single header this object was built from.
+    pg_dir = os.path.dirname(os.path.abspath(header_path)) if header_path else None
+    pgn_map = load_pgn_map(pg_dir) if pg_dir else {}
+    pgn_ids = load_pgn_ids(pg_dir) if pg_dir else {}
 
     dwarf = DwarfTypes(object_path)
     try:
@@ -790,8 +825,8 @@ def dump_def(object_path, header_path, output_path, target, extra_types):
                 continue
             found.append(type_name)
             for pg_name, length in pgs:
-                array_note = f", array {length}" if length else ""
-                blocks.append(f"/* PG {pg_name} : {type_name}{array_note} */")
+                blocks.append(pg_comment(pg_name, type_name, length, die,
+                                         pgn_map, pgn_ids))
             if type_name in dumped_type_names:
                 continue
             dumped_type_names.add(type_name)

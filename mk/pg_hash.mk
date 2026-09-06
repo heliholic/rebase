@@ -12,7 +12,8 @@
 #
 # pg-hash builds ONE TU including every pg/*.h. pg-defs builds one TU per
 # header, which is far slower but yields a readable per-header .def and
-# isolates a header that fails to compile.
+# isolates a header that fails to compile. A .def repeats the hash of each
+# group it dumps, so the layout and the hash it produces can be read together.
 #
 #   make pg-defs                  # default TARGET (STM32F722)
 #   make pg-defs TARGET=STM32H743
@@ -23,6 +24,13 @@
 PG_DUMP_SCRIPT  := $(ROOT)/src/utils/pg_dump_structs.py
 PG_HEADER_DIR   := $(SRC_DIR)/pg
 PG_HEADERS      := $(shell grep -l 'PG_DECLARE' $(PG_HEADER_DIR)/*.h)
+
+# The PGN is half of a layout hash, and it comes from text rather than from
+# DWARF: PG_REGISTER* in pg/*.c names the PGN macro, pg_ids.h gives it a
+# number. Neither reaches the compiler-generated .d, so name them here. Without
+# this a PGN change leaves the old hash on disk, and the FC then accepts an
+# EEPROM record under the wrong identity.
+PG_PGN_SOURCES  := $(wildcard $(PG_HEADER_DIR)/*.c) $(PG_HEADER_DIR)/pg_ids.h
 
 PG_HASH_DIR     := $(TARGET_OBJ_DIR)/pg_hash
 PG_HASH_HEADER  := $(PG_HASH_DIR)/pg_hash.h
@@ -113,7 +121,7 @@ $(PG_HASH_DIR) $(PG_DEFS_DIR) $(PG_HASH_OBJ_DIR):
 # target.mk, an EXTRA_FLAGS, or the PG_HASH_CFLAGS below. Without these, a
 # flag change rebuilds the firmware and leaves the hashes behind it, and a
 # stale hash makes the FC accept a record whose layout no longer matches.
-$(PG_DEFS_DIR)/%.def: $(PG_HEADER_DIR)/%.h $(PG_DUMP_SCRIPT) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR) $(PG_DEFS_DIR)
+$(PG_DEFS_DIR)/%.def: $(PG_HEADER_DIR)/%.h $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR) $(PG_DEFS_DIR)
 	@echo "%% (pg-def) pg/$*.h" "$(STDOUT)"
 	$(V1) printf '#include <stdbool.h>\n#include <stdint.h>\n#include "platform.h"\n#include "pg/%s.h"\n' $* > $(PG_HASH_OBJ_DIR)/$*.c
 	$(V1) $(CROSS_CC) -c -o $(PG_HASH_OBJ_DIR)/$*.o $(PG_HASH_CFLAGS) \
@@ -144,7 +152,7 @@ $(PG_ALL_OBJ): $(PG_HEADERS) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR)
 
 -include $(PG_HASH_OBJ_DIR)/pg_all.d
 
-$(PG_HASH_HEADER): $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) | $(PG_HASH_DIR)
+$(PG_HASH_HEADER): $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES) | $(PG_HASH_DIR)
 	@echo "%% (pg-hash) pg_hash.h" "$(STDOUT)"
 	$(V1) $(PYTHON) $(PG_DUMP_SCRIPT) \
 		--hash-header $@ \
