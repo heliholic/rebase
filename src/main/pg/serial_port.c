@@ -30,7 +30,7 @@
 #include "pg/pg_ids.h"
 #include "pg/serial_port.h"
 
-PG_REGISTER_WITH_RESET_FN(serialPinConfig_t, serialPinConfig, PG_SERIAL_PIN_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(serialPinConfig_t, serialPinConfig, PG_SERIAL_PIN_CONFIG);
 
 #endif
 #endif

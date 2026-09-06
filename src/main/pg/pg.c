@@ -96,12 +96,12 @@ void pgResetAll(void)
     }
 }
 
-bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, int version)
+bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t hash)
 {
     pgResetInstance(reg, pgData(reg));
 
-    // restore only matching version, keep defaults otherwise
-    if (version == pgVersion(reg)) {
+    // restore only matching version hash, keep defaults otherwise
+    if (hash == pgHash(reg)) {
         // A record may be shorter or longer than the group: the layout is
         // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
         // take what fits and leave the rest at the defaults reset above.

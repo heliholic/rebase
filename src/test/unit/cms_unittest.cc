@@ -36,7 +36,7 @@ extern "C" {
     #include "osd/osd.h"
     #include "pg/pg_ids.h"
 
-    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG, 0);
+    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG);
 
     void cmsMenuOpen(void);
     const void *cmsMenuBack(displayPort_t *pDisplay);

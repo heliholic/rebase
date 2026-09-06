@@ -29,7 +29,7 @@
 
 #include "rx_pwm.h"
 
-PG_REGISTER_WITH_RESET_FN(ppmConfig_t, ppmConfig, PG_PPM_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(ppmConfig_t, ppmConfig, PG_PPM_CONFIG);
 
 PG_RESET_FN(ppmConfig_t, ppmConfig)
 {

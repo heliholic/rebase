@@ -38,7 +38,7 @@ extern "C" {
 #include "scheduler/scheduler.h"
 #include "fc/tasks.h"
 
-PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
+PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
 }
 
 #include "unittest_macros.h"

@@ -36,7 +36,7 @@
 #define DEFAULT_CURRENT_METER_OFFSET 0
 #endif
 
-PG_REGISTER_WITH_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig, PG_CURRENT_SENSOR_ADC_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig, PG_CURRENT_SENSOR_ADC_CONFIG);
 
 PG_RESET_TEMPLATE(currentSensorADCConfig_t, currentSensorADCConfig)
 {
