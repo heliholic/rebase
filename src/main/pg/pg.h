@@ -150,8 +150,8 @@ extern const uint8_t __pg_resetfunc_end[];
     /**/
 
 #define PG_REGISTER_WITH_RESET_TEMPLATE(_type, _name, _pgn, _version)   \
-    extern const _type pgResetTemplate_ ## _name;                       \
-    PG_REGISTER_I(_type, _name, _pgn, _version, {.data = (void*)&pgResetTemplate_ ## _name}, {.ptr = 0}) \
+    extern const _type __pgResetTemplate_ ## _name;                     \
+    PG_REGISTER_I(_type, _name, _pgn, _version, {.data = (void*)&__pgResetTemplate_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _version, _reset, _load) \
@@ -182,10 +182,8 @@ extern const uint8_t __pg_resetfunc_end[];
 
 #define PG_ARRAY_ELEMENT_OFFSET(type, index, member) (index * sizeof(type) + offsetof(type, member))
 
-#define PG_RESET_TEMPLATE(_type, _name, ...)                            \
-    const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES = {   \
-        __VA_ARGS__                                                     \
-    }                                                                   \
+#define PG_RESET_TEMPLATE(_type, _name)                                 \
+    const _type __pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES =   \
     /**/
 
 #define PG_RESET_FN(_type, _name)                                       \

@@ -30,7 +30,8 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(escSensorConfig_t, escSensorConfig, PG_ESC_SENSOR_CONFIG, 0);
 
-PG_RESET_TEMPLATE(escSensorConfig_t, escSensorConfig,
+PG_RESET_TEMPLATE(escSensorConfig_t, escSensorConfig)
+{
         .halfDuplex = 0
-);
+};
 

@@ -34,7 +34,8 @@ extern "C" {
 
 PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 1);
 
-PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
+PG_RESET_TEMPLATE(motorConfig_t, motorConfig)
+{
     .dev = {
         .motorPwmRate = 400,
         .motorProtocol = 0,
@@ -52,7 +53,7 @@ PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
     .mincommand = 1000,
     .kv = 1000,
     .motorPoleCount = 14,
-);
+};
 
 // A scalar PG with no reset at all: pgResetInstance() must still zero it.
 typedef struct pgTestZeroed_s {

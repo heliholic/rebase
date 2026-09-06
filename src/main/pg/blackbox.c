@@ -33,10 +33,11 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 4);
 
-PG_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig,
+PG_RESET_TEMPLATE(blackboxConfig_t, blackboxConfig)
+{
     .fields_disabled_mask = 0,
     .sample_rate = BLACKBOX_RATE_QUARTER,
     .device = DEFAULT_BLACKBOX_DEVICE,
     .mode = BLACKBOX_MODE_NORMAL,
     .high_resolution = false
-);
+};
