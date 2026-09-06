@@ -110,6 +110,18 @@ typedef struct
 
 #define MCU_TYPE_NAME "UNIT_TEST"
 
+// Mirrors the CONFIG_IN_RAM block in target/common_post.h, which unit
+// tests do not see, so the EEPROM code can be exercised against a plain
+// RAM buffer. Only the test that asks for CONFIG_IN_RAM gets it.
+#ifdef CONFIG_IN_RAM
+#ifndef EEPROM_SIZE
+#define EEPROM_SIZE 4096
+#endif
+extern uint8_t eepromData[EEPROM_SIZE];
+#define __config_start (*eepromData)
+#define __config_end (*(eepromData + EEPROM_SIZE))
+#endif
+
 #include "target.h"
 
 #include "target/common_defaults_post.h"
