@@ -68,14 +68,14 @@ typedef enum {
 
 typedef struct {
     ioTag_t      ioTag;
-    uint8_t      ledstrip_visual_beeper;
+    bool         ledstrip_visual_beeper;
     uint8_t      ledstrip_grb_rgb;
     ledProfile_e ledstrip_profile;
     colorId_e    ledstrip_race_color;
     colorId_e    ledstrip_beacon_color;
     uint16_t     ledstrip_beacon_period_ms;
     uint8_t      ledstrip_beacon_percent;
-    uint8_t      ledstrip_beacon_armed_only;
+    bool         ledstrip_beacon_armed_only;
     colorId_e    ledstrip_visual_beeper_color;
     uint8_t      ledstrip_brightness;
     uint16_t     ledstrip_rainbow_delta;
@@ -95,7 +95,7 @@ typedef struct {
 } specialColorIndexes_t;
 
 typedef struct {
-    ledConfig_t ledConfigs[PG_MAX_LED_STRIP_LENGTH];
+    ledConfig_t ledConfigs[PG_MAX_LED_STRIP_LENGTH]; // LED_STRIP_MAX_LENGTH of these are used
     hsvColor_t colors[LED_CONFIGURABLE_COLOR_COUNT];
     modeColorIndexes_t modeColors[LED_MODE_COUNT];
     specialColorIndexes_t specialColors;
