@@ -1,19 +1,20 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,8 +25,8 @@
 
 #include "platform.h"
 
-#include "common/crc.h"
 #include "common/maths.h"
+#include "common/utils.h"
 
 #include "pg.h"
 
@@ -39,28 +40,23 @@ const pgRegistry_t* pgFind(pgn_t pgn)
     return NULL;
 }
 
-static uint8_t *pgOffset(const pgRegistry_t* reg)
-{
-    return reg->address;
-}
-
 void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
 {
-    const uint16_t regSize = pgSize(reg);
+    memset(base, 0, pgSize(reg));
 
-    memset(base, 0, regSize);
-    if (reg->reset.ptr >= (void*)__pg_resetdata_start && reg->reset.ptr < (void*)__pg_resetdata_end) {
-        // pointer points to resetdata section, to it is data template
-        memcpy(base, reg->reset.ptr, regSize);
-    } else if (reg->reset.fn) {
+    if (reg->reset.data >= (void*)__pg_resetdata_start && reg->reset.data < (void*)__pg_resetdata_end) {
+        // pointer points into .pg_resetdata, so it is a data template
+        memcpy(base, reg->reset.data, pgSize(reg));
+    }
+    else if (reg->reset.func) {
         // reset function, call it
-        reg->reset.fn(base);
+        reg->reset.func(base);
     }
 }
 
 void pgReset(const pgRegistry_t* reg)
 {
-    pgResetInstance(reg, pgOffset(reg));
+    pgResetInstance(reg, pgData(reg));
 }
 
 bool pgResetCopy(void *copy, pgn_t pgn)
@@ -73,15 +69,24 @@ bool pgResetCopy(void *copy, pgn_t pgn)
     return false;
 }
 
-bool pgLoad(const pgRegistry_t* reg, const void *from, int size, int version)
+void pgResetAll(void)
 {
-    pgResetInstance(reg, pgOffset(reg));
+    PG_FOREACH(reg) {
+        pgReset(reg);
+    }
+}
+
+bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, int version)
+{
+    pgResetInstance(reg, pgData(reg));
+
     // restore only matching version, keep defaults otherwise
     if (version == pgVersion(reg)) {
-        const int take = MIN(size, pgSize(reg));
-        memcpy(pgOffset(reg), from, take);
-
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, from, take);
+        // A record may be shorter or longer than the group: the layout is
+        // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
+        // take what fits and leave the rest at the defaults reset above.
+        const size_t take = MIN(size, pgSize(reg));
+        memcpy(pgData(reg), from, take);
 
         return true;
     }
@@ -89,16 +94,9 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, int size, int version)
     return false;
 }
 
-int pgStore(const pgRegistry_t* reg, void *to, int size)
+int pgStore(const pgRegistry_t* reg, void *to, pgSize_t size)
 {
-    const int take = MIN(size, pgSize(reg));
-    memcpy(to, pgOffset(reg), take);
+    const size_t take = MIN(size, pgSize(reg));
+    memcpy(to, pgData(reg), take);
     return take;
-}
-
-void pgResetAll(void)
-{
-    PG_FOREACH(reg) {
-        pgReset(reg);
-    }
 }

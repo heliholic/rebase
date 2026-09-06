@@ -436,7 +436,7 @@ bool loadEEPROM(void)
 
             success = false;
         }
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, reg->address, pgSize(reg));
+        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, pgData(reg), pgSize(reg));
     }
 
     return success;
@@ -452,7 +452,7 @@ static bool writeSettingsToEEPROM(void)
     };
 
     PG_FOREACH(reg) {
-        if (*reg->fnv_hash != fnv_update(FNV_OFFSET_BASIS, reg->address, pgSize(reg))) {
+        if (*pgChecksum(reg) != fnv_update(FNV_OFFSET_BASIS, pgData(reg), pgSize(reg))) {
             dirtyConfig = true;
         }
     }
@@ -468,7 +468,7 @@ static bool writeSettingsToEEPROM(void)
         uint16_t crc = CRC_START_VALUE;
         crc = crc16_ccitt_update(crc, (uint8_t *)&header, sizeof(header));
         PG_FOREACH(reg) {
-            const uint16_t regSize = pgSize(reg);
+            const pgSize_t regSize = pgSize(reg);
             configRecord_t record = {
                 .size = sizeof(configRecord_t) + regSize,
                 .pgn = pgN(reg),
@@ -479,8 +479,8 @@ static bool writeSettingsToEEPROM(void)
             record.flags |= CR_CLASSICATION_SYSTEM;
             config_streamer_write(&streamer, (uint8_t *)&record, sizeof(record));
             crc = crc16_ccitt_update(crc, (uint8_t *)&record, sizeof(record));
-            config_streamer_write(&streamer, reg->address, regSize);
-            crc = crc16_ccitt_update(crc, reg->address, regSize);
+            config_streamer_write(&streamer, pgData(reg), regSize);
+            crc = crc16_ccitt_update(crc, pgData(reg), regSize);
         }
 
         configFooter_t footer = {
