@@ -954,7 +954,8 @@ $(TARGET_EF_HASH_FILE):
 	$(V1) touch $(TARGET_EF_HASH_FILE)
 
 # rebuild everything when makefile changes or the extra flags have changed
-$(TARGET_OBJS): $(TARGET_EF_HASH_FILE) Makefile $(TARGET_DIR)/target.mk $(wildcard make/*) $(CONFIG_FILE) | $(PLATFORM_SDK_STAMP)
+$(TARGET_OBJS): $(TARGET_EF_HASH_FILE) Makefile $(TARGET_DIR)/target.mk \
+                 $(wildcard $(MAKE_SCRIPT_DIR)/*) $(CONFIG_HEADER_FILE) | $(PLATFORM_SDK_STAMP)
 
 # include auto-generated dependencies
 -include $(TARGET_DEPS)
