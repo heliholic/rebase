@@ -1345,7 +1345,7 @@ static void printSerial(dumpFlags_t dumpMask, const serialConfig_t *serialConfig
 {
     const char *format = "serial %s %d %ld %ld %ld %ld";
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
-    for (unsigned i = 0; i < ARRAYLEN(serialConfig->portConfigs); i++) {
+    for (unsigned i = 0; i < SERIAL_PORT_COUNT; i++) {
         if (!serialIsPortAvailable(serialConfig->portConfigs[i].identifier)) {
             continue;
         };

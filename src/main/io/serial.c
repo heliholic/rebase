@@ -272,12 +272,12 @@ static serialPortConfig_t* findInPortConfigs_identifier(const serialPortConfig_t
 
 serialPortConfig_t* serialFindPortConfigurationMutable(serialPortIdentifier_e identifier)
 {
-    return findInPortConfigs_identifier(serialConfigMutable()->portConfigs, ARRAYLEN(serialConfigMutable()->portConfigs), identifier);
+    return findInPortConfigs_identifier(serialConfigMutable()->portConfigs, SERIAL_PORT_COUNT, identifier);
 }
 
 const serialPortConfig_t* serialFindPortConfiguration(serialPortIdentifier_e identifier)
 {
-    return findInPortConfigs_identifier(serialConfig()->portConfigs, ARRAYLEN(serialConfig()->portConfigs), identifier);
+    return findInPortConfigs_identifier(serialConfig()->portConfigs, SERIAL_PORT_COUNT, identifier);
 }
 
 void pgResetFn_serialConfig(serialConfig_t *serialConfig)
@@ -448,7 +448,7 @@ const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e function)
 
 const serialPortConfig_t *findNextSerialPortConfig(serialPortFunction_e function)
 {
-    while (findSerialPortConfigState.lastIndex < ARRAYLEN(serialConfig()->portConfigs)) {
+    while (findSerialPortConfigState.lastIndex < SERIAL_PORT_COUNT) {
         const serialPortConfig_t *candidate = &serialConfig()->portConfigs[findSerialPortConfigState.lastIndex++];
 
         if (candidate->functionMask & function) {
@@ -474,7 +474,7 @@ bool isSerialPortShared(const serialPortConfig_t *portConfig, uint16_t functionM
 serialPort_t *findSharedSerialPort(uint16_t functionMask, serialPortFunction_e sharedWithFunction)
 {
     for (const serialPortConfig_t *candidate = serialConfig()->portConfigs;
-         candidate < ARRAYEND(serialConfig()->portConfigs);
+         candidate < serialConfig()->portConfigs + SERIAL_PORT_COUNT;
          candidate++) {
         if (isSerialPortShared(candidate, functionMask, sharedWithFunction)) {
             const serialPortUsage_t *serialPortUsage = findSerialPortUsageByIdentifier(candidate->identifier);
@@ -506,7 +506,7 @@ bool isSerialConfigValid(serialConfig_t *serialConfigToCheck)
      */
     uint8_t mspPortCount = 0;
 
-    for (unsigned index = 0; index < ARRAYLEN(serialConfigToCheck->portConfigs); index++) {
+    for (unsigned index = 0; index < SERIAL_PORT_COUNT; index++) {
         const serialPortConfig_t *portConfig = &serialConfigToCheck->portConfigs[index];
 
 #ifdef USE_SOFTSERIAL
