@@ -27,6 +27,7 @@
 #include "common/utils.h"
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 #include "pg/pg_ids.h"
 
 #ifdef USE_OSD_PROFILES
@@ -208,7 +209,7 @@ typedef struct osdConfig_s {
     uint8_t ahInvert;                         // invert the artificial horizon
     uint8_t osdProfileIndex;
     uint8_t overlay_radio_mode;
-    char profile[OSD_PROFILE_COUNT][OSD_PROFILE_NAME_LENGTH + 1];
+    char profile[PG_MAX_OSD_PROFILES][OSD_PROFILE_NAME_LENGTH + 1]; // OSD_PROFILE_COUNT of these are used
     uint16_t link_quality_alarm;
     int16_t rssi_dbm_alarm;
     int16_t rsnr_alarm;

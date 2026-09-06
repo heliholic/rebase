@@ -28,6 +28,7 @@
 #include "drivers/io_types.h"
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #define DEFAULT_SERVO_MIN       1000
 #define DEFAULT_SERVO_MIDDLE    1500
@@ -47,7 +48,7 @@ typedef struct {
     // PWM values, in milliseconds, common range is 1000-2000 (1ms to 2ms)
     uint16_t servoCenterPulse;              // This is the value for servos when they should be in the middle. e.g. 1500.
     uint16_t servoPwmRate;                  // The update rate of servo outputs (50-498Hz)
-    ioTag_t  ioTags[MAX_SUPPORTED_SERVOS];
+    ioTag_t  ioTags[PG_MAX_SERVOS];         // MAX_SUPPORTED_SERVOS of these are used
 } servoDevConfig_t;
 
 typedef struct {

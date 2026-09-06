@@ -60,3 +60,21 @@
 #define PG_MAX_PIOUART_RESOURCES 10
 #define PG_MAX_SERIAL_RESOURCES (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES + \
                                  PG_MAX_SOFTSERIAL_RESOURCES + PG_MAX_PIOUART_RESOURCES)
+
+// adcConfig.dmaopt, one per ADC peripheral. Largest today is STM32G474 at 5.
+#define PG_MAX_ADC_DEVICES 6
+
+// motorConfig.dev.ioTags. MAX_SUPPORTED_MOTORS is overridable by a target or a
+// board config - src/config/configs/STMI/NUCLEOF446 asks for 12.
+#define PG_MAX_MOTORS 12
+
+// servoConfig.dev.ioTags. MAX_SUPPORTED_SERVOS is overridable the same way,
+// though nothing in tree raises it above the default 8 today.
+#define PG_MAX_SERVOS 12
+
+// ledStripStatusModeConfig.ledConfigs. LED_STRIP_MAX_LENGTH is 32 or 64
+// depending on USE_LED_STRIP_64.
+#define PG_MAX_LED_STRIP_LENGTH 64
+
+// osdConfig.profile. OSD_PROFILE_COUNT is 3 or 1 depending on USE_OSD_PROFILES.
+#define PG_MAX_OSD_PROFILES 3
