@@ -32,7 +32,7 @@ typedef enum {
     CURRENT_METER_ESC,
     CURRENT_METER_MSP,
     CURRENT_METER_COUNT
-} currentMeterSource_e;
+} PG_ENUM currentMeterSource_e;
 
 typedef struct {
     int16_t scale;              // scale the current sensor output voltage to milliamps. Value in mV/10A

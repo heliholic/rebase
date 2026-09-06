@@ -30,7 +30,7 @@ typedef enum {
     OPTICALFLOW_MT = 1,
     OPTICALFLOW_UPT1 = 2,
     OPTICALFLOW_HARDWARE_COUNT
-} opticalflowType_e;
+} PG_ENUM opticalflowType_e;
 
 typedef struct {
     opticalflowType_e opticalflow_hardware;

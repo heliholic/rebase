@@ -44,7 +44,7 @@ typedef enum {
     CAMERA_CONTROL_MODE_SOFTWARE_PWM,
     CAMERA_CONTROL_MODE_DAC,
     CAMERA_CONTROL_MODES_COUNT
-} cameraControlMode_e;
+} PG_ENUM cameraControlMode_e;
 
 typedef struct {
     cameraControlMode_e mode;

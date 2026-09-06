@@ -31,11 +31,11 @@ typedef enum  {
     BLACKBOX_DEVICE_SDCARD = 2,
     BLACKBOX_DEVICE_SERIAL = 3,
     BLACKBOX_DEVICE_VIRTUAL = 4,
-} BlackboxDevice_e;
+} PG_ENUM BlackboxDevice_e;
 
 typedef enum {
     BLACKBOX_MODE_NORMAL = 0,
-} BlackboxMode;
+} PG_ENUM BlackboxMode;
 
 typedef enum {
     BLACKBOX_RATE_ONE = 0,
@@ -43,7 +43,7 @@ typedef enum {
     BLACKBOX_RATE_QUARTER,
     BLACKBOX_RATE_8TH,
     BLACKBOX_RATE_16TH
-} BlackboxSampleRate_e;
+} PG_ENUM BlackboxSampleRate_e;
 
 typedef struct {
     uint32_t             fields_disabled_mask;
