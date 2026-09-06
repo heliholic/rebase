@@ -1,14 +1,19 @@
 ###############################################################################
 # Generate pg_hash.h from DWARF layouts of PG_DECLARE types.
 #
-# Output lands in $(TARGET_OBJ_DIR)/pg_hash/, never the source tree: the
-# layouts are TARGET-specific, so a shared path would race under a parallel
-# multi-target build. PG_HASH_DIR goes on the include path, so firmware can
-# #include "pg_hash.h" and pick up its own target's copy.
+# Output lands in $(TARGET_OBJ_DIR)/pg_hash/, never the source tree: each
+# target build generates its own, and a shared path would race under a
+# parallel multi-target build. PG_HASH_DIR goes on the include path, so
+# firmware can #include "pg_hash.h" and pick up its own target's copy.
+#
+# The contents are the same everywhere. Every pg/*.h declares its groups
+# unconditionally, so the header carries a PG_<NAME>_HASH for every group in
+# pg/ whether or not this build registers one, and a group's layout may not
+# vary with the target or the build options - pg-hash-check enforces both
+# across every CI target.
 #
 # Compiles a throwaway TU with the same TARGET CFLAGS (plus -g / -fno-lto),
 # scans PG_DECLARE for type names, then extracts the DWARF layout.
-# pg_hash.h has a PG_<NAME>_HASH FNV-1 define per PG.
 #
 # pg-hash builds ONE TU including every pg/*.h. pg-defs builds one TU per
 # header, which is far slower but yields a readable per-header .def and
@@ -51,16 +56,6 @@ PG_DEFS_FILES   := $(patsubst $(PG_HEADER_DIR)/%.h,$(PG_DEFS_DIR)/%.def,$(PG_HEA
 # reason.
 PG_DOC_MD       := $(ROOT)/docs/pg-format.md
 PG_DOC_TARGET   := STM32F722
-
-# USE_*/ENABLE_* macros that hide a PG_DECLARE from an ordinary build. Without
-# these the document would silently omit a group. The generator counts the
-# PG_DECLAREs it found against the ones it resolved and fails if any is
-# missing, so a newly gated group reports itself here rather than disappearing.
-#
-# Forced in the probe .c after platform.h, not with -D: a target that already
-# defines one of these would fail on the redefinition under -Werror.
-PG_DOC_GATES    := USE_QUADSPI USE_TIMER_UP_CONFIG
-PG_DOC_GATES_ON := ENABLE_DRONECAN_DNA
 
 # This file is included after CFLAGS has been assembled, so extend CFLAGS
 # rather than INCLUDE_DIRS. Recipes expand CFLAGS at rule time, so the -I
@@ -201,43 +196,28 @@ $(PG_HASH_HEADER): $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES) | $(PG_HASH
 		--header-dir $(PG_HEADER_DIR) \
 		--target $(TARGET)
 
-# The document's own TU. Same headers as pg_all.c, but with every PG_DECLARE
-# forced visible, so the file covers the protocol rather than one board. Kept
-# separate from pg_all.o on purpose: pg_hash.h must describe the groups this
-# build actually registers, and nothing else.
-PG_DOC_SRC      := $(PG_HASH_OBJ_DIR)/pg_doc.c
-PG_DOC_OBJ      := $(PG_HASH_OBJ_DIR)/pg_doc.o
-
-$(PG_DOC_OBJ): $(PG_HEADERS) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR)
-	@echo "%% (pg-docs) pg_doc.c" "$(STDOUT)"
-	$(V1) { printf '#include <stdbool.h>\n#include <stdint.h>\n#include "platform.h"\n'; \
-		for g in $(PG_DOC_GATES); do printf '#ifndef %s\n#define %s\n#endif\n' "$$g" "$$g"; done; \
-		for g in $(PG_DOC_GATES_ON); do printf '#undef %s\n#define %s 1\n' "$$g" "$$g"; done; \
-		for h in $(notdir $(PG_HEADERS)); do printf '#include "pg/%s"\n' "$$h"; done; \
-	} > $(PG_DOC_SRC)
-	$(V1) $(CROSS_CC) -c -o $@ $(PG_HASH_CFLAGS) \
-		-MMD -MP -MT $@ -MF $(PG_HASH_OBJ_DIR)/pg_doc.d $(PG_DOC_SRC)
-
--include $(PG_HASH_OBJ_DIR)/pg_doc.d
-
+# The document reads the same object as pg_hash.h: one probe, one set of
+# layouts, so the file cannot describe a group differently from the header
+# the firmware compiles against.
+#
 # Phony rather than a rule for $(PG_DOC_MD): "make pg-docs" is an explicit
 # instruction to regenerate, and a file rule would decline to rebuild a
 # hand-edited document whose timestamp is newer than the probe's.
-pg-docs-build: $(PG_DOC_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
+pg-docs-build: $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
 	@echo "%% (pg-docs) $(notdir $(PG_DOC_MD))" "$(STDOUT)"
 	$(V1) $(PYTHON) $(PG_DUMP_SCRIPT) \
 		--markdown $(PG_DOC_MD) \
-		--object $(PG_DOC_OBJ) \
+		--object $(PG_ALL_OBJ) \
 		--header-dir $(PG_HEADER_DIR)
 
 PG_DOC_MD_TMP   := $(TARGET_OBJ_DIR)/pg_docs/pg-format.md
 
-pg-docs-verify: $(PG_DOC_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
+pg-docs-verify: $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
 	@echo "%% (pg-docs-check) $(notdir $(PG_DOC_MD))" "$(STDOUT)"
 	$(V1) mkdir -p $(dir $(PG_DOC_MD_TMP))
 	$(V1) $(PYTHON) $(PG_DUMP_SCRIPT) \
 		--markdown $(PG_DOC_MD_TMP) \
-		--object $(PG_DOC_OBJ) \
+		--object $(PG_ALL_OBJ) \
 		--header-dir $(PG_HEADER_DIR)
 	$(V1) diff -u $(PG_DOC_MD) $(PG_DOC_MD_TMP) || { \
 		echo "docs/pg-format.md is out of date - run 'make pg-docs' and commit the result"; \

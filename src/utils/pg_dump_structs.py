@@ -649,6 +649,23 @@ def resolve_pgn(pg_name, pgn_map, pgn_ids, pg_dir):
     return "%s_HASH" % pgn, pgn_ids[pgn]
 
 
+def require_complete(missing, what):
+    """Refuse to emit a partial result.
+
+    Every group in pg/ is laid out on every target, whether or not the target
+    compiles it in: a layout that depends on build flags is a bug, so a hash
+    is well defined even where the group is not registered. A group the probe
+    could not see means the probe is wrong, not that the group is optional.
+    """
+    if not missing:
+        return
+    raise SystemExit(
+        "these PGs are declared in pg/ but absent from the probe build, so the "
+        "%s would be incomplete:\n%s\n"
+        "Add the USE_*/ENABLE_* macro that gates each one to PG_PROBE_GATES in "
+        "mk/pg_hash.mk." % (what, "\n".join("  %-28s %-28s pg/%s" % m for m in missing)))
+
+
 def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
     """Write PG_<NAME>_HASH defines.
 
@@ -660,6 +677,7 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
     pgn_map = load_pgn_map(header_dir)
     pgn_ids = load_pgn_ids(header_dir)
     hashes = {}
+    missing = []
 
     shared = DwarfTypes(obj) if obj else None
 
@@ -684,6 +702,7 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
             for type_name, pg_name, array_len in declares:
                 type_die = dwarf.find(type_name)
                 if type_die is None:
+                    missing.append((pg_name, type_name, header_name))
                     continue
                 define, pgn = resolve_pgn(pg_name, pgn_map, pgn_ids, header_dir)
                 value = pg_layout_hash(type_die, pgn, array_len is not None)
@@ -694,6 +713,11 @@ def generate_hash_header(obj_dir, header_dir, out_path, target, obj=None):
 
     if shared is not None:
         shared.close()
+
+    # Only the single-object probe sees every header at once; --obj-dir is
+    # given whichever objects happen to exist and cannot judge completeness.
+    if obj:
+        require_complete(missing, "header")
 
     # The stored record carries the hash and nothing else, so two properties
     # the EEPROM format relies on have to hold before we emit the header.
@@ -1141,13 +1165,7 @@ def generate_markdown(obj_path, header_dir, out_path):
                     "core": core,
                 })
 
-        if missing:
-            raise SystemExit(
-                "these PGs are declared but absent from the probe build, so the "
-                "document would be incomplete:\n%s\n"
-                "Add the USE_*/ENABLE_* macro that gates each one to PG_DOC_GATES "
-                "in mk/pg_hash.mk."
-                % "\n".join("  %-28s %-28s pg/%s" % m for m in missing))
+        require_complete(missing, "document")
 
         # Sections are keyed by DIE offset, so a type reached under two
         # spellings is documented once and every reference links to it.
