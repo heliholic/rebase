@@ -27,7 +27,11 @@
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
+
+#include "common/utils.h"
 #include "pg/ledstrip.h"
+
+STATIC_ASSERT(LED_STRIP_MAX_LENGTH <= PG_MAX_LED_STRIP_LENGTH, led_strip_length_exceeds_stored_bound);
 
 PG_REGISTER_WITH_RESET_FN(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG);
 
