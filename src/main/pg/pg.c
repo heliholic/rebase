@@ -30,6 +30,24 @@
 
 #include "pg.h"
 
+// PG_FOREACH walks .pg_registry by sizeof(pgRegistry_t), so the entries every
+// object file contributes must abut with no padding and land on the struct's
+// own alignment. The MCU scripts pack on the natural section alignment, which
+// satisfies both by construction and needs no assert.
+//
+// The host scripts cannot ask the linker for sizeof, so they hardcode
+// SUBALIGN(8) and rely on these two instead. The size one is automatic on a
+// 64-bit host (five pointers force an alignment of 8) and guards the 32-bit
+// hosts, where a struct that is a multiple of 4 but not of 8 would be padded
+// apart between object files. Both are host-only on purpose: neither property
+// is forced by an attribute -- they follow from the members -- and the firmware
+// must stay free to grow the struct to any multiple of its own alignment.
+
+#if defined(UNIT_TEST) || defined(SIMULATOR_BUILD)
+STATIC_ASSERT(sizeof(pgRegistry_t) % 8 == 0, pg_registry_size_leaves_padding_between_objects);
+STATIC_ASSERT(_Alignof(pgRegistry_t) <= 8, pg_registry_alignment_exceeds_linker_packing);
+#endif
+
 const pgRegistry_t* pgFind(pgn_t pgn)
 {
     PG_FOREACH(reg) {
