@@ -150,8 +150,8 @@ extern const uint8_t __pg_resetfunc_end[];
     /**/
 
 #define PG_REGISTER_WITH_RESET_TEMPLATE(_type, _name, _pgn, _version)   \
-    extern const _type pgResetTemplate_ ## _name;                       \
-    PG_REGISTER_I(_type, _name, _pgn, _version, {.data = (void*)&pgResetTemplate_ ## _name}, {.ptr = 0}) \
+    extern const _type __pgResetTemplate_ ## _name;                     \
+    PG_REGISTER_I(_type, _name, _pgn, _version, {.data = (void*)&__pgResetTemplate_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _version, _reset, _load) \
@@ -184,10 +184,8 @@ extern const uint8_t __pg_resetfunc_end[];
 
 // Emit reset defaults for config.
 // Config must be registered with PG_REGISTER_<xxx>_WITH_RESET_TEMPLATE macro
-#define PG_RESET_TEMPLATE(_type, _name, ...)                            \
-    const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES = {   \
-        __VA_ARGS__                                                     \
-    }                                                                   \
+#define PG_RESET_TEMPLATE(_type, _name)                                 \
+    const _type __pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES =   \
     /**/
 
 // Emit a reset function for config, placed in .pg_resetfunc so that

@@ -153,8 +153,9 @@ PG_RESET_FN(canPinConfig_t, canPinConfig)
 
 PG_REGISTER_WITH_RESET_TEMPLATE(canConfig_t, canConfig, PG_CAN_CONFIG, 0);
 
-PG_RESET_TEMPLATE(canConfig_t, canConfig,
+PG_RESET_TEMPLATE(canConfig_t, canConfig)
+{
     .bitrate_khz = 1000U,
-);
+};
 
 #endif // ENABLE_CAN

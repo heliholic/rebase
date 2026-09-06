@@ -76,9 +76,10 @@ extern "C" {
     PG_REGISTER(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 0);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
 
-    PG_RESET_TEMPLATE(featureConfig_t, featureConfig,
+    PG_RESET_TEMPLATE(featureConfig_t, featureConfig)
+    {
         .enabledFeatures = 0
-    );
+    };
 }
 
 #include "unittest_macros.h"

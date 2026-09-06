@@ -30,9 +30,10 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(timeConfig_t, timeConfig, PG_TIME_CONFIG, 0);
 
-PG_RESET_TEMPLATE(timeConfig_t, timeConfig,
+PG_RESET_TEMPLATE(timeConfig_t, timeConfig)
+{
     .tz_offsetMinutes = 0,
-);
+};
 
 #endif
 

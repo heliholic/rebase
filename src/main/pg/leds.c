@@ -34,7 +34,8 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig, PG_STATUS_LED_CONFIG, 0);
 
-PG_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig,
+PG_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig)
+{
     .ioTags = {
 #if STATUS_LED_COUNT > 0 && defined(LED0_PIN)
         [0] = IO_TAG(LED0_PIN),
@@ -57,6 +58,6 @@ PG_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig,
     | BIT(2)
 #endif
     ,
-);
+};
 
 #endif // !USE_VIRTUAL_LED

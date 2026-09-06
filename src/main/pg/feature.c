@@ -29,7 +29,8 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(featureConfig_t, featureConfig, PG_FEATURE_CONFIG, 1);
 
-PG_RESET_TEMPLATE(featureConfig_t, featureConfig,
+PG_RESET_TEMPLATE(featureConfig_t, featureConfig)
+{
     .enabledFeatures = DEFAULT_FEATURES | DEFAULT_RX_FEATURE,
-);
+};
 
