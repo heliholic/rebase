@@ -26,6 +26,7 @@
 #include "platform.h"
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #define SERIAL_PORT_COUNT (SERIAL_UART_COUNT + SERIAL_LPUART_COUNT + SERIAL_SOFTSERIAL_COUNT + SERIAL_VCP_COUNT + SERIAL_PIOUART_COUNT)
 
@@ -39,7 +40,10 @@ typedef struct {
 } serialPortConfig_t;
 
 typedef struct {
-    serialPortConfig_t portConfigs[SERIAL_PORT_COUNT];
+    // Stored at the fixed bound, not SERIAL_PORT_COUNT, so the group keeps one
+    // layout across targets. Slots from SERIAL_PORT_COUNT up are reset to
+    // SERIAL_PORT_NONE and skipped by everything that walks the array.
+    serialPortConfig_t portConfigs[PG_MAX_SERIAL_PORTS];
     uint16_t    serial_update_rate_hz;
     uint8_t     reboot_character;
 } serialConfig_t;

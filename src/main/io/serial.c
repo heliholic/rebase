@@ -280,6 +280,11 @@ const serialPortConfig_t* serialFindPortConfiguration(serialPortIdentifier_e ide
     return findInPortConfigs_identifier(serialConfig()->portConfigs, SERIAL_PORT_COUNT, identifier);
 }
 
+// portConfigs is stored at PG_MAX_SERIAL_PORTS so the group's layout does not
+// depend on how many ports this target has. Everything that walks it stops at
+// SERIAL_PORT_COUNT.
+STATIC_ASSERT(SERIAL_PORT_COUNT <= PG_MAX_SERIAL_PORTS, serial_port_count_exceeds_stored_bound);
+
 PG_RESET_FN(serialConfig_t, serialConfig)
 {
     memset(serialConfig, 0, sizeof(serialConfig_t));
@@ -291,6 +296,13 @@ PG_RESET_FN(serialConfig_t, serialConfig)
         pCfg->gps_baudrateIndex = BAUD_57600;
         pCfg->telemetry_baudrateIndex = BAUD_AUTO;
         pCfg->blackbox_baudrateIndex = BAUD_115200;
+    }
+
+    // Slots the layout reserves but this build has no port for. Zero, which
+    // the memset above leaves behind, is SERIAL_PORT_LEGACY_START_IDENTIFIER
+    // and would read as a real port.
+    for (int i = SERIAL_PORT_COUNT; i < PG_MAX_SERIAL_PORTS; i++) {
+        serialConfig->portConfigs[i].identifier = SERIAL_PORT_NONE;
     }
 
     serialConfig->portConfigs[0].functionMask = FUNCTION_MSP;
