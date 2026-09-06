@@ -87,6 +87,10 @@ extern const uint8_t __pg_resetdata_start[];
 extern const uint8_t __pg_resetdata_end[];
 #define PG_RESETDATA_ATTRIBUTES __attribute__ ((section(".pg_resetdata"), used, aligned(2)))
 
+extern const uint8_t __pg_resetfunc_start[];
+extern const uint8_t __pg_resetfunc_end[];
+#define PG_RESETFUNC_ATTRIBUTES __attribute__ ((section(".pg_resetfunc"), used))
+
 // Helper to iterate over the PG register.  Cheaper than a visitor style callback.
 #define PG_FOREACH(_name) \
     for (const pgRegistry_t *(_name) = __pg_registry_start; (_name) < __pg_registry_end; (_name)++)
@@ -141,8 +145,8 @@ extern const uint8_t __pg_resetdata_end[];
     /**/
 
 #define PG_REGISTER_WITH_RESET_FN(_type, _name, _pgn, _version)         \
-    extern void pgResetFn_ ## _name(_type *);                           \
-    PG_REGISTER_I(_type, _name, _pgn, _version, {.func = (pgResetFunc*)&pgResetFn_ ## _name}, {.ptr = 0}) \
+    extern PG_RESET_FN(_type, _name);                                   \
+    PG_REGISTER_I(_type, _name, _pgn, _version, {.func = (pgResetFunc*)&__pgResetFn_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_REGISTER_WITH_RESET_TEMPLATE(_type, _name, _pgn, _version)   \
@@ -172,8 +176,8 @@ extern const uint8_t __pg_resetdata_end[];
     /**/
 
 #define PG_REGISTER_ARRAY_WITH_RESET_FN(_type, _length, _name, _pgn, _version) \
-    extern void pgResetFn_ ## _name(_type *);                           \
-    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _version, {.func = (pgResetFunc*)&pgResetFn_ ## _name}, {.ptr = 0}) \
+    extern PG_RESET_FN(_type, _name);                                   \
+    PG_REGISTER_ARRAY_I(_type, _length, _name, _pgn, _version, {.func = (pgResetFunc*)&__pgResetFn_ ## _name}, {.ptr = 0}) \
     /**/
 
 #define PG_ARRAY_ELEMENT_OFFSET(type, index, member) (index * sizeof(type) + offsetof(type, member))
@@ -184,6 +188,14 @@ extern const uint8_t __pg_resetdata_end[];
     const _type pgResetTemplate_ ## _name PG_RESETDATA_ATTRIBUTES = {   \
         __VA_ARGS__                                                     \
     }                                                                   \
+    /**/
+
+// Emit a reset function for config, placed in .pg_resetfunc so that
+// pgResetInstance() can tell it from a reset template by its address alone.
+// The parameter is named after the group, so the body reads the same as any
+// other access to it.
+#define PG_RESET_FN(_type, _name)                                       \
+    void PG_RESETFUNC_ATTRIBUTES __pgResetFn_ ## _name(_type *_name)    \
     /**/
 
 const pgRegistry_t* pgFind(pgn_t pgn);

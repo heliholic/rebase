@@ -38,7 +38,7 @@ PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
 
-void pgResetFn_servoConfig(servoConfig_t *servoConfig)
+PG_RESET_FN(servoConfig_t, servoConfig)
 {
     servoConfig->dev.servoCenterPulse = 1500;
     servoConfig->dev.servoPwmRate = 50;
@@ -69,10 +69,10 @@ void pgResetFn_servoConfig(servoConfig_t *servoConfig)
 #endif
 }
 
-void pgResetFn_servoParams(servoParam_t *instance)
+PG_RESET_FN(servoParam_t, servoParams)
 {
     for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
-        RESET_CONFIG(servoParam_t, &instance[i],
+        RESET_CONFIG(servoParam_t, &servoParams[i],
             .min = DEFAULT_SERVO_MIN,
             .max = DEFAULT_SERVO_MAX,
             .middle = DEFAULT_SERVO_MIDDLE,

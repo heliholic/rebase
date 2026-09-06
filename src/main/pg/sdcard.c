@@ -56,41 +56,41 @@
 
 PG_REGISTER_WITH_RESET_FN(sdcardConfig_t, sdcardConfig, PG_SDCARD_CONFIG, 2);
 
-void pgResetFn_sdcardConfig(sdcardConfig_t *config)
+PG_RESET_FN(sdcardConfig_t, sdcardConfig)
 {
-    config->cardDetectTag = IO_TAG(SDCARD_DETECT_PIN);
-    config->cardDetectInverted = SDCARD_DETECT_IS_INVERTED;
+    sdcardConfig->cardDetectTag = IO_TAG(SDCARD_DETECT_PIN);
+    sdcardConfig->cardDetectInverted = SDCARD_DETECT_IS_INVERTED;
 
     // We can safely handle SPI and SDIO cases separately on custom targets, as these are exclusive per target.
     // On generic targets, SPI has precedence over SDIO; SDIO must be post-flash configured.
-    config->device = SPI_DEV_TO_CFG(SPIINVALID);
+    sdcardConfig->device = SPI_DEV_TO_CFG(SPIINVALID);
 
 #ifdef CONFIG_IN_SDCARD
     // CONFIG_ID_SDDCARD requires a default mode.
 #if defined(USE_SDCARD_SDIO)
-    config->mode = SDCARD_MODE_SDIO;
+    sdcardConfig->mode = SDCARD_MODE_SDIO;
 #elif defined(USE_SDCARD_SPI)
-    config->mode = SDCARD_MODE_SPI;
+    sdcardConfig->mode = SDCARD_MODE_SPI;
 #endif
 #else
-    config->mode = SDCARD_MODE_NONE;
+    sdcardConfig->mode = SDCARD_MODE_NONE;
 #endif
 
 #ifdef USE_SDCARD_SPI
     // These settings do not work for Unified Targets
     // They are only left in place to support legacy targets
     const spiDevice_e spidevice = spiDeviceByInstance((const spiResource_t *)SDCARD_SPI_INSTANCE);
-    config->device = SPI_DEV_TO_CFG(spidevice);
-    config->chipSelectTag = IO_TAG(SDCARD_SPI_CS_PIN);
+    sdcardConfig->device = SPI_DEV_TO_CFG(spidevice);
+    sdcardConfig->chipSelectTag = IO_TAG(SDCARD_SPI_CS_PIN);
 
-    if (spidevice != SPIINVALID && config->chipSelectTag) {
-        config->mode = SDCARD_MODE_SPI;
+    if (spidevice != SPIINVALID && sdcardConfig->chipSelectTag) {
+        sdcardConfig->mode = SDCARD_MODE_SPI;
     }
 #endif
 
 #if defined(USE_SDCARD_SDIO) && defined(SDIO_DEVICE)
     if (SDIO_DEVICE != SDIOINVALID) {
-        config->mode = SDCARD_MODE_SDIO;
+        sdcardConfig->mode = SDCARD_MODE_SDIO;
     }
 #endif
 }

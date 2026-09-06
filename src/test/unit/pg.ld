@@ -25,3 +25,18 @@ SECTIONS {
   }
 }
 INSERT AFTER .rodata;
+
+SECTIONS {
+  .pg_resetfunc :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetfunc_start = . );
+    PROVIDE_HIDDEN (___pg_resetfunc_start = . );
+    KEEP (*(.pg_resetfunc))
+    KEEP (*(SORT(.pg_resetfunc.*)))
+    PROVIDE_HIDDEN (__pg_resetfunc_end = . );
+    PROVIDE_HIDDEN (___pg_resetfunc_end = . );
+    . = ALIGN(4);
+  }
+}
+INSERT AFTER .text;

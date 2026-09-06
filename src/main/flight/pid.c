@@ -50,7 +50,7 @@ void resetPidProfile(pidProfile_t *pidProfile)
     );
 }
 
-void pgResetFn_pidProfiles(pidProfile_t *pidProfiles)
+PG_RESET_FN(pidProfile_t, pidProfiles)
 {
     for (int i = 0; i < PID_PROFILE_COUNT; i++) {
         resetPidProfile(&pidProfiles[i]);

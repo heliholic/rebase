@@ -111,15 +111,15 @@ static void resetFlightDynamicsTrims(flightDynamicsTrims_t *accZero)
     accZero->values.calibrationCompleted = 0;
 }
 
-void pgResetFn_accelerometerConfig(accelerometerConfig_t *instance)
+PG_RESET_FN(accelerometerConfig_t, accelerometerConfig)
 {
-    RESET_CONFIG_2(accelerometerConfig_t, instance,
+    RESET_CONFIG_2(accelerometerConfig_t, accelerometerConfig,
         .acc_lpf_hz = 25, // ATTITUDE/IMU runs at 100Hz (acro) or 500Hz (level modes) so we need to set 50 Hz (or lower) to avoid aliasing
         .acc_hardware = ACC_DEFAULT,
         .acc_high_fsr = false,
     );
-    resetRollAndPitchTrims(&instance->accelerometerTrims);
-    resetFlightDynamicsTrims(&instance->accZero);
+    resetRollAndPitchTrims(&accelerometerConfig->accelerometerTrims);
+    resetFlightDynamicsTrims(&accelerometerConfig->accZero);
 }
 
 static bool accDetect(accDev_t *dev, accelerationSensor_e accHardwareToUse)

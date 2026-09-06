@@ -63,7 +63,7 @@ baro_t baro;                        // barometer access functions
 #define DEFAULT_BARO_DEVICE BARO_DEFAULT
 #endif
 
-void pgResetFn_barometerConfig(barometerConfig_t *barometerConfig)
+PG_RESET_FN(barometerConfig_t, barometerConfig)
 {
     barometerConfig->baro_hardware = DEFAULT_BARO_DEVICE;
 

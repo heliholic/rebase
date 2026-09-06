@@ -77,7 +77,7 @@ PG_DECLARE_ARRAY(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray);
 PG_REGISTER_ARRAY_WITH_RESET_FN(pgTestElem_t, PG_TEST_ARRAY_LEN, pgTestArray,
                                 PG_RESERVED_FOR_TESTING_2, 0);
 
-extern "C" void pgResetFn_pgTestArray(pgTestElem_t *pgTestArray)
+extern "C" PG_RESET_FN(pgTestElem_t, pgTestArray)
 {
     for (int i = 0; i < PG_TEST_ARRAY_LEN; i++) {
         pgTestArray[i].index = i;
@@ -183,6 +183,29 @@ TEST(ParameterGroupsfTest, Test_pgRegistryIsAContiguousArray)
 
         // The walk and the lookup must see the same table.
         EXPECT_EQ(r, pgFind(pgN(r))) << "PG " << pgN(r) << " is not findable";
+    }
+}
+
+// pgResetInstance() tells a reset template from a reset function by the
+// address alone, so a group whose reset pointer escaped both sections is
+// silently zeroed instead of taking its defaults. Nothing in the C says the
+// attributes placed it there.
+TEST(ParameterGroupsfTest, Test_pgResetPointersLieInTheirSections)
+{
+    PG_FOREACH(r) {
+        if (r->reset.data == nullptr) {
+            continue;
+        }
+        const uint8_t *p = (const uint8_t *)r->reset.data;
+        const bool isTemplate = (p >= __pg_resetdata_start && p < __pg_resetdata_end);
+        const bool isFunction = (p >= __pg_resetfunc_start && p < __pg_resetfunc_end);
+
+        EXPECT_TRUE(isTemplate || isFunction)
+            << "PG " << pgN(r) << " reset pointer " << (const void *)p
+            << " is in neither .pg_resetdata nor .pg_resetfunc, so its"
+               " defaults would be dropped";
+        EXPECT_FALSE(isTemplate && isFunction)
+            << "PG " << pgN(r) << ": .pg_resetdata and .pg_resetfunc overlap";
     }
 }
 
