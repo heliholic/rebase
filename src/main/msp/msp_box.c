@@ -28,7 +28,7 @@
 #include "common/streambuf.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "config/config.h"
 #include "fc/runtime_config.h"

@@ -50,7 +50,7 @@
 #include "rx/rx.h"
 #include "rx/spektrum.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 // driver for spektrum satellite receiver / sbus
 

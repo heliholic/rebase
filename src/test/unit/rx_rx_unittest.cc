@@ -33,7 +33,7 @@ extern "C" {
     #include "fc/rc_modes.h"
     #include "common/maths.h"
     #include "common/utils.h"
-    #include "config/feature.h"
+    #include "fc/feature.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "io/beeper.h"

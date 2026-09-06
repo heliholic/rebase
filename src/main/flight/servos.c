@@ -34,7 +34,7 @@
 
 #include "config/config.h"
 #include "config/config_reset.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/pwm_output.h"
 

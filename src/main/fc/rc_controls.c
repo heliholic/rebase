@@ -33,7 +33,7 @@
 #include "common/axis.h"
 #include "common/maths.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/camera_control.h"
 

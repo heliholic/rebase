@@ -32,7 +32,7 @@ extern "C" {
     #include "common/printf.h"
     #include "common/maths.h"
     #include "common/gps_conversion.h"
-    #include "config/feature.h"
+    #include "fc/feature.h"
     #include "drivers/buf_writer.h"
     #include "drivers/vtx_common.h"
     #include "config/config.h"

@@ -31,7 +31,7 @@
 #include "cms/cms_types.h"
 #include "cms/cms_menu_power.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "sensors/battery.h"
 #include "sensors/current.h"

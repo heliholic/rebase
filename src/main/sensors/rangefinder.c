@@ -35,7 +35,7 @@
 #include "common/utils.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/io.h"
 #include "drivers/rangefinder/rangefinder.h"

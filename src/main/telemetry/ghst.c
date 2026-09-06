@@ -31,7 +31,7 @@
 #include "build/version.h"
 #include "build/debug.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 

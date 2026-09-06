@@ -30,7 +30,7 @@
 
 #include "common/maths.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/dshot.h"
 #include "drivers/dshot_bitbang.h" // TODO: bitbang should be behind the veil of dshot (it is an implementation)

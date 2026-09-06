@@ -66,7 +66,6 @@ COMMON_SRC = \
             config/config.c \
             config/config_eeprom.c \
             config/config_streamer.c \
-            config/feature.c \
             cli/cli.c \
             cli/settings.c \
             drivers/dshot.c \
@@ -105,6 +104,7 @@ COMMON_SRC = \
             fc/board_info.c \
             fc/dispatch.c \
             fc/faults.c \
+            fc/feature.c \
             fc/tasks.c \
             fc/runtime_config.c \
             fc/stats.c \
@@ -426,8 +426,8 @@ SIZE_OPTIMISED_SRC += \
             drivers/vtx_common.c \
             fc/init.c \
             fc/board_info.c \
+            fc/feature.c \
             config/config_eeprom.c \
-            config/feature.c \
             config/config_streamer.c \
             io/dashboard.c \
             io/serial.c \

@@ -28,7 +28,7 @@ extern "C" {
     #include "common/maths.h"
 
     #include "config/config.h"
-    #include "config/feature.h"
+    #include "fc/feature.h"
 
     #include "fc/controlrate_profile.h"
     #include "fc/core.h"

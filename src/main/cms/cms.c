@@ -50,7 +50,7 @@
 #include "common/typeconversion.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/motor.h"
 #include "drivers/osd_symbols.h"

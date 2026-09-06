@@ -23,7 +23,7 @@ extern "C" {
     #include "common/maths.h"
     #include "common/streambuf.h"
 
-    #include "config/feature.h"
+    #include "fc/feature.h"
     #include "config/config.h"
 
     #include "fc/controlrate_profile.h"

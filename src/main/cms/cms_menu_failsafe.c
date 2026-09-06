@@ -32,7 +32,7 @@
 #include "cms/cms_menu_failsafe.h"
 
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "config/config.h"
 

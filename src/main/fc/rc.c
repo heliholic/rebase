@@ -31,7 +31,7 @@
 #include "common/vector.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "fc/controlrate_profile.h"
 #include "fc/core.h"

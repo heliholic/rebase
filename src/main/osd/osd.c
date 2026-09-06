@@ -51,7 +51,7 @@
 #include "common/utils.h"
 #include "common/unit.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/display.h"
 #include "drivers/dshot.h"

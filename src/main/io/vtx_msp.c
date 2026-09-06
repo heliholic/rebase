@@ -34,7 +34,7 @@
 
 #include "cms/cms_menu_vtx_msp.h"
 #include "common/crc.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/vtx_common.h"
 #include "drivers/vtx_table.h"

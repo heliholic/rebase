@@ -35,7 +35,7 @@
 #include "cms/cms.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "common/crc.h"
 #include "common/maths.h"

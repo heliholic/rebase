@@ -45,7 +45,7 @@
 #include "common/utils.h"
 #include "common/rtc.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/flash/flash.h"
 #include "drivers/time.h"

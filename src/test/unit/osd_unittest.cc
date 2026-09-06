@@ -32,7 +32,7 @@ extern "C" {
     #include "common/vector.h"
 
     #include "config/config.h"
-    #include "config/feature.h"
+    #include "fc/feature.h"
 
     #include "drivers/osd_symbols.h"
     #include "drivers/persistent.h"
