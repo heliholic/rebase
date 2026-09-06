@@ -72,7 +72,15 @@ static inline pgHash_t *pgChecksum(const pgRegistry_t* reg) { return reg->checks
 
 extern const pgRegistry_t __pg_registry_start[];
 extern const pgRegistry_t __pg_registry_end[];
-#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(4)))
+// aligned() must track _Alignof(pgRegistry_t), not a constant. A literal
+// below the natural alignment does not under-align the object, but it does
+// lower the alignment recorded on the input section - gcc and clang both emit
+// .pg_registry as sh_addralign 4 for aligned(4) - and the linker is then free
+// to place the section on a 4-byte boundary, which under-aligns every entry on
+// a 64-bit host. Stating it explicitly also keeps the toolchain from boosting
+// the objects to an alignment of its own, which would pad the gaps between
+// object files and break the array walk.
+#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(__alignof__(pgRegistry_t))))
 #define PG_REGISTRY_SIZE (__pg_registry_end - __pg_registry_start)
 
 extern const uint8_t __pg_resetdata_start[];
