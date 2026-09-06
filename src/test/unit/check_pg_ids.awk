@@ -24,14 +24,19 @@ function tonum(s,   v) {
     return ""
 }
 
-/^[ \t]*#define[ \t]+PG_[A-Z0-9_]+[ \t]+[^ \/\t]+/ {
+# pg_ids.h lists PGNs as enumerators ("PG_GYRO_CONFIG = 21,"). Retired ids are
+# left behind commented out, and are skipped: a renamed group keeps its id and a
+# moved group leaves its old one, so neither is a collision.
+/^[ \t]*PG_[A-Z0-9_]+[ \t]*=[ \t]*[0-9]/ {
     line = NR
     line_text = $0
     sub(/\/\/.*$/, "", line_text)
-    # split fields after removing comments
-    n = split(line_text, fields, /[ \t]+/)
-    name = fields[2]
-    val = fields[3]
+    # "PG_NAME = 123," -> name and value
+    n = split(line_text, fields, /[ \t]*=[ \t]*/)
+    name = fields[1]
+    val = fields[2]
+    gsub(/[ \t]/, "", name)
+    sub(/[^0-9a-fA-Fx].*$/, "", val)
     v = tonum(val)
     if (v == "") next
     if (v in valmap) {
