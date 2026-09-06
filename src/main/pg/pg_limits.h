@@ -46,6 +46,15 @@
  * pgLoad() reconciles a record whose element count differs.
  */
 
+// vtxTableConfig. VTX_TABLE_MAX_* is two different things at once: the size of
+// the stored table when USE_VTX_TABLE is set, and the size of the built-in
+// frequency table when it is not - 8/8/8 against 5/8/5. The group is declared
+// either way, so it cannot take its shape from that; it gets the USE_VTX_TABLE
+// maxima always, and vtx_table.h asserts the two agree where both exist.
+#define PG_VTX_TABLE_MAX_BANDS 8
+#define PG_VTX_TABLE_MAX_CHANNELS 8
+#define PG_VTX_TABLE_MAX_POWER_LEVELS 8
+
 // serialConfig.portConfigs. Largest today is X32M7B at 16.
 #define PG_MAX_SERIAL_PORTS 20
 

@@ -34,28 +34,36 @@
 #define VTX_TABLE_BAND_NAME_LENGTH      8
 #define VTX_TABLE_POWER_LABEL_LENGTH    3
 
-#ifdef USE_VTX_TABLE
-
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "build/build_config.h"
+
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
+
+// The stored table is always the USE_VTX_TABLE size. Sizing it from
+// VTX_TABLE_MAX_* would give the group one layout with USE_VTX_TABLE and
+// another without, and a group's layout may not depend on a build flag.
+#ifdef USE_VTX_TABLE
+STATIC_ASSERT(VTX_TABLE_MAX_BANDS == PG_VTX_TABLE_MAX_BANDS, "VTX table bands changed");
+STATIC_ASSERT(VTX_TABLE_MAX_CHANNELS == PG_VTX_TABLE_MAX_CHANNELS, "VTX table channels changed");
+STATIC_ASSERT(VTX_TABLE_MAX_POWER_LEVELS == PG_VTX_TABLE_MAX_POWER_LEVELS, "VTX table power levels changed");
+#endif
 
 typedef struct vtxTableConfig_s {
     uint8_t  bands;
     uint8_t  channels;
-    uint16_t frequency[VTX_TABLE_MAX_BANDS][VTX_TABLE_MAX_CHANNELS];
-    char     bandNames[VTX_TABLE_MAX_BANDS][VTX_TABLE_BAND_NAME_LENGTH + 1];
-    char     bandLetters[VTX_TABLE_MAX_BANDS];
-    char     channelNames[VTX_TABLE_MAX_CHANNELS][VTX_TABLE_CHANNEL_NAME_LENGTH + 1];
-    bool     isFactoryBand[VTX_TABLE_MAX_BANDS];
+    uint16_t frequency[PG_VTX_TABLE_MAX_BANDS][PG_VTX_TABLE_MAX_CHANNELS];
+    char     bandNames[PG_VTX_TABLE_MAX_BANDS][VTX_TABLE_BAND_NAME_LENGTH + 1];
+    char     bandLetters[PG_VTX_TABLE_MAX_BANDS];
+    char     channelNames[PG_VTX_TABLE_MAX_CHANNELS][VTX_TABLE_CHANNEL_NAME_LENGTH + 1];
+    bool     isFactoryBand[PG_VTX_TABLE_MAX_BANDS];
 
     uint8_t  powerLevels;
-    uint16_t powerValues[VTX_TABLE_MAX_POWER_LEVELS];
-    char     powerLabels[VTX_TABLE_MAX_POWER_LEVELS][VTX_TABLE_POWER_LABEL_LENGTH + 1];
+    uint16_t powerValues[PG_VTX_TABLE_MAX_POWER_LEVELS];
+    char     powerLabels[PG_VTX_TABLE_MAX_POWER_LEVELS][VTX_TABLE_POWER_LABEL_LENGTH + 1];
 } vtxTableConfig_t;
 
 struct vtxTableConfig_s;
 PG_DECLARE(struct vtxTableConfig_s, vtxTableConfig);
-
-#endif

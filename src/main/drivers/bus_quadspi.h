@@ -39,6 +39,12 @@
  * See ST Micros' AN4760 "Quad-SPI (QSPI) interface on STM32 microcontrollers"
  */
 
+// pg/bus_quadspi.h declares quadSpiConfig unconditionally, so the count that
+// sizes it has to exist on every target, USE_QUADSPI or not.
+#ifndef QUADSPIDEV_COUNT
+#define QUADSPIDEV_COUNT 0
+#endif
+
 #ifdef USE_QUADSPI
 
 typedef enum {
@@ -55,10 +61,6 @@ typedef enum {
     QUADSPIINVALID = -1,
     QUADSPIDEV_1   = 0,
 } quadSpiDevice_e;
-
-#ifndef QUADSPIDEV_COUNT
-#define QUADSPIDEV_COUNT 0
-#endif
 
 // Macros to convert between CLI bus number and spiDevice_e.
 #define QUADSPI_CFG_TO_DEV(x)   ((x) - 1)

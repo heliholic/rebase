@@ -117,7 +117,7 @@ extern const uint8_t __pg_resetfunc_end[];
     } while (0)                                                         \
     /**/
 
-// Declare system config
+// Declare system config.
 #define PG_DECLARE(_type, _name)                                        \
     extern _type _name ## _Data;                                        \
     extern _type _name ## _Copy;                                        \

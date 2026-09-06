@@ -25,8 +25,6 @@
 
 #include "platform.h"
 
-#if defined(USE_ACC)
-
 #include "pg/pg.h"
 #include "pg/trims.h"
 
@@ -49,6 +47,4 @@ typedef struct {
 } accelerometerConfig_t;
 
 PG_DECLARE(accelerometerConfig_t, accelerometerConfig);
-
-#endif
 

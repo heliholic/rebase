@@ -49,8 +49,6 @@ typedef struct {
 PG_DECLARE_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions);
 
 
-#ifdef USE_CUSTOM_BOX_NAMES
-
 #define MAX_BOX_USER_NAME_LENGTH 16
 #define BOX_USER_NAME_COUNT      4
 
@@ -59,5 +57,3 @@ typedef struct {
 } modeActivationConfig_t;
 
 PG_DECLARE(modeActivationConfig_t, modeActivationConfig);
-
-#endif

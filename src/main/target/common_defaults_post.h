@@ -123,10 +123,10 @@
 #endif
 #endif
 
-#ifdef USE_TIMER_MGMT
+// Not gated on USE_TIMER_MGMT: pg/timerio.h declares timerIOConfig
+// unconditionally, so the count that sizes it has to exist on every target.
 #ifndef MAX_TIMER_PINMAP_COUNT
 #define MAX_TIMER_PINMAP_COUNT 21 // Largest known for F405RG (OMNINXT)
-#endif
 #endif
 
 #if defined(USE_RANGEFINDER) && defined(USE_RANGEFINDER_HCSR04)
