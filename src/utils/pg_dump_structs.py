@@ -188,7 +188,10 @@ def display_type(die):
 
 def parse_pg_declares(header_path):
     with open(header_path, encoding="utf-8", errors="replace") as fh:
-        text = fh.read()
+        # Comments too: pg_limits.h spells out PG_DECLARE_ARRAY(type, LENGTH,
+        # name) in prose, and that is not a declaration of a group called
+        # "name".
+        text = strip_c_comments(fh.read())
     declares = []
     for match in PG_DECLARE_RE.finditer(text):
         is_array = match.group(1) == "_ARRAY"
@@ -778,7 +781,7 @@ def pg_comment(pg_name, type_name, length, type_die, pgn_map, pgn_ids):
 
     Carries the same hash pg_hash.h defines, so a .def read on its own says
     which EEPROM record the group answers to. A group whose PG_REGISTER is
-    not in pg/*.c has no PGN and therefore no hash - `PGN ?` rather than a
+    not in pg/*.c has no PGN and therefore no hash - `pgn ?` rather than a
     guess, since pg-hash fails loudly on the same group anyway.
     """
     parts = [f"PG {pg_name} : {type_name}"]
@@ -899,6 +902,332 @@ def dump_def(object_path, header_path, output_path, target, extra_types):
         dwarf.close()
 
 
+# --------------------------------------------------------------------------
+# Markdown protocol document
+#
+# One file describing every parameter group, so the stored-config format can
+# be read without a build. It has to be target-invariant: a PG holds the same
+# bytes on every board (see mk/pg_hash.mk pg-hash-check), so the document
+# names the length macro of a PG array rather than resolving it, and never
+# prints the target it was generated from.
+# --------------------------------------------------------------------------
+
+MD_PREAMBLE = """\
+# Parameter group (PG) format
+
+Rotorflight stores its configuration as a sequence of *parameter groups*. A
+group is a plain C struct; the bytes the flight controller writes to EEPROM are
+that struct's in-memory image, so the layout below **is** the storage format.
+
+This document is generated from the compiled firmware's debug info by
+`src/utils/pg_dump_structs.py`. It covers every group, every struct nested
+inside one, and every enum whose values are stored in one.
+
+## How a group is stored
+
+The saved config is a header, a run of records, a terminator, and a checksum:
+
+| Part | Fields |
+| --- | --- |
+| Header | `uint32_t magic`, `uint32_t version` |
+| Record (repeated) | `uint32_t hash`, `uint16_t size`, `uint8_t pg[]` |
+| Footer | `uint32_t terminator` (zero) |
+| Checksum | CRC-16 over everything above |
+
+Every part is `__attribute__((packed))`: there is no padding *between* the
+record header and the group payload, and none between records. Padding *within*
+a group is real, is stored, and is listed in the tables below.
+
+## How a group is identified
+
+`hash` is the only identity a record carries. On load, the firmware walks the
+records and matches each one against the registered groups by hash alone
+(`findEEPROM()` in `src/main/config/config_eeprom.c`); a record whose hash
+matches nothing is skipped, and a group with no matching record keeps its
+defaults.
+
+The hash is a 32-bit FNV-1 over a canonical fingerprint of the group: its PGN
+plus its fully resolved layout - every member's offset, size, name and type,
+recursively, including enumerator names and values. So **any** change to a
+group's layout changes its hash, and an old record is then ignored rather than
+misread. A hash of zero is rejected at build time, because zero is the
+terminator.
+
+Two properties are deliberately *not* in the hash:
+
+- **The element count of a `PG_DECLARE_ARRAY` group.** Those counts are
+  target-derived (`SPIDEV_COUNT`, `I2CDEV_COUNT`, ...) and differ per MCU.
+  `pgLoad()` reconciles a count change by copying `MIN(stored, current)`
+  elements and leaving the rest at their defaults. The tables below therefore
+  name the length macro instead of a number.
+- **The group's `size`.** It is stored in the record and used to bound the
+  copy, but the hash already pins the layout.
+
+## Reading the tables
+
+`Offset` and `Size` are bytes from the start of the group (for an array group,
+from the start of one element). Padding rows are the bytes the compiler
+inserts; they are stored as-is and their contents are undefined. Members of an
+anonymous `struct`/`union` are indented under it and share its offsets.
+"""
+
+
+def md_slug(text):
+    """GitHub heading anchor for a heading that is a bare type name."""
+    out = []
+    for ch in text.lower():
+        if ch.isalnum() or ch in "-_":
+            out.append(ch)
+        elif ch == " ":
+            out.append("-")
+    return "".join(out)
+
+
+def md_escape(text):
+    return text.replace("|", "\\|")
+
+
+def canonical_type_name(dwarf, core, fallback=None):
+    """The one name a type is documented under.
+
+    A group can be declared by its typedef or by its struct tag -
+    PG_DECLARE(struct vtxTableConfig_s, vtxTableConfig) does the latter - and
+    both spellings have to land on the same section. Prefer the typedef, so
+    the heading matches what the rest of the source calls the type.
+    """
+    tag = die_name(core)
+    if tag and tag.endswith("_s"):
+        typedef = dwarf.find(tag[:-2] + "_t")
+        resolved = unwrap(typedef) if typedef is not None else None
+        if resolved is not None and resolved.offset == core.offset:
+            return die_name(typedef)
+    return tag or fallback
+
+
+def link_target(die):
+    """The record/enum a member's type refers to, looking through arrays.
+
+    Pointers are deliberately not followed: a pointer in a PG stores an
+    address, not the thing it points at.
+    """
+    core = unwrap(die) if die is not None else None
+    while core is not None and core.tag == "DW_TAG_array_type":
+        core = unwrap(follow_type(core))
+    return core
+
+
+def md_type_ref(type_die, registry):
+    """A member's type, linked to its own section when it has one."""
+    core = link_target(type_die)
+    if core is not None and core.offset in registry:
+        name = registry[core.offset][0]
+        return "[`%s`](#%s)" % (md_escape(name), md_slug(name))
+    return "`%s`" % md_escape(display_type(type_die))
+
+
+def gather_named_types(dwarf, die, registry):
+    """Register every named struct/union/enum reachable from die, by offset."""
+    for core, name in collect_nested(die, set()):
+        best = canonical_type_name(dwarf, core, name)
+        if best:
+            registry.setdefault(core.offset, (best, core))
+
+
+def md_member_rows(core, registry, base=0, depth=0):
+    """(offset, size, type markup, name markup, depth) for one record."""
+    rows = []
+    kind = "union" if core.tag == "DW_TAG_union_type" else "struct"
+    prev_end = 0
+    for member in members_of(core):
+        off = member["offset"]
+        size = member["size"] or 0
+        if kind != "union" and off > prev_end:
+            rows.append((base + prev_end, off - prev_end, "&mdash;", "*(padding)*", depth))
+
+        type_die = member["type_die"]
+        member_core = member["core"]
+        suffix = ""
+        if member_core is not None and member_core.tag == "DW_TAG_array_type":
+            suffix = array_suffix(member_core)
+        elif type_die is not None and type_die.tag == "DW_TAG_array_type":
+            suffix = array_suffix(type_die)
+
+        anonymous = (is_anonymous_record(member_core)
+                     and not (type_die is not None
+                              and type_die.tag == "DW_TAG_typedef"
+                              and die_name(type_die)))
+        if anonymous:
+            name = member["name"]
+            rows.append((base + off, size, "anonymous `%s`" % kind_word(member_core),
+                         "`%s`" % name if name else "*(unnamed)*", depth))
+            rows.extend(md_member_rows(member_core, registry, base + off, depth + 1))
+        else:
+            rows.append((base + off, size, md_type_ref(type_die, registry),
+                         "`%s%s`" % (member["name"] or "<anonymous>", suffix), depth))
+
+        prev_end = max(prev_end, off + size if kind != "union" else size)
+
+    total = byte_size(core) or 0
+    if kind != "union" and total > prev_end:
+        rows.append((base + prev_end, total - prev_end, "&mdash;", "*(tail padding)*", depth))
+    return rows
+
+
+def md_sizeof(core):
+    size = byte_size(core) or 0
+    return "`sizeof` = %d byte%s." % (size, "" if size == 1 else "s")
+
+
+def md_record_table(core, registry):
+    rows = md_member_rows(core, registry)
+    if not rows:
+        return ["*(no members)*", ""]
+    lines = ["| Offset | Size | Type | Member |", "| ---: | ---: | --- | --- |"]
+    for off, size, type_text, name_text, depth in rows:
+        indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * depth + ("&#8627; " if depth else "")
+        lines.append("| %d | %d | %s | %s%s |" % (off, size, type_text, indent, name_text))
+    lines.append("")
+    return lines
+
+
+def md_enum_table(core):
+    lines = ["| Enumerator | Value |", "| --- | ---: |"]
+    for child in core.iter_children():
+        if child.tag != "DW_TAG_enumerator":
+            continue
+        lines.append("| `%s` | %s |" % (die_name(child), die_attr(child, "DW_AT_const_value")))
+    lines.append("")
+    return lines
+
+
+def generate_markdown(obj_path, header_dir, out_path):
+    """Write the PG protocol document.
+
+    Fails rather than emitting a partial document: a group that is gated out
+    of the probe build would silently vanish from a file whose whole purpose
+    is to be complete.
+    """
+    pgn_map = load_pgn_map(header_dir)
+    pgn_ids = load_pgn_ids(header_dir)
+    dwarf = DwarfTypes(obj_path)
+    try:
+        groups = []
+        missing = []
+        registry = {}
+        skip = {"pg.h", "pg_ids.h", "pg_hash.h"}
+        for header_path in sorted(glob.glob(os.path.join(header_dir, "*.h"))):
+            header_name = os.path.basename(header_path)
+            if header_name in skip:
+                continue
+            for type_name, pg_name, array_len in parse_pg_declares(header_path):
+                type_die = dwarf.find(type_name)
+                if type_die is None:
+                    missing.append((pg_name, type_name, header_name))
+                    continue
+                define, pgn = resolve_pgn(pg_name, pgn_map, pgn_ids, header_dir)
+                gather_named_types(dwarf, type_die, registry)
+                core = unwrap(type_die)
+                groups.append({
+                    "pg": pg_name,
+                    "type": type_name,
+                    "display": canonical_type_name(dwarf, core, display_type(type_die)),
+                    "offset": core.offset,
+                    "header": header_name,
+                    "array": array_len,
+                    "pgn": pgn,
+                    "define": define,
+                    "hash": pg_layout_hash(type_die, pgn, array_len is not None),
+                    "die": type_die,
+                    "core": core,
+                })
+
+        if missing:
+            raise SystemExit(
+                "these PGs are declared but absent from the probe build, so the "
+                "document would be incomplete:\n%s\n"
+                "Add the USE_*/ENABLE_* macro that gates each one to PG_DOC_GATES "
+                "in mk/pg_hash.mk."
+                % "\n".join("  %-28s %-28s pg/%s" % m for m in missing))
+
+        # Sections are keyed by DIE offset, so a type reached under two
+        # spellings is documented once and every reference links to it.
+        root_offsets = {g["offset"] for g in groups}
+        nested = sorted((name, core) for off, (name, core) in registry.items()
+                        if off not in root_offsets
+                        and core.tag != "DW_TAG_enumeration_type")
+        enums = sorted((name, core) for _off, (name, core) in registry.items()
+                       if core.tag == "DW_TAG_enumeration_type")
+
+        # Several PGs can share one struct (the displayPortProfile_t trio), so
+        # the layout is documented once per type and the index points at it.
+        by_type = {}
+        for group in groups:
+            by_type.setdefault(group["display"], []).append(group)
+
+        lines = [MD_PREAMBLE, "## Parameter groups", ""]
+        lines.append("%d groups, %d nested structures, %d enumerations.\n"
+                     % (len(groups), len(nested), len(enums)))
+        lines.append("| Group | PGN | Hash | Type | Size | Header |")
+        lines.append("| --- | ---: | --- | --- | ---: | --- |")
+        for group in sorted(groups, key=lambda g: g["pg"]):
+            size = byte_size(group["die"]) or 0
+            size_text = ("%d &times; `%s`" % (size, group["array"])
+                         if group["array"] else str(size))
+            lines.append("| `%s` | %d | `0x%08X` | [`%s`](#%s) | %s | `pg/%s` |" % (
+                group["pg"], group["pgn"], group["hash"], md_escape(group["display"]),
+                md_slug(group["display"]), size_text, group["header"]))
+        lines.append("")
+
+        lines.append("## Group layouts")
+        lines.append("")
+        for display in sorted(by_type):
+            core = unwrap(by_type[display][0]["die"])
+            lines.append("### %s" % display)
+            lines.append("")
+            owners = by_type[display]
+            for group in sorted(owners, key=lambda g: g["pg"]):
+                array_note = (" &mdash; array of `%s` elements" % group["array"]
+                              if group["array"] else "")
+                lines.append("- `%s` &mdash; PGN %d (`%s`), hash `0x%08X`%s"
+                             % (group["pg"], group["pgn"], group["define"][:-len("_HASH")],
+                                group["hash"], array_note))
+            lines.append("")
+            lines.append(md_sizeof(core))
+            lines.append("")
+            lines.extend(md_record_table(core, registry))
+
+        if nested:
+            lines.append("## Nested structures")
+            lines.append("")
+            for name, core in nested:
+                lines.append("### %s" % name)
+                lines.append("")
+                lines.append(md_sizeof(core))
+                lines.append("")
+                lines.extend(md_record_table(core, registry))
+
+        if enums:
+            lines.append("## Enumerations")
+            lines.append("")
+            lines.append("An enum stored in a PG is `PG_ENUM` (packed), so its width is the "
+                         "same in every build. Its enumerator names and values are part of "
+                         "the layout hash: renumbering one changes what a stored byte means, "
+                         "and the hash has to catch that.")
+            lines.append("")
+            for name, core in enums:
+                lines.append("### %s" % name)
+                lines.append("")
+                lines.append(md_sizeof(core))
+                lines.append("")
+                lines.extend(md_enum_table(core))
+
+        os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
+        with open(out_path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write("\n".join(lines).rstrip() + "\n")
+    finally:
+        dwarf.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--object", help="ELF/object file with DWARF")
@@ -906,10 +1235,16 @@ def main():
     parser.add_argument("--header", help="pg/*.h to scan for PG_DECLARE types")
     parser.add_argument("--target", default="", help="Firmware TARGET name for the banner")
     parser.add_argument("--hash-header", help="Write PG_<NAME>_HASH defines to this header")
+    parser.add_argument("--markdown", help="Write the PG protocol document to this path")
     parser.add_argument("--obj-dir", help="Directory of per-header pg_def *.o files")
     parser.add_argument("--header-dir", help="Directory of pg/*.h and pg/*.c")
     parser.add_argument("types", nargs="*", help="Extra type names to dump")
     args = parser.parse_args()
+    if args.markdown:
+        if not args.header_dir or not args.object:
+            parser.error("--markdown requires --header-dir and --object")
+        generate_markdown(args.object, args.header_dir, args.markdown)
+        return
     if args.hash_header:
         if not args.header_dir or not (args.obj_dir or args.object):
             parser.error("--hash-header requires --header-dir and one of --object/--obj-dir")

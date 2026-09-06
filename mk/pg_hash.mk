@@ -38,6 +38,30 @@ PG_HASH_HEADER  := $(PG_HASH_DIR)/pg_hash.h
 PG_DEFS_DIR     := $(TARGET_OBJ_DIR)/pg_defs
 PG_DEFS_FILES   := $(patsubst $(PG_HEADER_DIR)/%.h,$(PG_DEFS_DIR)/%.def,$(PG_HEADERS))
 
+## The protocol document
+#
+# docs/pg-format.md describes the stored-config format: every group, every
+# struct nested in one, every enum stored in one. It is checked in, so a
+# layout change shows up as a diff in review.
+#
+# It must not depend on what you are building. A PG holds the same bytes on
+# every board - pg-hash-check proves it - but which groups a build *declares*
+# still varies, so the document is always generated from one pinned reference
+# target with the gates below forced on. pg-docs ignores TARGET for that
+# reason.
+PG_DOC_MD       := $(ROOT)/docs/pg-format.md
+PG_DOC_TARGET   := STM32F722
+
+# USE_*/ENABLE_* macros that hide a PG_DECLARE from an ordinary build. Without
+# these the document would silently omit a group. The generator counts the
+# PG_DECLAREs it found against the ones it resolved and fails if any is
+# missing, so a newly gated group reports itself here rather than disappearing.
+#
+# Forced in the probe .c after platform.h, not with -D: a target that already
+# defines one of these would fail on the redefinition under -Werror.
+PG_DOC_GATES    := USE_QUADSPI USE_TIMER_UP_CONFIG
+PG_DOC_GATES_ON := ENABLE_DRONECAN_DNA
+
 # This file is included after CFLAGS has been assembled, so extend CFLAGS
 # rather than INCLUDE_DIRS. Recipes expand CFLAGS at rule time, so the -I
 # still reaches every compile.
@@ -46,7 +70,24 @@ CFLAGS          += -I$(PG_HASH_DIR)
 
 ## Targets
 
-.PHONY: pg-hash pg-defs pg-clean pg-hash-check
+.PHONY: pg-hash pg-defs pg-clean pg-hash-check pg-docs pg-docs-build pg-docs-check pg-docs-verify
+
+## pg-hash           : generate the PG layout hashes for TARGET
+## pg-defs           : dump readable per-header PG layouts for TARGET
+## pg-docs           : regenerate docs/pg-format.md
+#
+# Always builds the reference target, whatever TARGET says, so the file is
+# reproducible from any working tree.
+pg-docs:
+	$(V0) $(MAKE) TARGET=$(PG_DOC_TARGET) pg-docs-build
+
+## pg-docs-check     : fail if docs/pg-format.md is out of date
+#
+# Regenerates to a scratch path and compares, rather than rewriting the file
+# in place: a check that mutates the working tree hides what it was checking,
+# and CI wants the diff, not a repaired tree.
+pg-docs-check:
+	$(V0) $(MAKE) TARGET=$(PG_DOC_TARGET) pg-docs-verify
 
 ifeq ($(TARGET),)
 
@@ -59,7 +100,7 @@ pg-defs:
 pg-clean:
 	$(V0) $(MAKE) TARGET=$(DEFAULT_TARGET) pg-clean
 
-## pg-hash-check : check the PG layout hashes agree across targets
+## pg-hash-check     : check the PG layout hashes agree across targets
 #
 # A group's layout must not depend on which target or which build options
 # produced it, or the same board built two ways cannot read back its own
@@ -159,5 +200,48 @@ $(PG_HASH_HEADER): $(PG_ALL_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES) | $(PG_HASH
 		--object $(PG_ALL_OBJ) \
 		--header-dir $(PG_HEADER_DIR) \
 		--target $(TARGET)
+
+# The document's own TU. Same headers as pg_all.c, but with every PG_DECLARE
+# forced visible, so the file covers the protocol rather than one board. Kept
+# separate from pg_all.o on purpose: pg_hash.h must describe the groups this
+# build actually registers, and nothing else.
+PG_DOC_SRC      := $(PG_HASH_OBJ_DIR)/pg_doc.c
+PG_DOC_OBJ      := $(PG_HASH_OBJ_DIR)/pg_doc.o
+
+$(PG_DOC_OBJ): $(PG_HEADERS) $(TARGET_BUILD_INPUTS) | $(PG_HASH_OBJ_DIR)
+	@echo "%% (pg-docs) pg_doc.c" "$(STDOUT)"
+	$(V1) { printf '#include <stdbool.h>\n#include <stdint.h>\n#include "platform.h"\n'; \
+		for g in $(PG_DOC_GATES); do printf '#ifndef %s\n#define %s\n#endif\n' "$$g" "$$g"; done; \
+		for g in $(PG_DOC_GATES_ON); do printf '#undef %s\n#define %s 1\n' "$$g" "$$g"; done; \
+		for h in $(notdir $(PG_HEADERS)); do printf '#include "pg/%s"\n' "$$h"; done; \
+	} > $(PG_DOC_SRC)
+	$(V1) $(CROSS_CC) -c -o $@ $(PG_HASH_CFLAGS) \
+		-MMD -MP -MT $@ -MF $(PG_HASH_OBJ_DIR)/pg_doc.d $(PG_DOC_SRC)
+
+-include $(PG_HASH_OBJ_DIR)/pg_doc.d
+
+# Phony rather than a rule for $(PG_DOC_MD): "make pg-docs" is an explicit
+# instruction to regenerate, and a file rule would decline to rebuild a
+# hand-edited document whose timestamp is newer than the probe's.
+pg-docs-build: $(PG_DOC_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
+	@echo "%% (pg-docs) $(notdir $(PG_DOC_MD))" "$(STDOUT)"
+	$(V1) $(PYTHON) $(PG_DUMP_SCRIPT) \
+		--markdown $(PG_DOC_MD) \
+		--object $(PG_DOC_OBJ) \
+		--header-dir $(PG_HEADER_DIR)
+
+PG_DOC_MD_TMP   := $(TARGET_OBJ_DIR)/pg_docs/pg-format.md
+
+pg-docs-verify: $(PG_DOC_OBJ) $(PG_DUMP_SCRIPT) $(PG_PGN_SOURCES)
+	@echo "%% (pg-docs-check) $(notdir $(PG_DOC_MD))" "$(STDOUT)"
+	$(V1) mkdir -p $(dir $(PG_DOC_MD_TMP))
+	$(V1) $(PYTHON) $(PG_DUMP_SCRIPT) \
+		--markdown $(PG_DOC_MD_TMP) \
+		--object $(PG_DOC_OBJ) \
+		--header-dir $(PG_HEADER_DIR)
+	$(V1) diff -u $(PG_DOC_MD) $(PG_DOC_MD_TMP) || { \
+		echo "docs/pg-format.md is out of date - run 'make pg-docs' and commit the result"; \
+		exit 1; }
+	$(V1) echo "docs/pg-format.md is up to date"
 
 endif
