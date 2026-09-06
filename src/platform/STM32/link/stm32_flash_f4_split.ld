@@ -104,16 +104,30 @@ SECTIONS
   } >MOVABLE_FLASH
   .pg_registry :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_registry_start = .);
     KEEP (*(.pg_registry))
     KEEP (*(SORT(.pg_registry.*)))
     PROVIDE_HIDDEN (__pg_registry_end = .);
+    . = ALIGN(4);
   } >MOVABLE_FLASH
   .pg_resetdata :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_resetdata_start = .);
     KEEP (*(.pg_resetdata))
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
+    . = ALIGN(4);
+  } >FLASH1
+
+  .pg_resetfunc :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetfunc_start = .);
+    KEEP (*(.pg_resetfunc))
+    KEEP (*(SORT(.pg_resetfunc.*)))
+    PROVIDE_HIDDEN (__pg_resetfunc_end = .);
+    . = ALIGN(4);
   } >FLASH1
 
   /* used by the startup to initialize data */

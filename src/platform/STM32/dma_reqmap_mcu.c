@@ -1135,7 +1135,7 @@ const dmaChannelSpec_t *dmaGetChannelSpecByTimer(const timerHardware_t *timer)
     return dmaGetChannelSpecByTimerValue(timer->tim, timer->channel, dmaopt);
 }
 
-// dmaGetOptionByTimer is called by pgResetFn_timerIOConfig to find out dmaopt for pre-configured timer.
+// dmaGetOptionByTimer is called by PG_RESET_FN(timerIOConfig) to find out dmaopt for pre-configured timer.
 
 dmaoptValue_t dmaGetOptionByTimer(const timerHardware_t *timer)
 {

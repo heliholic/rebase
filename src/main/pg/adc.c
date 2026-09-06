@@ -35,7 +35,7 @@
 
 PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG, 0);
 
-void pgResetFn_adcConfig(adcConfig_t *adcConfig)
+PG_RESET_FN(adcConfig_t, adcConfig)
 {
 #ifdef ADC_VBAT_PIN
     adcConfig->vbat.enabled = true;

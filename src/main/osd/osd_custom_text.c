@@ -35,9 +35,9 @@
 #define INPUT_BUFFER_SIZE 64
 #define DISPLAY_BUFFER_SIZE 32
 
-void pgResetFn_osdCustomTextConfig(osdCustomTextConfig_t *config)
+PG_RESET_FN(osdCustomTextConfig_t, osdCustomTextConfig)
 {
-    config->terminator = OSD_CUSTOM_TEXT_TERMINATOR_LF;
+    osdCustomTextConfig->terminator = OSD_CUSTOM_TEXT_TERMINATOR_LF;
 }
 
 static serialPort_t *osdCustomTextSerialPort = NULL;

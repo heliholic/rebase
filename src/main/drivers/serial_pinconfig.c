@@ -129,7 +129,7 @@ static const serialDefaultPin_t serialDefaultPin[] = {
 #endif
 };
 
-void pgResetFn_serialPinConfig(serialPinConfig_t *serialPinConfig)
+PG_RESET_FN(serialPinConfig_t, serialPinConfig)
 {
     for (const serialDefaultPin_t *defpin = serialDefaultPin; defpin < ARRAYEND(serialDefaultPin); defpin++) {
         const int resourceIndex = serialResourceIndex(defpin->ident);
