@@ -40,10 +40,6 @@ CFLAGS          += -I$(PG_HASH_DIR)
 
 .PHONY: pg-hash pg-defs pg-clean pg-hash-check
 
-# Targets spanning every platform and both toolchains, for pg-hash-check.
-PG_CHECK_TARGETS := STM32F411 STM32F722 STM32G474 STM32H743 STM32C562 \
-                    STM32N657 APM32F405 AT32F435M X32M7B SITL
-
 ifeq ($(TARGET),)
 
 pg-hash:
@@ -59,7 +55,7 @@ pg-clean:
 #
 # A group's layout must not depend on which target or which build options
 # produced it, or the same board built two ways cannot read back its own
-# stored config. This regenerates the hashes for PG_CHECK_TARGETS and fails if
+# stored config. This regenerates the hashes for every CI target and fails if
 # any PG_<NAME>_HASH has two values.
 #
 # Groups a target does not declare simply have no define, so they are compared
@@ -67,17 +63,17 @@ pg-clean:
 # separate matter: a build with no use for one may omit it, and its hash is
 # then never looked up.
 pg-hash-check:
-	$(V0) for t in $(PG_CHECK_TARGETS); do \
+	$(V0) for t in $(CI_TARGETS); do \
 		echo "%% (pg-hash-check) $$t"; \
 		$(MAKE) TARGET=$$t pg-hash $(STDOUT) || exit 1; \
 	done
-	$(V1) cat $(foreach t,$(PG_CHECK_TARGETS),$(OBJECT_DIR)/$(t)/pg_hash/pg_hash.h) \
+	$(V1) cat $(foreach t,$(CI_TARGETS),$(OBJECT_DIR)/$(t)/pg_hash/pg_hash.h) \
 	    | awk '/^#define PG_[A-Z0-9_]*_HASH/ { print $$2, $$3 }' | sort -u \
 	    | awk '{ if ($$1 == prev && $$2 != prevval) { \
 	                 printf "%s differs: %s and %s\n", $$1, prevval, $$2; bad = 1 } \
 	             prev = $$1; prevval = $$2 } \
 	           END { if (bad) { print "PG layout hashes are not target-invariant"; exit 1 } \
-	                 else print "PG layout hashes agree across $(words $(PG_CHECK_TARGETS)) targets" }'
+	                 else print "PG layout hashes agree across $(words $(CI_TARGETS)) targets" }'
 
 else
 
