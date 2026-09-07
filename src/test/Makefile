@@ -321,6 +321,17 @@ link_quality_unittest_DEFINES := \
 		USE_CRSF_LINK_STATISTICS= \
 		USE_RX_LINK_QUALITY_INFO=
 
+config_eeprom_unittest_SRC := \
+		$(USER_DIR)/config/config_eeprom.c \
+		$(USER_DIR)/config/config_streamer.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/pg/pg.c
+
+config_eeprom_unittest_DEFINES := \
+		CONFIG_IN_RAM=
+
+
 pg_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
