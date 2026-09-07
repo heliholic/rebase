@@ -25,6 +25,8 @@
 
 #ifdef USE_ADC
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
@@ -32,6 +34,10 @@
 #include "drivers/io.h"
 
 #include "pg/adc.h"
+
+#ifdef USE_DMA_SPEC
+STATIC_ASSERT(ADCDEV_COUNT <= PG_MAX_ADC_DEVICES, adc_device_count_exceeds_stored_bound);
+#endif
 
 PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG, 0);
 

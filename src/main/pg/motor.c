@@ -27,6 +27,8 @@
 
 #include "drivers/motor_types.h"
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/motor.h"
@@ -50,6 +52,8 @@
 #if !defined(DEFAULT_DSHOT_EDT)
 #define DEFAULT_DSHOT_EDT DSHOT_EDT_OFF
 #endif
+
+STATIC_ASSERT(MAX_SUPPORTED_MOTORS <= PG_MAX_MOTORS, motor_count_exceeds_stored_bound);
 
 PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 4);
 

@@ -23,6 +23,8 @@
 
 #ifdef USE_SERVOS
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
@@ -33,6 +35,8 @@
 
 #include "drivers/io.h"
 
+
+STATIC_ASSERT(MAX_SUPPORTED_SERVOS <= PG_MAX_SERVOS, servo_count_exceeds_stored_bound);
 
 PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
 
