@@ -54,12 +54,15 @@ typedef enum {
     COLOR_COUNT
 } colorId_e;
 
+// LED_PROFILE_STATUS is listed whether or not USE_LED_STRIP_STATUS_MODE is set.
+// The enumerators are part of ledStripConfig's layout hash - that is the point
+// of storing the member as an enum - so dropping one would make the group's
+// hash depend on a build option. Only the code that renders the profile is
+// conditional.
 typedef enum {
     LED_PROFILE_RACE = 0,
     LED_PROFILE_BEACON,
-#ifdef USE_LED_STRIP_STATUS_MODE
     LED_PROFILE_STATUS,
-#endif
     LED_PROFILE_COUNT
 } ledProfile_e;
 

@@ -60,9 +60,7 @@ static uint8_t cmsx_ledVisualBeeperColor;
 const char * const ledProfileNames[LED_PROFILE_COUNT] = {
     "RACE",
     "BEACON",
-#ifdef USE_LED_STRIP_STATUS_MODE
     "STATUS"
-#endif
 };
 
 static const void *cmsx_Ledstrip_OnEnter(displayPort_t *pDisp)
