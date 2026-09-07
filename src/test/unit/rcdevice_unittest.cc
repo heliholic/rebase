@@ -69,7 +69,7 @@ extern "C" {
     }
 
 
-    void pgResetFn_rcdeviceConfig(rcdeviceConfig_t *rcdeviceConfig)
+    PG_RESET_FN(rcdeviceConfig_t, rcdeviceConfig)
     {
         rcdeviceConfig->initDeviceAttempts = 4;
         rcdeviceConfig->initDeviceAttemptInterval = 1000;

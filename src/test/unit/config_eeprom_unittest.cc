@@ -65,7 +65,7 @@ extern "C" {
     PG_REGISTER_ARRAY_WITH_RESET_FN(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray,
                                     PG_RESERVED_FOR_TESTING_2, 0);
 
-    void pgResetFn_eeTestArray(eeTestElem_t *eeTestArray)
+    PG_RESET_FN(eeTestElem_t, eeTestArray)
     {
         for (int i = 0; i < EE_TEST_ARRAY_LEN; i++) {
             eeTestArray[i].index = i;

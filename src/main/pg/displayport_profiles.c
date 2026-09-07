@@ -30,10 +30,10 @@
 
 PG_REGISTER_WITH_RESET_FN(displayPortProfile_t, displayPortProfileMsp, PG_DISPLAY_PORT_MSP_CONFIG, 1);
 
-void pgResetFn_displayPortProfileMsp(displayPortProfile_t *displayPortProfile)
+PG_RESET_FN(displayPortProfile_t, displayPortProfileMsp)
 {
     for (uint8_t font = 0; font < DISPLAYPORT_SEVERITY_COUNT; font++) {
-        displayPortProfile->fontSelection[font] = font;
+        displayPortProfileMsp->fontSelection[font] = font;
     }
 }
 
@@ -43,15 +43,15 @@ void pgResetFn_displayPortProfileMsp(displayPortProfile_t *displayPortProfile)
 
 PG_REGISTER_WITH_RESET_FN(displayPortProfile_t, displayPortProfileMax7456, PG_DISPLAY_PORT_MAX7456_CONFIG, 0);
 
-void pgResetFn_displayPortProfileMax7456(displayPortProfile_t *displayPortProfile)
+PG_RESET_FN(displayPortProfile_t, displayPortProfileMax7456)
 {
-    displayPortProfile->colAdjust = 0;
-    displayPortProfile->rowAdjust = 0;
+    displayPortProfileMax7456->colAdjust = 0;
+    displayPortProfileMax7456->rowAdjust = 0;
 
     // Set defaults as per MAX7456 datasheet
-    displayPortProfile->invert = false;
-    displayPortProfile->blackBrightness = 0;
-    displayPortProfile->whiteBrightness = 2;
+    displayPortProfileMax7456->invert = false;
+    displayPortProfileMax7456->blackBrightness = 0;
+    displayPortProfileMax7456->whiteBrightness = 2;
 }
 
 #endif
@@ -60,14 +60,14 @@ void pgResetFn_displayPortProfileMax7456(displayPortProfile_t *displayPortProfil
 
 PG_REGISTER_WITH_RESET_FN(displayPortProfile_t, displayPortProfileFbOsd, PG_DISPLAY_PORT_FBOSD_CONFIG, 1);
 
-void pgResetFn_displayPortProfileFbOsd(displayPortProfile_t *displayPortProfile)
+PG_RESET_FN(displayPortProfile_t, displayPortProfileFbOsd)
 {
     // TODO add entries in settings.c, so we can set from Configurator / CLI.
-    displayPortProfile->colAdjust = 0;
-    displayPortProfile->rowAdjust = 0;
-    displayPortProfile->invert = false;
-    displayPortProfile->blackBrightness = 0;
-    displayPortProfile->whiteBrightness = 0;
+    displayPortProfileFbOsd->colAdjust = 0;
+    displayPortProfileFbOsd->rowAdjust = 0;
+    displayPortProfileFbOsd->invert = false;
+    displayPortProfileFbOsd->blackBrightness = 0;
+    displayPortProfileFbOsd->whiteBrightness = 0;
     // font selection
     // use device blink
 }

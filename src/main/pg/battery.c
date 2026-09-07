@@ -44,7 +44,7 @@
 
 const batteryProfile_t *currentBatteryProfile;
 
-void pgResetFn_batteryProfiles(batteryProfile_t *batteryProfiles)
+PG_RESET_FN(batteryProfile_t, batteryProfiles)
 {
     for (int i = 0; i < BATTERY_PROFILE_COUNT; i++) {
         batteryProfiles[i].vbatmaxcellvoltage = VBAT_CELL_VOLTAGE_DEFAULT_MAX;

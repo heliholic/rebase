@@ -64,12 +64,16 @@ void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
     const uint16_t regSize = pgSize(reg);
 
     memset(base, 0, regSize);
-    if (reg->reset.data >= (void*)__pg_resetdata_start && reg->reset.data < (void*)__pg_resetdata_end) {
-        // pointer points into .pg_resetdata, so it is a data template
-        memcpy(base, reg->reset.data, regSize);
-    } else if (reg->reset.func) {
-        // reset function, call it
-        reg->reset.func(base);
+
+    if (reg->reset.data) {
+        if (reg->reset.data >= (void*)__pg_resetdata_start && reg->reset.data < (void*)__pg_resetdata_end) {
+            // pointer points into .pg_resetdata, so it is a data template
+            memcpy(base, reg->reset.data, regSize);
+        }
+        else if (reg->reset.data >= (void*)__pg_resetfunc_start && reg->reset.data < (void*)__pg_resetfunc_end) {
+            // pointer points into .pg_resetfunc (or is otherwise a reset function)
+            reg->reset.func(base);
+        }
     }
 }
 

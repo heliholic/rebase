@@ -57,7 +57,7 @@ STATIC_ASSERT(MAX_SUPPORTED_MOTORS <= PG_MAX_MOTORS, motor_count_exceeds_stored_
 
 PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 4);
 
-void pgResetFn_motorConfig(motorConfig_t *motorConfig)
+PG_RESET_FN(motorConfig_t, motorConfig)
 {
     // Default motor protocol: a target/config may force one via DEFAULT_MOTOR_PROTOCOL
     // (e.g. BRUSHED, or PWM on a DShot-capable build); otherwise pick by capability.

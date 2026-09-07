@@ -285,7 +285,7 @@ const serialPortConfig_t* serialFindPortConfiguration(serialPortIdentifier_e ide
 // SERIAL_PORT_COUNT.
 STATIC_ASSERT(SERIAL_PORT_COUNT <= PG_MAX_SERIAL_PORTS, serial_port_count_exceeds_stored_bound);
 
-void pgResetFn_serialConfig(serialConfig_t *serialConfig)
+PG_RESET_FN(serialConfig_t, serialConfig)
 {
     memset(serialConfig, 0, sizeof(serialConfig_t));
 

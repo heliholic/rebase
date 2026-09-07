@@ -102,7 +102,7 @@ STATIC_UNIT_TESTED gyroDev_t * const gyroDevPtr = &gyro.gyroSensor[0].gyroDev;
 #define DEFAULT_GYRO_ENABLED GYRO_MASK(0)
 #endif
 
-void pgResetFn_gyroConfig(gyroConfig_t *gyroConfig)
+PG_RESET_FN(gyroConfig_t, gyroConfig)
 {
     gyroConfig->gyroCalibrationDuration = 125;        // 1.25 seconds
     gyroConfig->gyroMovementCalibrationThreshold = 48;

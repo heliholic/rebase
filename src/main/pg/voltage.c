@@ -27,10 +27,10 @@
 #include "pg/pg_ids.h"
 #include "pg/voltage.h"
 
-void pgResetFn_voltageSensorADCConfig(voltageSensorADCConfig_t *instance)
+PG_RESET_FN(voltageSensorADCConfig_t, voltageSensorADCConfig)
 {
     for (int i = 0; i < MAX_VOLTAGE_SENSOR_ADC; i++) {
-        RESET_CONFIG(voltageSensorADCConfig_t, &instance[i],
+        RESET_CONFIG(voltageSensorADCConfig_t, &voltageSensorADCConfig[i],
             .vbatscale = DEFAULT_VOLTAGE_METER_SCALE,
             .vbatresdivval = DEFAULT_VOLTAGE_METER_DIVIDER,
             .vbatresdivmultiplier = DEFAULT_VOLTAGE_METER_MULTIPLIER,

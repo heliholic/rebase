@@ -32,21 +32,21 @@
 
 PG_REGISTER_WITH_RESET_FN(vtxTableConfig_t, vtxTableConfig, PG_VTX_TABLE_CONFIG, 0);
 
-void pgResetFn_vtxTableConfig(vtxTableConfig_t *config)
+PG_RESET_FN(vtxTableConfig_t, vtxTableConfig)
 {
     // Clear band names, letters and frequency values
 
-    config->bands = 0;
-    config->channels = 0;
+    vtxTableConfig->bands = 0;
+    vtxTableConfig->channels = 0;
 
     for (int band = 0; band < VTX_TABLE_MAX_BANDS; band++) {
-        vtxTableConfigClearBand(config, band);
+        vtxTableConfigClearBand(vtxTableConfig, band);
     }
 
     // Clear power values and labels
 
-    config->powerLevels = 0;
-    vtxTableConfigClearPowerValues(config, 0);
-    vtxTableConfigClearPowerLabels(config, 0);
+    vtxTableConfig->powerLevels = 0;
+    vtxTableConfigClearPowerValues(vtxTableConfig, 0);
+    vtxTableConfigClearPowerLabels(vtxTableConfig, 0);
 }
 #endif

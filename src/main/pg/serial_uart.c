@@ -99,18 +99,18 @@ static const uartDmaopt_t uartDmaopt[] = {
 #endif
 };
 
-void pgResetFn_serialUartConfig(serialUartConfig_t *config)
+PG_RESET_FN(serialUartConfig_t, serialUartConfig)
 {
     for (unsigned i = 0; i < UARTDEV_CONFIG_MAX; i++) {
-        config[i].txDmaopt = DMA_OPT_UNUSED;
-        config[i].rxDmaopt = DMA_OPT_UNUSED;
+        serialUartConfig[i].txDmaopt = DMA_OPT_UNUSED;
+        serialUartConfig[i].rxDmaopt = DMA_OPT_UNUSED;
     }
 
     for (unsigned i = 0; i < ARRAYLEN(uartDmaopt); i++) {
         const int resourceIndex = serialResourceIndex(uartDmaopt[i].identifier);
-        if (resourceIndex >= 0 && resourceIndex < UARTDEV_CONFIG_MAX) {  // hadle corrupted config gracefuly
-            config[resourceIndex].txDmaopt = uartDmaopt[i].txDmaopt;
-            config[resourceIndex].rxDmaopt = uartDmaopt[i].rxDmaopt;
+        if (resourceIndex >= 0 && resourceIndex < UARTDEV_CONFIG_MAX) {  // hadle corrupted serialUartConfig gracefuly
+            serialUartConfig[resourceIndex].txDmaopt = uartDmaopt[i].txDmaopt;
+            serialUartConfig[resourceIndex].rxDmaopt = uartDmaopt[i].rxDmaopt;
         }
     }
 }

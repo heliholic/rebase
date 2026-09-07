@@ -39,5 +39,3 @@ PG_RESET_TEMPLATE(pidConfig_t, pidConfig,
 );
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(pidProfile_t, PID_PROFILE_COUNT, pidProfiles, PG_PID_PROFILE, 11);
-
-void pgResetFn_pidProfiles(pidProfile_t *pidProfiles);
