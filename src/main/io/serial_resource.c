@@ -76,6 +76,14 @@ serialType_e serialType(serialPortIdentifier_e identifier)
     return SERIALTYPE_INVALID;
 }
 
+// Each kind's ports live in a fixed-size block of the resource index, so the
+// stored slot for a given port is the same on every target. A target with more
+// ports than a block holds would silently address the next block's slots.
+STATIC_ASSERT(RESOURCE_UART_COUNT <= PG_MAX_UART_RESOURCES, uart_count_exceeds_resource_block);
+STATIC_ASSERT(RESOURCE_LPUART_COUNT <= PG_MAX_LPUART_RESOURCES, lpuart_count_exceeds_resource_block);
+STATIC_ASSERT(RESOURCE_SOFTSERIAL_COUNT <= PG_MAX_SOFTSERIAL_RESOURCES, softserial_count_exceeds_resource_block);
+STATIC_ASSERT(RESOURCE_PIOUART_COUNT <= PG_MAX_PIOUART_RESOURCES, piouart_count_exceeds_resource_block);
+
 static const struct SerialTypeInfo {
     resourceOwner_e owner;
     serialPortIdentifier_e firstId;

@@ -24,15 +24,16 @@
 #include <stdint.h>
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #include "drivers/io_types.h"
 #include "drivers/serial_resource.h"
 
 typedef struct serialPinConfig_s {
-    ioTag_t ioTagTx[RESOURCE_SERIAL_COUNT];
-    ioTag_t ioTagRx[RESOURCE_SERIAL_COUNT];
+    ioTag_t ioTagTx[PG_MAX_SERIAL_RESOURCES];
+    ioTag_t ioTagRx[PG_MAX_SERIAL_RESOURCES];
 #ifdef USE_INVERTER
-    ioTag_t ioTagInverter[RESOURCE_UART_COUNT];
+    ioTag_t ioTagInverter[PG_MAX_UART_RESOURCES];
 #endif
 } serialPinConfig_t;
 
