@@ -26,6 +26,10 @@
 
 #include "build/build_config.h"
 
+#ifndef PG_LAYOUT_PROBE
+#include "pg_hash.h"
+#endif
+
 #define PG_PACKED __attribute__((packed))
 
 // Applied to an enum whose values are stored in a parameter group.
