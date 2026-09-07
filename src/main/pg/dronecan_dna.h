@@ -23,8 +23,6 @@
 
 #include "platform.h"
 
-#if ENABLE_DRONECAN_DNA
-
 #include <stdint.h>
 
 #include "pg/pg.h"
@@ -46,5 +44,3 @@ typedef struct dronecanDnaConfig_s {
 } dronecanDnaConfig_t;
 
 PG_DECLARE(dronecanDnaConfig_t, dronecanDnaConfig);
-
-#endif // ENABLE_DRONECAN_DNA

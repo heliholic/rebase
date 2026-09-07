@@ -25,12 +25,8 @@
 
 #include "pg/pg.h"
 
-#ifdef USE_RTC_TIME
-
 typedef struct {
     int16_t tz_offsetMinutes;       // Offset from UTC in minutes, might be positive or negative
 } timeConfig_t;
 
 PG_DECLARE(timeConfig_t, timeConfig);
-
-#endif

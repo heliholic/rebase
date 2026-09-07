@@ -34,8 +34,6 @@
 #define VTX_TABLE_BAND_NAME_LENGTH      8
 #define VTX_TABLE_POWER_LABEL_LENGTH    3
 
-#ifdef USE_VTX_TABLE
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -69,5 +67,3 @@ typedef struct vtxTableConfig_s {
 
 struct vtxTableConfig_s;
 PG_DECLARE(struct vtxTableConfig_s, vtxTableConfig);
-
-#endif

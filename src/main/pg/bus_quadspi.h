@@ -25,8 +25,6 @@
 
 #include "pg/pg.h"
 
-#ifdef USE_QUADSPI
-
 typedef struct quadSpiConfig_s {
     ioTag_t ioTagClk;
 
@@ -49,5 +47,3 @@ typedef struct quadSpiConfig_s {
 } quadSpiConfig_t;
 
 PG_DECLARE_ARRAY(quadSpiConfig_t, QUADSPIDEV_COUNT, quadSpiConfig);
-
-#endif
