@@ -695,8 +695,16 @@
 #endif // USE_OPTICALFLOW_XXX
 
 #if defined(CONFIG_IN_RAM) || defined(CONFIG_IN_FILE) || defined(CONFIG_IN_EXTERNAL_FLASH) || defined(CONFIG_IN_SDCARD) || defined(CONFIG_IN_MEMORY_MAPPED_FLASH)
+// The store holds every registered parameter group plus a 6-byte record
+// header each, and the groups are moving to one fixed layout across builds
+// rather than shrinking to whatever a target happened to enable. The largest
+// CI target already writes over 3.6 KiB of the 4096 before that change, so
+// 4096 no longer leaves a usable margin.
+//
+// STM32N657XX_RAM.ld aliases __config_end onto eepromData with a literal of
+// its own, and has to track this.
 #ifndef EEPROM_SIZE
-#define EEPROM_SIZE     4096
+#define EEPROM_SIZE     8192
 #endif
 extern uint8_t eepromData[EEPROM_SIZE];
 #define __config_start (*eepromData)

@@ -41,9 +41,11 @@ _estack = ORIGIN(STACKRAM) + LENGTH(STACKRAM) - 8;
  * but isEEPROMVersionValid() / isEEPROMStructureValid() in config_eeprom.c
  * read straight from &__config_start regardless of build flavour. Alias
  * the symbol onto eepromData[] (laid out in .bss) so those reads land on
- * real memory. EEPROM_SIZE is 4096 (default) which matches the array. */
+ * real memory. The literal below must match EEPROM_SIZE in
+ * target/common_post.h; a smaller one truncates the scan and a larger one
+ * runs it off the end of the array. */
 __config_start = ABSOLUTE(eepromData);
-__config_end   = ABSOLUTE(eepromData) + 4096;
+__config_end   = ABSOLUTE(eepromData) + 8192;
 
 _Min_Heap_Size = 0;
 _Min_Stack_Size = 0x800;
