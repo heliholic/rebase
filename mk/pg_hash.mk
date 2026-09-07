@@ -6,9 +6,11 @@
 # parallel multi-target build. PG_HASH_DIR goes on the include path, so
 # firmware can #include "pg_hash.h" and pick up its own target's copy.
 #
-# A group's layout must not vary with the target or the build options, or two
-# builds of one board cannot read each other's stored config. Making that true,
-# and adding the check that proves it, comes later in this series.
+# The contents are the same everywhere. Every pg/*.h declares its groups
+# unconditionally, so the header carries a PG_<NAME>_HASH for every group in
+# pg/ whether or not this build registers one, and a group's layout may not
+# vary with the target or the build options - pg-hash-check enforces both by
+# diffing the generated headers across every CI target.
 #
 # Compiles a throwaway TU with the same TARGET CFLAGS (plus -g / -fno-lto),
 # scans PG_DECLARE for type names, then extracts the DWARF layout.
@@ -49,7 +51,7 @@ CFLAGS          += -I$(PG_HASH_DIR)
 
 ## Targets
 
-.PHONY: pg-hash pg-defs pg-clean
+.PHONY: pg-hash pg-defs pg-clean pg-hash-check
 
 ## pg-hash           : generate the PG layout hashes for TARGET
 ## pg-defs           : dump readable per-header PG layouts for TARGET
@@ -63,6 +65,39 @@ pg-defs:
 
 pg-clean:
 	$(V0) $(MAKE) TARGET=$(DEFAULT_TARGET) pg-clean
+
+## pg-hash-check     : check the PG layout hashes agree across targets
+#
+# A group's layout must not depend on which target or which build options
+# produced it, or the same board built two ways cannot read back its own
+# stored config. This regenerates the header for every CI target and fails if
+# any two differ.
+#
+# Every target lays out every group in pg/, whether or not it registers one, so
+# the generated headers have to be *identical* rather than merely consistent
+# where they happen to overlap. Compare whole files, with the banner - the one
+# target-specific line - stripped. Anything else, including a group that only
+# some targets can lay out, is the bug this check exists to catch.
+pg-hash-check:
+	$(V0) for t in $(CI_TARGETS); do \
+		echo "%% (pg-hash-check) $$t"; \
+		$(MAKE) TARGET=$$t pg-hash $(STDOUT) || exit 1; \
+	done
+	$(V1) tmp=$(OBJECT_DIR)/pg_hash_check; rm -rf $$tmp; mkdir -p $$tmp; \
+	ref=""; bad=0; \
+	for t in $(CI_TARGETS); do \
+		grep -v 'layout hashes for TARGET' $(OBJECT_DIR)/$$t/pg_hash/pg_hash.h > $$tmp/$$t.h; \
+		if [ -z "$$ref" ]; then ref=$$t; continue; fi; \
+		if ! diff -q $$tmp/$$ref.h $$tmp/$$t.h > /dev/null; then \
+			echo "$$t and $$ref do not agree:"; \
+			diff -u $$tmp/$$ref.h $$tmp/$$t.h | head -20; \
+			bad=1; \
+		fi; \
+	done; \
+	if [ $$bad -ne 0 ]; then \
+		echo "PG layouts are not target-invariant"; exit 1; \
+	fi; \
+	echo "$$(grep -c '^#define PG_' $$tmp/$$ref.h) PG layouts agree across $(words $(CI_TARGETS)) targets"
 
 else
 
