@@ -28,7 +28,7 @@
 typedef struct {
     uint8_t gyroMovementCalibrationThreshold;
     uint8_t gyro_hardware_lpf;
-    uint8_t gyro_high_fsr;
+    bool gyro_high_fsr;
 
     uint16_t gyro_lpf1_static_hz;
     uint16_t gyro_lpf2_static_hz;

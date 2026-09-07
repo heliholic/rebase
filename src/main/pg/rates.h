@@ -43,7 +43,7 @@ typedef struct {
     uint8_t rates[3];
     uint16_t rate_limit[3];                 // Sets the maximum rate for the axes
     char profileName[MAX_RATE_PROFILE_NAME_LENGTH + 1]; // Descriptive name for rate profile
-    uint8_t quickRatesRcExpo;               // Sets expo on rc command for quick rates
+    bool quickRatesRcExpo;                  // Sets expo on rc command for quick rates
 } controlRateConfig_t;
 
 PG_DECLARE_ARRAY(controlRateConfig_t, CONTROL_RATE_PROFILE_COUNT, controlRateProfiles);

@@ -32,7 +32,7 @@ enum USB_DEV {
 typedef struct usbDev_s {
     uint8_t type;
     ioTag_t mscButtonPin;
-    uint8_t mscButtonUsePullup;
+    bool mscButtonUsePullup;
     ioTag_t detectPin;
 } usbDev_t;
 

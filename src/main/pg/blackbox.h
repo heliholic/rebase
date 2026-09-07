@@ -50,7 +50,7 @@ typedef struct {
     BlackboxSampleRate_e sample_rate;
     BlackboxDevice_e     device;
     BlackboxMode         mode;
-    uint8_t              high_resolution;
+    bool                 high_resolution;
 } blackboxConfig_t;
 
 PG_DECLARE(blackboxConfig_t, blackboxConfig);

@@ -65,14 +65,14 @@ typedef enum {
 typedef struct {
     int16_t gpsNoFixLatitude;
     int16_t gpsNoFixLongitude;
-    uint8_t telemetry_inverted;
-    uint8_t halfDuplex;
+    bool telemetry_inverted;
+    bool halfDuplex;
     frskyGpsCoordFormat_e frsky_coordinate_format;
     uint8_t frsky_unit;
     uint8_t frsky_vfas_precision;
     uint8_t hottAlarmSoundInterval;
-    uint8_t pidValuesAsTelemetry;
-    uint8_t report_cell_voltage;
+    bool pidValuesAsTelemetry;
+    bool report_cell_voltage;
     uint8_t flysky_sensors[IBUS_SENSOR_COUNT];
     uint16_t mavlink_mah_as_heading_divisor;
     uint32_t disabledSensors;
@@ -83,7 +83,7 @@ typedef struct {
     uint8_t mavlink_extra1_rate;
     uint8_t mavlink_extra2_rate;
     uint8_t mavlink_extra3_rate;
-    uint8_t crsf_tlm_accgyro;
+    bool crsf_tlm_accgyro;
 } telemetryConfig_t;
 
 PG_DECLARE(telemetryConfig_t, telemetryConfig);
