@@ -83,25 +83,22 @@ static inline uint8_t* pgData(const pgRegistry_t* reg) { return reg->data; }
 static inline uint8_t* pgCopy(const pgRegistry_t* reg) { return reg->copy; }
 static inline uint32_t* pgChecksum(const pgRegistry_t* reg) { return reg->checksum; }
 
-#ifdef __APPLE__
-extern const pgRegistry_t __pg_registry_start[] __asm("section$start$__DATA$__pg_registry");
-extern const pgRegistry_t __pg_registry_end[] __asm("section$end$__DATA$__pg_registry");
-#define PG_REGISTER_ATTRIBUTES __attribute__ ((section("__DATA,__pg_registry"), used, aligned(8)))
-
-extern const uint8_t __pg_resetdata_start[] __asm("section$start$__DATA$__pg_resetdata");
-extern const uint8_t __pg_resetdata_end[] __asm("section$end$__DATA$__pg_resetdata");
-#define PG_RESETDATA_ATTRIBUTES __attribute__ ((section("__DATA,__pg_resetdata"), used, aligned(2)))
-#else
 extern const pgRegistry_t __pg_registry_start[];
 extern const pgRegistry_t __pg_registry_end[];
-#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(4)))
+// aligned() must track _Alignof(pgRegistry_t), not a constant. A literal
+// below the natural alignment does not under-align the object, but it does
+// lower the alignment recorded on the input section - gcc and clang both emit
+// .pg_registry as sh_addralign 4 for aligned(4) - and the linker is then free
+// to place the section on a 4-byte boundary, which under-aligns every entry on
+// a 64-bit host. Stating it explicitly also keeps the toolchain from boosting
+// the objects to an alignment of its own, which would pad the gaps between
+// object files and break the array walk.
+#define PG_REGISTER_ATTRIBUTES __attribute__ ((section(".pg_registry"), used, aligned(__alignof__(pgRegistry_t))))
+#define PG_REGISTRY_SIZE (__pg_registry_end - __pg_registry_start)
 
 extern const uint8_t __pg_resetdata_start[];
 extern const uint8_t __pg_resetdata_end[];
 #define PG_RESETDATA_ATTRIBUTES __attribute__ ((section(".pg_resetdata"), used, aligned(2)))
-#endif
-
-#define PG_REGISTRY_SIZE (__pg_registry_end - __pg_registry_start)
 
 // Helper to iterate over the PG register.  Cheaper than a visitor style callback.
 #define PG_FOREACH(_name) \
