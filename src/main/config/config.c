@@ -433,7 +433,7 @@ static void validateAndFixConfig(void)
     displayPortMspSetSerial(SERIAL_PORT_NONE);
 
     for (const serialPortConfig_t *portConfig = serialConfig()->portConfigs;
-         portConfig < ARRAYEND(serialConfig()->portConfigs);
+         portConfig < serialConfig()->portConfigs + SERIAL_PORT_COUNT;
          portConfig++) {
         if ((portConfig->identifier != SERIAL_PORT_USB_VCP)
             && ((portConfig->functionMask & (FUNCTION_VTX_MSP | FUNCTION_MSP)) == (FUNCTION_VTX_MSP | FUNCTION_MSP))) {
