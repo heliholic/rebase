@@ -51,10 +51,10 @@ extern "C" {
     uint16_t flightModeFlags = 0;
     uint8_t testBatteryCellCount =3;
     float rcCommand[4] = {0, 0, 0, 0};
-    telemetryConfig_t telemetryConfig_System;
-    batteryConfig_s batteryConfig_System;
-    static batteryProfile_t batteryProfile_System;
-    const batteryProfile_t *currentBatteryProfile = &batteryProfile_System;
+    telemetryConfig_t telemetryConfig_Data;
+    batteryConfig_s batteryConfig_Data;
+    static batteryProfile_t batteryProfile_Data;
+    const batteryProfile_t *currentBatteryProfile = &batteryProfile_Data;
     attitudeEulerAngles_t attitude = EULER_INITIALIZE;
     acc_t acc;
     baro_t baro;
@@ -284,10 +284,10 @@ void serialTestResetBuffers()
 
 void setTestSensors()
 {
-    telemetryConfig_System.flysky_sensors[0] = 0x03;
-    telemetryConfig_System.flysky_sensors[1] = 0x01;
-    telemetryConfig_System.flysky_sensors[2] = 0x02;
-    telemetryConfig_System.flysky_sensors[3] = 0x00;
+    telemetryConfig_Data.flysky_sensors[0] = 0x03;
+    telemetryConfig_Data.flysky_sensors[1] = 0x01;
+    telemetryConfig_Data.flysky_sensors[2] = 0x02;
+    telemetryConfig_Data.flysky_sensors[3] = 0x00;
 }
 
 void serialTestResetPort()
