@@ -25,7 +25,6 @@
 
 #include "platform.h"
 
-#include "common/crc.h"
 #include "common/maths.h"
 #include "common/utils.h"
 
@@ -61,14 +60,12 @@ const pgRegistry_t* pgFind(pgn_t pgn)
 
 void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
 {
-    const uint16_t regSize = pgSize(reg);
-
-    memset(base, 0, regSize);
+    memset(base, 0, pgSize(reg));
 
     if (reg->reset.data) {
         if (reg->reset.data >= (void*)__pg_resetdata_start && reg->reset.data < (void*)__pg_resetdata_end) {
             // pointer points into .pg_resetdata, so it is a data template
-            memcpy(base, reg->reset.data, regSize);
+            memcpy(base, reg->reset.data, pgSize(reg));
         }
         else if (reg->reset.data >= (void*)__pg_resetfunc_start && reg->reset.data < (void*)__pg_resetfunc_end) {
             // pointer points into .pg_resetfunc (or is otherwise a reset function)
@@ -92,15 +89,24 @@ bool pgResetCopy(void *copy, pgn_t pgn)
     return false;
 }
 
-bool pgLoad(const pgRegistry_t* reg, const void *from, int size, int version)
+void pgResetAll(void)
+{
+    PG_FOREACH(reg) {
+        pgReset(reg);
+    }
+}
+
+bool pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size, pgHash_t hash)
 {
     pgResetInstance(reg, pgData(reg));
-    // restore only matching version, keep defaults otherwise
-    if (version == pgVersion(reg)) {
-        const int take = MIN(size, pgSize(reg));
-        memcpy(pgData(reg), from, take);
 
-        *pgChecksum(reg) = fnv_update(FNV_OFFSET_BASIS, from, take);
+    // restore only matching layout hash, keep defaults otherwise
+    if (hash == pgHash(reg)) {
+        // A record may be shorter or longer than the group: the layout is
+        // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
+        // take what fits and leave the rest at the defaults reset above.
+        const size_t take = MIN(size, pgSize(reg));
+        memcpy(pgData(reg), from, take);
 
         return true;
     }
@@ -108,16 +114,10 @@ bool pgLoad(const pgRegistry_t* reg, const void *from, int size, int version)
     return false;
 }
 
-int pgStore(const pgRegistry_t* reg, void *to, int size)
+int pgStore(const pgRegistry_t* reg, void *to, pgSize_t size)
 {
-    const int take = MIN(size, pgSize(reg));
+    const size_t take = MIN(size, pgSize(reg));
     memcpy(to, pgData(reg), take);
     return take;
 }
 
-void pgResetAll(void)
-{
-    PG_FOREACH(reg) {
-        pgReset(reg);
-    }
-}

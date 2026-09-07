@@ -721,7 +721,7 @@ int16_t debug[DEBUG16_VALUE_COUNT];
 uint8_t debugMode = 0;
 bool isUsingSticksToArm = true;
 
-PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
+PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
 
 // Return system uptime in milliseconds (rollover in 49 days)
 uint32_t millis(void)

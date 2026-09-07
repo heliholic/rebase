@@ -23,7 +23,7 @@
 #include "pg/pg_ids.h"
 #include "pg/rcdevice.h"
 
-PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG);
 
 PG_RESET_FN(rcdeviceConfig_t, rcdeviceConfig)
 {

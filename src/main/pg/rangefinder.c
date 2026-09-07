@@ -31,7 +31,7 @@
 #include "pg/rangefinder.h"
 
 
-PG_REGISTER_WITH_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig, PG_RANGEFINDER_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig, PG_RANGEFINDER_CONFIG);
 
 PG_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig)
 {
@@ -39,7 +39,7 @@ PG_RESET_TEMPLATE(rangefinderConfig_t, rangefinderConfig)
 };
 
 #ifdef USE_RANGEFINDER_HCSR04
-PG_REGISTER_WITH_RESET_TEMPLATE(sonarConfig_t, sonarConfig, PG_SONAR_CONFIG, 1);
+PG_REGISTER_WITH_RESET_TEMPLATE(sonarConfig_t, sonarConfig, PG_SONAR_CONFIG);
 
 PG_RESET_TEMPLATE(sonarConfig_t, sonarConfig)
 {

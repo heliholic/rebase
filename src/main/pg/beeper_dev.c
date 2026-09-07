@@ -28,7 +28,7 @@
 
 #include "beeper_dev.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(beeperDevConfig_t, beeperDevConfig, PG_BEEPER_DEV_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(beeperDevConfig_t, beeperDevConfig, PG_BEEPER_DEV_CONFIG);
 
 #ifdef BEEPER_INVERTED
 #define IS_OPEN_DRAIN   false

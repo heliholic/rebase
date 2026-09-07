@@ -35,8 +35,6 @@ typedef enum {
     BOXFAILSAFE,
     BOXID_FLIGHTMODE_LAST = BOXFAILSAFE,
 
-// When new flight modes are added, the parameter group version for 'modeActivationConditions' in src/main/fc/rc_modes.c has to be incremented to ensure that the RC modes configuration is reset.
-
     // RCMODE flags
     BOXBEEPERON,
     BOXLEDLOW,

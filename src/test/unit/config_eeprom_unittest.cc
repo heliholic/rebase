@@ -47,7 +47,7 @@ extern "C" {
     } eeTestScalar_t;
 
     PG_DECLARE(eeTestScalar_t, eeTestScalar);
-    PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1, 0);
+    PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1);
     PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar)
     {
         .a = 0xA5A5A5A5,
@@ -64,7 +64,7 @@ extern "C" {
 
     PG_DECLARE_ARRAY(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray);
     PG_REGISTER_ARRAY_WITH_RESET_FN(eeTestElem_t, EE_TEST_ARRAY_LEN, eeTestArray,
-                                    PG_RESERVED_FOR_TESTING_2, 0);
+                                    PG_RESERVED_FOR_TESTING_2);
 
     PG_RESET_FN(eeTestElem_t, eeTestArray)
     {
@@ -82,15 +82,13 @@ extern "C" uint8_t eepromData[EEPROM_SIZE];
 // Mirrors the on-disk record header in config_eeprom.c, which is private to
 // that file. Only the identity tests below need to reach into a record.
 typedef struct {
+    uint32_t hash;
     uint16_t size;
-    pgn_t    pgn;
-    uint8_t  version;
-    uint8_t  flags;
 } PG_PACKED testConfigRecord_t;
 
-#define EE_HEADER_SIZE 2
+#define EE_HEADER_SIZE 8
 #define EE_RECORD_SIZE 6
-#define EE_FOOTER_SIZE 2
+#define EE_FOOTER_SIZE 4
 #define EE_CRC_SIZE    2
 
 class ConfigEepromTest : public ::testing::Test
@@ -113,17 +111,22 @@ static void dirtyAllGroups(void)
     }
 }
 
-// Walk the stored records and return the one belonging to this PGN.
+// Walk the stored records and return the one belonging to this group.
 static testConfigRecord_t *findStoredRecord(pgn_t pgn)
 {
+    const pgRegistry_t *reg = pgFind(pgn);
+    if (!reg) {
+        return nullptr;
+    }
+
     uint8_t *ptr = eepromData + EE_HEADER_SIZE;
 
     while (ptr < eepromData + sizeof(eepromData)) {
         testConfigRecord_t *rec = (testConfigRecord_t *)ptr;
-        if (rec->size == 0 || rec->size < EE_RECORD_SIZE) {
+        if (rec->hash == 0 || rec->size < EE_RECORD_SIZE) {
             return nullptr;
         }
-        if (rec->pgn == pgn) {
+        if (rec->hash == pgHash(reg)) {
             return rec;
         }
         ptr += rec->size;
@@ -204,20 +207,20 @@ TEST_F(ConfigEepromTest, CorruptedPayloadIsRejected)
     EXPECT_FALSE(isEEPROMStructureValid());
 }
 
-// A record whose stored identity no longer matches the group is discarded and
-// the group falls back to its defaults, rather than adopting the stale bytes.
-TEST_F(ConfigEepromTest, StaleRecordIdentityFallsBackToDefaults)
+// A record whose layout hash no longer matches is discarded and the group
+// falls back to its defaults, rather than adopting the stale bytes.
+TEST_F(ConfigEepromTest, StaleLayoutHashFallsBackToDefaults)
 {
     dirtyAllGroups();
     writeConfigToEEPROM();
     ASSERT_TRUE(isEEPROMStructureValid());
 
-    // Change the scalar group's stored identity. Repairing the image CRC
+    // Change the scalar group's stored layout hash. Repairing the image CRC
     // afterwards is not possible, so drive loadEEPROM() directly and assert
     // only on the group that lost its record.
     testConfigRecord_t *rec = findStoredRecord(PG_RESERVED_FOR_TESTING_1);
     ASSERT_NE(nullptr, rec) << "scalar group's record not found in the store";
-    rec->version ^= 0x0F;
+    rec->hash ^= 0xFFFFFFFFu;
 
     // The record no longer matches the group, so loadEEPROM() reports failure
     // and the group keeps the defaults pgLoad() reset it to.

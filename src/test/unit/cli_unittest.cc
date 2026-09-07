@@ -78,25 +78,25 @@ extern "C" {
 
     gyro_t gyro;
 
-    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG, 0);
-    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
-    PG_REGISTER(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 0);
-    PG_REGISTER(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG, 0);
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
-    PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG, 0);
-    PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG, 0);
-    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE, 0);
-    PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
-    PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG, 0);
-    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
-    PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 0);
-    PG_REGISTER_ARRAY(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG, 0);
-    PG_REGISTER_ARRAY(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG, 0);
-    PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG, 0);
-    PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 0);
-    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
+    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG);
+    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
+    PG_REGISTER(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG);
+    PG_REGISTER(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
+    PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG);
+    PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG);
+    PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE);
+    PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS);
+    PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG);
+    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
+    PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);
+    PG_REGISTER_ARRAY(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG);
+    PG_REGISTER_ARRAY(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG);
+    PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG);
+    PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG);
+    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
 
-    PG_REGISTER_WITH_RESET_FN(int8_t, unitTestData, PG_RESERVED_FOR_TESTING_1, 0);
+    PG_REGISTER_WITH_RESET_FN(int8_t, unitTestData, PG_RESERVED_FOR_TESTING_1);
 }
 
 #include "unittest_macros.h"

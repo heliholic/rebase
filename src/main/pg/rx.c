@@ -79,7 +79,7 @@
 #endif
 #endif
 
-PG_REGISTER_WITH_RESET_FN(rxConfig_t, rxConfig, PG_RX_CONFIG, 5);
+PG_REGISTER_WITH_RESET_FN(rxConfig_t, rxConfig, PG_RX_CONFIG);
 
 PG_RESET_FN(rxConfig_t, rxConfig)
 {
@@ -118,7 +118,7 @@ PG_RESET_FN(rxConfig_t, rxConfig)
 }
 
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG);
 
 PG_RESET_FN(rxChannelRangeConfig_t, rxChannelRangeConfigs)
 {
@@ -129,7 +129,7 @@ PG_RESET_FN(rxChannelRangeConfig_t, rxChannelRangeConfigs)
     }
 }
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG);
 
 PG_RESET_FN(rxFailsafeChannelConfig_t, rxFailsafeChannelConfigs)
 {

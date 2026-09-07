@@ -32,7 +32,7 @@
 
 STATIC_ASSERT(sizeof(TARGET_BOARD_IDENTIFIER) <= MAX_BOARD_IDENTIFIER_LENGTH + 1, board_identifier_too_long);
 
-PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 4);
+PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
 
 PG_RESET_TEMPLATE(systemConfig_t, systemConfig)
 {

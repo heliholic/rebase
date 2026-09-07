@@ -25,4 +25,4 @@
 #include "pg/pg_ids.h"
 #include "pg/serial.h"
 
-PG_REGISTER_WITH_RESET_FN(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 1);
+PG_REGISTER_WITH_RESET_FN(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);

@@ -30,6 +30,6 @@
 
 #include "pg/barometer.h"
 
-PG_REGISTER_WITH_RESET_FN(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 3);
+PG_REGISTER_WITH_RESET_FN(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG);
 
 #endif

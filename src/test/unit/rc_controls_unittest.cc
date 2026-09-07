@@ -356,7 +356,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
 #define DEFAULT_MAX_CHECK 1900
 
 extern "C" {
-    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG, 0);
+    PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
 
     extern int stepwiseAdjustmentCount;
     extern timedAdjustmentState_t stepwiseAdjustments[MAX_ADJUSTMENT_RANGE_COUNT];
@@ -753,8 +753,8 @@ uint8_t stateFlags = 0;
 float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 pidProfile_t *currentPidProfile;
 rxRuntimeState_t rxRuntimeState;
-PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
-PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 2);
+PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG);
+PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
 void resetArmingDisabled(void) {}
 timeDelta_t getTaskDeltaTimeUs(taskId_e) { return 20000; }
 armingDisableFlags_e getArmingDisableFlags(void)

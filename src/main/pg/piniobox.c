@@ -62,7 +62,7 @@
 #define PINIO8_BOX PERMANENT_ID_NONE
 #endif
 
-PG_REGISTER_WITH_RESET_FN(pinioBoxConfig_t, pinioBoxConfig, PG_PINIOBOX_CONFIG, 1);
+PG_REGISTER_WITH_RESET_FN(pinioBoxConfig_t, pinioBoxConfig, PG_PINIOBOX_CONFIG);
 
 PG_RESET_FN(pinioBoxConfig_t, pinioBoxConfig)
 {

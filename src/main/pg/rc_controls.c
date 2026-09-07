@@ -26,7 +26,7 @@
 
 #include "pg/rc_controls.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 1);
+PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG);
 
 PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig)
 {

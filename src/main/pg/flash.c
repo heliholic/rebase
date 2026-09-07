@@ -47,7 +47,7 @@
 #define FLASH_QUADSPI_INSTANCE NULL
 #endif
 
-PG_REGISTER_WITH_RESET_FN(flashConfig_t, flashConfig, PG_FLASH_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(flashConfig_t, flashConfig, PG_FLASH_CONFIG);
 
 PG_RESET_FN(flashConfig_t, flashConfig)
 {

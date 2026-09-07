@@ -55,7 +55,7 @@
 
 STATIC_ASSERT(MAX_SUPPORTED_MOTORS <= PG_MAX_MOTORS, motor_count_exceeds_stored_bound);
 
-PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 4);
+PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
 
 PG_RESET_FN(motorConfig_t, motorConfig)
 {

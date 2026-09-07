@@ -32,7 +32,7 @@
 
 #include "pg/leds.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig, PG_STATUS_LED_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig, PG_STATUS_LED_CONFIG);
 
 PG_RESET_TEMPLATE(statusLedConfig_t, statusLedConfig)
 {

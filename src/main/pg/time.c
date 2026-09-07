@@ -28,7 +28,7 @@
 
 #include "pg/time.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(timeConfig_t, timeConfig, PG_TIME_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(timeConfig_t, timeConfig, PG_TIME_CONFIG);
 
 PG_RESET_TEMPLATE(timeConfig_t, timeConfig)
 {

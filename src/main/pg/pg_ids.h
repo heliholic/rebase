@@ -159,7 +159,7 @@ enum {
     PG_OSD_CUSTOM_TEXT_CONFIG          = 2044,
 
     // Reserved for unit tests; never stored on a real FC.
-    PG_RESERVED_FOR_TESTING_1          = 4095,
-    PG_RESERVED_FOR_TESTING_2          = 4094,
-    PG_RESERVED_FOR_TESTING_3          = 4093,
+    PG_RESERVED_FOR_TESTING_1          = 0xff01,
+    PG_RESERVED_FOR_TESTING_2          = 0xff02,
+    PG_RESERVED_FOR_TESTING_3          = 0xff03,
 };

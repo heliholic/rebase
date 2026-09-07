@@ -28,7 +28,7 @@
 
 #include "pg/imu.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG, 3);
+PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG);
 
 PG_RESET_TEMPLATE(imuConfig_t, imuConfig)
 {

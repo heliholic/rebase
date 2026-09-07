@@ -33,10 +33,10 @@
 
 STATIC_ASSERT(LED_STRIP_MAX_LENGTH <= PG_MAX_LED_STRIP_LENGTH, led_strip_length_exceeds_stored_bound);
 
-PG_REGISTER_WITH_RESET_FN(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 3);
+PG_REGISTER_WITH_RESET_FN(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG);
 
 #ifdef USE_LED_STRIP_STATUS_MODE
-PG_REGISTER_WITH_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG);
 #endif
 
 #endif

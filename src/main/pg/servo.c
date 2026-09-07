@@ -38,9 +38,9 @@
 
 STATIC_ASSERT(MAX_SUPPORTED_SERVOS <= PG_MAX_SERVOS, servo_count_exceeds_stored_bound);
 
-PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(servoConfig_t, servoConfig, PG_SERVO_CONFIG);
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS);
 
 PG_RESET_FN(servoConfig_t, servoConfig)
 {
