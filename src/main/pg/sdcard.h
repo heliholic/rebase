@@ -27,7 +27,7 @@ typedef enum {
     SDCARD_MODE_NONE = 0,
     SDCARD_MODE_SPI,
     SDCARD_MODE_SDIO
-} sdcardMode_e;
+} PG_ENUM sdcardMode_e;
 
 typedef struct sdcardConfig_s {
     int8_t  device;

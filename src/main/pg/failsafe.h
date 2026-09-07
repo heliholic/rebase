@@ -29,13 +29,13 @@ typedef enum {
     FAILSAFE_SWITCH_MODE_STAGE1 = 0,
     FAILSAFE_SWITCH_MODE_KILL,
     FAILSAFE_SWITCH_MODE_STAGE2
-} failsafeSwitchMode_e;
+} PG_ENUM failsafeSwitchMode_e;
 
 typedef enum {
     FAILSAFE_PROCEDURE_AUTO_LANDING = 0,
     FAILSAFE_PROCEDURE_DROP_IT,
     FAILSAFE_PROCEDURE_COUNT   // must be last
-} failsafeProcedure_e;
+} PG_ENUM failsafeProcedure_e;
 
 typedef struct {
     uint16_t failsafe_throttle;             // Throttle level used for landing - specify value between 1000..2000 (pwm pulse width for slightly below hover). center throttle = 1500.

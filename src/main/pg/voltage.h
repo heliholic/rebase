@@ -30,7 +30,7 @@ typedef enum {
     VOLTAGE_METER_ADC,
     VOLTAGE_METER_ESC,
     VOLTAGE_METER_COUNT
-} voltageMeterSource_e;
+} PG_ENUM voltageMeterSource_e;
 
 #ifndef MAX_VOLTAGE_SENSOR_ADC
 #define MAX_VOLTAGE_SENSOR_ADC 1

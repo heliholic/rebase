@@ -31,7 +31,7 @@ typedef enum {
     ALTITUDE_SOURCE_GPS_ONLY,
     ALTITUDE_SOURCE_RANGEFINDER_PREFER,
     ALTITUDE_SOURCE_RANGEFINDER_ONLY
-} altitudeSource_e;
+} PG_ENUM altitudeSource_e;
 
 typedef struct {
     altitudeSource_e altitude_source;

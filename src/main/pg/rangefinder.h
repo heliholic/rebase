@@ -45,7 +45,7 @@ typedef enum {
     RANGEFINDER_NOOPLOOP_F2MINI = 14,
     RANGEFINDER_UPT1          = 15,
     RANGEFINDER_HARDWARE_COUNT,
-} rangefinderType_e;
+} PG_ENUM rangefinderType_e;
 
 typedef struct {
     rangefinderType_e rangefinder_hardware;

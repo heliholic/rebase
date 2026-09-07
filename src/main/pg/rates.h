@@ -32,7 +32,7 @@ typedef enum {
     RATES_TYPE_ACTUAL,
     RATES_TYPE_QUICK,
     RATES_TYPE_COUNT
-} ratesType_e;
+} PG_ENUM ratesType_e;
 
 #define MAX_RATE_PROFILE_NAME_LENGTH 8u
 

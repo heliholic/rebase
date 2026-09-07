@@ -52,7 +52,7 @@ typedef enum {
     COLOR_MAGENTA,
     COLOR_DEEP_PINK,
     COLOR_COUNT
-} colorId_e;
+} PG_ENUM colorId_e;
 
 // LED_PROFILE_STATUS is listed whether or not USE_LED_STRIP_STATUS_MODE is set.
 // The enumerators are part of ledStripConfig's layout hash - that is the point
@@ -64,7 +64,7 @@ typedef enum {
     LED_PROFILE_BEACON,
     LED_PROFILE_STATUS,
     LED_PROFILE_COUNT
-} ledProfile_e;
+} PG_ENUM ledProfile_e;
 
 typedef struct {
     ioTag_t      ioTag;

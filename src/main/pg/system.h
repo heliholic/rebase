@@ -30,7 +30,7 @@
 typedef enum {
     CONFIGURATION_STATE_UNCONFIGURED = 0,
     CONFIGURATION_STATE_CONFIGURED,
-} configurationState_e;
+} PG_ENUM configurationState_e;
 
 typedef struct systemConfig_s {
     uint8_t pidProfileIndex;
