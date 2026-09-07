@@ -46,10 +46,11 @@ PG_REGISTER_WITH_RESET_TEMPLATE(beeperDevConfig_t, beeperDevConfig, PG_BEEPER_DE
 #define BEEPER_PIN      NONE
 #endif
 
-PG_RESET_TEMPLATE(beeperDevConfig_t, beeperDevConfig,
+PG_RESET_TEMPLATE(beeperDevConfig_t, beeperDevConfig)
+{
     .isOpenDrain = IS_OPEN_DRAIN,
     .isInverted = IS_INVERTED,
     .ioTag = IO_TAG(BEEPER_PIN),
     .frequency = BEEPER_PWM_HZ
-);
+};
 #endif

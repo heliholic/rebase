@@ -48,11 +48,12 @@ extern "C" {
 
     PG_DECLARE(eeTestScalar_t, eeTestScalar);
     PG_REGISTER_WITH_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar, PG_RESERVED_FOR_TESTING_1, 0);
-    PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar,
+    PG_RESET_TEMPLATE(eeTestScalar_t, eeTestScalar)
+    {
         .a = 0xA5A5A5A5,
         .b = 0x1234,
         .c = 0x5A,
-    );
+    };
 
     #define EE_TEST_ARRAY_LEN 4
 

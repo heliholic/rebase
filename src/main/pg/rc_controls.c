@@ -28,7 +28,8 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 1);
 
-PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig,
+PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig)
+{
     .deadband = 0,
     .yaw_deadband = 0,
-);
+};

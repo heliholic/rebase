@@ -62,7 +62,8 @@ PG_REGISTER_ARRAY_WITH_RESET_FN(batteryProfile_t, BATTERY_PROFILE_COUNT, battery
 
 PG_REGISTER_WITH_RESET_TEMPLATE(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 4);
 
-PG_RESET_TEMPLATE(batteryConfig_t, batteryConfig,
+PG_RESET_TEMPLATE(batteryConfig_t, batteryConfig)
+{
     // voltage
     .vbatnotpresentcellvoltage = 300, //A cell below 3 will be ignored
     .voltageMeterSource = DEFAULT_VOLTAGE_METER_SOURCE,
@@ -80,4 +81,4 @@ PG_RESET_TEMPLATE(batteryConfig_t, batteryConfig,
     .ibatLpfPeriod = DEFAULT_IBAT_LPF_PERIOD,
     .vbatDurationForWarning = 0,
     .vbatDurationForCritical = 0,
-);
+};
