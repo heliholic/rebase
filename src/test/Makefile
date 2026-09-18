@@ -186,6 +186,10 @@ common_filter_unittest_SRC := \
 		$(USER_DIR)/common/stddev.c \
 		$(USER_DIR)/common/trig.c
 
+crc_unittest_SRC := \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c
+
 
 encoding_unittest_SRC := \
 		$(USER_DIR)/common/encoding.c
