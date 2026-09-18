@@ -136,7 +136,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `spiPinConfig` | 520 | `0x81954E3F` | [`spiPinConfig_t`](#spipinconfig_t) | 5 &times; `SPIDEV_COUNT` | `pg/bus_spi.h` |
 | `statsConfig` | 547 | `0x87526EDD` | [`statsConfig_t`](#statsconfig_t) | 24 | `pg/stats.h` |
 | `statusLedConfig` | 505 | `0x81FFF062` | [`statusLedConfig_t`](#statusledconfig_t) | 4 | `pg/leds.h` |
-| `systemConfig` | 18 | `0xFB466D8E` | [`systemConfig_t`](#systemconfig_t) | 18 | `pg/system.h` |
+| `systemConfig` | 18 | `0x97191285` | [`systemConfig_t`](#systemconfig_t) | 19 | `pg/system.h` |
 | `telemetryConfig` | 31 | `0xBD6D2B1A` | [`telemetryConfig_t`](#telemetryconfig_t) | 44 | `pg/telemetry.h` |
 | `timeConfig` | 526 | `0x4733E1A6` | [`timeConfig_t`](#timeconfig_t) | 2 | `pg/time.h` |
 | `timerIOConfig` | 534 | `0x09953C82` | [`timerIOConfig_t`](#timerioconfig_t) | 3 &times; `MAX_TIMER_PINMAP_COUNT` | `pg/timerio.h` |
@@ -1216,23 +1216,24 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### systemConfig_t
 
-- `systemConfig` &mdash; PGN 18 (`PG_SYSTEM_CONFIG`), hash `0xFB466D8E`
+- `systemConfig` &mdash; PGN 18 (`PG_SYSTEM_CONFIG`), hash `0x97191285`
 
-`sizeof` = 18 bytes.
+`sizeof` = 19 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `uint8_t` | `pidProfileIndex` |
 | 1 | 1 | `uint8_t` | `activeRateProfile` |
 | 2 | 1 | `uint8_t` | `debug_mode` |
-| 3 | 1 | `bool` | `task_statistics` |
-| 4 | 1 | `uint8_t` | `cpu_overclock` |
-| 5 | 1 | `uint8_t` | `powerOnArmingGraceTime` |
-| 6 | 8 | `char` | `boardIdentifier[8]` |
-| 14 | 1 | `uint8_t` | `hseMhz` |
-| 15 | 1 | [`configurationState_e`](#configurationstate_e) | `configurationState` |
-| 16 | 1 | `bool` | `enableStickArming` |
-| 17 | 1 | `uint8_t` | `activeBatteryProfile` |
+| 3 | 1 | `uint8_t` | `debug_axis` |
+| 4 | 1 | `bool` | `task_statistics` |
+| 5 | 1 | `uint8_t` | `cpu_overclock` |
+| 6 | 1 | `uint8_t` | `powerOnArmingGraceTime` |
+| 7 | 8 | `char` | `boardIdentifier[8]` |
+| 15 | 1 | `uint8_t` | `hseMhz` |
+| 16 | 1 | [`configurationState_e`](#configurationstate_e) | `configurationState` |
+| 17 | 1 | `bool` | `enableStickArming` |
+| 18 | 1 | `uint8_t` | `activeBatteryProfile` |
 
 ### telemetryConfig_t
 

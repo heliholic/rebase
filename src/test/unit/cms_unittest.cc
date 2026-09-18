@@ -150,7 +150,7 @@ CMS_Menu cmsx_menuMain = {
     .entries = menuMainEntries,
 };
 uint8_t armingFlags;
-int16_t debug[4];
+int32_t debug[4];
 float rcData[18];
 void delay(uint32_t) {}
 uint32_t micros(void) { return 0; }

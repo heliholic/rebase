@@ -343,7 +343,7 @@ uint8_t stateFlags;
 const uint32_t baudRates[] = {0, 9600, 19200, 38400, 57600, 115200, 230400, 250000,
         400000, 460800, 500000, 921600, 1000000, 1500000, 2000000, 2470000}; // see baudRate_e
 uint8_t debugMode = 0;
-int16_t debug[DEBUG16_VALUE_COUNT];
+int32_t debug[DEBUG_VALUE_COUNT];
 extern int32_t blackboxHeaderBudget;
 gpsSolutionData_t gpsSol;
 gpsLocation_t GPS_home_llh;

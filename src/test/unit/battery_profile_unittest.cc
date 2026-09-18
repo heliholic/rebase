@@ -207,7 +207,7 @@ extern "C" {
     }
 
     // Debug stubs
-    int16_t debug[DEBUG16_VALUE_COUNT];
+    int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode = 0;
 
     // Scheduler stubs
