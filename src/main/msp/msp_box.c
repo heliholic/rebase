@@ -48,13 +48,13 @@
 // permanent IDs must uniquely identify BOX meaning, DO NOT REUSE THEM!
 //
 // Retired, and not to be handed out again:
-//   4 ANTI GRAVITY   5 MAG            6 HEADFREE      7 HEADADJ
+//   0 ARM            4 ANTI GRAVITY   5 MAG           6 HEADFREE
+//   7 HEADADJ
 //  10 GPS HOME      12 PASSTHRU      14 LEDMAX       16 LLIGHTS
 //  17 CALIB         18 GOVERNOR      21 GTUNE        22 RANGEFINDER
 //  44 PID AUDIO     47 ACRO TRAINER  50 MSP OVERRIDE
 static const box_t boxes[CHECKBOX_ITEM_COUNT] =
 {
-    BOXITEM(BOXARM, "ARM", 0),
     BOXITEM(BOXANGLE, "ANGLE", 1),
     BOXITEM(BOXHORIZON, "HORIZON", 2),
     BOXITEM(BOXBEEPERON, "BEEPER", 13),
@@ -182,7 +182,6 @@ void initActiveBoxIds(void)
 
     // macro to enable boxId (BoxidMaskEnable). Reference to ena is hidden, local use only
 #define BME(boxId) do { BOXMAP_SET_ID(&ena, boxId); } while (0)
-    BME(BOXARM);
     BME(BOXPREARM);
 
     if (sensors(SENSOR_ACC)) {
@@ -275,12 +274,10 @@ bool getBoxIdState(boxId_e boxid)
 {
     const uint8_t boxIdToFlightModeMap[] = BOXID_TO_FLIGHT_MODE_MAP_INITIALIZER;
 
-    // we assume that all boxId below BOXID_FLIGHTMODE_LAST except BOXARM are mapped to flightmode
+    // every boxId up to BOXID_FLIGHTMODE_LAST is mapped to a flightmode
     STATIC_ASSERT(ARRAYLEN(boxIdToFlightModeMap) == BOXID_FLIGHTMODE_LAST + 1, FLIGHT_MODE_BOXID_MAP_INITIALIZER_does_not_match_boxId_e);
 
-    if (boxid == BOXARM) {
-        return ARMING_FLAG(ARMED);
-    } else if (boxid <= BOXID_FLIGHTMODE_LAST) {
+    if (boxid <= BOXID_FLIGHTMODE_LAST) {
         return FLIGHT_MODE(1 << boxIdToFlightModeMap[boxid]);
     } else {
         return IS_RC_MODE_ACTIVE(boxid);

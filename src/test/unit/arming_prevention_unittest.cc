@@ -286,7 +286,7 @@ TEST(ArmingPreventionTest, Prearm)
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXPREARM;
+    modeActivationConditionsMutable(1)->boxId = BOXPREARM;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
@@ -389,7 +389,7 @@ TEST(ArmingPreventionTest, ParalyzeOnAtBoot)
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXPARALYZE;
+    modeActivationConditionsMutable(1)->boxId = BOXPARALYZE;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
@@ -428,14 +428,14 @@ TEST(ArmingPreventionTest, Paralyze)
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXPARALYZE;
+    modeActivationConditionsMutable(1)->boxId = BOXPARALYZE;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(2)->rcChannel = 7;
-    modeActivationConditionsMutable(2)->modeId = BOXBEEPERON;
+    modeActivationConditionsMutable(2)->boxId = BOXBEEPERON;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(2)->range.endStep = MAX_MODE_RANGE_STEP;
-    modeActivationConditionsMutable(3)->modeId = BOXVTXPITMODE;
+    modeActivationConditionsMutable(3)->boxId = BOXVTXPITMODE;
     modeActivationConditionsMutable(3)->linkedTo = BOXPARALYZE;
     rcControlsInit();
 

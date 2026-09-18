@@ -180,7 +180,7 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
 
     // Cycle through the arming disabled reasons
     if (osdWarnGetState(OSD_WARNING_ARMING_DISABLE)) {
-        if (IS_RC_MODE_ACTIVE(BOXARM) && isArmingDisabled()) {
+        if (isArmSwitchActive() && isArmingDisabled()) {
             armingDisableFlags_e flags = getArmingDisableFlags();
 
             // Remove the ARMSWITCH flag unless it's the only one

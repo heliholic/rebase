@@ -27,6 +27,8 @@
 
 #include "common/utils.h"
 
+#include "fc/arming.h"
+
 // FIXME some of these are flight modes, some of these are general status indicators
 typedef enum {
     ARMED                       = BIT(0),
@@ -39,89 +41,6 @@ extern uint8_t armingFlags;
 #define DISABLE_ARMING_FLAG(mask)   (armingFlags &= ~(mask))
 #define ENABLE_ARMING_FLAG(mask)    (armingFlags |= (mask))
 #define ARMING_FLAG(mask)           (armingFlags & (mask))
-
-/*
- * Arming disable flags are listed in the order of criticalness.
- * (Beeper code can notify the most critical reason.)
- */
-typedef enum {
-    ARMING_DISABLED_NO_GYRO_BIT         = 0,
-    ARMING_DISABLED_FAILSAFE_BIT        = 1,
-    ARMING_DISABLED_RX_FAILSAFE_BIT     = 2,
-    ARMING_DISABLED_NOT_DISARMED_BIT    = 3,
-    ARMING_DISABLED_BOXFAILSAFE_BIT     = 4,
-    ARMING_DISABLED_UNUSED_5_BIT        = 5,
-    ARMING_DISABLED_UNUSED_6_BIT        = 6,
-    ARMING_DISABLED_THROTTLE_BIT        = 7,
-    ARMING_DISABLED_ANGLE_BIT           = 8,
-    ARMING_DISABLED_BOOT_GRACE_TIME_BIT = 9,
-    ARMING_DISABLED_NOPREARM_BIT        = 10,
-    ARMING_DISABLED_LOAD_BIT            = 11,
-    ARMING_DISABLED_CALIBRATING_BIT     = 12,
-    ARMING_DISABLED_CLI_BIT             = 13,
-    ARMING_DISABLED_CMS_MENU_BIT        = 14,
-    ARMING_DISABLED_BST_BIT             = 15,
-    ARMING_DISABLED_MSP_BIT             = 16,
-    ARMING_DISABLED_PARALYZE_BIT        = 17,
-    ARMING_DISABLED_GPS_BIT             = 18,
-    ARMING_DISABLED_UNUSED_19_BIT       = 19,
-    ARMING_DISABLED_DSHOT_TELEM_BIT     = 20,
-    ARMING_DISABLED_REBOOT_REQUIRED_BIT = 21,
-    ARMING_DISABLED_DSHOT_BITBANG_BIT   = 22,
-    ARMING_DISABLED_ACC_CALIBRATION_BIT = 23,
-    ARMING_DISABLED_MOTOR_PROTOCOL_BIT  = 24,
-    ARMING_DISABLED_UNUSED_25_BIT       = 25,
-    ARMING_DISABLED_UNUSED_26_BIT       = 26,
-    ARMING_DISABLED_UNUSED_27_BIT       = 27,
-    ARMING_DISABLED_UNUSED_28_BIT       = 28,
-
-    // Needs to be the last element, since it's always activated if one of the others is active when arming
-    ARMING_DISABLED_ARM_SWITCH_BIT      = 31,
-
-    ARMING_DISABLE_FLAGS_COUNT
-} armingDisableBits_e;
-
-#define ENTRY(NAME)   ARMING_DISABLED_##NAME = BIT(ARMING_DISABLED_##NAME##_BIT)
-typedef enum {
-    ENTRY(NO_GYRO),
-    ENTRY(FAILSAFE),
-    ENTRY(RX_FAILSAFE),
-    ENTRY(NOT_DISARMED),
-    ENTRY(BOXFAILSAFE),
-    ENTRY(UNUSED_5),
-    ENTRY(UNUSED_6),
-    ENTRY(THROTTLE),
-    ENTRY(ANGLE),
-    ENTRY(BOOT_GRACE_TIME),
-    ENTRY(NOPREARM),
-    ENTRY(LOAD),
-    ENTRY(CALIBRATING),
-    ENTRY(CLI),
-    ENTRY(CMS_MENU),
-    ENTRY(BST),
-    ENTRY(MSP),
-    ENTRY(PARALYZE),
-    ENTRY(GPS),
-    ENTRY(UNUSED_19),
-    ENTRY(DSHOT_TELEM),
-    ENTRY(REBOOT_REQUIRED),
-    ENTRY(DSHOT_BITBANG),
-    ENTRY(ACC_CALIBRATION),
-    ENTRY(MOTOR_PROTOCOL),
-    ENTRY(UNUSED_25),
-    ENTRY(UNUSED_26),
-    ENTRY(UNUSED_27),
-    ENTRY(UNUSED_28),
-    ENTRY(ARM_SWITCH)
-} armingDisableFlags_e;
-#undef ENTRY
-
-void setArmingDisabled(armingDisableFlags_e flag);
-void unsetArmingDisabled(armingDisableFlags_e flag);
-bool isArmingDisabled(void);
-
-armingDisableFlags_e getArmingDisableFlags(void);
-const char *getArmingDisableFlagName(armingDisableFlags_e flag);
 
 typedef enum {
     ARMED_MODE_BIT       = 0,
@@ -144,7 +63,6 @@ extern uint16_t flightModeFlags;
 #define FLIGHT_MODE(mask) (flightModeFlags & (mask))
 
 // macro to initialize map from boxId_e flightModeBits. Keep it in sync with flightModeFlags_e enum.
-// [BOXARM] is left unpopulated
 #define BOXID_TO_FLIGHT_MODE_MAP_INITIALIZER {           \
    [BOXANGLE]       = ANGLE_MODE_BIT,                    \
    [BOXHORIZON]     = HORIZON_MODE_BIT,                  \

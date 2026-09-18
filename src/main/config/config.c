@@ -305,16 +305,12 @@ STATIC_UNIT_TESTED void validateAndFixConfig(void)
     }
 #endif
 
-    // Arming is a control channel of its own, so a stored BOXARM condition would
-    // never be evaluated. Drop it rather than leave it showing in the config.
-    removeModeActivationCondition(BOXARM);
-
     for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(i);
 
         if (mac->linkedTo) {
             if (isModeActivationConditionLinked(mac->linkedTo)) {
-                removeModeActivationCondition(mac->modeId);
+                removeModeActivationCondition(mac->boxId);
             }
         }
     }

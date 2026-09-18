@@ -98,7 +98,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ledStripStatusModeConfig` | 545 | `0x34ECEA5E` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
 | `max7456Config` | 524 | `0x43B1CF22` | [`max7456Config_t`](#max7456config_t) | 4 | `pg/max7456.h` |
 | `mcoConfig` | 541 | `0x010C2C94` | [`mcoConfig_t`](#mcoconfig_t) | 3 &times; `2` | `pg/mco.h` |
-| `modeActivationConditions` | 41 | `0x3BAB1E34` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
+| `modeActivationConditions` | 41 | `0x55454DC6` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
 | `modeActivationConfig` | 553 | `0x68633E8C` | [`modeActivationConfig_t`](#modeactivationconfig_t) | 64 | `pg/modes.h` |
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
@@ -687,13 +687,13 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### modeActivationCondition_t
 
-- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x3BAB1E34` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
+- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x55454DC6` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
 
 `sizeof` = 6 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `modeId` |
+| 0 | 1 | `uint8_t` | `boxId` |
 | 1 | 1 | `uint8_t` | `linkedTo` |
 | 2 | 1 | `uint8_t` | `modeLogic` |
 | 3 | 1 | `uint8_t` | `rcChannel` |

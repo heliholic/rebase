@@ -105,7 +105,7 @@ TEST(VtxTest, PitMode)
 {
     // given
     modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXVTXPITMODE;
+    modeActivationConditionsMutable(0)->boxId = BOXVTXPITMODE;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
 

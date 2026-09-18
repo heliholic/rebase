@@ -1508,6 +1508,12 @@ TEST_F(OsdTest, TestBatteryUsageCapacityZero)
 extern "C" {
     bool featureIsEnabled(uint32_t f) { return simulationFeatureFlags & f; }
 
+    bool isArmSwitchConfigured(void) { return false; }
+    bool isArmSwitchActive(void) { return false; }
+    bool isArmingDisabled(void) { return false; }
+    armingDisableFlags_e getArmingDisableFlags(void) { return (armingDisableFlags_e)0; }
+    const char *getArmingDisableFlagName(armingDisableFlags_e) { return "NONE"; }
+
     void beeperConfirmationBeeps(uint8_t) {}
 
     bool isModeActivationConditionPresent(boxId_e) {

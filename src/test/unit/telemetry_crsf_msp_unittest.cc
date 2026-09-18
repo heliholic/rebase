@@ -330,5 +330,7 @@ extern "C" {
 
     bool isModeActive(boxId_e) { return false; }
 
+    bool isArmingDisabled(void) { return false; }
+
     void schedulerIgnoreTaskExecTime(void) {}
 }

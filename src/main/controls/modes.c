@@ -32,11 +32,11 @@
 #include "drivers/time.h"
 
 #include "config/config.h"
-#include "pg/arming.h"
 #include "fc/feature.h"
 
 #include "io/piniobox.h"
 
+#include "pg/arming.h"
 #include "pg/pg.h"
 #include "pg/rx.h"
 
@@ -70,9 +70,8 @@ bool isRangeUsable(const channelRange_t *range)
         range->startStep < range->endStep;
 }
 
-// The arm switch is a control channel of its own, so BOXARM is not driven by a
-// mode activation condition. isArmSwitchConfigured() is what "an arm switch is
-// defined" means now.
+// The arm switch is the RC_ARM control channel tested against arm_range.
+// There is no arm switch until a usable range is configured.
 bool isArmSwitchConfigured(void)
 {
     return isRangeUsable(&armingConfig()->arm_range);
@@ -115,7 +114,7 @@ bool isRangeActive(uint8_t channel, const channelRange_t *range)
  */
 static void updateMapsForMac(const modeActivationCondition_t *mac, boxBitmap_t *andMap, boxBitmap_t *newMap, bool bActive)
 {
-    const boxBitmap_t mask = BOXMASK(mac->modeId);
+    const boxBitmap_t mask = BOXMASK(mac->boxId);
 
     if (BOXMAP_TEST(andMap, mask) || !BOXMAP_TEST(newMap, mask)) {
         bool bAnd = mac->modeLogic == MODELOGIC_AND;
@@ -136,9 +135,9 @@ static void updateMapsForMac(const modeActivationCondition_t *mac, boxBitmap_t *
 
 static void updateMapsForStickyModes(const modeActivationCondition_t *mac, boxBitmap_t *andMap, boxBitmap_t *newMap, bool latchForever)
 {
-    const boxBitmap_t mask = BOXMASK(mac->modeId);
+    const boxBitmap_t mask = BOXMASK(mac->boxId);
 
-    if (latchForever && isModeActive(mac->modeId)) {
+    if (latchForever && isModeActive(mac->boxId)) {
         BOXMAP_CLR(andMap, mask);
         BOXMAP_SET(newMap, mask);
         return;
@@ -166,11 +165,11 @@ void updateActivatedModes(void)
     // determine which conditions set/clear the mode
     for (int i = 0; i < activeMacCount; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(activeMacArray[i]);
-        const boxBitmap_t mask = BOXMASK(mac->modeId);
+        const boxBitmap_t mask = BOXMASK(mac->boxId);
 
         if (BOXMAP_TEST(&stickyModes, mask)) {
             updateMapsForStickyModes(mac, &andMap, &newMap, BOXMAP_TEST(&latchModes, mask));
-        } else if (mac->modeId < CHECKBOX_ITEM_COUNT) {
+        } else if (mac->boxId < CHECKBOX_ITEM_COUNT) {
             bool bActive = isRangeActive(mac->rcChannel, &mac->range);
             updateMapsForMac(mac, &andMap, &newMap, bActive);
         }
@@ -185,24 +184,15 @@ void updateActivatedModes(void)
         updateMapsForMac(mac, &andMap, &newMap, bActive);
     }
 
-    boxBitmap_t modes = newMap ^ andMap;
-
-    // The arm switch is not a mode activation condition
-    if (isArmSwitchActive()) {
-        BOXMAP_SET_ID(&modes, BOXARM);
-    } else {
-        BOXMAP_CLR_ID(&modes, BOXARM);
-    }
-
-    rcModeUpdate(modes);
+    rcModeUpdate(newMap ^ andMap);
 }
 
-bool isModeActivationConditionPresent(boxId_e modeId)
+bool isModeActivationConditionPresent(boxId_e boxId)
 {
     for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(i);
 
-        if (mac->modeId == modeId && (isRangeUsable(&mac->range) || mac->linkedTo)) {
+        if (mac->boxId == boxId && (isRangeUsable(&mac->range) || mac->linkedTo)) {
             return true;
         }
     }
@@ -210,12 +200,12 @@ bool isModeActivationConditionPresent(boxId_e modeId)
     return false;
 }
 
-bool isModeActivationConditionLinked(boxId_e modeId)
+bool isModeActivationConditionLinked(boxId_e boxId)
 {
     for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(i);
 
-        if (mac->modeId == modeId && mac->linkedTo != 0) {
+        if (mac->boxId == boxId && mac->linkedTo != 0) {
             return true;
         }
     }
@@ -223,18 +213,18 @@ bool isModeActivationConditionLinked(boxId_e modeId)
     return false;
 }
 
-void removeModeActivationCondition(const boxId_e modeId)
+void removeModeActivationCondition(const boxId_e boxId)
 {
     unsigned offset = 0;
     for (unsigned i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         modeActivationCondition_t *mac = modeActivationConditionsMutable(i);
 
-        if (mac->modeId == modeId && !offset) {
+        if (mac->boxId == boxId && !offset) {
             offset++;
         }
 
         if (offset) {
-            while (i + offset < MAX_MODE_ACTIVATION_CONDITION_COUNT && modeActivationConditions(i + offset)->modeId == modeId) {
+            while (i + offset < MAX_MODE_ACTIVATION_CONDITION_COUNT && modeActivationConditions(i + offset)->boxId == boxId) {
                 offset++;
             }
 

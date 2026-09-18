@@ -105,27 +105,27 @@ TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
 TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXValues)
 {
     // given
-    modeActivationConditionsMutable(0)->modeId = (boxId_e)1;
+    modeActivationConditionsMutable(0)->boxId = (boxId_e)1;
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    modeActivationConditionsMutable(1)->modeId = (boxId_e)2;
+    modeActivationConditionsMutable(1)->boxId = (boxId_e)2;
     modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(1700);
 
-    modeActivationConditionsMutable(2)->modeId = (boxId_e)3;
+    modeActivationConditionsMutable(2)->boxId = (boxId_e)3;
     modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1200);
 
-    modeActivationConditionsMutable(3)->modeId = (boxId_e)4;
+    modeActivationConditionsMutable(3)->boxId = (boxId_e)4;
     modeActivationConditionsMutable(3)->rcChannel = 8;
     modeActivationConditionsMutable(3)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(3)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    modeActivationConditionsMutable(4)->modeId = (boxId_e)5;
+    modeActivationConditionsMutable(4)->boxId = (boxId_e)5;
     modeActivationConditionsMutable(4)->rcChannel = 9;
     modeActivationConditionsMutable(4)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(4)->range.endStep = CHANNEL_VALUE_TO_STEP(925);
@@ -133,7 +133,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
     EXPECT_EQ(-120, modeActivationConditions(4)->range.startStep);
     EXPECT_EQ(-115, modeActivationConditions(4)->range.endStep);
 
-    modeActivationConditionsMutable(5)->modeId = (boxId_e)6;
+    modeActivationConditionsMutable(5)->boxId = (boxId_e)6;
     modeActivationConditionsMutable(5)->rcChannel = 10;
     modeActivationConditionsMutable(5)->range.startStep = CHANNEL_VALUE_TO_STEP(2075);
     modeActivationConditionsMutable(5)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
@@ -141,7 +141,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
     EXPECT_EQ(115, modeActivationConditions(5)->range.startStep);
     EXPECT_EQ(120, modeActivationConditions(5)->range.endStep);
 
-    modeActivationConditionsMutable(6)->modeId = (boxId_e)7;
+    modeActivationConditionsMutable(6)->boxId = (boxId_e)7;
     modeActivationConditionsMutable(6)->rcChannel = 11;
     modeActivationConditionsMutable(6)->range.startStep = CHANNEL_VALUE_TO_STEP(925);
     modeActivationConditionsMutable(6)->range.endStep = CHANNEL_VALUE_TO_STEP(950);
@@ -241,7 +241,7 @@ void resetMillis(void)
 TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceActivated)
 {
     // given
-    modeActivationConditionsMutable(7)->modeId = BOXPARALYZE;
+    modeActivationConditionsMutable(7)->boxId = BOXPARALYZE;
     modeActivationConditionsMutable(7)->rcChannel = 5;
     modeActivationConditionsMutable(7)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(7)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
@@ -291,7 +291,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
 TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchForever)
 {
     // given
-    modeActivationConditionsMutable(8)->modeId = BOXBLACKBOXERASE;
+    modeActivationConditionsMutable(8)->boxId = BOXBLACKBOXERASE;
     modeActivationConditionsMutable(8)->rcChannel = 6;
     modeActivationConditionsMutable(8)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(8)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
