@@ -108,7 +108,7 @@ void vtxUpdateActivatedChannel(void)
         for (uint8_t index = 0; index < MAX_CHANNEL_ACTIVATION_CONDITION_COUNT; index++) {
             const vtxChannelActivationCondition_t *vtxChannelActivationCondition = &vtxConfig()->vtxChannelActivationConditions[index];
 
-            if (isRangeActive(vtxChannelActivationCondition->auxChannelIndex, &vtxChannelActivationCondition->range)) {
+            if (isRangeActive(vtxChannelActivationCondition->rcChannel, &vtxChannelActivationCondition->range)) {
                 if (!locked) {
                     if (vtxChannelActivationCondition->band > 0) {
                         vtxSettingsConfigMutable()->band = vtxChannelActivationCondition->band;

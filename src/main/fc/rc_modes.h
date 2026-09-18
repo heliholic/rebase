@@ -95,7 +95,7 @@ typedef struct modeActivationProfile_s {
 bool IS_RC_MODE_ACTIVE(boxId_e boxId);
 void rcModeUpdate(const boxBitmask_t *newState);
 
-bool isRangeActive(uint8_t auxChannelIndex, const channelRange_t *range);
+bool isRangeActive(uint8_t channel, const channelRange_t *range);
 void updateActivatedModes(void);
 bool isModeActivationConditionPresent(boxId_e modeId);
 bool isModeActivationConditionLinked(boxId_e modeId);

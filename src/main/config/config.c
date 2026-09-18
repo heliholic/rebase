@@ -27,6 +27,7 @@
 
 #include "blackbox/blackbox.h"
 
+#include "build/build_config.h"
 #include "build/debug.h"
 
 #include "cli/cli.h"
@@ -42,7 +43,7 @@
 
 #include "fc/controlrate_profile.h"
 #include "fc/core.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
@@ -175,7 +176,7 @@ static void validateAndFixRatesSettings(void)
     }
 }
 
-static void validateAndFixConfig(void)
+STATIC_UNIT_TESTED void validateAndFixConfig(void)
 {
     if (!isSerialConfigValid(serialConfigMutable())) {
         PG_RESET(serialConfig);
@@ -265,6 +266,27 @@ static void validateAndFixConfig(void)
 #endif
         ) {
         rxConfigMutable()->rssi_src_frame_errors = false;
+    }
+
+    // Each control function must come from a channel of its own. A function
+    // aimed past the end of rcInput[] would read out of bounds in the Rx layer,
+    // and the Rx layer reverses rc_channel[] into a map where a channel carries
+    // at most one function - so two functions sharing a channel would leave one
+    // of them with the other's calibration and failsafe treatment, besides
+    // flying both off the one stick. An entry that is out of range, or on a
+    // channel an earlier function has taken, falls back to the lowest free
+    // channel. There is always one, as RC_CONTROL_COUNT channels are supported.
+    uint32_t channelsTaken = 0;
+    for (int function = 0; function < RC_CONTROL_COUNT; function++) {
+        unsigned channel = rxConfigMutable()->rc_channel[function];
+        if (channel >= MAX_SUPPORTED_RC_CHANNEL_COUNT || (channelsTaken & BIT(channel))) {
+            channel = 0;
+            while (channelsTaken & BIT(channel)) {
+                channel++;
+            }
+        }
+        channelsTaken |= BIT(channel);
+        rxConfigMutable()->rc_channel[function] = channel;
     }
 
     if (failsafeConfig()->failsafe_procedure >= FAILSAFE_PROCEDURE_COUNT) {

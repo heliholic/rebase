@@ -29,26 +29,7 @@
 #include "pg/arming.h"
 #include "pg/rc_controls.h"
 
-typedef enum {
-    ROLL = 0,
-    PITCH,
-    YAW,
-    THROTTLE,
-    AUX1,
-    AUX2,
-    AUX3,
-    AUX4,
-    AUX5,
-    AUX6,
-    AUX7,
-    AUX8,
-    AUX9,
-    AUX10,
-    AUX11,
-    AUX12
-} rc_alias_e;
-
-#define PRIMARY_CHANNEL_COUNT (THROTTLE + 1)
+#include "rx/rx.h"
 
 typedef enum {
     THROTTLE_LOW = 0,
@@ -60,19 +41,20 @@ typedef enum {
     CENTERED
 } rollPitchStatus_e;
 
-#define ROL_LO (1 << (2 * ROLL))
-#define ROL_CE (3 << (2 * ROLL))
-#define ROL_HI (2 << (2 * ROLL))
-#define PIT_LO (1 << (2 * PITCH))
-#define PIT_CE (3 << (2 * PITCH))
-#define PIT_HI (2 << (2 * PITCH))
-#define YAW_LO (1 << (2 * YAW))
-#define YAW_CE (3 << (2 * YAW))
-#define YAW_HI (2 << (2 * YAW))
-#define THR_LO (1 << (2 * THROTTLE))
-#define THR_CE (3 << (2 * THROTTLE))
-#define THR_HI (2 << (2 * THROTTLE))
-#define THR_MASK (3 << (2 * THROTTLE))
+// The sticks are roll, pitch, yaw and collective; throttle is not on a stick.
+#define ROL_LO (1 << (2 * RC_ROLL))
+#define ROL_CE (3 << (2 * RC_ROLL))
+#define ROL_HI (2 << (2 * RC_ROLL))
+#define PIT_LO (1 << (2 * RC_PITCH))
+#define PIT_CE (3 << (2 * RC_PITCH))
+#define PIT_HI (2 << (2 * RC_PITCH))
+#define YAW_LO (1 << (2 * RC_YAW))
+#define YAW_CE (3 << (2 * RC_YAW))
+#define YAW_HI (2 << (2 * RC_YAW))
+#define COL_LO (1 << (2 * RC_COLLECTIVE))
+#define COL_CE (3 << (2 * RC_COLLECTIVE))
+#define COL_HI (2 << (2 * RC_COLLECTIVE))
+#define COL_MASK (3 << (2 * RC_COLLECTIVE))
 
 #define CONTROL_RATE_CONFIG_RC_EXPO_MAX  100
 
@@ -83,8 +65,6 @@ typedef enum {
 
 // (Super) rates are constrained to [0, 100] for Betaflight rates, so values higher than 100 won't make a difference. Range extended for RaceFlight rates.
 #define CONTROL_RATE_CONFIG_RATE_MAX  255
-
-extern float rcCommand[4];
 
 bool areUsingSticksToArm(void);
 

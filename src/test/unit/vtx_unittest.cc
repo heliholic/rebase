@@ -70,8 +70,12 @@ extern "C" {
     PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG);
 
-    extern float rcCommand[4];
-    float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcControls[RC_CONTROL_COUNT];
+
+    float rcCommand[RC_CONTROL_COUNT];
+    float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    bool isThrottleOff(void) { return true; }
+    float getThrottle(void) { return 0.0f; }
     uint16_t averageSystemLoadPercent = 0;
     uint8_t cliMode = 0;
     uint8_t debugMode = 0;
@@ -98,7 +102,7 @@ bool simulationHaveRx = false;
 TEST(VtxTest, PitMode)
 {
     // given
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXVTXPITMODE;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
@@ -115,7 +119,7 @@ TEST(VtxTest, PitMode)
 
     // and
     // enable vtx pit mode
-    rcData[AUX1] = 1800;
+    rcInput[5] = 1800;
 
     // when
     updateActivatedModes();
@@ -139,7 +143,7 @@ static void clearActivationConditions(void)
 {
     for (int i = 0; i < MAX_CHANNEL_ACTIVATION_CONDITION_COUNT; i++) {
         vtxChannelActivationCondition_t *cond = &vtxConfigMutable()->vtxChannelActivationConditions[i];
-        cond->auxChannelIndex = 0;
+        cond->rcChannel = 5;
         cond->band = 0;
         cond->channel = 0;
         cond->power = 0;
@@ -148,17 +152,17 @@ static void clearActivationConditions(void)
     }
 }
 
-static void setActivationCondition(uint8_t index, uint8_t auxChannelIndex, uint8_t band, uint8_t channel, uint8_t power)
+static void setActivationCondition(uint8_t index, uint8_t rcChannel, uint8_t band, uint8_t channel, uint8_t power)
 {
     vtxChannelActivationCondition_t *cond = &vtxConfigMutable()->vtxChannelActivationConditions[index];
-    cond->auxChannelIndex = auxChannelIndex;
+    cond->rcChannel = rcChannel;
     cond->band = band;
     cond->channel = channel;
     cond->power = power;
     cond->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
     cond->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
-    // drive the aux channel into the active range
-    rcData[NON_AUX_CHANNEL_COUNT + auxChannelIndex] = 1500;
+    // drive the input channel into the active range
+    rcInput[rcChannel] = 1500;
 }
 
 // Regression test for #15362: band, channel and power assigned to three separate switches,
@@ -173,9 +177,9 @@ TEST(VtxTest, ActivationConditionsAllAppliedWhenSimultaneouslyActive)
     vtxCommonSetDevice(&testVtxDevice);
     clearActivationConditions();
 
-    setActivationCondition(0, 0, 1, 0, 0);  // AUX1 -> band 1
-    setActivationCondition(1, 1, 0, 2, 0);  // AUX2 -> channel 2
-    setActivationCondition(2, 2, 0, 0, 3);  // AUX3 -> power 3 (highest index)
+    setActivationCondition(0, 5, 1, 0, 0);  // ch 5 -> band 1
+    setActivationCondition(1, 6, 0, 2, 0);  // ch 6 -> channel 2
+    setActivationCondition(2, 7, 0, 0, 3);  // ch 7 -> power 3 (highest index)
 
     vtxSettingsConfigMutable()->band = 0;
     vtxSettingsConfigMutable()->channel = 0;
@@ -200,7 +204,7 @@ TEST(VtxTest, PowerOnlyConditionDoesNotResetBandAndChannel)
     vtxCommonSetDevice(&testVtxDevice);
     clearActivationConditions();
 
-    setActivationCondition(0, 0, 0, 0, 2);  // AUX1 -> power 2 only
+    setActivationCondition(0, 5, 0, 0, 2);  // ch 5 -> power 2 only
 
     vtxSettingsConfigMutable()->band = 5;
     vtxSettingsConfigMutable()->channel = 7;
@@ -227,8 +231,8 @@ TEST(VtxTest, LastActiveConditionWinsForSameField)
     clearActivationConditions();
 
     // two conditions, both active, both writing band/channel/power
-    setActivationCondition(0, 0, 1, 1, 1);  // AUX1 -> band 1, channel 1, power 1
-    setActivationCondition(1, 1, 5, 6, 7);  // AUX2 -> band 5, channel 6, power 7 (higher index)
+    setActivationCondition(0, 5, 1, 1, 1);  // ch 5 -> band 1, channel 1, power 1
+    setActivationCondition(1, 6, 5, 6, 7);  // ch 6 -> band 5, channel 6, power 7 (higher index)
 
     vtxSettingsConfigMutable()->band = 0;
     vtxSettingsConfigMutable()->channel = 0;
@@ -253,7 +257,7 @@ TEST(VtxTest, InactiveConditionLeavesLastValues)
     vtxCommonSetDevice(&testVtxDevice);
     clearActivationConditions();
 
-    setActivationCondition(0, 0, 3, 4, 5);  // AUX1 -> band 3, channel 4, power 5, active
+    setActivationCondition(0, 5, 3, 4, 5);  // ch 5 -> band 3, channel 4, power 5, active
 
     vtxSettingsConfigMutable()->band = 0;
     vtxSettingsConfigMutable()->channel = 0;
@@ -265,7 +269,7 @@ TEST(VtxTest, InactiveConditionLeavesLastValues)
     EXPECT_EQ(5, vtxSettingsConfig()->power);
 
     // when the aux channel leaves the active range
-    rcData[NON_AUX_CHANNEL_COUNT + 0] = 1000;
+    rcInput[5] = 1000;
     vtxUpdateActivatedChannel();
 
     // expect — values persist, nothing is reset
@@ -284,7 +288,7 @@ TEST(VtxTest, ArmedLocksBandAndChannelButNotPower)
     vtxCommonSetDevice(&testVtxDevice);
     clearActivationConditions();
 
-    setActivationCondition(0, 0, 4, 6, 2);  // AUX1 -> band 4, channel 6, power 2
+    setActivationCondition(0, 5, 4, 6, 2);  // ch 5 -> band 4, channel 6, power 2
 
     vtxSettingsConfigMutable()->band = 0;
     vtxSettingsConfigMutable()->channel = 0;
@@ -350,8 +354,6 @@ extern "C" {
     void mspSerialAllocatePorts(void) {}
     void gyroReadTemperature(void) {}
     void updateRcCommands(void) {}
-    void resetYawAxis(void) {}
-    void processRcCommand(void) {}
     void updateGpsStateForHomeAndHoldMode(void) {}
     void blackboxUpdate(timeUs_t) {}
     void blackboxFlush(timeUs_t) {}
@@ -372,7 +374,7 @@ extern "C" {
     bool isUpright(void) { return true; }
     void blackboxLogEvent(FlightLogEvent, union flightLogEventData_u *) {};
     void gyroFiltering(timeUs_t) {};
-    timeDelta_t rxGetFrameDelta() { return 0; }
+    timeDelta_t rxGetFrameDelta(timeDelta_t *) { return 0; }
     void updateRcRefreshRate(timeUs_t) {};
     uint16_t getAverageSystemLoadPercent(void) { return 0; }
     bool isMotorProtocolEnabled(void) { return false; }

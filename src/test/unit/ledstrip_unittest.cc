@@ -302,8 +302,9 @@ extern "C" {
 uint8_t armingFlags = 0;
 uint8_t stateFlags = 0;
 uint16_t flightModeFlags = 0;
-float rcCommand[4];
-float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+float rcCommand[RC_CONTROL_COUNT];
+float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+float rcControls[RC_CONTROL_COUNT];
 extern boxBitmask_t rcModeActivationMask;
 gpsSolutionData_t gpsSol;
 

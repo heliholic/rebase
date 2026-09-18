@@ -50,7 +50,8 @@ extern "C" {
 
     #include "rx/rx.h"
 
-    float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];     // interval [1000;2000]
+    float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcControls[RC_CONTROL_COUNT];     // interval [1000;2000]
 
     extern rcdeviceSwitchState_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
     extern runcamDevice_t *camDevice;
@@ -295,19 +296,19 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
     }
 
     // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+    modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+    modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
@@ -315,9 +316,9 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
     analyzeModeActivationConditions();
 
     // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1800;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
+    rcInput[modeActivationConditions(0)->rcChannel] = 1800;
+    rcInput[modeActivationConditions(1)->rcChannel] = 900;
+    rcInput[modeActivationConditions(2)->rcChannel] = 900;
 
     updateActivatedModes();
 
@@ -367,28 +368,28 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceReady)
 
 
     // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+    modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+    modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     analyzeModeActivationConditions();
 
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+    rcInput[modeActivationConditions(0)->rcChannel] = 1700;
+    rcInput[modeActivationConditions(1)->rcChannel] = 2000;
+    rcInput[modeActivationConditions(2)->rcChannel] = 1700;
 
     updateActivatedModes();
 
@@ -435,19 +436,19 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
 
 
     // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+    modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+    modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
@@ -455,9 +456,9 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
     analyzeModeActivationConditions();
 
     // // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+    rcInput[modeActivationConditions(0)->rcChannel] = 1700;
+    rcInput[modeActivationConditions(1)->rcChannel] = 2000;
+    rcInput[modeActivationConditions(2)->rcChannel] = 1700;
     updateActivatedModes();
 
     // runn process loop
@@ -471,9 +472,9 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
 
 
     // // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1500;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1300;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1900;
+    rcInput[modeActivationConditions(0)->rcChannel] = 1500;
+    rcInput[modeActivationConditions(1)->rcChannel] = 1300;
+    rcInput[modeActivationConditions(2)->rcChannel] = 1900;
     updateActivatedModes();
     rcdeviceUpdate((timeUs_t)0);
     EXPECT_TRUE(unitTestIsSwitchActivited(BOXCAMERA1));
@@ -481,12 +482,12 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
     EXPECT_TRUE(unitTestIsSwitchActivited(BOXCAMERA3));
 
 
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1899;
+    rcInput[modeActivationConditions(2)->rcChannel] = 1899;
     updateActivatedModes();
     rcdeviceUpdate((timeUs_t)0);
     EXPECT_FALSE(unitTestIsSwitchActivited(BOXCAMERA3));
 
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2001;
+    rcInput[modeActivationConditions(1)->rcChannel] = 2001;
     updateActivatedModes();
     rcdeviceUpdate((timeUs_t)0);
     EXPECT_TRUE(unitTestIsSwitchActivited(BOXCAMERA1));
@@ -703,10 +704,10 @@ TEST(RCDeviceTest, Test5KeyOSDCableSimulationWithout5KeyFeatureSupport)
     resetRCDeviceStatus();
 
     // test simulation without device init
-    rcData[THROTTLE] = FIVE_KEY_JOYSTICK_MID; // THROTTLE Mid
-    rcData[ROLL] = FIVE_KEY_JOYSTICK_MID; // ROLL Mid
-    rcData[PITCH] = FIVE_KEY_JOYSTICK_MID; // PITCH Mid
-    rcData[YAW] = FIVE_KEY_JOYSTICK_MAX; // Yaw High
+    rcControls[RC_THROTTLE] = FIVE_KEY_JOYSTICK_MID; // THROTTLE Mid
+    rcControls[RC_ROLL] = FIVE_KEY_JOYSTICK_MID; // ROLL Mid
+    rcControls[RC_PITCH] = FIVE_KEY_JOYSTICK_MID; // PITCH Mid
+    rcControls[RC_YAW] = FIVE_KEY_JOYSTICK_MAX; // Yaw High
     rcdeviceUpdate(millis() * 1000);
     EXPECT_FALSE(rcdeviceInMenu);
     // remove all request from queue

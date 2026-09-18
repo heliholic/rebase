@@ -112,6 +112,7 @@ typedef enum {
     DEBUG_TASK,
     DEBUG_FLASH_TEST_PRBS,
     DEBUG_MAVLINK_TELEMETRY,
+    DEBUG_RC_COMMAND,
     DEBUG_COUNT
 } debugType_e;
 

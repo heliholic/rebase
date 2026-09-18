@@ -63,7 +63,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | --- | ---: | --- | --- | ---: | --- |
 | `accelerometerConfig` | 35 | `0x3071B171` | [`accelerometerConfig_t`](#accelerometerconfig_t) | 16 | `pg/acceleration.h` |
 | `adcConfig` | 510 | `0x278550EC` | [`adcConfig_t`](#adcconfig_t) | 26 | `pg/adc.h` |
-| `adjustmentRanges` | 37 | `0x60BDD4AF` | [`adjustmentRange_t`](#adjustmentrange_t) | 10 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
+| `adjustmentRanges` | 37 | `0x94FE72A3` | [`adjustmentRange_t`](#adjustmentrange_t) | 10 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
 | `armingConfig` | 16 | `0x8CEFF013` | [`armingConfig_t`](#armingconfig_t) | 3 | `pg/arming.h` |
 | `barometerConfig` | 38 | `0x358757A4` | [`barometerConfig_t`](#barometerconfig_t) | 8 | `pg/barometer.h` |
 | `batteryConfig` | 11 | `0x7E75E919` | [`batteryConfig_t`](#batteryconfig_t) | 14 | `pg/battery.h` |
@@ -93,9 +93,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `i2cConfig` | 518 | `0xB026B875` | [`i2cConfig_t`](#i2cconfig_t) | 6 &times; `I2CDEV_COUNT` | `pg/bus_i2c.h` |
 | `imuConfig` | 22 | `0xBE4FB408` | [`imuConfig_t`](#imuconfig_t) | 10 | `pg/imu.h` |
 | `ledStripConfig` | 27 | `0xC62B80FD` | [`ledStripConfig_t`](#ledstripconfig_t) | 16 | `pg/ledstrip.h` |
-| `ledStripStatusModeConfig` | 545 | `0x89D535C7` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
+| `ledStripStatusModeConfig` | 545 | `0x34ECEA5E` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
 | `mcoConfig` | 541 | `0x010C2C94` | [`mcoConfig_t`](#mcoconfig_t) | 3 &times; `2` | `pg/mco.h` |
-| `modeActivationConditions` | 41 | `0x68D234D7` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
+| `modeActivationConditions` | 41 | `0x3A98E6BA` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
 | `modeActivationConfig` | 553 | `0x68633E8C` | [`modeActivationConfig_t`](#modeactivationconfig_t) | 64 | `pg/modes.h` |
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
@@ -111,11 +111,11 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ppmConfig` | 507 | `0xF9CF641C` | [`ppmConfig_t`](#ppmconfig_t) | 1 | `pg/rx_pwm.h` |
 | `quadSpiConfig` | 548 | `0x7AB0CAD9` | [`quadSpiConfig_t`](#quadspiconfig_t) | 13 &times; `QUADSPIDEV_COUNT` | `pg/bus_quadspi.h` |
 | `rangefinderConfig` | 527 | `0x32917E98` | [`rangefinderConfig_t`](#rangefinderconfig_t) | 1 | `pg/rangefinder.h` |
-| `rcControlsConfig` | 25 | `0x4DC008FD` | [`rcControlsConfig_t`](#rccontrolsconfig_t) | 2 | `pg/rc_controls.h` |
+| `rcControlsConfig` | 25 | `0x079977AB` | [`rcControlsConfig_t`](#rccontrolsconfig_t) | 16 | `pg/rc_controls.h` |
 | `rcdeviceConfig` | 539 | `0xA33F0C84` | [`rcdeviceConfig_t`](#rcdeviceconfig_t) | 16 | `pg/rcdevice.h` |
-| `rxChannelRangeConfigs` | 44 | `0x198E9D36` | [`rxChannelRangeConfig_t`](#rxchannelrangeconfig_t) | 4 &times; `NON_AUX_CHANNEL_COUNT` | `pg/rx.h` |
-| `rxConfig` | 24 | `0x3B9D3B1E` | [`rxConfig_t`](#rxconfig_t) | 38 | `pg/rx.h` |
-| `rxFailsafeChannelConfigs` | 43 | `0x40DF0763` | [`rxFailsafeChannelConfig_t`](#rxfailsafechannelconfig_t) | 2 &times; `MAX_SUPPORTED_RC_CHANNEL_COUNT` | `pg/rx.h` |
+| `rxChannelRangeConfigs` | 44 | `0x198E9D36` | [`rxChannelRangeConfig_t`](#rxchannelrangeconfig_t) | 4 &times; `RC_CONTROL_COUNT` | `pg/rx.h` |
+| `rxConfig` | 24 | `0xDDF454AE` | [`rxConfig_t`](#rxconfig_t) | 30 | `pg/rx.h` |
+| `rxFailsafeChannelConfigs` | 43 | `0xF440899F` | [`rxFailsafeChannelConfig_t`](#rxfailsafechannelconfig_t) | 2 &times; `MAX_SUPPORTED_RC_CHANNEL_COUNT` | `pg/rx.h` |
 | `schedulerConfig` | 556 | `0xDE846B81` | [`schedulerConfig_t`](#schedulerconfig_t) | 6 | `pg/scheduler.h` |
 | `sdcardConfig` | 511 | `0x20EF4804` | [`sdcardConfig_t`](#sdcardconfig_t) | 5 | `pg/sdcard.h` |
 | `sdioConfig` | 532 | `0x9742A850` | [`sdioConfig_t`](#sdioconfig_t) | 5 | `pg/sdio.h` |
@@ -136,7 +136,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `timerUpConfig` | 549 | `0x838D1137` | [`timerUpConfig_t`](#timerupconfig_t) | 1 &times; `HARDWARE_TIMER_DEFINITION_COUNT` | `pg/timerup.h` |
 | `usbDevConfig` | 531 | `0x6CDB14DB` | [`usbDev_t`](#usbdev_t) | 4 | `pg/usb.h` |
 | `voltageSensorADCConfig` | 258 | `0xBB15461C` | [`voltageSensorADCConfig_t`](#voltagesensoradcconfig_t) | 3 &times; `MAX_VOLTAGE_SENSOR_ADC` | `pg/voltage.h` |
-| `vtxConfig` | 515 | `0x1B3BA52D` | [`vtxConfig_t`](#vtxconfig_t) | 61 | `pg/vtx.h` |
+| `vtxConfig` | 515 | `0x0C2C80E2` | [`vtxConfig_t`](#vtxconfig_t) | 61 | `pg/vtx.h` |
 | `vtxIOConfig` | 57 | `0x517504C7` | [`vtxIOConfig_t`](#vtxioconfig_t) | 5 | `pg/vtx_io.h` |
 | `vtxSettingsConfig` | 259 | `0x757017FE` | [`vtxSettingsConfig_t`](#vtxsettingsconfig_t) | 10 | `pg/vtx.h` |
 | `vtxTableConfig` | 546 | `0x69143ADC` | [`vtxTableConfig_t`](#vtxtableconfig_t) | 284 | `pg/vtx_table.h` |
@@ -178,16 +178,16 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### adjustmentRange_t
 
-- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0x60BDD4AF` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
+- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0x94FE72A3` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
 
 `sizeof` = 10 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `auxChannelIndex` |
+| 0 | 1 | `uint8_t` | `rcChannel` |
 | 1 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
 | 3 | 1 | `uint8_t` | `adjustmentConfig` |
-| 4 | 1 | `uint8_t` | `auxSwitchChannelIndex` |
+| 4 | 1 | `uint8_t` | `adjChannel` |
 | 5 | 1 | &mdash; | *(padding)* |
 | 6 | 2 | `uint16_t` | `adjustmentCenter` |
 | 8 | 2 | `uint16_t` | `adjustmentScale` |
@@ -637,7 +637,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### ledStripStatusModeConfig_t
 
-- `ledStripStatusModeConfig` &mdash; PGN 545 (`PG_LED_STRIP_STATUS_MODE_CONFIG`), hash `0x89D535C7`
+- `ledStripStatusModeConfig` &mdash; PGN 545 (`PG_LED_STRIP_STATUS_MODE_CONFIG`), hash `0x34ECEA5E`
 
 `sizeof` = 368 bytes.
 
@@ -647,7 +647,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 256 | 64 | [`hsvColor_t`](#hsvcolor_t) | `colors[16]` |
 | 320 | 36 | [`modeColorIndexes_t`](#modecolorindexes_t) | `modeColors[6]` |
 | 356 | 11 | [`specialColorIndexes_t`](#specialcolorindexes_t) | `specialColors` |
-| 367 | 1 | `uint8_t` | `ledstrip_aux_channel` |
+| 367 | 1 | `uint8_t` | `ledstrip_rc_channel` |
 
 ### mcoConfig_t
 
@@ -663,14 +663,14 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### modeActivationCondition_t
 
-- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x68D234D7` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
+- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x3A98E6BA` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
 
 `sizeof` = 6 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `uint8_t` | `modeId` |
-| 1 | 1 | `uint8_t` | `auxChannelIndex` |
+| 1 | 1 | `uint8_t` | `rcChannel` |
 | 2 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
 | 4 | 1 | `uint8_t` | `modeLogic` |
 | 5 | 1 | `uint8_t` | `linkedTo` |
@@ -849,14 +849,21 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### rcControlsConfig_t
 
-- `rcControlsConfig` &mdash; PGN 25 (`PG_RC_CONTROLS_CONFIG`), hash `0x4DC008FD`
+- `rcControlsConfig` &mdash; PGN 25 (`PG_RC_CONTROLS_CONFIG`), hash `0x079977AB`
 
-`sizeof` = 2 bytes.
+`sizeof` = 16 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `deadband` |
-| 1 | 1 | `uint8_t` | `yaw_deadband` |
+| 0 | 2 | `uint16_t` | `rc_center` |
+| 2 | 2 | `uint16_t` | `rc_deflection` |
+| 4 | 2 | `uint16_t` | `rc_min_throttle` |
+| 6 | 2 | `uint16_t` | `rc_max_throttle` |
+| 8 | 1 | `uint8_t` | `rc_deadband` |
+| 9 | 1 | `uint8_t` | `rc_yaw_deadband` |
+| 10 | 1 | `uint8_t` | `rc_smoothness` |
+| 11 | 4 | `uint8_t` | `rc_threshold[4]` |
+| 15 | 1 | &mdash; | *(tail padding)* |
 
 ### rcdeviceConfig_t
 
@@ -875,7 +882,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### rxChannelRangeConfig_t
 
-- `rxChannelRangeConfigs` &mdash; PGN 44 (`PG_RX_CHANNEL_RANGE_CONFIG`), hash `0x198E9D36` &mdash; array of `NON_AUX_CHANNEL_COUNT` elements
+- `rxChannelRangeConfigs` &mdash; PGN 44 (`PG_RX_CHANNEL_RANGE_CONFIG`), hash `0x198E9D36` &mdash; array of `RC_CONTROL_COUNT` elements
 
 `sizeof` = 4 bytes.
 
@@ -886,49 +893,46 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### rxConfig_t
 
-- `rxConfig` &mdash; PGN 24 (`PG_RX_CONFIG`), hash `0x3B9D3B1E`
+- `rxConfig` &mdash; PGN 24 (`PG_RX_CONFIG`), hash `0xDDF454AE`
 
-`sizeof` = 38 bytes.
+`sizeof` = 30 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 8 | `uint8_t` | `rcmap[8]` |
-| 8 | 1 | `uint8_t` | `serialrx_provider` |
-| 9 | 1 | `bool` | `serialrx_inverted` |
-| 10 | 1 | `bool` | `halfDuplex` |
-| 11 | 1 | `ioTag_t` | `spektrum_bind_pin_override_ioTag` |
-| 12 | 1 | `ioTag_t` | `spektrum_bind_plug_ioTag` |
-| 13 | 1 | `uint8_t` | `spektrum_sat_bind` |
-| 14 | 1 | `bool` | `spektrum_sat_bind_autoreset` |
-| 15 | 1 | `uint8_t` | `rssi_channel` |
-| 16 | 1 | `uint8_t` | `rssi_scale` |
-| 17 | 1 | `bool` | `rssi_invert` |
-| 18 | 2 | `uint16_t` | `midrc` |
-| 20 | 2 | `uint16_t` | `mincheck` |
-| 22 | 2 | `uint16_t` | `maxcheck` |
-| 24 | 2 | `uint16_t` | `rx_min_usec` |
-| 26 | 2 | `uint16_t` | `rx_max_usec` |
-| 28 | 1 | `uint8_t` | `max_aux_channel` |
-| 29 | 1 | `bool` | `rssi_src_frame_errors` |
-| 30 | 1 | `int8_t` | `rssi_offset` |
-| 31 | 1 | `uint8_t` | `rssi_src_frame_lpf_period` |
-| 32 | 1 | `uint8_t` | `rssi_smoothing` |
-| 33 | 1 | `uint8_t` | `srxl2_unit_id` |
-| 34 | 1 | `bool` | `srxl2_baud_fast` |
-| 35 | 1 | `bool` | `sbus_baud_fast` |
-| 36 | 1 | `bool` | `crsf_use_negotiated_baud` |
-| 37 | 1 | &mdash; | *(tail padding)* |
+| 0 | 6 | `uint8_t` | `rc_channel[6]` |
+| 6 | 1 | `uint8_t` | `serialrx_provider` |
+| 7 | 1 | `bool` | `serialrx_inverted` |
+| 8 | 1 | `bool` | `halfDuplex` |
+| 9 | 1 | `ioTag_t` | `spektrum_bind_pin_override_ioTag` |
+| 10 | 1 | `ioTag_t` | `spektrum_bind_plug_ioTag` |
+| 11 | 1 | `uint8_t` | `spektrum_sat_bind` |
+| 12 | 1 | `bool` | `spektrum_sat_bind_autoreset` |
+| 13 | 1 | `uint8_t` | `rssi_channel` |
+| 14 | 1 | `uint8_t` | `rssi_scale` |
+| 15 | 1 | `bool` | `rssi_invert` |
+| 16 | 2 | `uint16_t` | `rx_pulse_min` |
+| 18 | 2 | `uint16_t` | `rx_pulse_max` |
+| 20 | 1 | `uint8_t` | `max_rc_channel` |
+| 21 | 1 | `bool` | `rssi_src_frame_errors` |
+| 22 | 1 | `int8_t` | `rssi_offset` |
+| 23 | 1 | `uint8_t` | `rssi_src_frame_lpf_period` |
+| 24 | 1 | `uint8_t` | `rssi_smoothing` |
+| 25 | 1 | `uint8_t` | `srxl2_unit_id` |
+| 26 | 1 | `bool` | `srxl2_baud_fast` |
+| 27 | 1 | `bool` | `sbus_baud_fast` |
+| 28 | 1 | `bool` | `crsf_use_negotiated_baud` |
+| 29 | 1 | &mdash; | *(tail padding)* |
 
 ### rxFailsafeChannelConfig_t
 
-- `rxFailsafeChannelConfigs` &mdash; PGN 43 (`PG_RX_FAILSAFE_CHANNEL_CONFIG`), hash `0x40DF0763` &mdash; array of `MAX_SUPPORTED_RC_CHANNEL_COUNT` elements
+- `rxFailsafeChannelConfigs` &mdash; PGN 43 (`PG_RX_FAILSAFE_CHANNEL_CONFIG`), hash `0xF440899F` &mdash; array of `MAX_SUPPORTED_RC_CHANNEL_COUNT` elements
 
 `sizeof` = 2 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `mode` |
-| 1 | 1 | `uint8_t` | `step` |
+| 0 | 1 | `uint8_t` | `failsafe_mode` |
+| 1 | 1 | `uint8_t` | `failsafe_step` |
 
 ### schedulerConfig_t
 
@@ -1214,7 +1218,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### vtxConfig_t
 
-- `vtxConfig` &mdash; PGN 515 (`PG_VTX_CONFIG`), hash `0x1B3BA52D`
+- `vtxConfig` &mdash; PGN 515 (`PG_VTX_CONFIG`), hash `0x0C2C80E2`
 
 `sizeof` = 61 bytes.
 
@@ -1427,7 +1431,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `auxChannelIndex` |
+| 0 | 1 | `uint8_t` | `rcChannel` |
 | 1 | 1 | `uint8_t` | `band` |
 | 2 | 1 | `uint8_t` | `channel` |
 | 3 | 1 | `uint8_t` | `power` |

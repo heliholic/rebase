@@ -49,8 +49,8 @@
 #include "drivers/system.h"
 #include "drivers/time.h"
 
+#include "controls/rc.h"
 #include "fc/controlrate_profile.h"
-#include "fc/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
@@ -437,13 +437,10 @@ if (isMotorProtocolDshot()) {
     }
 }
 
-// calculate the throttle stick percent - integer math is good enough here.
-// returns negative values for reversed thrust in 3D mode
+// calculate the throttle stick percent
 int8_t calculateThrottlePercent(void)
 {
-    int channelData = constrain(rcData[THROTTLE], PWM_RANGE_MIN, PWM_RANGE_MAX);
-    uint8_t ret = constrain(((channelData - rxConfig()->mincheck) * 100) / (PWM_RANGE_MAX - rxConfig()->mincheck), 0, 100);
-    return ret;
+    return getThrottlePercent();
 }
 
 uint8_t calculateThrottlePercentAbs(void)
@@ -470,7 +467,7 @@ bool processRx(timeUs_t currentTimeUs)
         return false;
     }
 
-    updateRcRefreshRate(currentTimeUs, isRxReceivingSignal());
+    updateRcRefreshRate(currentTimeUs);
 
     updateRSSI(currentTimeUs);
 
@@ -525,7 +522,7 @@ void processRxModes(timeUs_t currentTimeUs)
                 }
             }
         } else {
-            // arming is via AUX switch; beep while throttle low
+            // arming is via the arm switch; beep while throttle low
             if (throttleStatus == THROTTLE_LOW) {
                 beeper(BEEPER_ARMED);
                 armedBeeperOn = true;
@@ -690,20 +687,6 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
     DEBUG_TIME_END(PIDLOOP, 2);
 }
 
-static FAST_CODE_NOINLINE void subTaskRcCommand(timeUs_t currentTimeUs)
-{
-    UNUSED(currentTimeUs);
-
-    // If we're armed, at minimum throttle, and we do arming via the
-    // sticks, do not process yaw input from the rx.  We do this so the
-    // motors do not spin up while we are trying to arm or disarm.
-    if (isUsingSticksForArming() && rcData[THROTTLE] <= rxConfig()->mincheck) {
-        resetYawAxis();
-    }
-
-    processRcCommand();
-}
-
 FAST_CODE void taskGyroSample(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
@@ -745,7 +728,6 @@ FAST_CODE void taskMainPidLoop(timeUs_t currentTimeUs)
     // 3 - subTaskPidSubprocesses()
     DEBUG_SET(DEBUG_PIDLOOP, 0, micros() - currentTimeUs);
 
-    subTaskRcCommand(currentTimeUs);
     subTaskPidController(currentTimeUs);
     subTaskMotorUpdate(currentTimeUs);
     subTaskPidSubprocesses(currentTimeUs);

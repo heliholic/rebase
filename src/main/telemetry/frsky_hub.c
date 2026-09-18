@@ -49,6 +49,7 @@
 #include "drivers/dshot.h"
 
 #include "config/config.h"
+#include "controls/rc.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
@@ -197,7 +198,7 @@ static void sendThrottleOrBatterySizeAsRpm(void)
 #else
     if (ARMING_FLAG(ARMED)) {
         const throttleStatus_e throttleStatus = calculateThrottleStatus();
-        uint16_t throttleForRPM = rcCommand[THROTTLE] / BLADE_NUMBER_DIVIDER;
+        uint16_t throttleForRPM = getThrottleCommand() / BLADE_NUMBER_DIVIDER;
         if (throttleStatus == THROTTLE_LOW) {
             throttleForRPM = 0;
         }

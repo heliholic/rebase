@@ -34,10 +34,11 @@ typedef enum {
 typedef enum {
     FD_ROLL = 0,
     FD_PITCH,
-    FD_YAW
+    FD_YAW,
+    FD_COLL,
 } flight_dynamics_index_t;
 
-#define FLIGHT_DYNAMICS_INDEX_COUNT 3
+#define FLIGHT_DYNAMICS_INDEX_COUNT 4
 
 typedef enum {
     AI_ROLL = 0,

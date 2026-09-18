@@ -40,9 +40,9 @@
 
 #ifdef USE_RCDEVICE
 
-#define IS_HI(X) (rcData[X] > FIVE_KEY_CABLE_JOYSTICK_MAX)
-#define IS_LO(X) (rcData[X] < FIVE_KEY_CABLE_JOYSTICK_MIN)
-#define IS_MID(X) (rcData[X] > FIVE_KEY_CABLE_JOYSTICK_MID_START && rcData[X] < FIVE_KEY_CABLE_JOYSTICK_MID_END)
+#define IS_HI(X) (rcControls[X] > FIVE_KEY_CABLE_JOYSTICK_MAX)
+#define IS_LO(X) (rcControls[X] < FIVE_KEY_CABLE_JOYSTICK_MIN)
+#define IS_MID(X) (rcControls[X] > FIVE_KEY_CABLE_JOYSTICK_MID_START && rcControls[X] < FIVE_KEY_CABLE_JOYSTICK_MID_END)
 
 static runcamDevice_t runcamDevice;
 runcamDevice_t *camDevice = &runcamDevice;
@@ -231,7 +231,7 @@ static void rcdevice5KeySimulationProcess(timeUs_t currentTimeUs)
     }
 
     if (isButtonPressed) {
-        if (IS_MID(YAW) && IS_MID(PITCH) && IS_MID(ROLL)) {
+        if (IS_MID(RC_YAW) && IS_MID(RC_PITCH) && IS_MID(RC_ROLL)) {
             rcdeviceSend5KeyOSDCableSimualtionEvent(RCDEVICE_CAM_KEY_RELEASE);
             waitingDeviceResponse = true;
         }
@@ -242,25 +242,25 @@ static void rcdevice5KeySimulationProcess(timeUs_t currentTimeUs)
 
         rcdeviceCamSimulationKeyEvent_e key = RCDEVICE_CAM_KEY_NONE;
 
-        if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_LO(YAW)) { // Disconnect Lo YAW
+        if (IS_MID(RC_THROTTLE) && IS_MID(RC_ROLL) && IS_MID(RC_PITCH) && IS_LO(RC_YAW)) { // Disconnect Lo YAW
             if (rcdeviceInMenu) {
                 key = RCDEVICE_CAM_KEY_CONNECTION_CLOSE;
             }
         } else {
             if (rcdeviceInMenu) {
-                if (IS_LO(ROLL)) { // Left LO ROLL
+                if (IS_LO(RC_ROLL)) { // Left LO ROLL
                     key = RCDEVICE_CAM_KEY_LEFT;
-                } else if (IS_HI(PITCH)) { // Up HI PITCH
+                } else if (IS_HI(RC_PITCH)) { // Up HI PITCH
                     key = RCDEVICE_CAM_KEY_UP;
-                } else if (IS_HI(ROLL)) { // Right HI ROLL
+                } else if (IS_HI(RC_ROLL)) { // Right HI ROLL
                     key = RCDEVICE_CAM_KEY_RIGHT;
-                } else if (IS_LO(PITCH)) { // Down LO PITCH
+                } else if (IS_LO(RC_PITCH)) { // Down LO PITCH
                     key = RCDEVICE_CAM_KEY_DOWN;
-                } else if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_HI(YAW)) { // Enter HI YAW
+                } else if (IS_MID(RC_THROTTLE) && IS_MID(RC_ROLL) && IS_MID(RC_PITCH) && IS_HI(RC_YAW)) { // Enter HI YAW
                     key = RCDEVICE_CAM_KEY_ENTER;
                 }
             } else {
-                if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_HI(YAW)) { // Enter HI YAW
+                if (IS_MID(RC_THROTTLE) && IS_MID(RC_ROLL) && IS_MID(RC_PITCH) && IS_HI(RC_YAW)) { // Enter HI YAW
                     key = RCDEVICE_CAM_KEY_CONNECTION_OPEN;
                 }
             }

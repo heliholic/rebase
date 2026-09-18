@@ -37,7 +37,7 @@
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 
 #include "io/gps.h"
 

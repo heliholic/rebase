@@ -40,7 +40,7 @@ extern "C" {
     #include "fc/rc_controls.h"
     #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
-    #include "fc/rc.h"
+    #include "controls/rc.h"
 
     #include "flight/imu.h"
     #include "flight/mixer.h"
@@ -346,8 +346,8 @@ INSTANTIATE_TEST_SUITE_P(
 
 extern "C" {
     extern boxBitmask_t rcModeActivationMask;
-    float rcCommand[4];
-    float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcCommand[RC_CONTROL_COUNT];
+    float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 
     gyro_t gyro;
     acc_t acc;
@@ -394,7 +394,6 @@ extern "C" {
     float gyroGetFilteredDownsampled(int) { return 0.0f; }
     float baroUpsampleAltitude()  { return 0.0f; }
     float getBaroAltitude(void) { return 3000.0f; }
-    float getRcDeflectionAbs(int) { return 0.0f; }
 
     void positionEstimatorInit(void) { }
     void positionEstimatorUpdate(void) { }

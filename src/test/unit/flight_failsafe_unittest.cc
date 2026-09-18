@@ -69,8 +69,6 @@ void resetCallCounters(void)
     memset(&callCounts, 0, sizeof(callCounts));
 }
 
-#define TEST_MID_RC 1495            // something other than the default 1500 will suffice.
-#define TEST_MIN_CHECK 1100;
 #define PERIOD_OF_10_SCONDS 10000
 #define DE_ACTIVATE_ALL_BOXES 0
 
@@ -78,9 +76,6 @@ uint32_t sysTickUptime;
 
 void configureFailsafe(void)
 {
-    rxConfigMutable()->midrc = TEST_MID_RC;
-    rxConfigMutable()->mincheck = TEST_MIN_CHECK;
-
     failsafeConfigMutable()->failsafe_delay = 10; // 1 second
     failsafeConfigMutable()->failsafe_landing_time = 1; // 1.0 seconds
     failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE1;
@@ -715,8 +710,9 @@ TEST(FlightFailsafeTest, TestFailsafeNotActivatedWhenDisarmedAndRXLossIsDetected
 // STUBS
 
 extern "C" {
-float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
-float rcCommand[4];
+float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+float rcControls[RC_CONTROL_COUNT];
+float rcCommand[RC_CONTROL_COUNT];
 int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode = 0;
 bool isUsingSticksToArm = true;
