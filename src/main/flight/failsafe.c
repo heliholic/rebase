@@ -36,7 +36,7 @@
 
 #include "config/config.h"
 #include "fc/core.h"
-#include "fc/rc_controls.h"
+#include "controls/rc.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
@@ -258,7 +258,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                 // store and use the switch state as it was at the start of the failsafe
                 if (armed) {
                     // Track throttle command below minimum time
-                    if (calculateThrottleStatus() != THROTTLE_LOW) {
+                    if (!isThrottleOff()) {
                         failsafeState.throttleLowPeriod = millis() + failsafeConfig()->failsafe_throttle_low_delay * MILLIS_PER_TENTH_SECOND;
                     }
                     if (failsafeState.boxFailsafeSwitchWasOn && (failsafeConfig()->failsafe_switch_mode == FAILSAFE_SWITCH_MODE_KILL)) {
@@ -327,7 +327,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                     }
                     if (failsafeShouldHaveCausedLandingByNow() || !armed) {
                         // to manually disarm while Landing, aux channels must be enabled
-                        // note also that disarming via arm box must be possible during failsafe in rc_controls.c
+                        // note also that disarming via the arm switch must be possible during failsafe in fc/arming.c
                         // this should be blocked during signal not received periods, to avoid false disarms
                         // but should be allowed otherwise, eg after signal recovers, or during switch initiated failsafe
                         failsafeState.phase = FAILSAFE_LANDED;

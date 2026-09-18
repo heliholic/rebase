@@ -41,7 +41,6 @@ extern "C" {
     #include "timer_def.h"
 
     #include "config/config.h"
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
 
     #include "io/gps.h"

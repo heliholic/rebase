@@ -1,100 +1,78 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "platform.h"
 
-#include "blackbox/blackbox.h"
+#ifdef USE_STICK_COMMANDS
 
-#include "build/build_config.h"
+#include "config/config.h"
 
-#include "common/axis.h"
-#include "common/maths.h"
-
-#include "fc/feature.h"
+#include "controls/modes.h"
+#include "controls/rc.h"
 
 #include "drivers/camera_control.h"
 
-#include "config/config.h"
-#include "fc/core.h"
-#include "controls/rc.h"
+#include "fc/feature.h"
 #include "fc/runtime_config.h"
 
-#include "flight/pid.h"
-#include "flight/failsafe.h"
-
 #include "io/beeper.h"
-#include "io/usb_cdc_hid.h"
 #include "io/dashboard.h"
 #include "io/gps.h"
+#include "io/usb_cdc_hid.h"
 #include "io/vtx_control.h"
 
+#include "pg/arming.h"
 #include "pg/pg.h"
-#include "pg/rx.h"
-
-#include "rx/rx.h"
 
 #include "scheduler/scheduler.h"
 
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
-#include "sensors/battery.h"
 #include "sensors/compass.h"
 #include "sensors/gyro.h"
 
-#include "rc_controls.h"
+#include "sticks.h"
 
-// true if arming is done via the sticks (as opposed to a switch)
-static bool isUsingSticksToArm = true;
-static bool disarmUserRequested = false; // has the user requested a disarm, using either sticks or switches, whether armed or disarmed
-
-bool isUsingSticksForArming(void)
-{
-    return isUsingSticksToArm;
-}
-
-bool wasLastDisarmUserRequested(void)
-{
-    return disarmUserRequested;
-}
-
-void clearWasLastDisarmUserRequested(void)
-{
-    disarmUserRequested = false;
-}
-
-
-throttleStatus_e calculateThrottleStatus(void)
-{
-    return isThrottleOff() ? THROTTLE_LOW : THROTTLE_HIGH;
-}
+// The sticks are roll, pitch, yaw and collective; throttle is not on a stick.
+#define ROL_LO (1 << (2 * RC_ROLL))
+#define ROL_CE (3 << (2 * RC_ROLL))
+#define ROL_HI (2 << (2 * RC_ROLL))
+#define PIT_LO (1 << (2 * RC_PITCH))
+#define PIT_CE (3 << (2 * RC_PITCH))
+#define PIT_HI (2 << (2 * RC_PITCH))
+#define YAW_LO (1 << (2 * RC_YAW))
+#define YAW_CE (3 << (2 * RC_YAW))
+#define YAW_HI (2 << (2 * RC_YAW))
+#define COL_LO (1 << (2 * RC_COLLECTIVE))
+#define COL_CE (3 << (2 * RC_COLLECTIVE))
+#define COL_HI (2 << (2 * RC_COLLECTIVE))
+#define COL_MASK (3 << (2 * RC_COLLECTIVE))
 
 #define STICK_COMMAND_MIN  -450
 #define STICK_COMMAND_MAX   450
 
-#define ARM_DELAY_MS        500
 #define STICK_DELAY_MS      50
 #define STICK_AUTOREPEAT_MS 250
 #define repeatAfter(t) { \
@@ -102,17 +80,26 @@ throttleStatus_e calculateThrottleStatus(void)
     doNotRepeat = false; \
 }
 
-void processRcStickPositions(void)
-{
-    // time the sticks are maintained
-    static int16_t rcDelayMs;
-    // hold sticks position for command combos
-    static uint8_t rcSticks;
-    // an extra guard for disarming through switch to prevent that one frame can disarm it
-    static uint8_t rcDisarmTicks;
-    static bool doNotRepeat;
-    static bool pendingApplyRollAndPitchTrimDeltaSave = false;
+// time the sticks have been held in the current position
+static int16_t rcDelayMs;
+// the current stick position, as a command combo
+static uint8_t rcSticks;
+// a command has been executed; the sticks must move before the next one
+static bool doNotRepeat;
+// accelerometer trims changed; save them once the collective leaves the top
+static bool pendingApplyRollAndPitchTrimDeltaSave;
 
+void stickCommandsInit(void)
+{
+    // Whatever the sticks are doing, it is not a command in progress. The position
+    // itself is left alone, so a combo that is still held does not execute again.
+    rcDelayMs = 0;
+    doNotRepeat = true;
+    pendingApplyRollAndPitchTrimDeltaSave = false;
+}
+
+void processStickCommands(void)
+{
     // checking sticks positions
     uint8_t stTmp = 0;
     for (int i = 0; i < 4; i++) {
@@ -134,74 +121,22 @@ void processRcStickPositions(void)
     }
     rcSticks = stTmp;
 
-    // perform actions
-    if (!isUsingSticksToArm) {
-        if (isArmSwitchActive()) {
-            rcDisarmTicks = 0;
-            // Arming via ARM BOX
-            tryArm();
-        } else {
-            resetTryingToArm();
-            // Disarming via ARM BOX
-              disarmUserRequested = true;
-            resetArmingDisabled();
-            const bool boxFailsafeSwitchIsOn = IS_RC_MODE_ACTIVE(BOXFAILSAFE);
-            if (ARMING_FLAG(ARMED) && (failsafeIsReceivingRxData() || boxFailsafeSwitchIsOn)) {
-                // in a true signal loss situation, allow disarm only once we regain validated RxData (failsafeIsReceivingRxData = true),
-                // to avoid potentially false disarm signals soon after link recover
-                // Note that BOXFAILSAFE will also drive failsafeIsReceivingRxData false (immediately at start or end)
-                // That's why we explicitly allow disarm here if BOXFAILSAFE switch is active
-                rcDisarmTicks++;
-                if (rcDisarmTicks > 3) {
-                    // require three duplicate disarm values in a row before we disarm
-                    disarm(DISARM_REASON_SWITCH);
-                }
-            }
-        }
-    } else if (rcSticks == COL_LO + YAW_LO + PIT_CE + ROL_CE) {
-        if (rcDelayMs >= ARM_DELAY_MS && !doNotRepeat) {
-            doNotRepeat = true;
-            // Disarm on collective down + yaw
-             disarmUserRequested = true;
-            resetTryingToArm();
-            if (ARMING_FLAG(ARMED)){
-                disarm(DISARM_REASON_STICKS);
-           } else {
-                beeper(BEEPER_DISARM_REPEAT);     // sound tone while stick held
-                repeatAfter(STICK_AUTOREPEAT_MS); // disarm tone will repeat
-            }
-        }
-        return;
-    } else if (rcSticks == COL_LO + YAW_HI + PIT_CE + ROL_CE && !IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) { // disable stick arming if STICK COMMAND DISABLE SW is active
-        if (rcDelayMs >= ARM_DELAY_MS && !doNotRepeat) {
-            doNotRepeat = true;
-            if (!ARMING_FLAG(ARMED)) {
-                // Arm via YAW
-                tryArm();
-                if (isTryingToArm() ||
-                    ((getArmingDisableFlags() == ARMING_DISABLED_CALIBRATING) && armingConfig()->gyro_cal_on_first_arm)) {
-                    doNotRepeat = false;
-                }
-            } else {
-                resetArmingDisabled();
-            }
-        }
-        return;
-    } else {
-        resetTryingToArm();
-    }
-
     if (ARMING_FLAG(ARMED) || doNotRepeat || rcDelayMs <= STICK_DELAY_MS) {
         return;
     }
     doNotRepeat = true;
 
-    #ifdef USE_USB_CDC_HID
-    // If this target is used as a joystick, we should leave here.
-    if (cdcDeviceIsMayBeActive() || IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
+    // Stick commands must be enabled, and not disabled by the switch
+    if (!armingConfig()->enable_stick_commands || IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
         return;
     }
-    #endif
+
+#ifdef USE_USB_CDC_HID
+    // If this target is used as a joystick, we should leave here.
+    if (cdcDeviceIsMayBeActive()) {
+        return;
+    }
+#endif
 
     // actions during not armed
 
@@ -368,8 +303,4 @@ void processRcStickPositions(void)
 #endif
 }
 
-void rcControlsInit(void)
-{
-    rcModeInit();
-    isUsingSticksToArm = !isArmSwitchConfigured() && systemConfig()->enableStickArming;
-}
+#endif // USE_STICK_COMMANDS

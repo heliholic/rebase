@@ -30,6 +30,8 @@
 #include "build/debug.h"
 #include "controls/modes.h"
 
+#include "controls/rc.h"
+
 #include "fc/core.h"
 #include "fc/runtime_config.h"
 
@@ -41,16 +43,16 @@ uint32_t counter = 0;
 uint32_t totalTrottleNumber = 0;
 timeUs_t fullThrottleTimeUs = 0;
 uint32_t fullThrottleCounter = 0;
-int8_t previousThrottlePercent = 0;
+uint8_t previousThrottlePercent = 0;
 
 void rcStatsUpdate(timeUs_t currentTimeUs)
 {
     uint32_t deltaT = cmpTimeUs(currentTimeUs, previousTimeUs);
     previousTimeUs = currentTimeUs;
-    const int8_t throttlePercent = calculateThrottlePercent();
+    const uint8_t throttlePercent = getThrottlePercent();
 
     if (ARMING_FLAG(ARMED) && !throttleEverRaisedAfterArming) {
-        if (abs(throttlePercent) >= 15) { // start counting stats if throttle was raised >= 15% after arming
+        if (throttlePercent >= 15) { // start counting stats if throttle was raised >= 15% after arming
             throttleEverRaisedAfterArming = true;
         }
     }
@@ -59,9 +61,9 @@ void rcStatsUpdate(timeUs_t currentTimeUs)
         counter++;
         totalTrottleNumber += throttlePercent;
 
-        if (abs(throttlePercent) == 100) {
+        if (throttlePercent == 100) {
             fullThrottleTimeUs += deltaT;
-            if (abs(previousThrottlePercent) != 100) {
+            if (previousThrottlePercent != 100) {
                 fullThrottleCounter ++;
             }
         }

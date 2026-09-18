@@ -56,7 +56,6 @@
 #include "fc/motors.h"
 #include "fc/parameter_names.h"
 #include "controls/rc.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "fc/servos.h"
 
@@ -70,6 +69,7 @@
 #include "io/gps.h"
 #include "io/serial.h"
 
+#include "pg/arming.h"
 #include "pg/blackbox.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"

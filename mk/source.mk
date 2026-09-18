@@ -106,6 +106,7 @@ COMMON_SRC = \
             controls/modes.c \
             controls/rates.c \
             controls/rc.c \
+            controls/sticks.c \
             drivers/dshot.c \
             drivers/dshot_command.c \
             drivers/buf_writer.c \
@@ -169,7 +170,6 @@ COMMON_SRC = \
             drivers/serial_softserial.c \
             fc/arming.c \
             fc/core.c \
-            fc/rc_controls.c \
             fc/servos.c \
             fc/motors.c \
             flight/failsafe.c \
@@ -395,10 +395,10 @@ SPEED_OPTIMISED_SRC += \
             drivers/io.c \
             drivers/serial.c \
             controls/rc.c \
+            controls/sticks.c \
             fc/arming.c \
             fc/core.c \
             fc/tasks.c \
-            fc/rc_controls.c \
             fc/runtime_config.c \
             flight/imu.c \
             flight/mixer.c \

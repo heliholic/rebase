@@ -46,8 +46,6 @@
 #include "drivers/sensor.h"
 #include "drivers/serial.h"
 
-#include "fc/rc_controls.h"
-
 #include "io/serial.h"
 
 #include "sensors/acceleration.h"

@@ -29,7 +29,6 @@ extern "C" {
 #include "rx/rx.h"
 #include "rx/sumd.h"
 #include "telemetry/telemetry.h"
-#include "fc/rc_controls.h"
 #include "sensors/battery.h"
 }
 

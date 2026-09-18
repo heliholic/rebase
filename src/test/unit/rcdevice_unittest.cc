@@ -33,7 +33,6 @@ extern "C" {
     #include "controls/modes.h"
 
     #include "fc/arming.h"
-    #include "fc/rc_controls.h"
     #include "flight/imu.h"
 
     #include "drivers/serial.h"

@@ -39,7 +39,6 @@ extern "C" {
     #include "drivers/compass/compass.h"
     #include "drivers/sensor.h"
 
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
     #include "controls/rc.h"
 

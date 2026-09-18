@@ -40,8 +40,6 @@ extern "C" {
     #include "flight/mixer.h"
     #include "flight/pid.h"
 
-    #include "fc/rc_controls.h"
-
     #include "io/gps.h"
     #include "io/serial.h"
 

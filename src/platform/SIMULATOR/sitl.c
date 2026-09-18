@@ -69,7 +69,6 @@
 #include "rx/spektrum.h"
 
 #include "controls/rc.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "sensors/sensors.h"
 

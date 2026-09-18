@@ -37,7 +37,6 @@ extern "C" {
     #include "drivers/adc.h"
 
     #include "fc/runtime_config.h"
-    #include "fc/rc_controls.h"
 
     #include "flight/mixer.h"
 
@@ -174,8 +173,8 @@ extern "C" {
         return false;
     }
 
-    throttleStatus_e calculateThrottleStatus(void) {
-        return THROTTLE_HIGH;
+    bool isThrottleOff(void) {
+        return false;
     }
 
     uint8_t getCurrentBatteryProfileIndex(void) {

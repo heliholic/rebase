@@ -45,7 +45,6 @@ static uint16_t calculateChecksum(const uint8_t *ibusPacket);
 #include "pg/pg_ids.h"
 #include "sensors/battery.h"
 #include "controls/rc.h"
-#include "fc/rc_controls.h"
 #include "config/config.h"
 #include "sensors/gyro.h"
 #include "drivers/accgyro/accgyro.h"
@@ -239,9 +238,8 @@ static uint16_t getRPM(void)
 {
     uint16_t rpm = 0;
     if (ARMING_FLAG(ARMED)) {
-        const throttleStatus_e throttleStatus = calculateThrottleStatus();
         rpm = getThrottleCommand();  // / BLADE_NUMBER_DIVIDER;
-        if (throttleStatus == THROTTLE_LOW) rpm = 0;
+        if (isThrottleOff()) rpm = 0;
     } else {
         rpm = (uint16_t)(currentBatteryProfile->batteryCapacity); //  / BLADE_NUMBER_DIVIDER
     }

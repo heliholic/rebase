@@ -26,12 +26,12 @@ extern "C" {
     #include "controls/modes.h"
 
     #include "drivers/io.h"
+    #include "common/filter.h"
     #include "common/maths.h"
     #include "flight/failsafe.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
     #include "rx/rx.h"
 }

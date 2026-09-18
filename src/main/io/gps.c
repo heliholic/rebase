@@ -2927,7 +2927,7 @@ static void GPS_calculateDistanceFlown(bool initialize)
 }
 
 void GPS_reset_home_position(void)
-// runs, if GPS is defined, on arming via tryArm() in core.c, and on gyro cal via processRcStickPositions() in rc_controls.c
+// runs, if GPS is defined, on arming via tryArm() in fc/arming.c, and on gyro cal via processStickCommands() in sticks.c
 {
     if (!STATE(GPS_FIX_HOME) || !gpsConfig()->gps_set_home_point_once) {
         if (STATE(GPS_FIX) && gpsSol.numSat >= GPS_HOME_MIN_SATS) {

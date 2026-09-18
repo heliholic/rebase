@@ -76,7 +76,6 @@
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
@@ -105,6 +104,7 @@
 #include "msp/msp_protocol_v2_common.h"
 #include "msp/msp_serial.h"
 
+#include "pg/arming.h"
 #include "pg/beeper.h"
 #include "pg/board.h"
 #include "pg/gyrodev.h"
@@ -1091,7 +1091,7 @@ case MSP_NAME:
         break;
 
     case MSP_ARMING_CONFIG:
-        sbufWriteU8(dst, armingConfig()->auto_disarm_delay);
+        sbufWriteU8(dst, 0); // reserved. auto_disarm_delay was removed with stick arming
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0); // imuConfig()->small_angle
         sbufWriteU8(dst, armingConfig()->gyro_cal_on_first_arm);
@@ -2163,7 +2163,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         break;
 #endif
     case MSP_SET_ARMING_CONFIG:
-        armingConfigMutable()->auto_disarm_delay = sbufReadU8(src);
+        sbufReadU8(src); // reserved. auto_disarm_delay was removed with stick arming
         sbufReadU8(src); // reserved. disarm_kill_switch was removed in #5073
         if (sbufBytesRemaining(src)) {
             sbufReadU8(src); // imuConfigMutable()->small_angle
@@ -2206,7 +2206,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
                     }
                     mac->linkedTo = linkedToBox->boxId;
                 }
-                rcControlsInit();
+                rcModeInit();
             } else {
                 return MSP_RESULT_ERROR;
             }

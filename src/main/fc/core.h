@@ -26,7 +26,7 @@
 union rollAndPitchTrims_u;
 
 bool processRx(timeUs_t currentTimeUs);
-void processRxModes(timeUs_t currentTimeUs);
+void processRxModes(void);
 
 void taskGyroSample(timeUs_t currentTimeUs);
 bool gyroFilterReady(void);
@@ -34,8 +34,6 @@ bool pidLoopReady(void);
 void taskFiltering(timeUs_t currentTimeUs);
 void taskMainPidLoop(timeUs_t currentTimeUs);
 
-int8_t calculateThrottlePercent(void);
-uint8_t calculateThrottlePercentAbs(void);
 bool wasThrottleRaised(void);
 
 void subTaskTelemetryPollSensors(timeUs_t currentTimeUs);

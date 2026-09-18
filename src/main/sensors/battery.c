@@ -38,7 +38,6 @@
 #include "drivers/adc.h"
 
 #include "fc/runtime_config.h"
-#include "fc/rc_controls.h"
 
 #include "flight/mixer.h"
 
