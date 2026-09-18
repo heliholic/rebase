@@ -24,7 +24,6 @@
 #include "drivers/itm.h"
 
 #define DEBUG_VALUE_COUNT       8
-#define DEBUG16_VALUE_COUNT     8
 
 extern uint8_t debugMode;
 extern uint8_t debugAxis;
