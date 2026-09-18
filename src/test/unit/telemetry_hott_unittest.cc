@@ -164,7 +164,7 @@ TEST(TelemetryHottTest, PrepareGPSMessage_Altitude1m)
 
 extern "C" {
 
-int16_t debug[DEBUG16_VALUE_COUNT];
+int32_t debug[DEBUG_VALUE_COUNT];
 
 uint8_t stateFlags;
 

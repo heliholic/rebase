@@ -40,7 +40,7 @@ uint8_t armingFlags = 0;
 uint8_t stateFlags = 0;
 uint16_t flightModeFlags = 0;
 uint8_t debugMode = 0;
-int16_t debug[DEBUG16_VALUE_COUNT];
+int32_t debug[DEBUG_VALUE_COUNT];
 
 acc_t acc;
 matrix33_t rMat;
