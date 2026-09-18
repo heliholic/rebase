@@ -180,7 +180,7 @@ void lcdConsolePuts(const char *s)
     lcdConsoleWrite((const uint8_t *)s, strlen(s));
 }
 
-static void lcdConsolePrintfPutc(void *p, char c)
+static void lcdConsolePrintfPutc(int c, void *p)
 {
     UNUSED(p);
     lcdConsolePutc((uint8_t)c);
