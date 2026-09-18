@@ -316,10 +316,6 @@ const char * const lookupTableLedstripColors[COLOR_COUNT] = {
     "DEEP_PINK"
 };
 
-static const char * const lookupTableGyroFilterDebug[] = {
-    "ROLL", "PITCH", "YAW"
-};
-
 static const char * const lookupTablePositionAltitudeSource[] = {
     "DEFAULT", "BARO_ONLY", "GPS_ONLY", "RANGEFINDER_PREFER", "RANGEFINDER_ONLY"
 };
@@ -396,8 +392,6 @@ const lookupTableEntry_t lookupTables[] = {
     LOOKUP_TABLE_ENTRY(lookupTableLedstripColors),
 #endif
 
-    LOOKUP_TABLE_ENTRY(lookupTableGyroFilterDebug),
-
     LOOKUP_TABLE_ENTRY(lookupTablePositionAltitudeSource),
     LOOKUP_TABLE_ENTRY(lookupTableOffOnAuto),
     LOOKUP_TABLE_ENTRY(lookupTableDshotBitbangedTimer),
@@ -455,8 +449,6 @@ const clivalue_t valueTable[] = {
 #if GYRO_COUNT > 7
     { "gyro_8_enabled",             VAR_UINT8  | HARDWARE_VALUE | MODE_BITSET, .config.bitpos = 7, PG_GYRO_CONFIG, offsetof(gyroConfig_t, gyro_enabled_bitmask) },
 #endif // GYRO_COUNT
-    { "gyro_filter_debug_axis",     VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_GYRO_FILTER_DEBUG }, PG_GYRO_CONFIG, offsetof(gyroConfig_t, gyro_filter_debug_axis) },
-
 // PG_ACCELEROMETER_CONFIG
 #if defined(USE_ACC)
     { PARAM_NAME_ACC_HARDWARE,      VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_ACC_HARDWARE }, PG_ACCELEROMETER_CONFIG, offsetof(accelerometerConfig_t, acc_hardware) },
