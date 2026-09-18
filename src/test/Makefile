@@ -395,6 +395,10 @@ sitl_gyro_unittest_SRC := \
 sitl_gyro_unittest_INCLUDE_DIRS := \
 		$(ROOT)/src/platform/SIMULATOR
 
+streambuf_unittest_SRC := \
+		$(USER_DIR)/common/streambuf.c
+
+
 telemetry_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
 		$(USER_DIR)/telemetry/crsf.c \
@@ -482,6 +486,7 @@ huffman_unittest_DEFINES := \
 
 rcdevice_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/io/rcdevice.c \
@@ -524,6 +529,7 @@ rcdevice_unittest_DEFINES := \
 		USE_RCDEVICE=
 
 vtx_unittest_SRC := \
+		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \

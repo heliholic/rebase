@@ -91,7 +91,6 @@ typedef struct testData_s {
     bool isRunCamSplitPortConfigurated;
     bool isRunCamSplitOpenPortSupported;
     int8_t maxTimesOfRespDataAvailable;
-    bool isAllowBufferReadWrite;
     uint8_t indexOfCurrentRespBuf;
     uint8_t responseBufCount;
     uint8_t responesBufs[MAX_RESPONSES_COUNT][RCDEVICE_PROTOCOL_MAX_PACKET_SIZE];
@@ -177,7 +176,6 @@ TEST(RCDeviceTest, TestInitDevice)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD };
 
 
@@ -208,7 +206,6 @@ TEST(RCDeviceTest, TestInitDeviceWithInvalidResponse)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
 
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD, 0x33 };
     addResponseData(responseData, sizeof(responseData), true);
@@ -256,7 +253,6 @@ TEST(RCDeviceTest, TestInitDeviceWithInvalidResponse)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     runcamDeviceInit(&device);
     testData.millis += 3001;
     rcdeviceReceive(millis() * 1000);
@@ -280,7 +276,6 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBC }; // wrong response
     addResponseData(responseData, sizeof(responseData), true);
@@ -348,7 +343,6 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceReady)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD };
     addResponseData(responseData, sizeof(responseData), true);
@@ -421,7 +415,6 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD };
     addResponseData(responseData, sizeof(responseData), true);
@@ -514,7 +507,6 @@ TEST(RCDeviceTest, Test5KeyOSDCableSimulationProtocol)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD };
     addResponseData(responseData, sizeof(responseData), true);
@@ -727,7 +719,6 @@ TEST(RCDeviceTest, Test5KeyOSDCableSimulationWithout5KeyFeatureSupport)
     memset(&testData, 0, sizeof(testData));
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     uint8_t responseData[] = { 0xCC, 0x01, 0x37, 0x00, 0xBD };
 
@@ -848,101 +839,6 @@ extern "C" {
         return 0;
     }
 
-    void sbufWriteString(sbuf_t *dst, const char *string)
-    {
-        UNUSED(dst); UNUSED(string);
-
-        if (testData.isAllowBufferReadWrite) {
-            sbufWriteData(dst, string, strlen(string));
-        }
-    }
-    void sbufWriteU8(sbuf_t *dst, uint8_t val)
-    {
-        UNUSED(dst); UNUSED(val);
-
-        if (testData.isAllowBufferReadWrite) {
-            *dst->ptr++ = val;
-        }
-    }
-
-    void sbufWriteData(sbuf_t *dst, const void *data, int len)
-    {
-        UNUSED(dst); UNUSED(data); UNUSED(len);
-
-        if (testData.isAllowBufferReadWrite) {
-            memcpy(dst->ptr, data, len);
-            dst->ptr += len;
-
-        }
-    }
-
-    // modifies streambuf so that written data are prepared for reading
-    void sbufSwitchToReader(sbuf_t *buf, uint8_t *base)
-    {
-        UNUSED(buf); UNUSED(base);
-
-        if (testData.isAllowBufferReadWrite) {
-            buf->end = buf->ptr;
-            buf->ptr = base;
-        }
-    }
-
-    uint8_t sbufReadU8(sbuf_t *src)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            return *src->ptr++;
-        }
-
-        return 0;
-    }
-
-    void sbufAdvance(sbuf_t *buf, int size)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            buf->ptr += size;
-        }
-    }
-
-    int sbufBytesRemaining(sbuf_t *buf)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            return buf->end - buf->ptr;
-        }
-        return 0;
-    }
-
-    const uint8_t* sbufConstPtr(const sbuf_t *buf)
-    {
-        return buf->ptr;
-    }
-
-    void sbufReadData(sbuf_t *src, void *data, int len)
-    {
-        if (testData.isAllowBufferReadWrite) {
-            memcpy(data, src->ptr, len);
-        }
-    }
-
-    uint16_t sbufReadU16(sbuf_t *src)
-    {
-        uint16_t ret;
-        ret = sbufReadU8(src);
-        ret |= sbufReadU8(src) << 8;
-        return ret;
-    }
-
-    void sbufWriteU16(sbuf_t *dst, uint16_t val)
-    {
-        sbufWriteU8(dst, val >> 0);
-        sbufWriteU8(dst, val >> 8);
-    }
-
-    void sbufWriteU16BigEndian(sbuf_t *dst, uint16_t val)
-    {
-        sbufWriteU8(dst, val >> 8);
-        sbufWriteU8(dst, (uint8_t)val);
-    }
-
     bool featureIsEnabled(uint32_t) { return false; }
 
     void serialWriteBuf(serialPort_t *instance, const uint8_t *data, int count)
@@ -968,21 +864,6 @@ extern "C" {
     void closeSerialPort(serialPort_t *serialPort)
     {
         UNUSED(serialPort);
-    }
-
-    uint8_t* sbufPtr(sbuf_t *buf)
-    {
-        return buf->ptr;
-    }
-
-    uint32_t sbufReadU32(sbuf_t *src)
-    {
-        uint32_t ret;
-        ret = sbufReadU8(src);
-        ret |= sbufReadU8(src) <<  8;
-        ret |= sbufReadU8(src) << 16;
-        ret |= sbufReadU8(src) << 24;
-        return ret;
     }
 
     uint32_t millis(void) { return testData.millis++; }
