@@ -134,8 +134,8 @@ static void dronecanHandleGetNodeInfoRequest(CanardInstance *ins,
 
     // SoftwareVersion (15 bytes): major, minor, optional_flags,
     // vcs_commit (u32), image_crc (u64). No VCS / image CRC yet → flags 0.
-    response[offset++] = (uint8_t)(FC_VERSION_YEAR - FC_CALVER_BASE_YEAR);
-    response[offset++] = (uint8_t)FC_VERSION_MONTH;
+    response[offset++] = (uint8_t)FC_VERSION_MAJOR;
+    response[offset++] = (uint8_t)FC_VERSION_MINOR;
     response[offset++] = 0U;                            // optional_field_flags
     encodeU32(&response[offset], 0U); offset += 4;      // vcs_commit
     memset(&response[offset], 0, 8); offset += 8;       // image_crc (u64)
