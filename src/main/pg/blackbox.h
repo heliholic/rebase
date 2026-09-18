@@ -25,7 +25,7 @@
 
 #include "pg/pg.h"
 
-typedef enum  {
+typedef enum {
     BLACKBOX_DEVICE_NONE = 0,
     BLACKBOX_DEVICE_FLASH = 1,
     BLACKBOX_DEVICE_SDCARD = 2,
@@ -34,27 +34,25 @@ typedef enum  {
 } PG_ENUM BlackboxDevice_e;
 
 typedef enum {
-    BLACKBOX_MODE_NORMAL = 0,
-} PG_ENUM BlackboxMode;
+    BLACKBOX_MODE_OFF = 0,
+    BLACKBOX_MODE_NORMAL,
+    BLACKBOX_MODE_ARMED,
+    BLACKBOX_MODE_SWITCH,
+} PG_ENUM BlackboxMode_e;
 
-typedef enum {
-    BLACKBOX_RATE_ONE = 0,
-    BLACKBOX_RATE_HALF,
-    BLACKBOX_RATE_QUARTER,
-    BLACKBOX_RATE_8TH,
-    BLACKBOX_RATE_16TH
-} PG_ENUM BlackboxSampleRate_e;
-
-typedef struct {
-    uint32_t             fields_disabled_mask;
-    BlackboxSampleRate_e sample_rate;
-    BlackboxDevice_e     device;
-    BlackboxMode         mode;
-    bool                 high_resolution;
+typedef struct blackboxConfig_s {
+    BlackboxDevice_e device;
+    BlackboxMode_e   mode;
+    // P-frame interval, in flight loop iterations
+    uint16_t    denom;
+    // Bitmask of FlightLogFieldSelect_e fields to log
+    uint32_t    fields;
     // Amount of free space to guarantee by erasing when logging starts (USE_FLASHFS_LOOP)
-    uint16_t             initialEraseFreeSpaceKiB;
+    uint16_t    initialErase;
     // Keep logging when the flash is full by erasing the oldest sector (USE_FLASHFS_LOOP)
-    bool                 rollingErase;
+    bool        rollingErase;
+    // Seconds to keep logging after logging has been disabled
+    uint8_t     gracePeriod;
 } blackboxConfig_t;
 
 PG_DECLARE(blackboxConfig_t, blackboxConfig);
