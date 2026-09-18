@@ -38,6 +38,7 @@
 #include "drivers/light_led.h"
 #include "drivers/motor.h"
 #include "flight/mixer.h"
+#include "fc/servos.h"
 
 #include "io/beeper.h"
 #include "io/serial_4way.h"
@@ -139,6 +140,9 @@ uint8_t esc4wayInit(void)
 {
     uint8_t escIndex = 0;
     motorDisable();
+#ifdef USE_SERVOS
+    servoShutdown();
+#endif
     memset(&escHardware, 0, sizeof(escHardware));
     for (volatile uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if (motorIsMotorEnabled(i)) {

@@ -27,13 +27,9 @@
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
-
 #include "pg/servo.h"
 
-#include "config/config.h"
-
 #include "drivers/io.h"
-
 
 STATIC_ASSERT(MAX_SUPPORTED_SERVOS <= PG_MAX_SERVOS, servo_count_exceeds_stored_bound);
 
@@ -43,9 +39,7 @@ PG_REGISTER_ARRAY_WITH_RESET_TEMPLATE(servoParam_t, MAX_SUPPORTED_SERVOS, servoP
 
 PG_RESET_FN(servoConfig_t, servoConfig)
 {
-    servoConfig->dev.servoCenterPulse = 1500;
-    servoConfig->dev.servoPwmRate = 50;
-
+    UNUSED(servoConfig);
 #ifdef SERVO1_PIN
     servoConfig->dev.ioTags[0] = IO_TAG(SERVO1_PIN);
 #endif
@@ -74,12 +68,14 @@ PG_RESET_FN(servoConfig_t, servoConfig)
 
 PG_RESET_TEMPLATE(servoParam_t, servoParams)
 {
-    .min = DEFAULT_SERVO_MIN,
-    .max = DEFAULT_SERVO_MAX,
-    .middle = DEFAULT_SERVO_MIDDLE,
-    .rate = 100,
+    .mid   = DEFAULT_SERVO_CENTER,
+    .min   = DEFAULT_SERVO_MIN,
+    .max   = DEFAULT_SERVO_MAX,
+    .rneg  = DEFAULT_SERVO_SCALE,
+    .rpos  = DEFAULT_SERVO_SCALE,
+    .rate  = DEFAULT_SERVO_RATE,
+    .speed = DEFAULT_SERVO_SPEED,
+    .flags = DEFAULT_SERVO_FLAGS,
 };
 
-#endif // USE_SERVOS
-
-
+#endif
