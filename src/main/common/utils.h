@@ -1,21 +1,18 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this software.
- *
- * If not, see <http://www.gnu.org/licenses/>.
+ * along with this software. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -39,8 +36,8 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-#define EXPAND_I(x) x
-#define EXPAND(x) EXPAND_I(x)
+// the outer parens stop __extension__ from suppressing -Wpedantic past the macro body
+#define STMT(...) ( __extension__({ __VA_ARGS__ }) )
 
 // expand to t if bit is 1, f when bit is 0. Other bit values are not supported
 #define PP_IIF(bit, t, f) PP_IIF_I(bit, t, f)
@@ -48,34 +45,38 @@
 #define PP_IIF_0(t, f) f
 #define PP_IIF_1(t, f) t
 
-// Expand all arguments and call macro with them. When expansion of some argument contains ',', it will be passed as multiple arguments
+// Expand all arguments and call macro with them. When expansion of some argument contains ',',
+// it will be passed as multiple arguments
 // #define TAKE3(_1,_2,_3) CONCAT3(_1,_2,_3)
 // #define MULTI2 A,B
 // PP_CALL(TAKE3, MULTI2, C) expands to ABC
 #define PP_CALL(macro, ...) macro(__VA_ARGS__)
 
-#if !defined(UNUSED)
-#define UNUSED(x) (void)(x) // Variables and parameters that are not used
+#ifndef __unused
+#define __unused __attribute__((__unused__))
 #endif
 
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
+
+#ifndef MAYBE_UNUSED
 #define MAYBE_UNUSED __attribute__ ((unused))
+#endif
+
 #define LOCAL_UNUSED_FUNCTION __attribute__ ((unused, deprecated ("function is marked as LOCAL_UNUSED_FUNCTION")))
 
 /* Mark a char buffer/pointer as not necessarily NUL-terminated. */
 #ifndef NONSTRING
-        /* Fallback for compilers without __has_attribute. */
 #  ifndef __has_attribute
 #    define __has_attribute(x) 0
 #  endif
-
 #  if __has_attribute(nonstring) || (defined(__GNUC__) && __GNUC__ >= 8)
 #    define NONSTRING __attribute__((__nonstring__))
 #  else
 #    define NONSTRING
 #  endif
 #endif
-
-#define DISCARD(x) (void)(x) // To explicitly ignore result of x (usually an I/O register access).
 
 #ifndef __cplusplus
 #define STATIC_ASSERT(condition, name) _Static_assert((condition), #name)
@@ -87,14 +88,13 @@
 #define BIT(x) (1 << (x))
 
 /*
-http://resnet.uoregon.edu/~gurney_j/jmpc/bitwise.html
-*/
+ * http://resnet.uoregon.edu/~gurney_j/jmpc/bitwise.html
+ */
 #define BITCOUNT(x) (((BX_(x)+(BX_(x)>>4)) & 0x0F0F0F0F) % 255)
 #define BX_(x) ((x) - (((x)>>1)&0x77777777) - (((x)>>2)&0x33333333) - (((x)>>3)&0x11111111))
 
 static inline int popcount(unsigned x) { return __builtin_popcount(x); }
 static inline int popcount32(uint32_t x) { return __builtin_popcount(x); }
-static inline int popcount64(uint64_t x) { return __builtin_popcountll(x); }
 
 /*
  * https://groups.google.com/forum/?hl=en#!msg/comp.lang.c/attFnqwhvGk/sGBKXvIkY3AJ
@@ -110,18 +110,11 @@ static inline int popcount64(uint64_t x) { return __builtin_popcountll(x); }
                          >>16*((v)/2L>>31 > 0)))
 #define LOG2(v) LOG2_64BIT(v)
 
-#if 0
-// ISO C version, but no type checking
-#define container_of(ptr, type, member) \
-                      ((type *) ((char *)(ptr) - offsetof(type, member)))
-#else
-// non ISO variant from linux kernel; checks ptr type, but triggers 'ISO C forbids braced-groups within expressions [-Wpedantic]'
-//  __extension__ is here to disable this warning
-#define container_of(ptr, type, member)  ( __extension__ ({     \
+// non ISO variant from linux kernel; checks ptr type
+#define container_of(ptr, type, member)  STMT(                  \
         const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-        (type *)( (char *)__mptr - offsetof(type,member) );}))
+        (type *)( (char *)__mptr - offsetof(type,member) ); )
 
-static inline int16_t cmp16(uint16_t a, uint16_t b) { return (int16_t)(a-b); }
 static inline int32_t cmp32(uint32_t a, uint32_t b) { return (int32_t)(a-b); }
 
 static inline uint32_t llog2(uint32_t n) { return 31 - __builtin_clz(n | 1); }
@@ -136,10 +129,8 @@ static inline void  memcpy_fn ( void * destination, const void * source, size_t 
 void * memcpy_fn ( void * destination, const void * source, size_t num ) asm("memcpy");
 #endif
 
-#endif
-
 #if __GNUC__ > 6
 #define FALLTHROUGH ;__attribute__ ((fallthrough))
 #else
-#define FALLTHROUGH do {} while(0)
+#define FALLTHROUGH NOOP
 #endif
