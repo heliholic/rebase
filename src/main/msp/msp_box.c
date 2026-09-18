@@ -24,7 +24,6 @@
 
 #include "platform.h"
 
-#include "common/bitarray.h"
 #include "common/streambuf.h"
 #include "common/utils.h"
 
@@ -85,9 +84,9 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] =
     BOXITEM(BOXREADY, "READY", 53),
 };
 
-// mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
+// bitmap of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
 
-static boxBitmask_t activeBoxIds;
+static boxBitmap_t activeBoxIds;
 
 const box_t *findBoxByBoxId(boxId_e boxId)
 {
@@ -111,11 +110,11 @@ const box_t *findBoxByPermanentId(uint8_t permanentId)
 
 static bool activeBoxIdGet(boxId_e boxId)
 {
-    if (boxId > sizeof(activeBoxIds) * 8) {
+    if (boxId >= CHECKBOX_ITEM_COUNT) {
         return false;
     }
 
-    return bitArrayGet(&activeBoxIds, boxId);
+    return BOXMAP_TEST_ID(&activeBoxIds, boxId);
 }
 
 int serializeBoxNameFn(sbuf_t *dst, const box_t *box)
@@ -179,11 +178,10 @@ void serializeBoxReply(sbuf_t *dst, int page, serializeBoxFn *serializeBox)
 void initActiveBoxIds(void)
 {
     // calculate used boxes based on features and set corresponding activeBoxIds bits
-    boxBitmask_t ena;  // temporary variable to collect result
-    memset(&ena, 0, sizeof(ena));
+    boxBitmap_t ena = 0;  // temporary variable to collect result
 
     // macro to enable boxId (BoxidMaskEnable). Reference to ena is hidden, local use only
-#define BME(boxId) do { bitArraySet(&ena, boxId); } while (0)
+#define BME(boxId) do { BOXMAP_SET_ID(&ena, boxId); } while (0)
     BME(BOXARM);
     BME(BOXPREARM);
 
@@ -265,9 +263,9 @@ void initActiveBoxIds(void)
 #undef BME
     // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
     for (boxId_e boxId = 0;  boxId < CHECKBOX_ITEM_COUNT; boxId++)
-        if (bitArrayGet(&ena, boxId)
+        if (BOXMAP_TEST_ID(&ena, boxId)
             && findBoxByBoxId(boxId) == NULL)
-            bitArrayClr(&ena, boxId);                 // this should not happen, but handle it gracefully
+            BOXMAP_CLR_ID(&ena, boxId);              // this should not happen, but handle it gracefully
 
     activeBoxIds = ena;                               // set global variable
 }
@@ -291,17 +289,17 @@ bool getBoxIdState(boxId_e boxid)
 
 // pack used flightModeFlags into supplied array
 // returns number of bits used
-int packFlightModeFlags(boxBitmask_t *mspFlightModeFlags)
+int packFlightModeFlags(boxBitmap_t *mspFlightModeFlags)
 {
     // Serialize the flags in the order we delivered them, ignoring BOXNAMES and BOXINDEXES
-    memset(mspFlightModeFlags, 0, sizeof(boxBitmask_t));
+    *mspFlightModeFlags = 0;
     // map boxId_e enabled bits to MSP status indexes
     // only active boxIds are sent in status over MSP, other bits are not counted
     unsigned mspBoxIdx = 0;           // index of active boxId (matches sent permanentId and boxNames)
     for (boxId_e boxId = 0; boxId < CHECKBOX_ITEM_COUNT; boxId++) {
         if (activeBoxIdGet(boxId)) {
             if (getBoxIdState(boxId))
-                bitArraySet(mspFlightModeFlags, mspBoxIdx);       // box is enabled
+                BOXMAP_SET_ID(mspFlightModeFlags, mspBoxIdx);    // box is enabled
             mspBoxIdx++;                                          // box is active, count it
         }
     }

@@ -34,13 +34,14 @@ extern "C" {
     #include "config/config.h"
     #include "fc/feature.h"
 
+    #include "controls/modes.h"
+
     #include "drivers/osd_symbols.h"
     #include "drivers/persistent.h"
     #include "drivers/serial.h"
 
     #include "fc/core.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "flight/imu.h"
@@ -1513,7 +1514,7 @@ extern "C" {
         return false;
     }
 
-    bool IS_RC_MODE_ACTIVE(boxId_e) {
+    bool isModeActive(boxId_e) {
         return false;
     }
 

@@ -19,6 +19,8 @@
 
 extern "C" {
 #include "platform.h"
+#include "controls/modes.h"
+
 #include "pg/pg.h"
 #include "pg/rx.h"
 #include "drivers/serial.h"
@@ -28,7 +30,6 @@ extern "C" {
 #include "rx/sumd.h"
 #include "telemetry/telemetry.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "sensors/battery.h"
 }
 

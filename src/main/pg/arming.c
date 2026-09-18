@@ -33,4 +33,5 @@ PG_RESET_TEMPLATE(armingConfig_t, armingConfig)
     .gyro_cal_on_first_arm = 0,
     .auto_disarm_delay = 5,
     .prearm_allow_rearm = 0,
+    .arm_range = { 0, 0 },      // unusable, so there is no arm switch until one is configured
 };

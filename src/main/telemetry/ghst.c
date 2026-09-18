@@ -32,6 +32,9 @@
 #include "build/debug.h"
 
 #include "fc/feature.h"
+
+#include "controls/modes.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
@@ -46,7 +49,6 @@
 #include "drivers/nvic.h"
 
 #include "config/config.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/imu.h"

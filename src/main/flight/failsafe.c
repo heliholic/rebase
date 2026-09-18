@@ -27,6 +27,8 @@
 
 #include "common/axis.h"
 
+#include "controls/modes.h"
+
 #include "pg/rx.h"
 
 #include "drivers/time.h"
@@ -35,7 +37,6 @@
 #include "config/config.h"
 #include "fc/core.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

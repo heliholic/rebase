@@ -30,10 +30,11 @@ extern "C" {
     #include "config/config.h"
     #include "fc/feature.h"
 
+    #include "controls/modes.h"
+
     #include "controls/rates.h"
     #include "fc/core.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "flight/failsafe.h"
@@ -51,6 +52,7 @@ extern "C" {
     #include "pg/rx.h"
 
     #include "pg/pg.h"
+    #include "pg/arming.h"
     #include "pg/pg_ids.h"
 
     #include "rx/rx.h"
@@ -126,16 +128,14 @@ TEST(ArmingPreventionTest, CalibrationPowerOnGraceAngleThrottleArmSwitch)
     sensorsSet(SENSOR_GYRO);
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
 
     // and
     // default channel positions
     rcControls[RC_THROTTLE] = 1400;
-    rcInput[5] = 1800;
+    rcControls[RC_ARM] = 1800;
 
     // and
     systemConfigMutable()->powerOnArmingGraceTime = 5;
@@ -194,7 +194,7 @@ TEST(ArmingPreventionTest, CalibrationPowerOnGraceAngleThrottleArmSwitch)
     EXPECT_EQ(ARMING_DISABLED_ARM_SWITCH, getArmingDisableFlags());
 
     // given
-    rcInput[5] = 1000;
+    rcControls[RC_ARM] = 1000;
 
     // when
     // arm guard time elapses
@@ -214,10 +214,8 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
     sensorsSet(SENSOR_GYRO);
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
 
     // and
@@ -235,7 +233,7 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
 
     // given
     // arm channel takes a safe default value from the RX after power on
-    rcInput[5] = 1500;
+    rcControls[RC_ARM] = 1500;
 
     // and
     // a short time passes while calibration is in progress
@@ -243,7 +241,7 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
 
     // and
     // during calibration RF link is established and ARM switch is on
-    rcInput[5] = 1800;
+    rcControls[RC_ARM] = 1800;
 
     // when
     updateActivatedModes();
@@ -267,7 +265,7 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
 
     // given
     // arm switch is switched off by user
-    rcInput[5] = 1000;
+    rcControls[RC_ARM] = 1000;
 
     // when
     updateActivatedModes();
@@ -285,14 +283,12 @@ TEST(ArmingPreventionTest, Prearm)
     simulationTime = 0;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXPREARM;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
 
     // given
@@ -329,10 +325,8 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     gyroCalibDone = true;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
 
     // and
@@ -345,7 +339,7 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
 
     // and
     // arm channel has a safe default value
-    rcInput[5] = 1100;
+    rcControls[RC_ARM] = 1100;
 
     // when
     updateActivatedModes();
@@ -359,7 +353,7 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     // given
     // RF link is established and arm switch is turned on on radio
     simulationHaveRx = true;
-    rcInput[5] = 1800;
+    rcControls[RC_ARM] = 1800;
 
     // when
     updateActivatedModes();
@@ -372,7 +366,7 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
 
     // given
     // arm switch turned off by user
-    rcInput[5] = 1100;
+    rcControls[RC_ARM] = 1100;
 
     // when
     updateActivatedModes();
@@ -392,19 +386,17 @@ TEST(ArmingPreventionTest, ParalyzeOnAtBoot)
     gyroCalibDone = true;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXPARALYZE;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     rcControlsInit();
 
     // given
     rcControls[RC_THROTTLE] = 1000;
-    rcInput[5] = 1000;
+    rcControls[RC_ARM] = 1000;
     rcInput[6] = 1800; // Paralyze on at boot
     mockIsUpright = true;
 
@@ -433,25 +425,23 @@ TEST(ArmingPreventionTest, Paralyze)
     gyroCalibDone = true;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->modeId = BOXPARALYZE;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->modeId = BOXBEEPERON;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(2)->range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(3)->modeId = BOXVTXPITMODE;
     modeActivationConditionsMutable(3)->linkedTo = BOXPARALYZE;
     rcControlsInit();
 
     // given
     rcControls[RC_THROTTLE] = 1000;
-    rcInput[5] = 1000;
+    rcControls[RC_ARM] = 1000;
     rcInput[6] = 1800; // Start out with paralyze enabled
     rcInput[7] = 1000;
     mockIsUpright = true;
@@ -467,7 +457,7 @@ TEST(ArmingPreventionTest, Paralyze)
 
     // given
     // arm
-    rcInput[5] = 1800;
+    rcControls[RC_ARM] = 1800;
 
     // when
     tryArm();
@@ -481,7 +471,7 @@ TEST(ArmingPreventionTest, Paralyze)
 
     // given
     // disarm
-    rcInput[5] = 1000;
+    rcControls[RC_ARM] = 1000;
 
     // when
     disarm(DISARM_REASON_SYSTEM);

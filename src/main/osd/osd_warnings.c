@@ -35,6 +35,8 @@
 #include "common/maths.h"
 #include "common/printf.h"
 
+#include "controls/modes.h"
+
 #include "drivers/display.h"
 #include "drivers/osd_symbols.h"
 #include "drivers/time.h"
@@ -42,7 +44,6 @@
 
 #include "fc/core.h"
 #include "controls/rc.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

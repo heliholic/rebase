@@ -363,7 +363,7 @@ int16_t axisPID[XYZ_AXIS_COUNT];
 float rcCommand[4];
 int16_t rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 
-uint32_t rcModeActivationMask;
+uint32_t rcModeActivationMap;
 int32_t debug[DEBUG_VALUE_COUNT];
 
 uint8_t stateFlags;

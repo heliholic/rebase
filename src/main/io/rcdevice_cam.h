@@ -24,8 +24,9 @@
 #include <stdint.h>
 
 #include "common/rtc.h"
+#include "controls/modes.h"
+
 #include "io/rcdevice.h"
-#include "fc/rc_modes.h"
 
 #define FIVE_KEY_CABLE_JOYSTICK_MIN 1080
 #define FIVE_KEY_CABLE_JOYSTICK_MAX 1920

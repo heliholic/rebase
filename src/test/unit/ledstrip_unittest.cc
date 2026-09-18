@@ -29,6 +29,8 @@ extern "C" {
     #include "common/color.h"
     #include "common/utils.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -40,7 +42,6 @@ extern "C" {
 
     #include "config/config.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "io/gps.h"
@@ -305,7 +306,7 @@ uint16_t flightModeFlags = 0;
 float rcCommand[RC_CONTROL_COUNT];
 float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 float rcControls[RC_CONTROL_COUNT];
-extern boxBitmask_t rcModeActivationMask;
+extern boxBitmap_t rcModeActivationMap;
 gpsSolutionData_t gpsSol;
 
 batteryState_e getBatteryState(void)

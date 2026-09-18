@@ -63,8 +63,8 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | --- | ---: | --- | --- | ---: | --- |
 | `accelerometerConfig` | 35 | `0x3071B171` | [`accelerometerConfig_t`](#accelerometerconfig_t) | 16 | `pg/acceleration.h` |
 | `adcConfig` | 510 | `0x278550EC` | [`adcConfig_t`](#adcconfig_t) | 26 | `pg/adc.h` |
-| `adjustmentRanges` | 37 | `0x94FE72A3` | [`adjustmentRange_t`](#adjustmentrange_t) | 10 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
-| `armingConfig` | 16 | `0x8CEFF013` | [`armingConfig_t`](#armingconfig_t) | 3 | `pg/arming.h` |
+| `adjustmentRanges` | 37 | `0xA217511B` | [`adjustmentRange_t`](#adjustmentrange_t) | 10 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
+| `armingConfig` | 16 | `0xB7B4FC05` | [`armingConfig_t`](#armingconfig_t) | 5 | `pg/arming.h` |
 | `barometerConfig` | 38 | `0x358757A4` | [`barometerConfig_t`](#barometerconfig_t) | 8 | `pg/barometer.h` |
 | `batteryConfig` | 11 | `0x7E75E919` | [`batteryConfig_t`](#batteryconfig_t) | 14 | `pg/battery.h` |
 | `batteryProfiles` | 561 | `0x561E7785` | [`batteryProfile_t`](#batteryprofile_t) | 22 &times; `BATTERY_PROFILE_COUNT` | `pg/battery.h` |
@@ -98,7 +98,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ledStripStatusModeConfig` | 545 | `0x34ECEA5E` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
 | `max7456Config` | 524 | `0x43B1CF22` | [`max7456Config_t`](#max7456config_t) | 4 | `pg/max7456.h` |
 | `mcoConfig` | 541 | `0x010C2C94` | [`mcoConfig_t`](#mcoconfig_t) | 3 &times; `2` | `pg/mco.h` |
-| `modeActivationConditions` | 41 | `0x3A98E6BA` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
+| `modeActivationConditions` | 41 | `0x3BAB1E34` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
 | `modeActivationConfig` | 553 | `0x68633E8C` | [`modeActivationConfig_t`](#modeactivationconfig_t) | 64 | `pg/modes.h` |
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
@@ -144,7 +144,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `usbDevConfig` | 531 | `0x6CDB14DB` | [`usbDev_t`](#usbdev_t) | 4 | `pg/usb.h` |
 | `vcdProfile` | 514 | `0xC430EA32` | [`vcdProfile_t`](#vcdprofile_t) | 3 | `pg/vcd.h` |
 | `voltageSensorADCConfig` | 258 | `0xBB15461C` | [`voltageSensorADCConfig_t`](#voltagesensoradcconfig_t) | 3 &times; `MAX_VOLTAGE_SENSOR_ADC` | `pg/voltage.h` |
-| `vtxConfig` | 515 | `0x0C2C80E2` | [`vtxConfig_t`](#vtxconfig_t) | 61 | `pg/vtx.h` |
+| `vtxConfig` | 515 | `0xCAFF6D92` | [`vtxConfig_t`](#vtxconfig_t) | 61 | `pg/vtx.h` |
 | `vtxIOConfig` | 57 | `0x517504C7` | [`vtxIOConfig_t`](#vtxioconfig_t) | 5 | `pg/vtx_io.h` |
 | `vtxSettingsConfig` | 259 | `0x757017FE` | [`vtxSettingsConfig_t`](#vtxsettingsconfig_t) | 10 | `pg/vtx.h` |
 | `vtxTableConfig` | 546 | `0x69143ADC` | [`vtxTableConfig_t`](#vtxtableconfig_t) | 284 | `pg/vtx_table.h` |
@@ -186,7 +186,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### adjustmentRange_t
 
-- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0x94FE72A3` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
+- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0xA217511B` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
 
 `sizeof` = 10 bytes.
 
@@ -216,15 +216,16 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### armingConfig_t
 
-- `armingConfig` &mdash; PGN 16 (`PG_ARMING_CONFIG`), hash `0x8CEFF013`
+- `armingConfig` &mdash; PGN 16 (`PG_ARMING_CONFIG`), hash `0xB7B4FC05`
 
-`sizeof` = 3 bytes.
+`sizeof` = 5 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `bool` | `gyro_cal_on_first_arm` |
 | 1 | 1 | `uint8_t` | `auto_disarm_delay` |
 | 2 | 1 | `bool` | `prearm_allow_rearm` |
+| 3 | 2 | [`channelRange_t`](#channelrange_t) | `arm_range` |
 
 ### barometerConfig_t
 
@@ -686,17 +687,17 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### modeActivationCondition_t
 
-- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x3A98E6BA` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
+- `modeActivationConditions` &mdash; PGN 41 (`PG_MODE_ACTIVATION_PROFILE`), hash `0x3BAB1E34` &mdash; array of `MAX_MODE_ACTIVATION_CONDITION_COUNT` elements
 
 `sizeof` = 6 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `uint8_t` | `modeId` |
-| 1 | 1 | `uint8_t` | `rcChannel` |
-| 2 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
-| 4 | 1 | `uint8_t` | `modeLogic` |
-| 5 | 1 | `uint8_t` | `linkedTo` |
+| 1 | 1 | `uint8_t` | `linkedTo` |
+| 2 | 1 | `uint8_t` | `modeLogic` |
+| 3 | 1 | `uint8_t` | `rcChannel` |
+| 4 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
 
 ### modeActivationConfig_t
 
@@ -1354,7 +1355,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### vtxConfig_t
 
-- `vtxConfig` &mdash; PGN 515 (`PG_VTX_CONFIG`), hash `0x0C2C80E2`
+- `vtxConfig` &mdash; PGN 515 (`PG_VTX_CONFIG`), hash `0xCAFF6D92`
 
 `sizeof` = 61 bytes.
 
@@ -1432,8 +1433,8 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `startStep` |
-| 1 | 1 | `uint8_t` | `endStep` |
+| 0 | 1 | `int8_t` | `startStep` |
+| 1 | 1 | `int8_t` | `endStep` |
 
 ### dronecanDnaEntry_t
 

@@ -26,10 +26,11 @@ extern "C" {
     #include "fc/feature.h"
     #include "config/config.h"
 
+    #include "controls/modes.h"
+
     #include "controls/rates.h"
     #include "fc/core.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "flight/failsafe.h"
@@ -106,9 +107,9 @@ TEST(VtxTest, PitMode)
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXVTXPITMODE;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // and
     vtxSettingsConfigMutable()->band = 0;

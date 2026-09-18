@@ -30,8 +30,9 @@ extern "C" {
     #include "common/utils.h"
     #include "common/streambuf.h"
 
+    #include "controls/modes.h"
+
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "flight/imu.h"
 
     #include "drivers/serial.h"
@@ -306,7 +307,7 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+    modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
@@ -321,7 +322,7 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // make the binded mode inactive
     rcInput[modeActivationConditions(0)->rcChannel] = 1800;
@@ -379,7 +380,7 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceReady)
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+    modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
@@ -394,7 +395,7 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceReady)
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     rcInput[modeActivationConditions(0)->rcChannel] = 1700;
     rcInput[modeActivationConditions(1)->rcChannel] = 2000;
@@ -448,7 +449,7 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+    modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
@@ -463,7 +464,7 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // // make the binded mode inactive
     rcInput[modeActivationConditions(0)->rcChannel] = 1700;

@@ -27,6 +27,8 @@ extern "C" {
     #include "common/axis.h"
     #include "common/bitarray.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -47,7 +49,6 @@ extern "C" {
 
     #include "config/config.h"
     #include "controls/rates.h"
-    #include "fc/rc_modes.h"
     #include "fc/rc_adjustments.h"
 
     #include "fc/rc_controls.h"
@@ -56,7 +57,7 @@ extern "C" {
 
     #include "scheduler/scheduler.h"
 
-    extern boxBitmask_t stickyModesEverDisabled;
+    extern boxBitmap_t stickyModesEverDisabled;
 }
 
 #include "unittest_macros.h"
@@ -77,9 +78,7 @@ protected:
 TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
 {
     // given
-    boxBitmask_t mask;
-    memset(&mask, 0, sizeof(mask));
-    rcModeUpdate(&mask);
+    rcModeUpdate(0);
 
     // and
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
@@ -91,7 +90,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
     }
 
     // when
-    analyzeModeActivationConditions();
+    rcModeInit();
     updateActivatedModes();
 
     // then
@@ -106,54 +105,52 @@ TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
 TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXValues)
 {
     // given
-    modeActivationConditionsMutable(0)->modeId = (boxId_e)0;
+    modeActivationConditionsMutable(0)->modeId = (boxId_e)1;
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    modeActivationConditionsMutable(1)->modeId = (boxId_e)1;
+    modeActivationConditionsMutable(1)->modeId = (boxId_e)2;
     modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(1700);
 
-    modeActivationConditionsMutable(2)->modeId = (boxId_e)2;
+    modeActivationConditionsMutable(2)->modeId = (boxId_e)3;
     modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1200);
 
-    modeActivationConditionsMutable(3)->modeId = (boxId_e)3;
+    modeActivationConditionsMutable(3)->modeId = (boxId_e)4;
     modeActivationConditionsMutable(3)->rcChannel = 8;
     modeActivationConditionsMutable(3)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(3)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    modeActivationConditionsMutable(4)->modeId = (boxId_e)4;
+    modeActivationConditionsMutable(4)->modeId = (boxId_e)5;
     modeActivationConditionsMutable(4)->rcChannel = 9;
     modeActivationConditionsMutable(4)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(4)->range.endStep = CHANNEL_VALUE_TO_STEP(925);
 
-    EXPECT_EQ(0, modeActivationConditions(4)->range.startStep);
-    EXPECT_EQ(1, modeActivationConditions(4)->range.endStep);
+    EXPECT_EQ(-120, modeActivationConditions(4)->range.startStep);
+    EXPECT_EQ(-115, modeActivationConditions(4)->range.endStep);
 
-    modeActivationConditionsMutable(5)->modeId = (boxId_e)5;
+    modeActivationConditionsMutable(5)->modeId = (boxId_e)6;
     modeActivationConditionsMutable(5)->rcChannel = 10;
     modeActivationConditionsMutable(5)->range.startStep = CHANNEL_VALUE_TO_STEP(2075);
     modeActivationConditionsMutable(5)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    EXPECT_EQ(47, modeActivationConditions(5)->range.startStep);
-    EXPECT_EQ(48, modeActivationConditions(5)->range.endStep);
+    EXPECT_EQ(115, modeActivationConditions(5)->range.startStep);
+    EXPECT_EQ(120, modeActivationConditions(5)->range.endStep);
 
-    modeActivationConditionsMutable(6)->modeId = (boxId_e)6;
+    modeActivationConditionsMutable(6)->modeId = (boxId_e)7;
     modeActivationConditionsMutable(6)->rcChannel = 11;
     modeActivationConditionsMutable(6)->range.startStep = CHANNEL_VALUE_TO_STEP(925);
     modeActivationConditionsMutable(6)->range.endStep = CHANNEL_VALUE_TO_STEP(950);
 
-    EXPECT_EQ(1, modeActivationConditions(6)->range.startStep);
-    EXPECT_EQ(2, modeActivationConditions(6)->range.endStep);
+    EXPECT_EQ(-115, modeActivationConditions(6)->range.startStep);
+    EXPECT_EQ(-110, modeActivationConditions(6)->range.endStep);
 
     // and
-    boxBitmask_t mask;
-    memset(&mask, 0, sizeof(mask));
-    rcModeUpdate(&mask);
+    rcModeUpdate(0);
 
     // and
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
@@ -168,30 +165,24 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
     rcInput[6] = PWM_RANGE_MIDDLE;
     rcInput[7] = PWM_RANGE_MIN;
     rcInput[8] = PWM_RANGE_MAX;
-    rcInput[9] = 899; // value lower that range minimum should be treated the same as the lowest range value
-    rcInput[10] = 2101; // value higher than the range maximum should be treated the same as the highest range value
+    rcInput[9] = 899; // value below the range minimum should not activate the mode
+    rcInput[10] = 2101; // value above the range maximum should not activate the mode
     rcInput[11] = 950; // value equal to range step upper boundary should not activate the mode
 
     // and
-    boxBitmask_t activeBoxIds;
-    memset(&activeBoxIds, 0, sizeof(boxBitmask_t));
-    bitArraySet(&activeBoxIds, 0);
-    bitArraySet(&activeBoxIds, 1);
-    bitArraySet(&activeBoxIds, 2);
-    bitArraySet(&activeBoxIds, 3);
-    bitArraySet(&activeBoxIds, 4);
-    bitArraySet(&activeBoxIds, 5);
+    const boxBitmap_t activeBoxIds =
+        BOXMASK(1) | BOXMASK(2) | BOXMASK(3) | BOXMASK(4);
 
     // when
-    analyzeModeActivationConditions();
+    rcModeInit();
     updateActivatedModes();
 
     // then
     for (int index = 0; index < CHECKBOX_ITEM_COUNT; index++) {
 #ifdef DEBUG_RC_CONTROLS
-        printf("iteration: %d, %d\n", index, (bool)(bitArrayGet(&activeBoxIds, index)));
+        printf("iteration: %d, %d\n", index, (bool)(activeBoxIds & BOXMASK(index)));
 #endif
-        EXPECT_EQ((bool)(bitArrayGet(&activeBoxIds, index)), IS_RC_MODE_ACTIVE((boxId_e)index));
+        EXPECT_EQ((bool)(activeBoxIds & BOXMASK(index)), IS_RC_MODE_ACTIVE((boxId_e)index));
     }
 }
 
@@ -255,9 +246,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
     modeActivationConditionsMutable(7)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(7)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    boxBitmask_t mask;
-    memset(&mask, 0, sizeof(mask));
-    rcModeUpdate(&mask);
+    rcModeUpdate(0);
 
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
     rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
@@ -266,7 +255,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
         rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // when: switch is in-range before the boot guard has ever seen it off
     resetMillis();
@@ -307,9 +296,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
     modeActivationConditionsMutable(8)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(8)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    boxBitmask_t mask;
-    memset(&mask, 0, sizeof(mask));
-    rcModeUpdate(&mask);
+    rcModeUpdate(0);
 
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
     rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
@@ -318,7 +305,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
         rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // when: switch is in-range before RX has ever been seen off (rcInput defaults, e.g. before RX link)
     resetMillis();

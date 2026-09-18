@@ -25,7 +25,7 @@
 
 #include "platform.h"
 
-#include "fc/rc_modes.h"
+#include "controls/modes.h"
 
 #include "pg/vtx.h"
 

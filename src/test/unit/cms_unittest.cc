@@ -31,7 +31,8 @@ extern "C" {
     #include "cms/cms.h"
     #include "cms/cms_menu_quick.h"
     #include "cms/cms_types.h"
-    #include "fc/rc_modes.h"
+    #include "controls/modes.h"
+
     #include "fc/runtime_config.h"
     #include "osd/osd.h"
     #include "pg/rx.h"
@@ -163,7 +164,7 @@ void motorShutdown(void) {}
 void systemReset(void) {}
 void setArmingDisabled(armingDisableFlags_e flag) { UNUSED(flag); }
 void unsetArmingDisabled(armingDisableFlags_e flag) { UNUSED(flag); }
-bool IS_RC_MODE_ACTIVE(boxId_e) { return false; }
+bool isModeActive(boxId_e) { return false; }
 void setRebootRequired(void) {}
 bool getRebootRequired(void) { return false; }
 }

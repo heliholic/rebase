@@ -430,7 +430,7 @@ sensorIndex_e sensorIndexFromName(const char *) { return SENSOR_INDEX_COUNT; }
 const char *sensorTypeName(sensorIndex_e) { return NULL; }
 
 void activeAdjustmentRangeReset(void) {}
-void analyzeModeActivationConditions(void) {}
+void rcModeInit(void) {}
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *, const modeActivationCondition_t *) { return false; }
 
 void delay(uint32_t) {}

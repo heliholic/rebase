@@ -35,6 +35,8 @@ extern "C" {
     #include "common/streambuf.h"
     #include "common/typeconversion.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -44,7 +46,6 @@ extern "C" {
     #include "drivers/system.h"
 
     #include "fc/runtime_config.h"
-    #include "fc/rc_modes.h"
     #include "config/config.h"
     #include "flight/imu.h"
 
@@ -327,7 +328,7 @@ extern "C" {
 
     timeUs_t rxFrameTimeUs(void) { return 0; }
 
-    bool IS_RC_MODE_ACTIVE(boxId_e) { return false; }
+    bool isModeActive(boxId_e) { return false; }
 
     void schedulerIgnoreTaskExecTime(void) {}
 }

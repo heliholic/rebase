@@ -53,6 +53,8 @@
 
 #include "fc/feature.h"
 
+#include "controls/modes.h"
+
 #include "drivers/display.h"
 #include "drivers/dshot.h"
 #include "drivers/flash/flash.h"
@@ -64,7 +66,6 @@
 
 #include "fc/core.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

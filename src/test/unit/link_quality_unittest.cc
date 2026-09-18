@@ -36,6 +36,8 @@ extern "C" {
 
     #include "config/config.h"
 
+    #include "controls/modes.h"
+
     #include "drivers/osd_symbols.h"
     #include "drivers/persistent.h"
     #include "drivers/serial.h"
@@ -43,7 +45,6 @@ extern "C" {
 
     #include "fc/core.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "flight/failsafe.h"
@@ -106,7 +107,7 @@ extern "C" {
 #include "gtest/gtest.h"
 
 extern "C" {
-    extern boxBitmask_t rcModeActivationMask;
+    extern boxBitmap_t rcModeActivationMap;
     int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode = 0;
 
