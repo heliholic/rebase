@@ -46,8 +46,6 @@
 #include "pg/motor.h"
 #include "pg/pg.h"
 
-#include "rx/rx.h"      // PWM_RANGE_MIN / PWM_RANGE_MAX
-
 #include "sensors/esc_sensor.h"
 
 #include "io/dronecan/dronecan.h"
@@ -76,13 +74,16 @@ static uint8_t escRawCommandTransferId;
 static uint32_t escBroadcastPeriodUs;
 static timeUs_t escLastBroadcastUs;
 
-void dronecanEscWrite(uint8_t motorIndex, float value)
+void dronecanEscWrite(uint8_t motorIndex, float throttle)
 {
     if (motorIndex >= MAX_SUPPORTED_MOTORS) {
         return;
     }
-    // Endpoints hand us a value already in RawCommand units (0..8191, disarm 0);
-    // clamp to the int14 positive range to be safe against transient overshoot.
+
+    float value = 0;
+    if (throttle >= 0) {
+        value = scaleRangef(throttle, 0, 1, 0, UAVCAN_ESC_RAWCOMMAND_MAX);
+    }
     escStaging[motorIndex] = (int16_t)constrainf(value, 0, UAVCAN_ESC_RAWCOMMAND_MAX);
 }
 
@@ -302,26 +303,12 @@ static void dronecanMotorShutdown(void)
     dronecanMotorDisable();
 }
 
-// MSP motor passthrough works in the external [1000,2000] µs convention.
-static float dronecanMotorConvertFromExternal(uint16_t externalValue)
-{
-    externalValue = constrain(externalValue, PWM_RANGE_MIN, PWM_RANGE_MAX);
-    return scaleRangef(externalValue, PWM_RANGE_MIN, PWM_RANGE_MAX, 0, UAVCAN_ESC_RAWCOMMAND_MAX);
-}
-
-static uint16_t dronecanMotorConvertToExternal(float motorValue)
-{
-    return (uint16_t)lrintf(scaleRangef(motorValue, 0, UAVCAN_ESC_RAWCOMMAND_MAX, PWM_RANGE_MIN, PWM_RANGE_MAX));
-}
-
 static const motorVTable_t dronecanMotorVTable = {
     .enable                 = dronecanMotorEnable,
     .disable                = dronecanMotorDisable,
     .isMotorEnabled         = dronecanMotorIsEnabled,
     .write                  = dronecanEscWrite,
     .updateComplete         = dronecanEscUpdateComplete,
-    .convertExternalToMotor = dronecanMotorConvertFromExternal,
-    .convertMotorToExternal = dronecanMotorConvertToExternal,
     .shutdown               = dronecanMotorShutdown,
     .requestTelemetry       = NULL,
     .isMotorIdle            = NULL,

@@ -61,6 +61,7 @@
 #include "flight/mixer.h"
 #include "flight/pid.h"
 #include "flight/position.h"
+#include "fc/motors.h"
 #include "fc/servos.h"
 
 #include "io/beeper.h"
@@ -653,8 +654,6 @@ void subTaskTelemetryPollSensors(timeUs_t currentTimeUs)
 
 static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
 {
-    UNUSED(currentTimeUs);
-
     DEBUG_TIME_START(PIDLOOP, 2);
 
     if (debugMode == DEBUG_CYCLETIME) {
@@ -670,7 +669,7 @@ static FAST_CODE void subTaskMotorUpdate(timeUs_t currentTimeUs)
     servoUpdate();
 #endif
 
-    writeMotors();
+    motorUpdate(currentTimeUs);
 
 #ifdef USE_DSHOT_TELEMETRY_STATS
     if (debugMode == DEBUG_DSHOT_RPM_ERRORS && useDshotTelemetry) {

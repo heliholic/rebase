@@ -27,24 +27,14 @@
 
 #include "common/rtc.h"
 
-#include "pg/pg.h"
+#include "fc/motors.h"
 
-#include "drivers/io_types.h"
-#include "drivers/motor.h"
-
-extern float motor[MAX_SUPPORTED_MOTORS];
-extern float motor_disarmed[MAX_SUPPORTED_MOTORS];
-
-uint8_t getMotorCount(void);
-bool areMotorsRunning(void);
-
-void stopMotors(void);
-void writeMotors(void);
 
 float mixerGetThrottle(void);
 float getMotorOutputLow(void);
 float getMotorOutputHigh(void);
 
+float mixerGetMotorOutput(uint8_t motor);
 float mixerGetServoOutput(uint8_t servo);
 void mixerSaturateServoOutput(uint8_t servo);
 bool mixerIsCyclicServo(uint8_t index);
