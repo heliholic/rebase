@@ -29,6 +29,8 @@ extern "C" {
     #include "common/vector.h"
 
     #include "fc/feature.h"
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -38,7 +40,6 @@ extern "C" {
     #include "drivers/sensor.h"
 
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
     #include "controls/rc.h"
 
@@ -345,9 +346,10 @@ INSTANTIATE_TEST_SUITE_P(
 // STUBS
 
 extern "C" {
-    extern boxBitmask_t rcModeActivationMask;
+    extern boxBitmap_t rcModeActivationMap;
     float rcCommand[RC_CONTROL_COUNT];
     float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcControls[RC_CONTROL_COUNT];
 
     gyro_t gyro;
     acc_t acc;

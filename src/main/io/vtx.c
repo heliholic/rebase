@@ -30,11 +30,12 @@
 #include "common/maths.h"
 #include "common/rtc.h"
 
+#include "controls/modes.h"
+
 #include "drivers/vtx_common.h"
 #include "drivers/vtx_table.h"
 
 #include "config/config.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

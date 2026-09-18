@@ -25,6 +25,8 @@ extern "C" {
     #include "blackbox/blackbox.h"
     #include "common/utils.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -39,7 +41,6 @@ extern "C" {
     #include "flight/pid.h"
 
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
 
     #include "io/gps.h"
     #include "io/serial.h"
@@ -190,7 +191,7 @@ gyro_t gyro;
 struct pidProfile_s;
 struct pidProfile_s *currentPidProfile;
 
-boxBitmask_t rcModeActivationMask;
+boxBitmap_t rcModeActivationMap;
 
 void mspSerialAllocatePorts(void) {}
 uint32_t getArmingBeepTimeMicros(void) {return 0;}
@@ -205,7 +206,7 @@ void motorStop(void) {}
 int getMotorOutput(uint8_t) { return 0; }
 int getServoCount(void) {return 0;}
 int getServoOutput(uint8_t) {return 0;}
-bool IS_RC_MODE_ACTIVE(boxId_e) {return false;}
+bool isModeActive(boxId_e) {return false;}
 bool isModeActivationConditionPresent(boxId_e) {return false;}
 uint32_t millis(void) {return 0;}
 bool sensors(uint32_t) {return false;}

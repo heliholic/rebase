@@ -23,6 +23,8 @@
 extern "C" {
     #include "platform.h"
 
+    #include "controls/modes.h"
+
     #include "io/vtx.h"
     #include "io/vtx_msp.h"
     #include "pg/vtx_table.h"
@@ -86,7 +88,6 @@ TEST(VtxMspUnitTest, TestVtxMspReady)
 extern "C" {
 
     #include "build/debug.h"
-    #include "fc/rc_modes.h"
     #include "rx/rx.h"
     #include "io/serial.h"
     #include "msp/msp.h"
@@ -98,7 +99,7 @@ extern "C" {
     rxRuntimeState_t rxRuntimeState = rxRuntimeState_t();
     static serialPortConfig_t *findSerialPortConfig_stub_retval;
 
-    bool IS_RC_MODE_ACTIVE(boxId_e) {return false;}
+    bool isModeActive(boxId_e) {return false;}
     void beeperConfirmationBeeps(uint8_t) {}
     void saveConfigAndNotify(void) {}
     void crsfRxSendTelemetryData(void) {}

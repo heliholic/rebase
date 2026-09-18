@@ -39,6 +39,9 @@
 #include "common/utils.h"
 
 #include "fc/feature.h"
+
+#include "controls/modes.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/rx.h"
@@ -52,7 +55,6 @@
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

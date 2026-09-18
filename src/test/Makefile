@@ -43,10 +43,10 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/vector.c \
+		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
-		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
@@ -201,9 +201,10 @@ flashfs_unittest_DEFINES := \
 
 flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/pg/modes.c \
 		$(USER_DIR)/pg/failsafe.c
 
@@ -216,9 +217,10 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/fc/feature.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/flight/position.c \
 		$(USER_DIR)/flight/imu.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/pg/feature.c \
 		$(USER_DIR)/pg/modes.c \
 		$(USER_DIR)/pg/imu.c \
@@ -264,7 +266,8 @@ io_serial_unittest_SRC := \
 
 ledstrip_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/io/ledstrip.c \
 		$(USER_DIR)/pg/modes.c \
 		$(USER_DIR)/pg/ledstrip.c
@@ -337,8 +340,8 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/common/stddev.c \
 		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/rc_adjustments.c \
-		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/pg/adjustments.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
@@ -366,7 +369,8 @@ rx_ranges_unittest_SRC := \
 		$(USER_DIR)/common/stddev.c \
 		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/rx/rx.c \
 		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/pg/rx.c \
@@ -375,7 +379,8 @@ rx_ranges_unittest_SRC := \
 
 rx_rx_unittest_SRC := \
 		$(USER_DIR)/rx/rx.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/stddev.c \
@@ -516,7 +521,8 @@ rcdevice_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/controls/modes.c \
+		$(USER_DIR)/pg/arming.c \
 		$(USER_DIR)/io/rcdevice.c \
 		$(USER_DIR)/io/rcdevice_cam.c \
 		$(USER_DIR)/pg/pg.c \
@@ -559,10 +565,10 @@ rcdevice_unittest_DEFINES := \
 
 vtx_unittest_SRC := \
 		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
-		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/drivers/vtx_common.c \
 		$(USER_DIR)/drivers/vtx_table.c \

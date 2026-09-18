@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "controls/modes.h"
+
 #include "drivers/pinio.h"
 #include "pg/pg.h"
 
