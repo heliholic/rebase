@@ -173,6 +173,10 @@ void hard_fault_handler_c(unsigned long *hardfault_args)
 __attribute__((naked, used)) void HardFault_Handler(void)
 {
 #if ENABLE_BF_OBL
+    /* `.ltorg` after the non-returning branch so the `ldr =imm` literals
+     * stay within Thumb's ±4 KB PC-relative range. Without it, LTO can
+     * merge this handler into a huge translation unit and the assembler
+     * places the pool out of range (seen on STM32N657). */
     __asm__ volatile (
         "ldr   r2, =0x24100010    \n"
         "movs  r3, #1             \n"
@@ -200,11 +204,14 @@ __attribute__((naked, used)) void HardFault_Handler(void)
         "str   r0, [r2, #28]      \n"
         "dsb                      \n"
         "isb                      \n"
+        "b systemFaultAction      \n"
+        ".ltorg                   \n"
         ::: "r0", "r2", "r3", "memory"
     );
-#endif
+#else
     __asm__ volatile (
         "b systemFaultAction      \n"
     );
+#endif
 }
 #endif
