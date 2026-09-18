@@ -26,6 +26,7 @@
 
 #include "common/utils.h"
 
+#include "fc/motors.h"
 #include "fc/servos.h"
 #include "pg/servo.h"
 

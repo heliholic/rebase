@@ -208,9 +208,9 @@ static const char * const lookupTableGyroHardwareLpf[] = {
 };
 
 static const char * const lookupTablePwmProtocol[] = {
+    "DISABLED",
     "PWM", "ONESHOT125", "ONESHOT42", "MULTISHOT", "BRUSHED",
     "DSHOT150", "DSHOT300", "DSHOT600", "PROSHOT1000",
-    "DISABLED",
     "DRONECAN"
 };
 

@@ -789,23 +789,30 @@ pwmOutputPort_t *pwmGetMotors(void)
     return pwmMotors;
 }
 
-static float pwmConvertFromExternal(uint16_t externalValue)
-{
-    return (float)externalValue;
-}
-
-static uint16_t pwmConvertToExternal(float motorValue)
-{
-    return (uint16_t)motorValue;
-}
-
 static void pwmDisableMotors(void)
 {
     // NOOP
 }
 
-static void pwmWriteMotor(uint8_t index, float value)
+static float pwmConvertToInternal(uint8_t index, float throttle)
 {
+    UNUSED(index);
+
+    float value = (float)motorConfig()->mincommand;
+
+    if (throttle >= 0) {
+        value = scaleRangef(throttle, 0, 1, (float)motorConfig()->mincommand, (float)motorConfig()->maxthrottle);
+    }
+
+    return value;
+}
+
+static void pwmWriteMotor(uint8_t index, float throttle)
+{
+    if (pthread_mutex_trylock(&updateLock) != 0) return;
+
+    float value = pwmConvertToInternal(index, throttle);
+
     if (index < MAX_SUPPORTED_MOTORS) {
         motorsPwm[index] = value - idlePulse;
     }
@@ -813,11 +820,23 @@ static void pwmWriteMotor(uint8_t index, float value)
     if (index < pwmRawPkt.motorCount) {
         pwmRawPkt.pwm_output_raw[index] = value;
     }
+
+    pthread_mutex_unlock(&updateLock);
 }
 
 static void pwmWriteMotorInt(uint8_t index, uint16_t value)
 {
-    pwmWriteMotor(index, (float)value);
+    if (pthread_mutex_trylock(&updateLock) != 0) return;
+
+    if (index < MAX_SUPPORTED_MOTORS) {
+        motorsPwm[index] = (float)value - idlePulse;
+    }
+
+    if (index < pwmRawPkt.motorCount) {
+        pwmRawPkt.pwm_output_raw[index] = (float)value;
+    }
+
+    pthread_mutex_unlock(&updateLock);
 }
 
 static void pwmShutdownPulsesForAllMotors(void)
@@ -852,8 +871,6 @@ void servoWrite(uint8_t index, float value)
 
 static const motorVTable_t vTable = {
     .postInit = motorPostInitNull,
-    .convertExternalToMotor = pwmConvertFromExternal,
-    .convertMotorToExternal = pwmConvertToExternal,
     .enable = pwmEnableMotors,
     .disable = pwmDisableMotors,
     .isMotorEnabled = pwmIsMotorEnabled,
@@ -867,9 +884,9 @@ static const motorVTable_t vTable = {
     .getMotorIO = NULL,
 };
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig, uint16_t _idlePulse)
+bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig)
 {
-    UNUSED(motorConfig);
+    UNUSED(motorDevConfig);
 
     if (!device) {
         return false;
@@ -881,7 +898,7 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig,
     printf("Initialized motor count %d\n", pwmMotorCount);
     pwmRawPkt.motorCount = pwmMotorCount;
 
-    idlePulse = _idlePulse;
+    idlePulse = motorConfig()->mincommand;
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < pwmMotorCount; motorIndex++) {
         pwmMotors[motorIndex].enabled = true;
