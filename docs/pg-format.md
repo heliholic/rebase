@@ -121,8 +121,8 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `serialConfig` | 13 | `0x3D257838` | [`serialConfig_t`](#serialconfig_t) | 244 | `pg/serial.h` |
 | `serialPinConfig` | 509 | `0xFBA6E927` | [`serialPinConfig_t`](#serialpinconfig_t) | 74 | `pg/serial_port.h` |
 | `serialUartConfig` | 543 | `0x9B5CDD0F` | [`serialUartConfig_t`](#serialuartconfig_t) | 2 &times; `UARTDEV_CONFIG_MAX` | `pg/serial_uart.h` |
-| `servoConfig` | 52 | `0x37B44E84` | [`servoConfig_t`](#servoconfig_t) | 16 | `pg/servo.h` |
-| `servoParams` | 42 | `0x40FF767D` | [`servoParam_t`](#servoparam_t) | 12 &times; `MAX_SUPPORTED_SERVOS` | `pg/servo.h` |
+| `servoConfig` | 52 | `0xB12C2058` | [`servoConfig_t`](#servoconfig_t) | 12 | `pg/servo.h` |
+| `servoParams` | 42 | `0x1704EAF5` | [`servoParam_t`](#servoparam_t) | 16 &times; `MAX_SUPPORTED_SERVOS` | `pg/servo.h` |
 | `sonarConfig` | 516 | `0xA17AFF25` | [`sonarConfig_t`](#sonarconfig_t) | 2 | `pg/rangefinder.h` |
 | `spiPinConfig` | 520 | `0x81954E3F` | [`spiPinConfig_t`](#spipinconfig_t) | 5 &times; `SPIDEV_COUNT` | `pg/bus_spi.h` |
 | `statsConfig` | 547 | `0x87526EDD` | [`statsConfig_t`](#statsconfig_t) | 24 | `pg/stats.h` |
@@ -984,28 +984,30 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### servoConfig_t
 
-- `servoConfig` &mdash; PGN 52 (`PG_SERVO_CONFIG`), hash `0x37B44E84`
-
-`sizeof` = 16 bytes.
-
-| Offset | Size | Type | Member |
-| ---: | ---: | --- | --- |
-| 0 | 16 | [`servoDevConfig_t`](#servodevconfig_t) | `dev` |
-
-### servoParam_t
-
-- `servoParams` &mdash; PGN 42 (`PG_SERVO_PARAMS`), hash `0x40FF767D` &mdash; array of `MAX_SUPPORTED_SERVOS` elements
+- `servoConfig` &mdash; PGN 52 (`PG_SERVO_CONFIG`), hash `0xB12C2058`
 
 `sizeof` = 12 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 4 | `uint32_t` | `reversedSources` |
-| 4 | 2 | `int16_t` | `min` |
-| 6 | 2 | `int16_t` | `max` |
-| 8 | 2 | `int16_t` | `middle` |
-| 10 | 1 | `int8_t` | `rate` |
-| 11 | 1 | &mdash; | *(tail padding)* |
+| 0 | 12 | [`servoDevConfig_t`](#servodevconfig_t) | `dev` |
+
+### servoParam_t
+
+- `servoParams` &mdash; PGN 42 (`PG_SERVO_PARAMS`), hash `0x1704EAF5` &mdash; array of `MAX_SUPPORTED_SERVOS` elements
+
+`sizeof` = 16 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 2 | `int16_t` | `mid` |
+| 2 | 2 | `int16_t` | `min` |
+| 4 | 2 | `int16_t` | `max` |
+| 6 | 2 | `uint16_t` | `rpos` |
+| 8 | 2 | `uint16_t` | `rneg` |
+| 10 | 2 | `uint16_t` | `rate` |
+| 12 | 2 | `uint16_t` | `speed` |
+| 14 | 2 | `uint16_t` | `flags` |
 
 ### sonarConfig_t
 
@@ -1303,13 +1305,11 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### servoDevConfig_t
 
-`sizeof` = 16 bytes.
+`sizeof` = 12 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 2 | `uint16_t` | `servoCenterPulse` |
-| 2 | 2 | `uint16_t` | `servoPwmRate` |
-| 4 | 12 | `ioTag_t` | `ioTags[12]` |
+| 0 | 12 | `ioTag_t` | `ioTags[12]` |
 
 ### specialColorIndexes_t
 
