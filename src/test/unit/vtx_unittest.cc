@@ -85,6 +85,7 @@ extern "C" {
     float axisPID_P[3], axisPID_I[3], axisPID_D[3], axisPIDSum[3];
     rxRuntimeState_t rxRuntimeState = {};
     acc_t acc;
+    gyro_t gyro;
 }
 
 uint32_t simulationFeatureFlags = 0;
@@ -303,6 +304,7 @@ TEST(VtxTest, ArmedLocksBandAndChannelButNotPower)
 // STUBS
 extern "C" {
     uint8_t activePidLoopDenom = 1;
+    uint8_t activeFilterLoopDenom = 1;
     uint32_t micros(void) { return simulationTime; }
     uint32_t millis(void) { return micros() / 1000; }
     bool isRxReceivingSignal(void) { return simulationHaveRx; }

@@ -100,7 +100,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
 | `opticalflowConfig` | 560 | `0x258240D2` | [`opticalflowConfig_t`](#opticalflowconfig_t) | 8 | `pg/opticalflow.h` |
-| `pidConfig` | 504 | `0x8D4306A8` | [`pidConfig_t`](#pidconfig_t) | 1 | `pg/pid.h` |
+| `pidConfig` | 504 | `0x77A9E9E6` | [`pidConfig_t`](#pidconfig_t) | 2 | `pg/pid.h` |
 | `pidProfiles` | 14 | `0x97F727C6` | [`pidProfile_t`](#pidprofile_t) | 40 &times; `PID_PROFILE_COUNT` | `pg/pid.h` |
 | `pilotConfig` | 47 | `0xDFA805D5` | [`pilotConfig_t`](#pilotconfig_t) | 34 | `pg/pilot.h` |
 | `pinPulldownConfig` | 552 | `0x8EA458C5` | [`pinPullUpDownConfig_t`](#pinpullupdownconfig_t) | 1 &times; `PIN_PULL_UP_DOWN_COUNT` | `pg/pin_pull_up_down.h` |
@@ -725,13 +725,14 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### pidConfig_t
 
-- `pidConfig` &mdash; PGN 504 (`PG_PID_CONFIG`), hash `0x8D4306A8`
+- `pidConfig` &mdash; PGN 504 (`PG_PID_CONFIG`), hash `0x77A9E9E6`
 
-`sizeof` = 1 byte.
+`sizeof` = 2 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `uint8_t` | `pid_process_denom` |
+| 1 | 1 | `uint8_t` | `filter_process_denom` |
 
 ### pidProfile_t
 
