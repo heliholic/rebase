@@ -34,14 +34,21 @@
 #define U_ID_1 1
 #define U_ID_2 2
 
+#ifndef NOINLINE
 #define NOINLINE
+#endif
 #define INIT_CODE
+#define INIT_ZERO  { 0, }
 #define FAST_CODE
 #define FAST_CODE_NOINLINE
 #define FAST_CODE_PREF
 #define FAST_DATA_ZERO_INIT
 #define FAST_DATA
 #define RAM_CODE
+
+#ifndef __unused
+#define __unused  __attribute__((__unused__))
+#endif
 
 
 #define PID_PROFILE_COUNT 4
