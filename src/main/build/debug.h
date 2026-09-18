@@ -21,6 +21,8 @@
 #include "types.h"
 #include "utils.h"
 
+#include "drivers/itm.h"
+
 #define DEBUG_VALUE_COUNT       8
 #define DEBUG16_VALUE_COUNT     8
 
@@ -31,7 +33,11 @@ extern int32_t debug[DEBUG_VALUE_COUNT];
 
 extern uint32_t _debug_timing[DEBUG_VALUE_COUNT];
 
+#ifdef USE_ITM_DEBUG
+#define DEBUG_ASSIGN(index, value)                (ITM_SendU32((index) | 0x10, (debug[(index)] = (value))))
+#else
 #define DEBUG_ASSIGN(index, value)                (debug[(index)] = (value))
+#endif
 
 #define DEBUG_SET(mode, index, value)             STMT( if (debugMode == (mode)) { DEBUG_ASSIGN((index),(value)); } )
 #define DEBUG_AXIS_SET(mode, axis, index, value)  STMT( if (debugAxis == (axis) && debugMode == (mode)) { DEBUG_ASSIGN((index),(value)); } )

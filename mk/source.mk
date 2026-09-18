@@ -113,6 +113,7 @@ COMMON_SRC = \
             drivers/dma.c \
             drivers/io.c \
             drivers/io_preinit.c \
+            drivers/itm.c \
             drivers/lcd_console.c \
             drivers/lcd_panel/lcd_panel_font_5x7.c \
             drivers/lcd_panel/lcd_panel_stub.c \
