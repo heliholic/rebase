@@ -42,6 +42,7 @@
 #define PARAM_NAME_DEADBAND "deadband"
 #define PARAM_NAME_YAW_DEADBAND "yaw_deadband"
 #define PARAM_NAME_PID_PROCESS_DENOM "pid_process_denom"
+#define PARAM_NAME_FILTER_PROCESS_DENOM "filter_process_denom"
 #define PARAM_NAME_DEBUG_MODE "debug_mode"
 #define PARAM_NAME_DEBUG_AXIS "debug_axis"
 

@@ -107,7 +107,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `osdConfig` | 501 | `0x93F2F457` | [`osdConfig_t`](#osdconfig_t) | 120 | `pg/osd.h` |
 | `osdCustomTextConfig` | 2044 | `0x63DD6BD3` | [`osdCustomTextConfig_t`](#osdcustomtextconfig_t) | 1 | `pg/osd.h` |
 | `osdElementConfig` | 2045 | `0x1F28AC35` | [`osdElementConfig_t`](#osdelementconfig_t) | 168 | `pg/osd.h` |
-| `pidConfig` | 504 | `0x8D4306A8` | [`pidConfig_t`](#pidconfig_t) | 1 | `pg/pid.h` |
+| `pidConfig` | 504 | `0x77A9E9E6` | [`pidConfig_t`](#pidconfig_t) | 2 | `pg/pid.h` |
 | `pidProfiles` | 14 | `0x97F727C6` | [`pidProfile_t`](#pidprofile_t) | 40 &times; `PID_PROFILE_COUNT` | `pg/pid.h` |
 | `pilotConfig` | 47 | `0x1EBC0AC6` | [`pilotConfig_t`](#pilotconfig_t) | 102 | `pg/pilot.h` |
 | `pinPulldownConfig` | 552 | `0x8EA458C5` | [`pinPullUpDownConfig_t`](#pinpullupdownconfig_t) | 1 &times; `PIN_PULL_UP_DOWN_COUNT` | `pg/pin_pull_up_down.h` |
@@ -838,13 +838,14 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### pidConfig_t
 
-- `pidConfig` &mdash; PGN 504 (`PG_PID_CONFIG`), hash `0x8D4306A8`
+- `pidConfig` &mdash; PGN 504 (`PG_PID_CONFIG`), hash `0x77A9E9E6`
 
-`sizeof` = 1 byte.
+`sizeof` = 2 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `uint8_t` | `pid_process_denom` |
+| 1 | 1 | `uint8_t` | `filter_process_denom` |
 
 ### pidProfile_t
 

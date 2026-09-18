@@ -36,16 +36,15 @@
 #include "pid.h"
 
 
-FAST_DATA_ZERO_INIT uint32_t targetPidLooptime;
-
 FAST_DATA_ZERO_INIT pidAxisData_t pidData[XYZ_AXIS_COUNT];
 
 
 static void pidSetTargetLooptime(uint32_t pidLooptime)
 {
-    targetPidLooptime = pidLooptime;
 #ifdef USE_DSHOT
-    dshotSetPidLoopTime(targetPidLooptime);
+    dshotSetPidLoopTime(pidLooptime);
+#else
+    UNUSED(pidLooptime);
 #endif
 }
 

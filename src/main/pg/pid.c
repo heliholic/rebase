@@ -35,6 +35,7 @@ PG_REGISTER_WITH_RESET_TEMPLATE(pidConfig_t, pidConfig, PG_PID_CONFIG);
 PG_RESET_TEMPLATE(pidConfig_t, pidConfig)
 {
     .pid_process_denom = DEFAULT_PID_PROCESS_DENOM,
+    .filter_process_denom = FILTER_PROCESS_DENOM_DEFAULT,
 };
 
 PG_REGISTER_ARRAY(pidProfile_t, PID_PROFILE_COUNT, pidProfiles, PG_PID_PROFILE);
