@@ -51,8 +51,7 @@ bool blackboxDeviceFlushForceComplete(void);
 bool blackboxDeviceOpen(void);
 void blackboxDeviceClose(void);
 
-void blackboxEraseAll(void);
-bool isBlackboxErased(void);
+void blackboxDeviceErase(void);
 bool isBlackboxDeviceReady(void);
 void blackboxDeviceInitialErase(void);
 

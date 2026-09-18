@@ -320,7 +320,6 @@ extern "C" {
     void beeperSilence(void) {}
     void systemBeep(bool) {}
     void saveConfigAndNotify(void) {}
-    void blackboxFinish(void) {}
     bool accIsCalibrationComplete(void) { return true; }
     bool accHasBeenCalibrated(void) { return true; }
     bool baroIsCalibrated(void) { return true; }
@@ -356,6 +355,7 @@ extern "C" {
     void processRcCommand(void) {}
     void updateGpsStateForHomeAndHoldMode(void) {}
     void blackboxUpdate(timeUs_t) {}
+    void blackboxFlush(timeUs_t) {}
     void GPS_reset_home_position(void) {}
     void accStartCalibration(void) {}
     void baroSetGroundLevel(void) {}

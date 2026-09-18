@@ -91,7 +91,7 @@ static struct {
 } blackboxSDCard;
 
 #define LOGFILE_PREFIX "LOG"
-#define LOGFILE_SUFFIX "BFL"
+#define LOGFILE_SUFFIX "BBL"
 
 #endif // USE_SDCARD
 
@@ -402,36 +402,10 @@ bool blackboxDeviceOpen(void)
  * Erase all blackbox logs
  */
 #ifdef USE_FLASHFS
-void blackboxEraseAll(void)
+void blackboxDeviceErase(void)
 {
-    switch (blackboxConfig()->device) {
-    case BLACKBOX_DEVICE_FLASH:
-        /* Stop the recorder as if blackbox_mode = ALWAYS it will attempt to resume writing after
-         * the erase and leave a corrupted first log.
-         * Possible enhancement here is to restart logging after erase.
-         */
-        blackboxInit();
+    if (blackboxConfig()->device == BLACKBOX_DEVICE_FLASH) {
         flashfsEraseCompletely();
-        break;
-    default:
-        //not supported
-        break;
-    }
-}
-
-/**
- * Check to see if erasing is done
- */
-bool isBlackboxErased(void)
-{
-    switch (blackboxConfig()->device) {
-    case BLACKBOX_DEVICE_FLASH:
-        return flashfsIsReady();
-        break;
-    default:
-    //not supported
-        return true;
-        break;
     }
 }
 #endif

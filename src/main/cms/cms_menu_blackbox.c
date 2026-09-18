@@ -70,18 +70,9 @@ static const char * const cmsx_BlackboxDeviceNames[] = {
     "SERIAL"
 };
 
-static const char * const cmsx_BlackboxRateNames[] = {
-    "1/1",
-    "1/2",
-    "1/4",
-    "1/8",
-    "1/16"
-};
-
 static uint8_t cmsx_BlackboxDevice;
 static OSD_TAB_t cmsx_BlackboxDeviceTable = { &cmsx_BlackboxDevice, 3, cmsx_BlackboxDeviceNames };
-static uint8_t cmsx_BlackboxRate;
-static OSD_TAB_t cmsx_BlackboxRateTable = { &cmsx_BlackboxRate, 4, cmsx_BlackboxRateNames };
+static uint16_t cmsx_BlackboxDenom;
 static uint8_t systemConfig_debug_mode;
 
 #define CMS_BLACKBOX_STRING_LENGTH 8
@@ -225,7 +216,7 @@ static const void *cmsx_Blackbox_onEnter(displayPort_t *pDisp)
 
     cmsx_Blackbox_GetDeviceStatus();
     cmsx_BlackboxDevice = blackboxConfig()->device;
-    cmsx_BlackboxRate = blackboxConfig()->sample_rate;
+    cmsx_BlackboxDenom = blackboxConfig()->denom;
     systemConfig_debug_mode = systemConfig()->debug_mode;
 
     const uint16_t pidFreq = (uint16_t)pidGetPidFrequency();
@@ -246,7 +237,7 @@ static const void *cmsx_Blackbox_onExit(displayPort_t *pDisp, const OSD_Entry *s
         blackboxConfigMutable()->device = cmsx_BlackboxDevice;
         blackboxValidateConfig();
     }
-    blackboxConfigMutable()->sample_rate = cmsx_BlackboxRate;
+    blackboxConfigMutable()->denom = cmsx_BlackboxDenom;
     systemConfigMutable()->debug_mode = systemConfig_debug_mode;
 
     return NULL;
@@ -299,7 +290,7 @@ static const OSD_Entry cmsx_menuBlackboxEntries[] =
 {
     { "-- BLACKBOX --", OME_Label, NULL, NULL},
     { "(PID FREQ)",  OME_String,  NULL,            &cmsx_pidFreq },
-    { "SAMPLERATE",  OME_TAB | REBOOT_REQUIRED,     NULL,            &cmsx_BlackboxRateTable },
+    { "DENOM",       OME_UINT16 | REBOOT_REQUIRED,  NULL,            &(OSD_UINT16_t){ &cmsx_BlackboxDenom, 1, 8000, 1 } },
     { "DEVICE",      OME_TAB | REBOOT_REQUIRED,     NULL,            &cmsx_BlackboxDeviceTable },
     { "(STATUS)",    OME_String,  NULL,            &cmsx_BlackboxStatus },
     { "(USED)",      OME_String,  NULL,            &cmsx_BlackboxDeviceStorageUsed },

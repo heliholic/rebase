@@ -57,7 +57,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ## Parameter groups
 
-87 groups, 15 nested structures, 22 enumerations.
+87 groups, 15 nested structures, 21 enumerations.
 
 | Group | PGN | Hash | Type | Size | Header |
 | --- | ---: | --- | --- | ---: | --- |
@@ -70,7 +70,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `batteryProfiles` | 561 | `0x561E7785` | [`batteryProfile_t`](#batteryprofile_t) | 22 &times; `BATTERY_PROFILE_COUNT` | `pg/battery.h` |
 | `beeperConfig` | 502 | `0x937634D6` | [`beeperConfig_t`](#beeperconfig_t) | 12 | `pg/beeper.h` |
 | `beeperDevConfig` | 503 | `0x8A1FED2B` | [`beeperDevConfig_t`](#beeperdevconfig_t) | 6 | `pg/beeper_dev.h` |
-| `blackboxConfig` | 5 | `0x4EB5AA96` | [`blackboxConfig_t`](#blackboxconfig_t) | 12 | `pg/blackbox.h` |
+| `blackboxConfig` | 5 | `0xCA44FF83` | [`blackboxConfig_t`](#blackboxconfig_t) | 12 | `pg/blackbox.h` |
 | `boardAlignment` | 2 | `0xAC3A314A` | [`alignment_u`](#alignment_u) | 6 | `pg/alignment.h` |
 | `boardConfig` | 538 | `0xE3C054A1` | [`boardConfig_t`](#boardconfig_t) | 27 | `pg/board.h` |
 | `cameraControlConfig` | 522 | `0x83D548B1` | [`cameraControlConfig_t`](#cameracontrolconfig_t) | 20 | `pg/camera_control.h` |
@@ -312,20 +312,19 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### blackboxConfig_t
 
-- `blackboxConfig` &mdash; PGN 5 (`PG_BLACKBOX_CONFIG`), hash `0x4EB5AA96`
+- `blackboxConfig` &mdash; PGN 5 (`PG_BLACKBOX_CONFIG`), hash `0xCA44FF83`
 
 `sizeof` = 12 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 4 | `uint32_t` | `fields_disabled_mask` |
-| 4 | 1 | [`BlackboxSampleRate_e`](#blackboxsamplerate_e) | `sample_rate` |
-| 5 | 1 | [`BlackboxDevice_e`](#blackboxdevice_e) | `device` |
-| 6 | 1 | [`BlackboxMode`](#blackboxmode) | `mode` |
-| 7 | 1 | `bool` | `high_resolution` |
-| 8 | 2 | `uint16_t` | `initialEraseFreeSpaceKiB` |
+| 0 | 1 | [`BlackboxDevice_e`](#blackboxdevice_e) | `device` |
+| 1 | 1 | [`BlackboxMode_e`](#blackboxmode_e) | `mode` |
+| 2 | 2 | `uint16_t` | `denom` |
+| 4 | 4 | `uint32_t` | `fields` |
+| 8 | 2 | `uint16_t` | `initialErase` |
 | 10 | 1 | `bool` | `rollingErase` |
-| 11 | 1 | &mdash; | *(tail padding)* |
+| 11 | 1 | `uint8_t` | `gracePeriod` |
 
 ### boardConfig_t
 
@@ -1577,25 +1576,16 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `BLACKBOX_DEVICE_SERIAL` | 3 |
 | `BLACKBOX_DEVICE_VIRTUAL` | 4 |
 
-### BlackboxMode
+### BlackboxMode_e
 
 `sizeof` = 1 byte.
 
 | Enumerator | Value |
 | --- | ---: |
-| `BLACKBOX_MODE_NORMAL` | 0 |
-
-### BlackboxSampleRate_e
-
-`sizeof` = 1 byte.
-
-| Enumerator | Value |
-| --- | ---: |
-| `BLACKBOX_RATE_ONE` | 0 |
-| `BLACKBOX_RATE_HALF` | 1 |
-| `BLACKBOX_RATE_QUARTER` | 2 |
-| `BLACKBOX_RATE_8TH` | 3 |
-| `BLACKBOX_RATE_16TH` | 4 |
+| `BLACKBOX_MODE_OFF` | 0 |
+| `BLACKBOX_MODE_NORMAL` | 1 |
+| `BLACKBOX_MODE_ARMED` | 2 |
+| `BLACKBOX_MODE_SWITCH` | 3 |
 
 ### altitudeSource_e
 
