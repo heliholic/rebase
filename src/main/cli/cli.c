@@ -49,13 +49,13 @@ bool cliMode = false;
 #include "common/printf.h"
 #include "common/printf_serial.h"
 #include "common/strtol.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/typeconversion.h"
 #include "common/utils.h"
 
 #include "config/config.h"
 #include "config/config_eeprom.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/adc.h"

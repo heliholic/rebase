@@ -22,7 +22,7 @@
 #ifdef USE_SERIALRX
 #if defined(USE_SPEKTRUM_REAL_RSSI) || defined(USE_SPEKTRUM_VIRTUAL_RSSI)
 
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "common/utils.h"
 #include "common/maths.h"
 

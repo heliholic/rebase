@@ -33,7 +33,7 @@
 #include "build/debug.h"
 
 #include "common/crc.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/vtx_common.h"
 #include "drivers/vtx_table.h"

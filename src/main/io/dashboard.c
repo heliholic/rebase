@@ -43,7 +43,7 @@
 #include "common/axis.h"
 #include "common/typeconversion.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "pg/dashboard.h"
 #include "pg/rx.h"
 

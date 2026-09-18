@@ -32,7 +32,7 @@ extern "C" {
     #include "common/printf.h"
     #include "common/maths.h"
     #include "common/gps_conversion.h"
-    #include "config/feature.h"
+    #include "fc/feature.h"
     #include "drivers/buf_writer.h"
     #include "drivers/vtx_common.h"
     #include "config/config.h"
@@ -343,6 +343,7 @@ void schedulerResetCheckFunctionMaxExecutionTime(void) {}
 void schedulerIgnoreTaskExecTime(void) {}
 
 const char * const targetName = "UNITTEST";
+const char * const mcuTypeName = "UNITTEST";
 const char * const buildDate = "Jan 01 2017";
 const char * const buildTime = "00:00:00";
 const char * const shortGitRevision = "MASTER";
@@ -406,7 +407,6 @@ void analyzeModeActivationConditions(void) {}
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *, const modeActivationCondition_t *) { return false; }
 
 void delay(uint32_t) {}
-const char *getMcuTypeName(void) { return targetName; }
 float getCurrentRxRateHz(void) { return 0; }
 uint16_t getAverageSystemLoadPercent(void) { return 0; }
 bool getRxRateValid(void) { return false; }

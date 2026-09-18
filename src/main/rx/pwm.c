@@ -30,7 +30,7 @@
 
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "pg/rx.h"
 

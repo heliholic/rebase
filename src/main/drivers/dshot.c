@@ -34,13 +34,13 @@
 #ifdef USE_DSHOT
 
 #include "build/debug.h"
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "common/filter.h"
 #include "common/maths.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/motor_types.h"
 #include "drivers/timer.h"

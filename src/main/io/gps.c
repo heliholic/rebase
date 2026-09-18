@@ -35,7 +35,7 @@
 #include "common/maths.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/light_led.h"
 #include "drivers/time.h"

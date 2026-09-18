@@ -30,7 +30,7 @@
 #include "common/maths.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/time.h"
 #include "drivers/vtx_table.h"

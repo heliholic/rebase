@@ -26,7 +26,7 @@ extern "C" {
     #include <platform.h>
 
     #include "build/debug.h"
-    #include "build/atomic.h"
+    #include "common/atomic.h"
 
     #include "common/crc.h"
     #include "common/utils.h"

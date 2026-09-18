@@ -39,7 +39,7 @@
 #endif // DEFAULT_RX_FEATURE
 
 // features must be listed in
-//  config/feature.c:featuresSupportedByBuild
+//  fc/feature.c:featuresSupportedByBuild
 //  cli/cli.c:featureNames
 typedef enum {
     FEATURE_RX_PPM = 1 << 0,

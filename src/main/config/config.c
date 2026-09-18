@@ -34,7 +34,7 @@
 #include "common/sensor_alignment.h"
 
 #include "config/config_eeprom.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/dshot_command.h"
 #include "drivers/motor.h"

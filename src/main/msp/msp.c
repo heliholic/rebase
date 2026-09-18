@@ -47,7 +47,7 @@
 
 #include "config/config.h"
 #include "config/config_eeprom.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/bus_i2c.h"

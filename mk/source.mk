@@ -36,10 +36,9 @@ PG_SRC = \
             pg/vtx_table.c
 
 COMMON_SRC = \
-            build/build_config.c \
             build/debug.c \
+            build/faults.c \
             build/version.c \
-            main.c \
             common/bitarray.c \
             common/colorconversion.c \
             common/crc.c \
@@ -58,14 +57,13 @@ COMMON_SRC = \
             common/streambuf.c \
             common/string_light.c \
             common/strtol.c \
-            common/time.c \
+            common/rtc.c \
             common/typeconversion.c \
             common/uvarint.c \
             common/vector.c \
             config/config.c \
             config/config_eeprom.c \
             config/config_streamer.c \
-            config/feature.c \
             cli/cli.c \
             cli/settings.c \
             drivers/dshot.c \
@@ -98,9 +96,10 @@ COMMON_SRC = \
             drivers/sound_beeper.c \
             drivers/stack_check.c \
             drivers/timer_common.c \
+            fc/main.c \
             fc/board_info.c \
             fc/dispatch.c \
-            fc/faults.c \
+            fc/feature.c \
             fc/tasks.c \
             fc/runtime_config.c \
             fc/stats.c \
@@ -388,8 +387,8 @@ SIZE_OPTIMISED_SRC += \
             drivers/vtx_common.c \
             fc/init.c \
             fc/board_info.c \
+            fc/feature.c \
             config/config_eeprom.c \
-            config/feature.c \
             config/config_streamer.c \
             io/dashboard.c \
             io/serial.c \
