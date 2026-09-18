@@ -20,44 +20,44 @@
 
 #pragma once
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "platform.h"
+
 #include "build/build_config.h"
 #include "common/rtc.h"
+
 #include "pg/blackbox.h"
 
-typedef enum FlightLogEvent {
-    FLIGHT_LOG_EVENT_SYNC_BEEP = 0,
-    FLIGHT_LOG_EVENT_AUTOTUNE_CYCLE_START = 10,   // UNUSED
-    FLIGHT_LOG_EVENT_AUTOTUNE_CYCLE_RESULT = 11,  // UNUSED
-    FLIGHT_LOG_EVENT_AUTOTUNE_TARGETS = 12,       // UNUSED
-    FLIGHT_LOG_EVENT_INFLIGHT_ADJUSTMENT = 13,
-    FLIGHT_LOG_EVENT_LOGGING_RESUME = 14,
-    FLIGHT_LOG_EVENT_DISARM = 15,
-    FLIGHT_LOG_EVENT_FLIGHTMODE = 30, // Add new event type for flight mode status.
-    FLIGHT_LOG_EVENT_LOG_END = 255
-} FlightLogEvent;
+#include "blackbox_fielddefs.h"
 
-union flightLogEventData_u;
-void blackboxLogEvent(FlightLogEvent event, union flightLogEventData_u *data);
 
-void blackboxInit(void);
+void blackboxLogEvent(FlightLogEvent event, flightLogEventData_t *data);
+
+void blackboxLogCustomData(const uint8_t *ptr, size_t length);
+void blackboxLogCustomString(const char *ptr);
+
 void blackboxUpdate(timeUs_t currentTimeUs);
-void blackboxSetStartDateTime(const char *dateTime, timeMs_t timeNowMs);
-int blackboxCalculatePDenom(int rateNum, int rateDenom);
-uint8_t blackboxGetRateDenom(void);
-uint16_t blackboxGetPRatio(void);
-uint8_t blackboxCalculateSampleRate(uint16_t pRatio);
+void blackboxFlush(timeUs_t currentTimeUs);
+void blackboxInit(void);
+
+void blackboxErase(void);
+bool isBlackboxErased(void);
+
 void blackboxValidateConfig(void);
-void blackboxFinish(void);
 bool blackboxMayEditConfig(void);
+
+uint16_t blackboxGetRateDenom(void);
+
 #ifdef UNIT_TEST
-STATIC_UNIT_TESTED void blackboxLogIteration(timeUs_t currentTimeUs);
-STATIC_UNIT_TESTED bool blackboxShouldLogPFrame(void);
+STATIC_UNIT_TESTED bool blackboxShouldLogFastFrame(void);
 STATIC_UNIT_TESTED bool blackboxShouldLogIFrame(void);
-STATIC_UNIT_TESTED bool blackboxShouldLogGpsHomeFrame(void);
-STATIC_UNIT_TESTED bool writeSlowFrameIfNeeded(void);
 // Called once every FC loop in order to keep track of how many FC loop iterations have passed
 STATIC_UNIT_TESTED void blackboxAdvanceIterationTimers(void);
-extern int32_t blackboxSInterval;
-extern int32_t blackboxSlowFrameIterationTimer;
+extern uint32_t blackboxPInterval;
+extern uint32_t blackboxIInterval;
+extern uint32_t blackboxSInterval;
+extern uint32_t blackboxGInterval;
 #endif
