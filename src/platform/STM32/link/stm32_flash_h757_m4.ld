@@ -130,6 +130,14 @@ SECTIONS
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
   } >FLASH1
 
+  /* Erase the stored config, when built with FLASH_CONFIG_ERASE=yes */
+  .flash_config :
+  {
+    FILL(0xFFFFFFFF);
+    KEEP (*(.flash_config))
+    . = DEFINED(__config_erase) ? ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG) : .;
+  } >FLASH_CONFIG
+
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 

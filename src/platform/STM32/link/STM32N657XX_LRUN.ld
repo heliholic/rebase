@@ -162,6 +162,14 @@ SECTIONS
     . = ALIGN(4);
   } >RAM AT >FLASH
 
+  /* Erase the stored config, when built with FLASH_CONFIG_ERASE=yes */
+  .flash_config :
+  {
+    FILL(0xFFFFFFFF);
+    KEEP (*(.flash_config))
+    . = DEFINED(__config_erase) ? ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG) : .;
+  } >FLASH_CONFIG
+
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data :
   {
