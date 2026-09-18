@@ -45,9 +45,9 @@ static const uint8_t STORAGE_Inquirydata[] =
     0x00, 0x80, 0x02, 0x02,
     (USBD_MSC_INQUIRY_DATA_LEN - 5),
     0x00, 0x00, 0x00,
-    'B', 'E', 'T', 'A', 'F', 'L', 'T', ' ', // Manufacturer : 8 bytes
-    'O', 'n', 'b', 'o', 'a', 'r', 'd', ' ', // Product      : 16 Bytes
-    'F', 'l', 'a', 's', 'h', ' ', ' ', ' ', //
+    'R', 'O', 'T', 'O', 'R', 'F', 'L', 'T', // Manufacturer : 8 bytes
+    'B', 'l', 'a', 'c', 'k', 'b', 'o', 'x', // Product      : 16 Bytes
+    ' ', 'F', 'l', 'a', 's', 'h', ' ', ' ', //
     ' ', ' ', ' ' ,' ',                     // Version      : 4 Bytes
 };
 
