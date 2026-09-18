@@ -78,7 +78,6 @@ COMMON_SRC = \
             common/huffman_table.c \
             common/maths.c \
             common/printf.c \
-            common/printf_serial.c \
             common/pwl.c \
             common/sensor_alignment.c \
             common/stopwatch.c \
@@ -353,6 +352,7 @@ SPEED_OPTIMISED_SRC += \
             common/encoding.c \
             common/filter.c \
             common/maths.c \
+            common/printf.c \
             common/pwl.c \
             common/stopwatch.c \
             common/typeconversion.c \
@@ -433,6 +433,9 @@ SIZE_OPTIMISED_SRC  := $(filter-out $(MCU_EXCLUDES), $(SIZE_OPTIMISED_SRC))
 SRC += $(VCP_SRC)
 
 # end target specific make file checks
+
+# nanoprintf is a header-only formatter pulled in by common/printf.c
+INCLUDE_DIRS += $(LIB_MAIN_DIR)/nanoprintf
 
 # libcanard (DroneCAN transport) and the Betaflight-side glue live in the
 # per-MCU makefiles: they're only wired into the build for families whose

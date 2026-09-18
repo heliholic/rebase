@@ -32,8 +32,3 @@
 #define INLINE_UNIT_TESTED inline
 #define UNIT_TESTED
 #endif
-
-#ifndef __CC_ARM
-#define REQUIRE_CC_ARM_PRINTF_SUPPORT
-#define REQUIRE_PRINTF_LONG_SUPPORT
-#endif
