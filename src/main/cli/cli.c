@@ -1224,7 +1224,7 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
             const modeActivationCondition_t *macDefault = &defaultModeActivationConditions[i];
             equalsDefault = !isModeActivationConditionConfigured(mac, macDefault);
             headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
-            const box_t *box = findBoxByBoxId(macDefault->modeId);
+            const box_t *box = findBoxByBoxId(macDefault->boxId);
             const box_t *linkedTo = findBoxByBoxId(macDefault->linkedTo);
             if (box) {
                 cliDefaultPrintLinef(dumpMask, equalsDefault, format,
@@ -1238,7 +1238,7 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
                 );
             }
         }
-        const box_t *box = findBoxByBoxId(mac->modeId);
+        const box_t *box = findBoxByBoxId(mac->boxId);
         const box_t *linkedTo = findBoxByBoxId(mac->linkedTo);
         if (box) {
             cliDumpPrintLinef(dumpMask, equalsDefault, format,
@@ -1271,13 +1271,8 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             if (ptr) {
                 val = atoi(ptr);
                 const box_t *box = findBoxByPermanentId(val);
-                if (box && box->boxId == BOXARM) {
-                    // arming has its own control channel and arm_range
-                    cliShowParseError(cmdName);
-                    return;
-                }
                 if (box) {
-                    mac->modeId = box->boxId;
+                    mac->boxId = box->boxId;
                     validArgumentCount++;
                 }
             }
@@ -1318,7 +1313,7 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             rcModeInit();
             cliPrintLinef( "aux %u %u %u %u %u %u %u",
                 i,
-                findBoxByBoxId(mac->modeId)->permanentId,
+                findBoxByBoxId(mac->boxId)->permanentId,
                 mac->rcChannel,
                 STEP_TO_CHANNEL_VALUE(mac->range.startStep),
                 STEP_TO_CHANNEL_VALUE(mac->range.endStep),

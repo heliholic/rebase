@@ -32,6 +32,7 @@ extern "C" {
 
     #include "controls/modes.h"
 
+    #include "fc/arming.h"
     #include "fc/rc_controls.h"
     #include "flight/imu.h"
 
@@ -298,19 +299,19 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceUnready)
 
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+    modeActivationConditionsMutable(0)->boxId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+    modeActivationConditionsMutable(1)->boxId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
     modeActivationConditionsMutable(2)->rcChannel = 7;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+    modeActivationConditionsMutable(2)->boxId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
@@ -370,19 +371,19 @@ TEST(RCDeviceTest, TestWifiModeChangeWithDeviceReady)
 
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+    modeActivationConditionsMutable(0)->boxId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+    modeActivationConditionsMutable(1)->boxId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
     modeActivationConditionsMutable(2)->rcChannel = 7;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+    modeActivationConditionsMutable(2)->boxId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
@@ -438,19 +439,19 @@ TEST(RCDeviceTest, TestWifiModeChangeCombine)
 
     // bind aux1 to wifi button with range [900,1600]
     modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+    modeActivationConditionsMutable(0)->boxId = BOXCAMERA1;
     modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // bind aux2 to power button with range [1900, 2100]
     modeActivationConditionsMutable(1)->rcChannel = 6;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+    modeActivationConditionsMutable(1)->boxId = BOXCAMERA2;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     // bind aux3 to change mode with range [1300, 1600]
     modeActivationConditionsMutable(2)->rcChannel = 7;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+    modeActivationConditionsMutable(2)->boxId = BOXCAMERA3;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
@@ -872,7 +873,7 @@ extern "C" {
     uint32_t micros(void) { return millis() * 1000; }
     void beeper(beeperMode_e mode) { UNUSED(mode); }
     uint8_t armingFlags = 0;
-    int getArmingDisableFlags(void) {return 0;}
+    armingDisableFlags_e getArmingDisableFlags(void) { return (armingDisableFlags_e)0; }
     void pinioBoxTaskControl(void) {}
     attitudeEulerAngles_t attitude = { { 0, 0, 0 } };
 }

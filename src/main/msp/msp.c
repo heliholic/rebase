@@ -1108,7 +1108,7 @@ case MSP_NAME:
     case MSP_MODE_RANGES:
         for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
             const modeActivationCondition_t *mac = modeActivationConditions(i);
-            const box_t *box = findBoxByBoxId(mac->modeId);
+            const box_t *box = findBoxByBoxId(mac->boxId);
             sbufWriteU8(dst, box->permanentId);
             sbufWriteU8(dst, mac->rcChannel);
             sbufWriteU8(dst, mac->range.startStep);
@@ -1121,7 +1121,7 @@ case MSP_NAME:
 
         for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
             const modeActivationCondition_t *mac = modeActivationConditions(i);
-            const box_t *box = findBoxByBoxId(mac->modeId);
+            const box_t *box = findBoxByBoxId(mac->boxId);
             const box_t *linkedBox = findBoxByBoxId(mac->linkedTo);
             sbufWriteU8(dst, box->permanentId);     // each element is aligned with MODE_RANGES by the permanentId
             sbufWriteU8(dst, mac->modeLogic);
@@ -2187,12 +2187,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             modeActivationCondition_t *mac = modeActivationConditionsMutable(i);
             i = sbufReadU8(src);
             const box_t *box = findBoxByPermanentId(i);
-            if (box && box->boxId == BOXARM) {
-                // arming has its own control channel and arm_range
-                return MSP_RESULT_ERROR;
-            }
             if (box) {
-                mac->modeId = box->boxId;
+                mac->boxId = box->boxId;
                 mac->rcChannel = sbufReadU8(src);
                 mac->range.startStep = sbufReadU8(src);
                 mac->range.endStep = sbufReadU8(src);

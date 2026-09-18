@@ -29,11 +29,8 @@
 #define BOXID_NONE 255
 
 typedef enum {
-    // ARM flag
-    BOXARM = 0,
-
     // Flight modes
-    BOXANGLE,
+    BOXANGLE = 0,
     BOXHORIZON,
     BOXFAILSAFE,
     BOXID_FLIGHTMODE_LAST = BOXFAILSAFE,
@@ -115,9 +112,9 @@ bool isRangeUsable(const channelRange_t *range);
 bool isRangeActive(uint8_t channel, const channelRange_t *range);
 
 void updateActivatedModes(void);
-bool isModeActivationConditionPresent(boxId_e modeId);
-bool isModeActivationConditionLinked(boxId_e modeId);
-void removeModeActivationCondition(boxId_e modeId);
+bool isModeActivationConditionPresent(boxId_e boxId);
+bool isModeActivationConditionLinked(boxId_e boxId);
+void removeModeActivationCondition(boxId_e boxId);
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *mac, const modeActivationCondition_t *emptyMac);
 
 void rcModeInit(void);

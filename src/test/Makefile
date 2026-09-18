@@ -43,6 +43,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/vector.c \
+		$(USER_DIR)/fc/arming.c \
 		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
@@ -565,6 +566,7 @@ rcdevice_unittest_DEFINES := \
 
 vtx_unittest_SRC := \
 		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/fc/arming.c \
 		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
