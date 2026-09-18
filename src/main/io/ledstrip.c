@@ -27,6 +27,8 @@
 
 #include "platform.h"
 
+#include "pg/adjustments.h"
+
 #ifdef USE_LED_STRIP
 
 #include "build/build_config.h"
@@ -1475,3 +1477,22 @@ void setLedBrightness(uint8_t brightness)
     }
 }
 #endif
+
+
+ADJUSTMENT_GET(LED_PROFILE)
+{
+#ifdef USE_LED_STRIP
+    return getLedProfile() + 1;
+#else
+    return 0;
+#endif
+}
+
+ADJUSTMENT_SET(LED_PROFILE)
+{
+#ifdef USE_LED_STRIP
+    setLedProfile(value - 1);
+#else
+    UNUSED(value);
+#endif
+}

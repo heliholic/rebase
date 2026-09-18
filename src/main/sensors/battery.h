@@ -25,6 +25,7 @@
 #include "sensors/current.h"
 #include "sensors/voltage.h"
 
+#include "pg/adjustments.h"
 #include "pg/battery.h"
 
 //TODO: Make the 'cell full' voltage user adjustble
@@ -93,3 +94,5 @@ void batteryUpdateCurrentMeter(timeUs_t currentTimeUs);
 const lowVoltageCutoff_t *getLowVoltageCutoff(void);
 
 void loadBatteryProfile(void);
+
+ADJUSTMENT_DECLARE(BATTERY_PROFILE)

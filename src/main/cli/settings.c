@@ -45,7 +45,7 @@
 #include "fc/core.h"
 #include "fc/parameter_names.h"
 #include "controls/rc.h"
-#include "fc/rc_adjustments.h"
+#include "controls/adjustments.h"
 #include "fc/rc_controls.h"
 
 #include "flight/failsafe.h"

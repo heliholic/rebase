@@ -23,24 +23,36 @@
 
 #include <stdint.h>
 
-#include "controls/modes.h"
-
 #include "pg/pg.h"
+#include "pg/modes.h"
 
-#define MAX_ADJUSTMENT_RANGE_COUNT 30
+#define MAX_ADJUSTMENT_RANGE_COUNT 42
+
+/*
+ * Defines the get/set pair an adjustment function is wired to. The pair is
+ * defined by the module that owns the parameter, and picked up by the
+ * ADJ_ENTRY table in controls/adjustments.c.
+ */
+#define ADJUSTMENT_GET(id)      int _adjustment_get_##id(void)
+#define ADJUSTMENT_SET(id)      void _adjustment_set_##id(int value)
+
+/*
+ * Declares the get/set pair, for the header of the owning module.
+ */
+#define ADJUSTMENT_DECLARE(id) \
+    extern ADJUSTMENT_GET(id); \
+    extern ADJUSTMENT_SET(id);
 
 typedef struct {
-    // when the enable channel is in range...
-    uint8_t rcChannel;
-    channelRange_t range;
-
-    // ..then apply the adjustment function to the adjustment channel ...
-    uint8_t adjustmentConfig;
+    uint8_t function;
+    uint8_t enaChannel;
+    channelRange_t enaRange;
     uint8_t adjChannel;
-
-    uint16_t adjustmentCenter;
-    uint16_t adjustmentScale;
-
+    channelRange_t adjRange1;
+    channelRange_t adjRange2;
+    int16_t adjMin;
+    int16_t adjMax;
+    uint8_t adjStep;
 } adjustmentRange_t;
 
 PG_DECLARE_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges);

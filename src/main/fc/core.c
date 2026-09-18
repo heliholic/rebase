@@ -51,7 +51,7 @@
 
 #include "controls/rates.h"
 #include "controls/rc.h"
-#include "fc/rc_adjustments.h"
+#include "controls/adjustments.h"
 #include "fc/rc_controls.h"
 #include "controls/modes.h"
 #include "fc/runtime_config.h"
@@ -169,7 +169,7 @@ void processRxModes(timeUs_t currentTimeUs)
     updateActivatedModes();
 
     if (!cliMode && !(IS_RC_MODE_ACTIVE(BOXPARALYZE) && !ARMING_FLAG(ARMED))) {
-        processRcAdjustments(currentRateProfile);
+        processRcAdjustments();
     }
 
     bool canUseHorizonMode = true;

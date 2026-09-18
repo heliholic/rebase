@@ -44,7 +44,7 @@
 #include "controls/rates.h"
 #include "fc/core.h"
 #include "controls/rc.h"
-#include "fc/rc_adjustments.h"
+#include "controls/adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
@@ -134,7 +134,7 @@ static void activateConfig(void)
 
     initRcProcessing();
 
-    activeAdjustmentRangeReset();
+    adjustmentRangeInit();
 
     pidInit(currentPidProfile);
 
