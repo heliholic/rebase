@@ -34,7 +34,7 @@
 #include "common/encoding.h"
 #include "common/printf.h"
 
-static void _putc(void *p, char c)
+static void _putc(int c, void *p)
 {
     (void)p;
     blackboxWrite(c);
