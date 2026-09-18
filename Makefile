@@ -34,6 +34,9 @@ RAM_BASED ?= no
 # reserve space for custom defaults
 CUSTOM_DEFAULTS_EXTENDED ?= no
 
+# generate image that erases config
+FLASH_CONFIG_ERASE ?= no
+
 # Debugger optons:
 #   empty - ordinary build with all optimizations enabled
 #   INFO - ordinary build with debug symbols and all optimizations enabled. Only builds touched files.
@@ -276,6 +279,10 @@ TARGET_FLAGS := -D$(TARGET) -D$(TARGET_PLATFORM) -D$(TARGET_MCU_FAMILY) $(TARGET
 
 ifneq ($(CONFIG),)
 TARGET_FLAGS := $(TARGET_FLAGS) -DUSE_CONFIG
+endif
+
+ifeq ($(FLASH_CONFIG_ERASE),yes)
+TARGET_FLAGS += -DUSE_CONFIG_ERASE
 endif
 
 ifneq ($(FC_VER_SUFFIX),)
