@@ -22,5 +22,13 @@
 
 #include <stdint.h>
 
-uint32_t castFloatBytesToInt(float f);
+
+#define REINTERPRET(type, value) \
+  __extension__ ({ \
+    union { __typeof__ (value) src; type dst; } _u_; \
+    _u_.src = (value); _u_.dst; \
+  })
+
+static inline uint32_t castFloatBytesToInt(float f) { return REINTERPRET(uint32_t, f); }
+
 uint32_t zigzagEncode(int32_t value);
