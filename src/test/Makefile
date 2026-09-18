@@ -30,6 +30,22 @@ VPATH := $(VPATH):$(USER_DIR):$(TEST_DIR)
 #   <test_name>_EXPAND (run for each target, call the above with target as $1)
 #   <test_name>_BLACKLIST (targets to exclude from an expanded test's run)
 
+adjustments_unittest_SRC := \
+		$(USER_DIR)/common/bitarray.c \
+		$(USER_DIR)/common/explog_approx.c \
+		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/stddev.c \
+		$(USER_DIR)/common/trig.c \
+		$(USER_DIR)/controls/adjustments.c \
+		$(USER_DIR)/controls/modes.c \
+		$(USER_DIR)/controls/rates.c \
+		$(USER_DIR)/pg/adjustments.c \
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/rates.c \
+		$(USER_DIR)/pg/rc_controls.c
+
 alignsensor_unittest_SRC := \
 		$(USER_DIR)/sensors/boardalignment.c \
 		$(USER_DIR)/common/sensor_alignment.c \
@@ -342,7 +358,6 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/common/trig.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/controls/modes.c \
-		$(USER_DIR)/fc/rc_adjustments.c \
 		$(USER_DIR)/pg/adjustments.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \

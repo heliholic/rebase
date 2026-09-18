@@ -316,7 +316,6 @@ void writeConfigToEEPROM(void) { }
 bool isEEPROMStructureValid(void) { return true; }
 
 void loadRateProfile(void) { }
-void activeAdjustmentRangeReset(void) { }
 void loadBatteryProfile(void) { }
 void initRcProcessing(void) { }
 void adjustmentRangeInit(void) { }

@@ -63,7 +63,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | --- | ---: | --- | --- | ---: | --- |
 | `accelerometerConfig` | 35 | `0x3071B171` | [`accelerometerConfig_t`](#accelerometerconfig_t) | 16 | `pg/acceleration.h` |
 | `adcConfig` | 510 | `0x278550EC` | [`adcConfig_t`](#adcconfig_t) | 26 | `pg/adc.h` |
-| `adjustmentRanges` | 37 | `0xA217511B` | [`adjustmentRange_t`](#adjustmentrange_t) | 10 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
+| `adjustmentRanges` | 37 | `0xDE2A216C` | [`adjustmentRange_t`](#adjustmentrange_t) | 16 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
 | `armingConfig` | 16 | `0xB7B4FC05` | [`armingConfig_t`](#armingconfig_t) | 5 | `pg/arming.h` |
 | `barometerConfig` | 38 | `0x358757A4` | [`barometerConfig_t`](#barometerconfig_t) | 8 | `pg/barometer.h` |
 | `batteryConfig` | 11 | `0x7E75E919` | [`batteryConfig_t`](#batteryconfig_t) | 14 | `pg/battery.h` |
@@ -178,19 +178,23 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### adjustmentRange_t
 
-- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0xA217511B` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
+- `adjustmentRanges` &mdash; PGN 37 (`PG_ADJUSTMENT_RANGE_CONFIG`), hash `0xDE2A216C` &mdash; array of `MAX_ADJUSTMENT_RANGE_COUNT` elements
 
-`sizeof` = 10 bytes.
+`sizeof` = 16 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 1 | `uint8_t` | `rcChannel` |
-| 1 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
-| 3 | 1 | `uint8_t` | `adjustmentConfig` |
+| 0 | 1 | `uint8_t` | `function` |
+| 1 | 1 | `uint8_t` | `enaChannel` |
+| 2 | 2 | [`channelRange_t`](#channelrange_t) | `enaRange` |
 | 4 | 1 | `uint8_t` | `adjChannel` |
-| 5 | 1 | &mdash; | *(padding)* |
-| 6 | 2 | `uint16_t` | `adjustmentCenter` |
-| 8 | 2 | `uint16_t` | `adjustmentScale` |
+| 5 | 2 | [`channelRange_t`](#channelrange_t) | `adjRange1` |
+| 7 | 2 | [`channelRange_t`](#channelrange_t) | `adjRange2` |
+| 9 | 1 | &mdash; | *(padding)* |
+| 10 | 2 | `int16_t` | `adjMin` |
+| 12 | 2 | `int16_t` | `adjMax` |
+| 14 | 1 | `uint8_t` | `adjStep` |
+| 15 | 1 | &mdash; | *(tail padding)* |
 
 ### alignment_u
 

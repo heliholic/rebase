@@ -75,7 +75,7 @@
 #include "controls/rates.h"
 #include "fc/core.h"
 #include "controls/rc.h"
-#include "fc/rc_adjustments.h"
+#include "controls/adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
@@ -1132,14 +1132,18 @@ case MSP_NAME:
     case MSP_ADJUSTMENT_RANGES:
         for (int i = 0; i < MAX_ADJUSTMENT_RANGE_COUNT; i++) {
             const adjustmentRange_t *adjRange = adjustmentRanges(i);
-            sbufWriteU8(dst, 0); // was adjRange->adjustmentIndex
-            sbufWriteU8(dst, adjRange->rcChannel);
-            sbufWriteU8(dst, adjRange->range.startStep);
-            sbufWriteU8(dst, adjRange->range.endStep);
-            sbufWriteU8(dst, adjRange->adjustmentConfig);
+            sbufWriteU8(dst, adjRange->function);
+            sbufWriteU8(dst, adjRange->enaChannel);
+            sbufWriteU8(dst, adjRange->enaRange.startStep);
+            sbufWriteU8(dst, adjRange->enaRange.endStep);
             sbufWriteU8(dst, adjRange->adjChannel);
-            sbufWriteU16(dst, adjRange->adjustmentCenter);
-            sbufWriteU16(dst, adjRange->adjustmentScale);
+            sbufWriteU8(dst, adjRange->adjRange1.startStep);
+            sbufWriteU8(dst, adjRange->adjRange1.endStep);
+            sbufWriteU8(dst, adjRange->adjRange2.startStep);
+            sbufWriteU8(dst, adjRange->adjRange2.endStep);
+            sbufWriteU16(dst, adjRange->adjMin);
+            sbufWriteU16(dst, adjRange->adjMax);
+            sbufWriteU8(dst, adjRange->adjStep);
         }
         break;
 
@@ -2215,18 +2219,20 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         i = sbufReadU8(src);
         if (i < MAX_ADJUSTMENT_RANGE_COUNT) {
             adjustmentRange_t *adjRange = adjustmentRangesMutable(i);
-            sbufReadU8(src); // was adjRange->adjustmentIndex
-            adjRange->rcChannel = sbufReadU8(src);
-            adjRange->range.startStep = sbufReadU8(src);
-            adjRange->range.endStep = sbufReadU8(src);
-            adjRange->adjustmentConfig = sbufReadU8(src);
+            adjRange->function = sbufReadU8(src);
+            adjRange->enaChannel = sbufReadU8(src);
+            adjRange->enaRange.startStep = sbufReadU8(src);
+            adjRange->enaRange.endStep = sbufReadU8(src);
             adjRange->adjChannel = sbufReadU8(src);
-            if (sbufBytesRemaining(src) >= 4) {
-                adjRange->adjustmentCenter = sbufReadU16(src);
-                adjRange->adjustmentScale = sbufReadU16(src);
-            }
+            adjRange->adjRange1.startStep = sbufReadU8(src);
+            adjRange->adjRange1.endStep = sbufReadU8(src);
+            adjRange->adjRange2.startStep = sbufReadU8(src);
+            adjRange->adjRange2.endStep = sbufReadU8(src);
+            adjRange->adjMin = sbufReadU16(src);
+            adjRange->adjMax = sbufReadU16(src);
+            adjRange->adjStep = sbufReadU8(src);
 
-            activeAdjustmentRangeReset();
+            adjustmentRangeReset(i);
         } else {
             return MSP_RESULT_ERROR;
         }

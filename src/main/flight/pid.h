@@ -27,6 +27,7 @@
 #include "common/pwl.h"
 #include "common/rtc.h"
 
+#include "pg/adjustments.h"
 #include "pg/pid.h"
 
 #define MAX_PID_PROCESS_DENOM       16
@@ -70,5 +71,7 @@ float pidGetPidFrequency(void);
 void pidInitFilters(const pidProfile_t *pidProfile);
 void pidInitConfig(const pidProfile_t *pidProfile);
 void pidInit(const pidProfile_t *pidProfile);
+
+ADJUSTMENT_DECLARE(PID_PROFILE)
 
 void pidCopyProfile(uint8_t dstPidProfileIndex, uint8_t srcPidProfileIndex);
