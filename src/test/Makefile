@@ -463,7 +463,7 @@ COMMON_FLAGS = \
 	-Wall -Wextra  \
 	$(OPTIMIZE) \
 	-DUNIT_TEST \
-	-isystem $(GTEST_DIR)/inc \
+	-isystem $(GTEST_DIR)/include \
 	-MMD -MP \
 	-pipe
 
@@ -558,7 +558,8 @@ TESTS_ALL = $(TESTS)
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
-GTEST_HEADERS = $(GTEST_DIR)/inc/gtest/*.h
+GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
+                $(GTEST_DIR)/include/gtest/internal/*.h
 
 ## V                 : Set verbosity level based on the V= parameter
 ##                     V=0 Low
@@ -615,7 +616,7 @@ clean :
 
 # Usually you shouldn't tweak such internal variables, indicated by a
 # trailing _.
-GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/inc/gtest/*.h $(GTEST_HEADERS)
+GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 # For simplicity and to avoid depending on Google Test's
 # implementation details, the dependencies specified below are
