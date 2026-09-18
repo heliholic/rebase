@@ -55,7 +55,7 @@
 #include "flight/imu.h"
 #include "flight/position.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "config/config.h"
 #include "config/config_streamer.h"
 #include "config/config_streamer_impl.h"

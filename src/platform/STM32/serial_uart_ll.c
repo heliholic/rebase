@@ -30,7 +30,7 @@
 #ifdef USE_UART
 
 #include "build/build_config.h"
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "common/utils.h"
 #include "drivers/io.h"

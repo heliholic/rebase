@@ -25,7 +25,7 @@ extern "C" {
     #include "common/bitarray.h"
     #include "common/utils.h"
 
-    #include "config/feature.h"
+    #include "fc/feature.h"
 
     #include "drivers/io.h"
     #include "drivers/dshot_command.h"

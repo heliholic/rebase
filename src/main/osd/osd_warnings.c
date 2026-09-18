@@ -30,7 +30,7 @@
 #ifdef USE_OSD
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "common/maths.h"
 #include "common/printf.h"

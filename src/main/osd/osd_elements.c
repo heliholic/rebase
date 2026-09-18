@@ -137,7 +137,7 @@
 #include "common/filter.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/display.h"
 #include "drivers/dshot.h"

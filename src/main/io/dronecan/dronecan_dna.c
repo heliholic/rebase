@@ -29,7 +29,7 @@
 
 #include "canard.h"
 
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/utils.h"
 
 #include "config/config.h"

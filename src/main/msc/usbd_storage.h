@@ -24,7 +24,7 @@
 
 #include "platform/usb_msc_storage.h"
 
-#include "common/time.h"
+#include "common/rtc.h"
 
 extern USBD_MSC_StorageType *USBD_STORAGE_fops;
 #ifdef USE_SDCARD_SDIO

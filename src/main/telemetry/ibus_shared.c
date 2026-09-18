@@ -40,7 +40,7 @@
 static uint16_t calculateChecksum(const uint8_t *ibusPacket);
 
 #if defined(USE_TELEMETRY_IBUS)
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "sensors/battery.h"

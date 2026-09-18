@@ -43,9 +43,9 @@
 
 #include "common/printf.h"
 #include "common/utils.h"
-#include "common/time.h"
+#include "common/rtc.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/flash/flash.h"
 #include "drivers/time.h"

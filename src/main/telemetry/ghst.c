@@ -26,12 +26,12 @@
 
 #ifdef USE_TELEMETRY_GHST
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 #include "build/build_config.h"
 #include "build/version.h"
 #include "build/debug.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 

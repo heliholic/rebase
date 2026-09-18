@@ -47,7 +47,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c
 
 atomic_unittest_SRC := \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(TEST_DIR)/atomic_unittest_c.c
 
 beeper_unittest_SRC := \
@@ -142,7 +142,7 @@ cli_unittest_SRC := \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/gps_conversion.c \
-		$(USER_DIR)/config/feature.c \
+		$(USER_DIR)/fc/feature.c \
 		$(USER_DIR)/io/gps.c \
 		$(USER_DIR)/io/serial_resource.c \
 		$(USER_DIR)/pg/pg.c \
@@ -184,7 +184,7 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/common/filter.c \
-		$(USER_DIR)/config/feature.c \
+		$(USER_DIR)/fc/feature.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/flight/position.c \
 		$(USER_DIR)/flight/imu.c
@@ -239,7 +239,7 @@ maths_unittest_SRC := \
 
 
 motor_output_unittest_SRC := \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/drivers/dshot.c
 
 motor_output_unittest_DEFINES := \
@@ -261,7 +261,7 @@ osd_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/printf.c \
-		$(USER_DIR)/common/time.c \
+		$(USER_DIR)/common/rtc.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
@@ -282,7 +282,7 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/common/time.c \
+		$(USER_DIR)/common/rtc.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
@@ -346,7 +346,7 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/config/feature.c \
+		$(USER_DIR)/fc/feature.c \
 		$(USER_DIR)/pg/rx.c
 
 rx_sumd_unittest_SRC := \
@@ -403,7 +403,7 @@ telemetry_crsf_unittest_DEFINES := \
 
 telemetry_crsf_msp_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
-		$(USER_DIR)/build/atomic.c \
+		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/common/printf.c \
@@ -750,7 +750,7 @@ $(OBJECT_DIR)/gtest_main.a : $(OBJECT_DIR)/gtest-all.o $(OBJECT_DIR)/gtest_main.
 
 # includes in test dir must override includes in user dir, unless the user
 # specifies a list of endorsed directories in ${target}_INCLUDE_DIRS.
-test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR) $(ROOT)/lib/main/MAVLink
+test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR)/build $(USER_DIR)/common $(USER_DIR) $(ROOT)/lib/main/MAVLink
 test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 
 

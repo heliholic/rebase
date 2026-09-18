@@ -41,7 +41,7 @@
 #include "common/utils.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/dshot.h"
 #include "drivers/dshot_command.h"

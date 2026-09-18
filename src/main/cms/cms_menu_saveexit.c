@@ -30,7 +30,7 @@
 #include "cms/cms_types.h"
 #include "cms/cms_menu_saveexit.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "config/config.h"
 

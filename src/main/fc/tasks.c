@@ -33,7 +33,7 @@
 #include "common/color.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/camera_control.h"

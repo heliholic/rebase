@@ -25,7 +25,7 @@
 
 #ifdef USE_UART
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "common/utils.h"
 
