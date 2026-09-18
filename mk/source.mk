@@ -102,6 +102,7 @@ COMMON_SRC = \
             config/config_streamer.c \
             cli/cli.c \
             cli/settings.c \
+            controls/rates.c \
             controls/rc.c \
             drivers/dshot.c \
             drivers/dshot_command.c \
@@ -161,7 +162,6 @@ COMMON_SRC = \
             sensors/voltage.c \
             target/config_helper.c \
             fc/init.c \
-            fc/controlrate_profile.c \
             drivers/accgyro/gyro_sync.c \
             drivers/rx/rx_pwm.c \
             drivers/serial_softserial.c \

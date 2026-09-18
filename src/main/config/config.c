@@ -41,7 +41,7 @@
 #include "drivers/motor.h"
 #include "drivers/system.h"
 
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/rc_adjustments.h"
@@ -108,7 +108,7 @@ static void loadPidProfile(void)
     currentPidProfile = pidProfilesMutable(systemConfig()->pidProfileIndex);
 }
 
-uint8_t getCurrentControlRateProfileIndex(void)
+uint8_t getCurrentRateProfileIndex(void)
 {
     return systemConfig()->activeRateProfile;
 }
@@ -131,7 +131,7 @@ void resetConfig(void)
 static void activateConfig(void)
 {
     loadPidProfile();
-    loadControlRateProfile();
+    loadRateProfile();
     loadBatteryProfile();
 
     initRcProcessing();
@@ -166,12 +166,12 @@ static void adjustFilterLimit(uint16_t *parm, uint16_t resetValue)
 
 static void validateAndFixRatesSettings(void)
 {
-    for (unsigned profileIndex = 0; profileIndex < CONTROL_RATE_PROFILE_COUNT; profileIndex++) {
-        const ratesType_e ratesType = controlRateProfilesMutable(profileIndex)->rates_type;
-        for (unsigned axis = FD_ROLL; axis <= FD_YAW; axis++) {
-            controlRateProfilesMutable(profileIndex)->rcRates[axis] = constrain(controlRateProfilesMutable(profileIndex)->rcRates[axis], 0, ratesSettingLimits[ratesType].rc_rate_limit);
-            controlRateProfilesMutable(profileIndex)->rates[axis] = constrain(controlRateProfilesMutable(profileIndex)->rates[axis], 0, ratesSettingLimits[ratesType].srate_limit);
-            controlRateProfilesMutable(profileIndex)->rcExpo[axis] = constrain(controlRateProfilesMutable(profileIndex)->rcExpo[axis], 0, ratesSettingLimits[ratesType].expo_limit);
+    for (unsigned profileIndex = 0; profileIndex < RATE_PROFILE_COUNT; profileIndex++) {
+        rateProfile_t *rates = rateProfilesMutable(profileIndex);
+        for (unsigned axis = FD_ROLL; axis <= FD_COLL; axis++) {
+            rates->rates[axis] = constrain(rates->rates[axis], 0, RATE_MAX);
+            rates->expo[axis] = constrain(rates->expo[axis], 0, EXPO_MAX);
+            rates->curve[axis] = constrain(rates->curve[axis], 0, CURVE_MAX);
         }
     }
 }
@@ -551,10 +551,10 @@ void validateAndFixGyroConfig(void)
         pidConfigMutable()->filter_process_denom = filtDenom;
     }
 
-    if (systemConfig()->activeRateProfile >= CONTROL_RATE_PROFILE_COUNT) {
+    if (systemConfig()->activeRateProfile >= RATE_PROFILE_COUNT) {
         systemConfigMutable()->activeRateProfile = 0;
     }
-    loadControlRateProfile();
+    loadRateProfile();
 
     if (systemConfig()->pidProfileIndex >= PID_PROFILE_COUNT) {
         systemConfigMutable()->pidProfileIndex = 0;

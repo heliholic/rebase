@@ -57,7 +57,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ## Parameter groups
 
-79 groups, 15 nested structures, 21 enumerations.
+79 groups, 15 nested structures, 20 enumerations.
 
 | Group | PGN | Hash | Type | Size | Header |
 | --- | ---: | --- | --- | ---: | --- |
@@ -77,7 +77,6 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `canConfig` | 564 | `0x5FA345A7` | [`canConfig_t`](#canconfig_t) | 2 | `pg/can.h` |
 | `canPinConfig` | 563 | `0x21890503` | [`canPinConfig_t`](#canpinconfig_t) | 3 &times; `CANDEV_COUNT` | `pg/can.h` |
 | `compassConfig` | 40 | `0xF9FD2DDC` | [`compassConfig_t`](#compassconfig_t) | 22 | `pg/compass.h` |
-| `controlRateProfiles` | 12 | `0x8AB22DF9` | [`controlRateConfig_t`](#controlrateconfig_t) | 26 &times; `CONTROL_RATE_PROFILE_COUNT` | `pg/rates.h` |
 | `currentSensorADCConfig` | 256 | `0xFAFE3B75` | [`currentSensorADCConfig_t`](#currentsensoradcconfig_t) | 4 | `pg/current.h` |
 | `dashboardConfig` | 519 | `0x8765A83F` | [`dashboardConfig_t`](#dashboardconfig_t) | 2 | `pg/dashboard.h` |
 | `dronecanConfig` | 565 | `0x0A37AC83` | [`dronecanConfig_t`](#dronecanconfig_t) | 8 | `pg/dronecan.h` |
@@ -111,6 +110,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ppmConfig` | 507 | `0xF9CF641C` | [`ppmConfig_t`](#ppmconfig_t) | 1 | `pg/rx_pwm.h` |
 | `quadSpiConfig` | 548 | `0x7AB0CAD9` | [`quadSpiConfig_t`](#quadspiconfig_t) | 13 &times; `QUADSPIDEV_COUNT` | `pg/bus_quadspi.h` |
 | `rangefinderConfig` | 527 | `0x32917E98` | [`rangefinderConfig_t`](#rangefinderconfig_t) | 1 | `pg/rangefinder.h` |
+| `rateProfiles` | 12 | `0x57F65935` | [`rateProfile_t`](#rateprofile_t) | 54 &times; `RATE_PROFILE_COUNT` | `pg/rates.h` |
 | `rcControlsConfig` | 25 | `0x079977AB` | [`rcControlsConfig_t`](#rccontrolsconfig_t) | 16 | `pg/rc_controls.h` |
 | `rcdeviceConfig` | 539 | `0xA33F0C84` | [`rcdeviceConfig_t`](#rcdeviceconfig_t) | 16 | `pg/rcdevice.h` |
 | `rxChannelRangeConfigs` | 44 | `0x198E9D36` | [`rxChannelRangeConfig_t`](#rxchannelrangeconfig_t) | 4 &times; `RC_CONTROL_COUNT` | `pg/rx.h` |
@@ -387,22 +387,6 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 7 | 1 | `ioTag_t` | `interruptTag` |
 | 8 | 8 | [`flightDynamicsTrims_u`](#flightdynamicstrims_u) | `magZero` |
 | 16 | 6 | [`alignment_u`](#alignment_u) | `mag_customAlignment` |
-
-### controlRateConfig_t
-
-- `controlRateProfiles` &mdash; PGN 12 (`PG_CONTROL_RATE_PROFILES`), hash `0x8AB22DF9` &mdash; array of `CONTROL_RATE_PROFILE_COUNT` elements
-
-`sizeof` = 26 bytes.
-
-| Offset | Size | Type | Member |
-| ---: | ---: | --- | --- |
-| 0 | 1 | [`ratesType_e`](#ratestype_e) | `rates_type` |
-| 1 | 3 | `uint8_t` | `rcRates[3]` |
-| 4 | 3 | `uint8_t` | `rcExpo[3]` |
-| 7 | 3 | `uint8_t` | `rates[3]` |
-| 10 | 6 | `uint16_t` | `rate_limit[3]` |
-| 16 | 9 | `char` | `profileName[9]` |
-| 25 | 1 | `bool` | `quickRatesRcExpo` |
 
 ### currentSensorADCConfig_t
 
@@ -846,6 +830,31 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | [`rangefinderType_e`](#rangefindertype_e) | `rangefinder_hardware` |
+
+### rateProfile_t
+
+- `rateProfiles` &mdash; PGN 12 (`PG_RATE_PROFILES`), hash `0x57F65935` &mdash; array of `RATE_PROFILE_COUNT` elements
+
+`sizeof` = 54 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 9 | `char` | `profileName[9]` |
+| 9 | 1 | &mdash; | *(padding)* |
+| 10 | 8 | `uint16_t` | `rates[4]` |
+| 18 | 4 | `uint8_t` | `expo[4]` |
+| 22 | 4 | `uint8_t` | `curve[4]` |
+| 26 | 2 | `uint8_t` | `levelExpo[2]` |
+| 28 | 4 | `uint8_t` | `response_time[4]` |
+| 32 | 8 | `uint16_t` | `accel_limit[4]` |
+| 40 | 1 | `uint8_t` | `cyclic_ring` |
+| 41 | 1 | `uint8_t` | `cyclic_polar` |
+| 42 | 4 | `uint8_t` | `setpoint_boost_gain[4]` |
+| 46 | 4 | `uint8_t` | `setpoint_boost_cutoff[4]` |
+| 50 | 1 | `uint8_t` | `yaw_dynamic_ceiling_gain` |
+| 51 | 1 | `uint8_t` | `yaw_dynamic_deadband_gain` |
+| 52 | 1 | `uint8_t` | `yaw_dynamic_deadband_cutoff` |
+| 53 | 1 | `uint8_t` | `yaw_dynamic_deadband_filter` |
 
 ### rcControlsConfig_t
 
@@ -1654,19 +1663,6 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `RANGEFINDER_NOOPLOOP_F2MINI` | 14 |
 | `RANGEFINDER_UPT1` | 15 |
 | `RANGEFINDER_HARDWARE_COUNT` | 16 |
-
-### ratesType_e
-
-`sizeof` = 1 byte.
-
-| Enumerator | Value |
-| --- | ---: |
-| `RATES_TYPE_BETAFLIGHT` | 0 |
-| `RATES_TYPE_RACEFLIGHT` | 1 |
-| `RATES_TYPE_KISS` | 2 |
-| `RATES_TYPE_ACTUAL` | 3 |
-| `RATES_TYPE_QUICK` | 4 |
-| `RATES_TYPE_COUNT` | 5 |
 
 ### sdcardMode_e
 
