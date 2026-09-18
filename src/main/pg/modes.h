@@ -37,7 +37,7 @@ typedef struct {
 
 typedef struct {
     uint8_t         modeId;
-    uint8_t         auxChannelIndex;
+    uint8_t         rcChannel;
     channelRange_t  range;
     uint8_t         modeLogic;
     uint8_t         linkedTo;

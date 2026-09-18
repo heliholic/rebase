@@ -32,7 +32,7 @@
 #include "pg/rates.h"
 
 #include "fc/controlrate_profile.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/rc_controls.h"
 
 controlRateConfig_t *currentControlRateProfile;

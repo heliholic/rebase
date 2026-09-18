@@ -29,6 +29,10 @@
 
 #define STICK_CHANNEL_COUNT 4
 
+#define RX_PWM_PULSE_MIN  885     // minimum RC pulse width considered a valid control input
+#define RX_PWM_PULSE_MID  1500    // nominal RC pulse width at stick centre
+#define RX_PWM_PULSE_MAX  2115    // maximum RC pulse width considered a valid control input
+
 #define PWM_RANGE_MIN 1000
 #define PWM_RANGE_MAX 2000
 #define PWM_RANGE (PWM_RANGE_MAX - PWM_RANGE_MIN)
@@ -72,9 +76,12 @@ typedef enum {
 #define MAX_SUPPORTED_RC_PPM_CHANNEL_COUNT          12
 #define MAX_SUPPORTED_RX_PARALLEL_PWM_OR_PPM_CHANNEL_COUNT MAX_SUPPORTED_RC_PPM_CHANNEL_COUNT
 
-extern const char rcChannelLetters[];
+// Receiver channels, as the receiver numbers them. Validated and failsafe
+// processed, but not reordered.
+extern float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];      // interval [1000;2000]
 
-extern float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];       // interval [1000;2000]
+// Control channels, gathered from rcInput[] through rc_channel[]
+extern float rcControls[RC_CONTROL_COUNT];                 // interval [1000;2000]
 
 #define RSSI_SCALE_MIN 1
 #define RSSI_SCALE_MAX 255
@@ -92,7 +99,7 @@ typedef enum {
 
 typedef enum {
     RX_FAILSAFE_TYPE_FLIGHT = 0,
-    RX_FAILSAFE_TYPE_AUX
+    RX_FAILSAFE_TYPE_NORMAL
 } rxFailsafeChannelType_e;
 
 #define RX_FAILSAFE_TYPE_COUNT 2
@@ -123,7 +130,7 @@ typedef struct rxRuntimeState_s {
     uint16_t            *channelData;
     void                *frameData;
     timeUs_t            lastRcFrameTimeUs;
-    scaleRangef_t       scaleRange[NON_AUX_CHANNEL_COUNT];
+    scaleRangef_t       scaleRange[RC_CONTROL_COUNT];
 } rxRuntimeState_t;
 
 typedef enum {
@@ -160,10 +167,6 @@ void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t currentDeltaTimeUs);
 bool isRxReceivingSignal(void);
 bool rxAreFlightChannelsValid(void);
 bool calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs);
-
-struct rxConfig_s;
-
-void parseRcChannels(const char *input, struct rxConfig_s *rxConfig);
 
 #define RSSI_MAX_VALUE 1023
 
@@ -206,6 +209,6 @@ void resetAllRxChannelRangeConfigurations(rxChannelRangeConfig_t *rxChannelRange
 void suspendRxSignal(void);
 void resumeRxSignal(void);
 
-timeDelta_t rxGetFrameDelta(void);
+timeDelta_t rxGetFrameDelta(timeDelta_t *frameAgeUs);
 
 timeUs_t rxFrameTimeUs(void);

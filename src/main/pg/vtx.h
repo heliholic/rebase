@@ -29,7 +29,7 @@
 #define MAX_CHANNEL_ACTIVATION_CONDITION_COUNT  10
 
 typedef struct {
-    uint8_t auxChannelIndex;
+    uint8_t rcChannel;
     uint8_t band;
     uint8_t channel;
     uint8_t power;

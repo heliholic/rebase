@@ -52,7 +52,9 @@ extern "C" {
     uint8_t stateFlags = 0;
     uint16_t flightModeFlags = 0;
     uint8_t testBatteryCellCount =3;
-    float rcCommand[4] = {0, 0, 0, 0};
+    float rcCommand[RC_CONTROL_COUNT] = {0};
+    float stubThrottle = 0;
+    float getThrottle(void) { return stubThrottle; }
     static batteryProfile_t batteryProfile_Data;
     const batteryProfile_t *currentBatteryProfile = &batteryProfile_Data;
     attitudeEulerAngles_t attitude = EULER_INITIALIZE;
@@ -529,12 +531,12 @@ TEST_F(IbusTelemteryProtocolUnitTest, Test_IbusRespondToGetMeasurementRpm)
 {
     //Given ibus command: Sensor at address 3, please send your measurement
     //then we respond with: I'm reading 0 rpm
-    rcCommand[THROTTLE] = 0;
+    stubThrottle = 0.0f;   // 0 rpm
     checkResponseToCommand("\x04\xA3\x58\xff", 4, "\x06\xA3\x00\x00\x56\xFF", 6);
 
     //Given ibus command: Sensor at address 3, please send your measurement
     //then we respond with: I'm reading 100 rpm
-    rcCommand[THROTTLE] = 100;
+    stubThrottle = 0.1f;   // 100 rpm
     checkResponseToCommand("\x04\xA3\x58\xff", 4, "\x06\xA3\x64\x00\xf2\xFe", 6);
 }
 
@@ -599,6 +601,6 @@ TEST_F(IbusTelemteryProtocolUnitTestDaisyChained, Test_IbusRespondToGetMeasureme
 
     //Given ibus command: Sensor at address 5, please send your measurement
     //then we respond with: I'm reading 100 rpm
-    rcCommand[THROTTLE] = 100;
+    stubThrottle = 0.1f;   // 100 rpm
     checkResponseToCommand("\x04\xA5\x56\xff", 4, "\x06\xA5\x64\x00\xf0\xFe", 6);
 }

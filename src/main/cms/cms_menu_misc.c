@@ -80,15 +80,18 @@ static const void *cmsx_menuRcConfirmBack(displayPort_t *pDisp, const OSD_Entry 
     }
 }
 
-static int16_t rcDataInt[AUX4 + 1];
+// The receiver channels, as they arrive
+#define CMS_RC_CHANNEL_COUNT 8
+
+static int16_t rcDataInt[CMS_RC_CHANNEL_COUNT];
 
 static const void *cmsx_menuRcOnDisplayUpdate(displayPort_t *pDisp, const OSD_Entry *selected)
 {
     UNUSED(pDisp);
     UNUSED(selected);
 
-    for (int i = 0; i <= AUX4; i++) {
-        rcDataInt[i] = lrintf(rcData[i]);
+    for (int i = 0; i < CMS_RC_CHANNEL_COUNT; i++) {
+        rcDataInt[i] = lrintf(rcInput[i]);
     }
 
     return NULL;
@@ -101,15 +104,14 @@ static const OSD_Entry cmsx_menuRcEntries[] =
 {
     { "-- RC PREV --", OME_Label, NULL, NULL},
 
-    { "ROLL",  OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[ROLL],     1, 2500, 0 } },
-    { "PITCH", OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[PITCH],    1, 2500, 0 } },
-    { "THR",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[THROTTLE], 1, 2500, 0 } },
-    { "YAW",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[YAW],      1, 2500, 0 } },
-
-    { "AUX1",  OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[AUX1],     1, 2500, 0 } },
-    { "AUX2",  OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[AUX2],     1, 2500, 0 } },
-    { "AUX3",  OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[AUX3],     1, 2500, 0 } },
-    { "AUX4",  OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[AUX4],     1, 2500, 0 } },
+    { "CH1",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[0], 1, 2500, 0 } },
+    { "CH2",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[1], 1, 2500, 0 } },
+    { "CH3",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[2], 1, 2500, 0 } },
+    { "CH4",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[3], 1, 2500, 0 } },
+    { "CH5",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[4], 1, 2500, 0 } },
+    { "CH6",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[5], 1, 2500, 0 } },
+    { "CH7",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[6], 1, 2500, 0 } },
+    { "CH8",   OME_INT16 | DYNAMIC, NULL, &(OSD_INT16_t){ &rcDataInt[7], 1, 2500, 0 } },
 
     { "BACK",  OME_Back, NULL, NULL},
     {NULL, OME_END, NULL, NULL}

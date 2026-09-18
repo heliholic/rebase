@@ -73,7 +73,7 @@ extern "C" {
     matrix33_t rMat;
 
     pidProfile_t *currentPidProfile;
-    extern float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    extern float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
     uint8_t GPS_numSat;
     uint16_t GPS_distanceToHome;
     int16_t GPS_directionToHome;
@@ -514,6 +514,8 @@ extern "C" {
     bool isPPMDataBeingReceived(void) { return false; }
     void resetPPMDataReceivedState(void){ }
     void failsafeOnValidDataReceived(void) { }
+    uint16_t getFailsafeCenter(void) { return 1500; }
+    uint16_t getFailsafeThrottle(void) { return 1036; }
     void failsafeOnValidDataFailed(void) { }
     void pinioBoxTaskControl(void) { }
     bool taskUpdateRxMainInProgress(void) { return true; }

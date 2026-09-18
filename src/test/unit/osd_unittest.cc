@@ -74,7 +74,8 @@ extern "C" {
 
     pidProfile_t *currentPidProfile;
     int32_t debug[DEBUG_VALUE_COUNT];
-    float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+    float rcControls[RC_CONTROL_COUNT];
     uint8_t GPS_numSat;
     uint16_t GPS_distanceToHome;
     int16_t GPS_directionToHome;
@@ -142,7 +143,7 @@ void setDefaultSimulationState()
     simulationCoreTemperature = 0;
     simulationGpsHealthy = false;
 
-    rcData[PITCH] = 1500;
+    rcControls[RC_PITCH] = 1500;
 
     osdFlyTime = 0;
 
@@ -447,7 +448,7 @@ TEST_F(OsdTest, TestDisarmWithDismissStats)
 
     // given
     // sticks have been moved
-    rcData[PITCH] = 1800;
+    rcControls[RC_PITCH] = 1800;
 
     // when
     // sufficient OSD updates have been called

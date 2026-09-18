@@ -352,6 +352,7 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/rx.c \
 		$(USER_DIR)/rx/rx.c \
 		$(USER_DIR)/rx/crsf.c \
@@ -364,6 +365,15 @@ link_quality_unittest_DEFINES := \
 		USE_OSD= \
 		USE_CRSF_LINK_STATISTICS= \
 		USE_RX_LINK_QUALITY_INFO=
+
+config_unittest_SRC := \
+		$(USER_DIR)/config/config.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/fc/feature.c \
+		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/rx.c
 
 config_eeprom_unittest_SRC := \
 		$(USER_DIR)/config/config_eeprom.c \
@@ -404,6 +414,7 @@ rc_controls_unittest_SRC := \
 
 rx_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
+		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/common/typeconversion.c \
@@ -487,6 +498,7 @@ streambuf_unittest_SRC := \
 
 telemetry_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
+		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/telemetry/crsf.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/maths.c \
@@ -506,6 +518,7 @@ telemetry_crsf_unittest_DEFINES := \
 
 telemetry_crsf_msp_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
+		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \

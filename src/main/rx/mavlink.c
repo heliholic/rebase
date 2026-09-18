@@ -26,6 +26,8 @@
 #include "common/utils.h"
 #include "common/maths.h"
 
+#include "pg/rc_controls.h"
+
 #include "io/serial.h"
 
 #include "rx/rx.h"
@@ -175,7 +177,7 @@ bool mavlinkRxInit(const rxConfig_t *rxConfig, rxRuntimeState_t *rxRuntimeState)
 {
     frameReceived = false;
     for (int i = 0; i < MAVLINK_CHANNEL_COUNT; ++i) {
-        mavlinkChannelData[i] = rxConfig->midrc;
+        mavlinkChannelData[i] = rcControlsConfig()->rc_center;
     }
 
     rxRuntimeState->channelData = mavlinkChannelData;

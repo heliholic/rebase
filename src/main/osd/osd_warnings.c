@@ -41,7 +41,7 @@
 #include "drivers/dshot.h"
 
 #include "fc/core.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 

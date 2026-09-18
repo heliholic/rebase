@@ -117,9 +117,9 @@ const char * const osdTimerSourceNames[] = {
 
 // Things in both OSD and CMS
 
-#define IS_HI(X)  (rcData[X] > 1750)
-#define IS_LO(X)  (rcData[X] < 1250)
-#define IS_MID(X) (rcData[X] > 1250 && rcData[X] < 1750)
+#define IS_HI(X)  (rcControls[X] > 1750)
+#define IS_LO(X)  (rcControls[X] < 1250)
+#define IS_MID(X) (rcControls[X] > 1250 && rcControls[X] < 1750)
 
 timeUs_t osdFlyTime = 0;
 
@@ -389,7 +389,7 @@ PG_RESET_FN(osdConfig_t, osdConfig)
     osdConfig->cms_background_type = DISPLAY_BACKGROUND_TRANSPARENT;
     osdConfig->osd_craftname_msgs = false;   // Insert LQ/RSSI-dBm and warnings into CraftName
 
-    osdConfig->aux_channel = 1;
+    osdConfig->rc_channel = 1;
     osdConfig->aux_scale = 200;
     osdConfig->aux_symbol = 'A';
 
@@ -1201,10 +1201,9 @@ STATIC_UNIT_TESTED bool osdProcessStats1(timeUs_t currentTimeUs)
     }
 
     if (VISIBLE(osdElementConfig()->item_pos[OSD_AUX_VALUE])) {
-        const uint8_t auxChannel = osdConfig()->aux_channel + NON_AUX_CHANNEL_COUNT - 1;
+        const uint8_t channel = osdConfig()->rc_channel - 1;
         if (currentTimeUs > osdAuxRefreshTimeUs) {
-            // aux channel start after main channels
-            osdAuxValue = (constrain(rcData[auxChannel], PWM_RANGE_MIN, PWM_RANGE_MAX) - PWM_RANGE_MIN) * osdConfig()->aux_scale / PWM_RANGE;
+            osdAuxValue = (constrain(rcInput[channel], PWM_RANGE_MIN, PWM_RANGE_MAX) - PWM_RANGE_MIN) * osdConfig()->aux_scale / PWM_RANGE;
             osdAuxRefreshTimeUs = currentTimeUs + REFRESH_1S;
         }
     }
@@ -1221,7 +1220,7 @@ static void osdProcessStats2(timeUs_t currentTimeUs)
     if (resumeRefreshAt) {
         if (cmp32(currentTimeUs, resumeRefreshAt) < 0) {
             // in timeout period, check sticks for activity to resume display.
-            if (!ARMING_FLAG(ARMED) && (IS_HI(THROTTLE) || IS_HI(PITCH))) {
+            if (!ARMING_FLAG(ARMED) && (IS_HI(RC_THROTTLE) || IS_HI(RC_PITCH))) {
                 resumeRefreshAt = currentTimeUs;
             }
             return;

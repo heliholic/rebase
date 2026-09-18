@@ -49,7 +49,7 @@
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
 #include "fc/core.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/motors.h"
 
 #include "flight/mixer.h"

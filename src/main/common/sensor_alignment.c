@@ -49,7 +49,7 @@ void buildAlignmentFromStandardAlignment(alignment_t *rpy, sensor_align_e stdAli
 
     memset(rpy, 0x00, sizeof(alignment_t));
 
-    for (int axis = 0; axis < FLIGHT_DYNAMICS_INDEX_COUNT; axis++) {
+    for (int axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
         rpy->raw[axis] = DEGREES_TO_DECIDEGREES(90) * ALIGNMENT_AXIS_ROTATIONS(alignmentBits, axis);
     }
 }

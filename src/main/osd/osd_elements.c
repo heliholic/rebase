@@ -215,10 +215,10 @@ typedef struct radioControls_s {
 } radioControls_t;
 
 static const radioControls_t radioModes[4] = {
-    { PITCH,    YAW,    THROTTLE,   ROLL }, // Mode 1
-    { THROTTLE, YAW,    PITCH,      ROLL }, // Mode 2
-    { PITCH,    ROLL,   THROTTLE,   YAW  }, // Mode 3
-    { THROTTLE, ROLL,   PITCH,      YAW  }, // Mode 4
+    { RC_PITCH,    RC_YAW,  RC_THROTTLE, RC_ROLL }, // Mode 1
+    { RC_THROTTLE, RC_YAW,  RC_PITCH,    RC_ROLL }, // Mode 2
+    { RC_PITCH,    RC_ROLL, RC_THROTTLE, RC_YAW  }, // Mode 3
+    { RC_THROTTLE, RC_ROLL, RC_PITCH,    RC_YAW  }, // Mode 4
 };
 #endif
 
@@ -1506,7 +1506,7 @@ static void osdElementRcChannels(osdElementParms_t *element)
 
     if (osdConfig()->rcChannels[channel] >= 0) {
         // Translate (1000, 2000) to (-1000, 1000)
-        int data = scaleRange(rcData[osdConfig()->rcChannels[channel]], PWM_RANGE_MIN, PWM_RANGE_MAX, -1000, 1000);
+        int data = scaleRange(rcInput[osdConfig()->rcChannels[channel]], PWM_RANGE_MIN, PWM_RANGE_MAX, -1000, 1000);
         // Opt for the simplest formatting for now.
         // Decimal notation can be added when tfp_sprintf supports float among fancy options.
         tfp_sprintf(element->buff, "%5d", data);
@@ -1633,7 +1633,7 @@ static void osdElementStickOverlay(osdElementParms_t *element)
     uint8_t cursorX = OSD_STICK_OVERLAY_WIDTH/2 * (1 + cosf(tr));
     uint8_t cursorY = OSD_STICK_OVERLAY_VERTICAL_POSITIONS/2 * (1 + sinf(tr));
 #else
-    rc_alias_e vertical_channel, horizontal_channel;
+    uint8_t vertical_channel, horizontal_channel;
 
     if (element->item == OSD_STICK_OVERLAY_LEFT) {
         vertical_channel = radioModes[osdConfig()->overlay_radio_mode-1].left_vertical;
@@ -1643,8 +1643,8 @@ static void osdElementStickOverlay(osdElementParms_t *element)
         horizontal_channel = radioModes[osdConfig()->overlay_radio_mode-1].right_horizontal;
     }
 
-    const uint8_t cursorX = scaleRange(constrain(rcData[horizontal_channel], PWM_RANGE_MIN, PWM_RANGE_MAX - 1), PWM_RANGE_MIN, PWM_RANGE_MAX, 0, OSD_STICK_OVERLAY_WIDTH);
-    const uint8_t cursorY = OSD_STICK_OVERLAY_VERTICAL_POSITIONS - 1 - scaleRange(constrain(rcData[vertical_channel], PWM_RANGE_MIN, PWM_RANGE_MAX - 1), PWM_RANGE_MIN, PWM_RANGE_MAX, 0, OSD_STICK_OVERLAY_VERTICAL_POSITIONS);
+    const uint8_t cursorX = scaleRange(constrain(rcControls[horizontal_channel], PWM_RANGE_MIN, PWM_RANGE_MAX - 1), PWM_RANGE_MIN, PWM_RANGE_MAX, 0, OSD_STICK_OVERLAY_WIDTH);
+    const uint8_t cursorY = OSD_STICK_OVERLAY_VERTICAL_POSITIONS - 1 - scaleRange(constrain(rcControls[vertical_channel], PWM_RANGE_MIN, PWM_RANGE_MAX - 1), PWM_RANGE_MIN, PWM_RANGE_MAX, 0, OSD_STICK_OVERLAY_VERTICAL_POSITIONS);
 #endif // DEBUG_OSD_STICKS_TEST
 
     const char cursor = SYM_STICK_OVERLAY_SPRITE_HIGH + (cursorY % OSD_STICK_OVERLAY_SPRITE_HEIGHT);

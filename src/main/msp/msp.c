@@ -74,7 +74,7 @@
 #include "fc/board_info.h"
 #include "fc/controlrate_profile.h"
 #include "fc/core.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
@@ -1244,7 +1244,7 @@ case MSP_NAME:
 
     case MSP_RC:
         for (int i = 0; i < rxRuntimeState.channelCount; i++) {
-            sbufWriteU16(dst, rcData[i]);
+            sbufWriteU16(dst, rcInput[i]);
         }
         break;
 
@@ -1344,7 +1344,7 @@ case MSP_NAME:
             const modeActivationCondition_t *mac = modeActivationConditions(i);
             const box_t *box = findBoxByBoxId(mac->modeId);
             sbufWriteU8(dst, box->permanentId);
-            sbufWriteU8(dst, mac->auxChannelIndex);
+            sbufWriteU8(dst, mac->rcChannel);
             sbufWriteU8(dst, mac->range.startStep);
             sbufWriteU8(dst, mac->range.endStep);
         }
@@ -1367,11 +1367,11 @@ case MSP_NAME:
         for (int i = 0; i < MAX_ADJUSTMENT_RANGE_COUNT; i++) {
             const adjustmentRange_t *adjRange = adjustmentRanges(i);
             sbufWriteU8(dst, 0); // was adjRange->adjustmentIndex
-            sbufWriteU8(dst, adjRange->auxChannelIndex);
+            sbufWriteU8(dst, adjRange->rcChannel);
             sbufWriteU8(dst, adjRange->range.startStep);
             sbufWriteU8(dst, adjRange->range.endStep);
             sbufWriteU8(dst, adjRange->adjustmentConfig);
-            sbufWriteU8(dst, adjRange->auxSwitchChannelIndex);
+            sbufWriteU8(dst, adjRange->adjChannel);
             sbufWriteU16(dst, adjRange->adjustmentCenter);
             sbufWriteU16(dst, adjRange->adjustmentScale);
         }
@@ -1486,12 +1486,12 @@ case MSP_NAME:
 
     case MSP_RX_CONFIG:
         sbufWriteU8(dst, rxConfig()->serialrx_provider);
-        sbufWriteU16(dst, rxConfig()->maxcheck);
-        sbufWriteU16(dst, rxConfig()->midrc);
-        sbufWriteU16(dst, rxConfig()->mincheck);
+        sbufWriteU16(dst, 0); // was rxConfig()->maxcheck
+        sbufWriteU16(dst, 0); // was rxConfig()->midrc
+        sbufWriteU16(dst, 0); // was rxConfig()->mincheck
         sbufWriteU8(dst, rxConfig()->spektrum_sat_bind);
-        sbufWriteU16(dst, rxConfig()->rx_min_usec);
-        sbufWriteU16(dst, rxConfig()->rx_max_usec);
+        sbufWriteU16(dst, rxConfig()->rx_pulse_min);
+        sbufWriteU16(dst, rxConfig()->rx_pulse_max);
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolation
         sbufWriteU8(dst, 0); // not required in API 1.44, was rxConfig()->rcInterpolationInterval
         sbufWriteU16(dst, 0); // rxConfig()->airModeActivateThreshold * 10 + 1000
@@ -1520,6 +1520,9 @@ case MSP_NAME:
         sbufWriteData(dst, &emptyUid, sizeof(emptyUid));
         // Added in MSP API 1.47
         sbufWriteU8(dst, 0);
+        // Rotorflight control channel map
+        sbufWriteU8(dst, RC_CONTROL_COUNT);
+        sbufWriteData(dst, rxConfig()->rc_channel, RC_CONTROL_COUNT);
         break;
     case MSP_FAILSAFE_CONFIG:
         sbufWriteU8(dst, failsafeConfig()->failsafe_delay);
@@ -1532,17 +1535,13 @@ case MSP_NAME:
 
     case MSP_RXFAIL_CONFIG:
         for (int i = 0; i < rxRuntimeState.channelCount; i++) {
-            sbufWriteU8(dst, rxFailsafeChannelConfigs(i)->mode);
-            sbufWriteU16(dst, RXFAIL_STEP_TO_CHANNEL_VALUE(rxFailsafeChannelConfigs(i)->step));
+            sbufWriteU8(dst, rxFailsafeChannelConfigs(i)->failsafe_mode);
+            sbufWriteU16(dst, RXFAIL_STEP_TO_CHANNEL_VALUE(rxFailsafeChannelConfigs(i)->failsafe_step));
         }
         break;
 
     case MSP_RSSI_CONFIG:
         sbufWriteU8(dst, rxConfig()->rssi_channel);
-        break;
-
-    case MSP_RX_MAP:
-        sbufWriteData(dst, rxConfig()->rcmap, RX_MAPPABLE_CHANNEL_COUNT);
         break;
 
     case MSP_CF_SERIAL_CONFIG:
@@ -1631,9 +1630,9 @@ case MSP_NAME:
             sbufWriteU8(dst, ledStripStatusModeConfig()->specialColors.color[j]);
         }
 
-        sbufWriteU8(dst, LED_AUX_CHANNEL);
+        sbufWriteU8(dst, LED_RC_CHANNEL);
         sbufWriteU8(dst, 0);
-        sbufWriteU8(dst, ledStripStatusModeConfig()->ledstrip_aux_channel);
+        sbufWriteU8(dst, ledStripStatusModeConfig()->ledstrip_rc_channel);
         break;
 #endif
 
@@ -1670,8 +1669,8 @@ case MSP_NAME:
         break;
 
     case MSP_RC_DEADBAND:
-        sbufWriteU8(dst, rcControlsConfig()->deadband);
-        sbufWriteU8(dst, rcControlsConfig()->yaw_deadband);
+        sbufWriteU8(dst, rcControlsConfig()->rc_deadband);
+        sbufWriteU8(dst, rcControlsConfig()->rc_yaw_deadband);
         sbufWriteU8(dst, 0); // was posHoldConfig()->deadband
         sbufWriteU16(dst, 0); // was flight3DConfig()->deadband3d_throttle
         break;
@@ -2424,7 +2423,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             const box_t *box = findBoxByPermanentId(i);
             if (box) {
                 mac->modeId = box->boxId;
-                mac->auxChannelIndex = sbufReadU8(src);
+                mac->rcChannel = sbufReadU8(src);
                 mac->range.startStep = sbufReadU8(src);
                 mac->range.endStep = sbufReadU8(src);
                 if (sbufBytesRemaining(src) != 0) {
@@ -2451,11 +2450,11 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         if (i < MAX_ADJUSTMENT_RANGE_COUNT) {
             adjustmentRange_t *adjRange = adjustmentRangesMutable(i);
             sbufReadU8(src); // was adjRange->adjustmentIndex
-            adjRange->auxChannelIndex = sbufReadU8(src);
+            adjRange->rcChannel = sbufReadU8(src);
             adjRange->range.startStep = sbufReadU8(src);
             adjRange->range.endStep = sbufReadU8(src);
             adjRange->adjustmentConfig = sbufReadU8(src);
-            adjRange->auxSwitchChannelIndex = sbufReadU8(src);
+            adjRange->adjChannel = sbufReadU8(src);
             if (sbufBytesRemaining(src) >= 4) {
                 adjRange->adjustmentCenter = sbufReadU16(src);
                 adjRange->adjustmentScale = sbufReadU16(src);
@@ -2584,8 +2583,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         break;
 
     case MSP_SET_RC_DEADBAND:
-        rcControlsConfigMutable()->deadband = sbufReadU8(src);
-        rcControlsConfigMutable()->yaw_deadband = sbufReadU8(src);
+        rcControlsConfigMutable()->rc_deadband = sbufReadU8(src);
+        rcControlsConfigMutable()->rc_yaw_deadband = sbufReadU8(src);
         sbufReadU8(src); // was posHoldConfigMutable()->deadband
         sbufReadU16(src); // was flight3DConfigMutable()->deadband3d_throttle
         break;
@@ -3215,13 +3214,13 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 
     case MSP_SET_RX_CONFIG:
         rxConfigMutable()->serialrx_provider = sbufReadU8(src);
-        rxConfigMutable()->maxcheck = sbufReadU16(src);
-        rxConfigMutable()->midrc = sbufReadU16(src);
-        rxConfigMutable()->mincheck = sbufReadU16(src);
+        sbufReadU16(src); // was rxConfigMutable()->maxcheck
+        sbufReadU16(src); // was rxConfigMutable()->midrc
+        sbufReadU16(src); // was rxConfigMutable()->mincheck
         rxConfigMutable()->spektrum_sat_bind = sbufReadU8(src);
         if (sbufBytesRemaining(src) >= 4) {
-            rxConfigMutable()->rx_min_usec = sbufReadU16(src);
-            rxConfigMutable()->rx_max_usec = sbufReadU16(src);
+            rxConfigMutable()->rx_pulse_min = sbufReadU16(src);
+            rxConfigMutable()->rx_pulse_max = sbufReadU16(src);
         }
         if (sbufBytesRemaining(src) >= 4) {
             sbufReadU8(src); // not required in API 1.44, was rxConfigMutable()->rcInterpolation
@@ -3271,6 +3270,16 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             // Added in MSP API 1.47
             sbufReadU8(src);
         }
+        if (sbufBytesRemaining(src) >= 1) {
+            // Rotorflight control channel map
+            const unsigned count = sbufReadU8(src);
+            for (unsigned i = 0; i < count && sbufBytesRemaining(src) >= 1; i++) {
+                const uint8_t channel = sbufReadU8(src);
+                if (i < RC_CONTROL_COUNT && channel < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+                    rxConfigMutable()->rc_channel[i] = channel;
+                }
+            }
+        }
         break;
     case MSP_SET_FAILSAFE_CONFIG:
         failsafeConfigMutable()->failsafe_delay = sbufReadU8(src);
@@ -3284,8 +3293,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
     case MSP_SET_RXFAIL_CONFIG:
         i = sbufReadU8(src);
         if (i < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
-            rxFailsafeChannelConfigsMutable(i)->mode = sbufReadU8(src);
-            rxFailsafeChannelConfigsMutable(i)->step = CHANNEL_VALUE_TO_RXFAIL_STEP(sbufReadU16(src));
+            rxFailsafeChannelConfigsMutable(i)->failsafe_mode = sbufReadU8(src);
+            rxFailsafeChannelConfigsMutable(i)->failsafe_step = CHANNEL_VALUE_TO_RXFAIL_STEP(sbufReadU16(src));
         } else {
             return MSP_RESULT_ERROR;
         }
@@ -3293,12 +3302,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 
     case MSP_SET_RSSI_CONFIG:
         rxConfigMutable()->rssi_channel = sbufReadU8(src);
-        break;
-
-    case MSP_SET_RX_MAP:
-        for (int i = 0; i < RX_MAPPABLE_CHANNEL_COUNT; i++) {
-            rxConfigMutable()->rcmap[i] = sbufReadU8(src);
-        }
         break;
 
     case MSP_SET_CF_SERIAL_CONFIG:

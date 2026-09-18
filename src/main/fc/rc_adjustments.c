@@ -40,8 +40,8 @@
 #include "drivers/time.h"
 
 #include "config/config.h"
+#include "controls/rc.h"
 #include "fc/controlrate_profile.h"
-#include "fc/rc.h"
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
 
@@ -643,7 +643,7 @@ static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, c
         const adjustmentConfig_t *adjustmentConfig = &defaultAdjustmentConfigs[adjustmentRange->adjustmentConfig - ADJUSTMENT_FUNCTION_CONFIG_INDEX_OFFSET];
         const adjustmentFunction_e adjustmentFunction = adjustmentConfig->adjustmentFunction;
 
-        if (!isRangeActive(adjustmentRange->auxChannelIndex, &adjustmentRange->range) ||
+        if (!isRangeActive(adjustmentRange->rcChannel, &adjustmentRange->range) ||
             adjustmentFunction == ADJUSTMENT_NONE) {
             adjustmentState->timeoutAt = 0;
 
@@ -659,13 +659,13 @@ static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, c
             continue;
         }
 
-        const uint8_t channelIndex = NON_AUX_CHANNEL_COUNT + adjustmentRange->auxSwitchChannelIndex;
+        const uint8_t channelIndex = adjustmentRange->adjChannel;
 
         if (adjustmentConfig->mode == ADJUSTMENT_MODE_STEP) {
             int delta;
-            if (rcData[channelIndex] > rxConfig()->midrc + 200) {
+            if (rcInput[channelIndex] > rcControlsConfig()->rc_center + 200) {
                 delta = adjustmentConfig->data.step;
-            } else if (rcData[channelIndex] < rxConfig()->midrc - 200) {
+            } else if (rcInput[channelIndex] < rcControlsConfig()->rc_center - 200) {
                 delta = -adjustmentConfig->data.step;
             } else {
                 // returning the switch to the middle immediately resets the ready state
@@ -707,29 +707,29 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
     for (int i = 0; i < continuosAdjustmentCount; i++) {
         continuosAdjustmentState_t *adjustmentState = &continuosAdjustments[i];
         const adjustmentRange_t * const adjustmentRange = adjustmentRanges(adjustmentState->adjustmentRangeIndex);
-        const uint8_t channelIndex = NON_AUX_CHANNEL_COUNT + adjustmentRange->auxSwitchChannelIndex;
+        const uint8_t channelIndex = adjustmentRange->adjChannel;
         const adjustmentConfig_t *adjustmentConfig = &defaultAdjustmentConfigs[adjustmentRange->adjustmentConfig - ADJUSTMENT_FUNCTION_CONFIG_INDEX_OFFSET];
         const adjustmentFunction_e adjustmentFunction = adjustmentConfig->adjustmentFunction;
 
-        if (isRangeActive(adjustmentRange->auxChannelIndex, &adjustmentRange->range) &&
+        if (isRangeActive(adjustmentRange->rcChannel, &adjustmentRange->range) &&
             adjustmentFunction != ADJUSTMENT_NONE) {
 
-            if (rcData[channelIndex] != adjustmentState->lastRcData) {
+            if (rcInput[channelIndex] != adjustmentState->lastRcData) {
                 int newValue = -1;
 
                 if (adjustmentConfig->mode == ADJUSTMENT_MODE_SELECT) {
                     int switchPositions = adjustmentConfig->data.switchPositions;
                     const uint16_t rangeWidth = (2100 - 900) / switchPositions;
-                    const uint8_t position = (constrain(rcData[channelIndex], 900, 2100 - 1) - 900) / rangeWidth;
+                    const uint8_t position = (constrain(rcInput[channelIndex], 900, 2100 - 1) - 900) / rangeWidth;
                     
                     newValue = applySelectAdjustment(adjustmentFunction, position);
 
                     setConfigDirtyIfNotPermanent(&adjustmentRange->range);
                 } else {
-                    // If setting is defined for step adjustment and center value has been specified, apply values directly (scaled) from aux channel
+                    // If setting is defined for step adjustment and center value has been specified, apply values directly (scaled) from the adjustment channel
                     if (adjustmentRange->adjustmentCenter &&
                         (adjustmentConfig->mode == ADJUSTMENT_MODE_STEP)) {
-                        int value = (((rcData[channelIndex] - PWM_RANGE_MIDDLE) * adjustmentRange->adjustmentScale) / (PWM_RANGE_MIDDLE - PWM_RANGE_MIN)) + adjustmentRange->adjustmentCenter;
+                        int value = (((rcInput[channelIndex] - PWM_RANGE_MIDDLE) * adjustmentRange->adjustmentScale) / (PWM_RANGE_MIDDLE - PWM_RANGE_MIN)) + adjustmentRange->adjustmentCenter;
 
                         newValue = applyAbsoluteAdjustment(controlRateConfig, adjustmentFunction, value);
 
@@ -743,7 +743,7 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
 #else
                 UNUSED(newValue);
 #endif
-                adjustmentState->lastRcData = rcData[channelIndex];
+                adjustmentState->lastRcData = rcInput[channelIndex];
             }
         } else {
             adjustmentState->lastRcData = 0;

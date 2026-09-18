@@ -229,7 +229,7 @@ typedef struct osdConfig_s {
     uint8_t cms_background_type;              // For supporting devices, determines whether the CMS background is transparent or opaque
     bool stat_show_cell_value;
     bool osd_craftname_msgs;                  // Insert LQ/RSSI-dBm and warnings into CraftName
-    uint8_t aux_channel;
+    uint8_t rc_channel;
     uint16_t aux_scale;
     uint8_t aux_symbol;
     uint8_t canvas_cols;                      // Canvas dimensions for HD display

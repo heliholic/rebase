@@ -39,33 +39,49 @@
 
 // In the windows joystick driver, the axes are defined as shown in the second column.
 
-const uint8_t hidChannelMapping[] = {
-    ROLL,     // X
-    PITCH,    // Y
-    AUX3,     // Z
-    YAW,      // X Rotation
-    AUX1,     // Z Rotation
-    THROTTLE, // Y Rotation
-    AUX4,     // Slider
-    AUX2,     // Dial
-    AUX5,     // Button 1
-    AUX6,     // Button 2
-    AUX7,     // Button 3
-    AUX8,     // Button 4
-    AUX9,     // Button 5
-    AUX10,    // Button 6
-    AUX11,    // Button 7
-    AUX12     // Button 8
+// A source is either a control function or a plain receiver channel. The
+// channel numbers below are the ones the report used under the old fixed
+// channel order, so the report is unchanged for a default control map.
+typedef struct {
+    bool    isControl;
+    uint8_t index;
+} hidSource_t;
+
+#define HID_CONTROL(function)  { true,  (function) }
+#define HID_CHANNEL(channel)   { false, (channel) }
+
+static const hidSource_t hidChannelMapping[] = {
+    HID_CONTROL(RC_ROLL),     // X
+    HID_CONTROL(RC_PITCH),    // Y
+    HID_CHANNEL(7),           // Z
+    HID_CONTROL(RC_YAW),      // X Rotation
+    HID_CHANNEL(5),           // Z Rotation
+    HID_CONTROL(RC_THROTTLE), // Y Rotation
+    HID_CHANNEL(8),           // Slider
+    HID_CHANNEL(6),           // Dial
+    HID_CHANNEL(9),           // Button 1
+    HID_CHANNEL(10),          // Button 2
+    HID_CHANNEL(11),          // Button 3
+    HID_CHANNEL(12),          // Button 4
+    HID_CHANNEL(13),          // Button 5
+    HID_CHANNEL(14),          // Button 6
+    HID_CHANNEL(15),          // Button 7
+    HID_CHANNEL(16)           // Button 8
 };
+
+static float hidSourceValue(const hidSource_t *source)
+{
+    return source->isControl ? rcControls[source->index] : rcInput[source->index];
+}
 
 void sendRcDataToHid(void)
 {
     int8_t report[9];
      // Axes
     for (unsigned i = 0; i < USB_CDC_HID_NUM_AXES; i++) {
-        const uint8_t channel = hidChannelMapping[i];
-        report[i] = scaleRange(constrain(rcData[channel], PWM_RANGE_MIN, PWM_RANGE_MAX), PWM_RANGE_MIN, PWM_RANGE_MAX, USB_CDC_HID_RANGE_MIN, USB_CDC_HID_RANGE_MAX);
-        if (channel == PITCH) {
+        const hidSource_t *source = &hidChannelMapping[i];
+        report[i] = scaleRange(constrain(hidSourceValue(source), PWM_RANGE_MIN, PWM_RANGE_MAX), PWM_RANGE_MIN, PWM_RANGE_MAX, USB_CDC_HID_RANGE_MIN, USB_CDC_HID_RANGE_MAX);
+        if (source->isControl && source->index == RC_PITCH) {
             // PITCH is inverted in Windows
             report[i] = -report[i];
         }
@@ -75,8 +91,8 @@ void sendRcDataToHid(void)
     // Each bit in one byte represents one button so we have 8 buttons in one-byte-data
     report[8] = 0;
     for (unsigned i = 0; i < USB_CDC_HID_NUM_BUTTONS; i++) {
-        const uint8_t channel = hidChannelMapping[i + USB_CDC_HID_NUM_AXES];
-        if (scaleRange(constrain(rcData[channel], PWM_RANGE_MIN, PWM_RANGE_MAX), PWM_RANGE_MIN, PWM_RANGE_MAX, USB_CDC_HID_RANGE_MIN, USB_CDC_HID_RANGE_MAX) > 0) {
+        const hidSource_t *source = &hidChannelMapping[i + USB_CDC_HID_NUM_AXES];
+        if (scaleRange(constrain(hidSourceValue(source), PWM_RANGE_MIN, PWM_RANGE_MAX), PWM_RANGE_MIN, PWM_RANGE_MAX, USB_CDC_HID_RANGE_MIN, USB_CDC_HID_RANGE_MAX) > 0) {
             report[8] |= (1 << i);
         }
     }

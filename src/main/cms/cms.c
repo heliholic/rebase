@@ -1026,9 +1026,9 @@ const void *cmsMenuExit(displayPort_t *pDisplay, const void *ptr)
 
 // Stick/key detection and key codes
 
-#define IS_HI(X)  (rcData[X] > 1750)
-#define IS_LO(X)  (rcData[X] < 1250)
-#define IS_MID(X) (rcData[X] > 1250 && rcData[X] < 1750)
+#define IS_HI(X)  (rcControls[X] > 1750)
+#define IS_LO(X)  (rcControls[X] < 1250)
+#define IS_MID(X) (rcControls[X] > 1250 && rcControls[X] < 1750)
 
 #define BUTTON_TIME   250 // msec
 #define BUTTON_PAUSE  500 // msec
@@ -1388,19 +1388,19 @@ static uint16_t cmsScanKeys(timeMs_t currentTimeMs, timeMs_t lastCalledMs, int16
         rcDelayMs = cmsHandleKey(pCurrentDisplay, externKey);
         externKey = CMS_KEY_NONE;
     } else {
-        if (IS_MID(THROTTLE) && IS_LO(YAW) && IS_HI(PITCH) && !ARMING_FLAG(ARMED)) {
+        if (IS_MID(RC_THROTTLE) && IS_LO(RC_YAW) && IS_HI(RC_PITCH) && !ARMING_FLAG(ARMED)) {
             key = CMS_KEY_MENU;
-        } else if (IS_HI(PITCH)) {
+        } else if (IS_HI(RC_PITCH)) {
             key = CMS_KEY_UP;
-        } else if (IS_LO(PITCH)) {
+        } else if (IS_LO(RC_PITCH)) {
             key = CMS_KEY_DOWN;
-        } else if (IS_LO(ROLL)) {
+        } else if (IS_LO(RC_ROLL)) {
             key = CMS_KEY_LEFT;
-        } else if (IS_HI(ROLL)) {
+        } else if (IS_HI(RC_ROLL)) {
             key = CMS_KEY_RIGHT;
-        } else if (IS_LO(YAW)) {
+        } else if (IS_LO(RC_YAW)) {
             key = CMS_KEY_ESC;
-        } else if (IS_HI(YAW)) {
+        } else if (IS_HI(RC_YAW)) {
             key = CMS_KEY_SAVEMENU;
         }
 
@@ -1480,7 +1480,7 @@ static void cmsUpdate(uint32_t currentTimeUs)
 
     if (!cmsInMenu) {
         // Detect menu invocation
-        if (IS_MID(THROTTLE) && IS_LO(YAW) && IS_HI(PITCH) && !ARMING_FLAG(ARMED) && !IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
+        if (IS_MID(RC_THROTTLE) && IS_LO(RC_YAW) && IS_HI(RC_PITCH) && !ARMING_FLAG(ARMED) && !IS_RC_MODE_ACTIVE(BOXSTICKCOMMANDDISABLE)) {
             cmsMenuOpen();
             rcDelayMs = BUTTON_PAUSE;    // Tends to overshoot if BUTTON_TIME
         }

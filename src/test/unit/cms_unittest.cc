@@ -34,6 +34,7 @@ extern "C" {
     #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
     #include "osd/osd.h"
+    #include "pg/rx.h"
     #include "pg/pg_ids.h"
 
     PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG);
@@ -151,7 +152,8 @@ CMS_Menu cmsx_menuMain = {
 };
 uint8_t armingFlags;
 int32_t debug[4];
-float rcData[18];
+float rcInput[18];
+float rcControls[RC_CONTROL_COUNT];
 void delay(uint32_t) {}
 uint32_t micros(void) { return 0; }
 uint32_t millis(void) { return 0; }

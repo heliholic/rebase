@@ -99,7 +99,7 @@ typedef struct {
     hsvColor_t colors[LED_CONFIGURABLE_COLOR_COUNT];
     modeColorIndexes_t modeColors[LED_MODE_COUNT];
     specialColorIndexes_t specialColors;
-    uint8_t ledstrip_aux_channel;
+    uint8_t ledstrip_rc_channel;
 } ledStripStatusModeConfig_t;
 
 PG_DECLARE(ledStripStatusModeConfig_t, ledStripStatusModeConfig);

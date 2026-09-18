@@ -239,6 +239,9 @@ void resetPPMDataReceivedState(void)
 {
 }
 
+uint16_t getFailsafeCenter(void) { return 1500; }
+uint16_t getFailsafeThrottle(void) { return 1036; }
+
 void failsafeOnValidDataReceived(void)
 {
 }
