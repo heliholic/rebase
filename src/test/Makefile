@@ -670,7 +670,7 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 $(OBJECT_DIR)/gtest-all.o : $(GTEST_SRCS_)
 	@echo "compiling $@" "$(STDOUT)"
 	@mkdir -p $(dir $@)
-	$(V1) $(CXX) $(CXX_FLAGS) -I$(GTEST_DIR) -Wno-missing-field-initializers -Wno-unused-const-variable -c \
+	$(V1) $(CXX) $(CXX_FLAGS) -I$(GTEST_DIR) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o $@
 
 $(OBJECT_DIR)/gtest_main.o : $(GTEST_SRCS_)
@@ -693,6 +693,8 @@ $(OBJECT_DIR)/gtest_main.a : $(OBJECT_DIR)/gtest-all.o $(OBJECT_DIR)/gtest_main.
 
 # includes in test dir must override includes in user dir, unless the user
 # specifies a list of endorsed directories in ${target}_INCLUDE_DIRS.
+# $(USER_DIR)/build is needed so that #include "platform.h" from main source
+# files resolves to build/platform.h, which includes unittest_platform.h when UNIT_TEST.
 test_include_dirs  = $1 $(TEST_DIR) $(USER_DIR)/build $(USER_DIR)/common $(USER_DIR) $(ROOT)/lib/main/MAVLink
 test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 
