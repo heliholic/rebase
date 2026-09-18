@@ -35,7 +35,7 @@
 
 #include "config/config.h"
 #include "config/config_reset.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/adc.h"
 #include "drivers/rx/rx_pwm.h"

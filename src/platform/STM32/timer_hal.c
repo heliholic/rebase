@@ -27,7 +27,7 @@
 
 #ifdef USE_TIMER
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "common/utils.h"
 

@@ -31,7 +31,7 @@
 #include "build/build_config.h"
 #include "build/debug.h"
 #include "fc/runtime_config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "common/utils.h"
 #include "common/bitarray.h"

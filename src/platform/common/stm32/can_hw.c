@@ -37,7 +37,7 @@
 #error "ENABLE_CAN is set but the target MCU family has no FDCAN support in this driver"
 #endif
 
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/utils.h"
 
 #include "drivers/can/can.h"

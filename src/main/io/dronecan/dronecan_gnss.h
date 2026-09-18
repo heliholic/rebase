@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "common/time.h"
+#include "common/rtc.h"
 #include "io/gps.h"
 
 // Install the Fix2 and Auxiliary subscribers. Call once from dronecanInit()

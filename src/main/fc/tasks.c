@@ -31,7 +31,7 @@
 #include "common/color.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/compass/compass.h"

@@ -37,7 +37,7 @@
 #include "common/maths.h"
 #include "common/utils.h"
 
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "rx/frsky_crc.h"
 

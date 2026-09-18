@@ -31,12 +31,12 @@
 #include "build/debug.h"
 
 #include "common/maths.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/utils.h"
 #include "common/filter.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "fc/runtime_config.h"
 

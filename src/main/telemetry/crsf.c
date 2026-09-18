@@ -28,18 +28,18 @@
 
 #ifdef USE_TELEMETRY_CRSF
 
-#include "build/atomic.h"
+#include "common/atomic.h"
 #include "build/build_config.h"
 #include "build/version.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "common/crc.h"
 #include "common/maths.h"
 #include "common/printf.h"
 #include "common/streambuf.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/utils.h"
 
 #include "drivers/nvic.h"

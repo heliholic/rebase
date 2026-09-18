@@ -27,7 +27,7 @@
 #if defined(USE_ESCSERIAL)
 
 #include "build/build_config.h"
-#include "build/atomic.h"
+#include "common/atomic.h"
 
 #include "common/utils.h"
 

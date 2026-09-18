@@ -31,11 +31,11 @@
 #include "build/debug.h"
 
 #include "common/maths.h"
-#include "common/time.h"
+#include "common/rtc.h"
 #include "common/utils.h"
 
 #include "config/config.h"
-#include "config/feature.h"
+#include "fc/feature.h"
 
 #include "drivers/io.h"
 #include "drivers/rangefinder/rangefinder.h"
