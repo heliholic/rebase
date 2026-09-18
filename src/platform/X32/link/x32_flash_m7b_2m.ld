@@ -152,7 +152,13 @@ SECTIONS
         . = ALIGN(4);
     } >FLASH
 
-
+    /* Erase the stored config, when built with FLASH_CONFIG_ERASE=yes */
+    .flash_config :
+    {
+        FILL(0xFFFFFFFF);
+        KEEP (*(.flash_config))
+        . = DEFINED(__config_erase) ? ORIGIN(FLASH_CONFIG) + LENGTH(FLASH_CONFIG) : .;
+    } >FLASH_CONFIG
 
     /* ===== Stage 3: DMA-safe and general data/bss in AHB_SRAM ===== */
 

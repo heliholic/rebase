@@ -63,6 +63,7 @@ COMMON_SRC = \
             common/vector.c \
             config/config.c \
             config/config_eeprom.c \
+            config/config_erase.c \
             config/config_streamer.c \
             cli/cli.c \
             cli/settings.c \
