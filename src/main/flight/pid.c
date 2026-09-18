@@ -27,6 +27,8 @@
 #include "common/axis.h"
 #include "common/utils.h"
 
+#include "config/config.h"
+
 #include "drivers/dshot_command.h"
 
 #include "pg/pid.h"
@@ -100,4 +102,15 @@ void pidCopyProfile(uint8_t dstPidProfileIndex, uint8_t srcPidProfileIndex)
         && dstPidProfileIndex != srcPidProfileIndex) {
         memcpy(pidProfilesMutable(dstPidProfileIndex), pidProfilesMutable(srcPidProfileIndex), sizeof(pidProfile_t));
     }
+}
+
+
+ADJUSTMENT_GET(PID_PROFILE)
+{
+    return getCurrentPidProfileIndex() + 1;
+}
+
+ADJUSTMENT_SET(PID_PROFILE)
+{
+    changePidProfile(value - 1);
 }

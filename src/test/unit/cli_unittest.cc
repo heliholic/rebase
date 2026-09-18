@@ -36,7 +36,7 @@ extern "C" {
     #include "drivers/buf_writer.h"
     #include "drivers/vtx_common.h"
     #include "config/config.h"
-    #include "fc/rc_adjustments.h"
+    #include "controls/adjustments.h"
     #include "fc/runtime_config.h"
     #include "flight/mixer.h"
     #include "flight/pid.h"
@@ -431,7 +431,7 @@ const char * const *sensorHardwareNames(sensorIndex_e, int *count) { if (count) 
 sensorIndex_e sensorIndexFromName(const char *) { return SENSOR_INDEX_COUNT; }
 const char *sensorTypeName(sensorIndex_e) { return NULL; }
 
-void activeAdjustmentRangeReset(void) {}
+void adjustmentRangeReset(int) {}
 void rcModeInit(void) {}
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *, const modeActivationCondition_t *) { return false; }
 

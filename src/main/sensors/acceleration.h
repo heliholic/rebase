@@ -25,6 +25,7 @@
 #include "common/vector.h"
 
 #include "pg/acceleration.h"
+#include "pg/adjustments.h"
 #include "drivers/accgyro/accgyro.h"
 
 #include "sensors/sensors.h"
@@ -87,3 +88,6 @@ bool accelHasDownsampledData(void);
 float accelGetDownsampled(int axis);
 bool accelStartDownsampledCycle(void);
 #endif
+
+ADJUSTMENT_DECLARE(ACC_TRIM_PITCH)
+ADJUSTMENT_DECLARE(ACC_TRIM_ROLL)

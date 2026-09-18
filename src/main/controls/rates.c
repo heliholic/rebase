@@ -97,3 +97,139 @@ INIT_CODE void copyRateProfile(uint8_t dstRateProfileIndex, uint8_t srcRateProfi
                rateProfiles(srcRateProfileIndex), sizeof(rateProfile_t));
     }
 }
+
+
+/*
+ * Adjustment functions. The rate profile index is one-based on the wire, so
+ * that zero can mean "no change" for the configurator.
+ */
+
+ADJUSTMENT_GET(RATE_PROFILE)
+{
+    return getCurrentRateProfileIndex() + 1;
+}
+
+ADJUSTMENT_SET(RATE_PROFILE)
+{
+    changeRateProfile(value - 1);
+}
+
+ADJUSTMENT_GET(PITCH_RATE)
+{
+    return currentRateProfile->rates[FD_PITCH];
+}
+
+ADJUSTMENT_SET(PITCH_RATE)
+{
+    currentRateProfile->rates[FD_PITCH] = constrain(value, 0, RATE_MAX);
+}
+
+ADJUSTMENT_GET(PITCH_CURVE)
+{
+    return currentRateProfile->curve[FD_PITCH];
+}
+
+ADJUSTMENT_SET(PITCH_CURVE)
+{
+    currentRateProfile->curve[FD_PITCH] = constrain(value, 0, CURVE_MAX);
+}
+
+ADJUSTMENT_GET(PITCH_EXPO)
+{
+    return currentRateProfile->expo[FD_PITCH];
+}
+
+ADJUSTMENT_SET(PITCH_EXPO)
+{
+    currentRateProfile->expo[FD_PITCH] = constrain(value, 0, EXPO_MAX);
+}
+
+ADJUSTMENT_GET(ROLL_RATE)
+{
+    return currentRateProfile->rates[FD_ROLL];
+}
+
+ADJUSTMENT_SET(ROLL_RATE)
+{
+    currentRateProfile->rates[FD_ROLL] = constrain(value, 0, RATE_MAX);
+}
+
+ADJUSTMENT_GET(ROLL_CURVE)
+{
+    return currentRateProfile->curve[FD_ROLL];
+}
+
+ADJUSTMENT_SET(ROLL_CURVE)
+{
+    currentRateProfile->curve[FD_ROLL] = constrain(value, 0, CURVE_MAX);
+}
+
+ADJUSTMENT_GET(ROLL_EXPO)
+{
+    return currentRateProfile->expo[FD_ROLL];
+}
+
+ADJUSTMENT_SET(ROLL_EXPO)
+{
+    currentRateProfile->expo[FD_ROLL] = constrain(value, 0, EXPO_MAX);
+}
+
+ADJUSTMENT_GET(YAW_RATE)
+{
+    return currentRateProfile->rates[FD_YAW];
+}
+
+ADJUSTMENT_SET(YAW_RATE)
+{
+    currentRateProfile->rates[FD_YAW] = constrain(value, 0, RATE_MAX);
+}
+
+ADJUSTMENT_GET(YAW_CURVE)
+{
+    return currentRateProfile->curve[FD_YAW];
+}
+
+ADJUSTMENT_SET(YAW_CURVE)
+{
+    currentRateProfile->curve[FD_YAW] = constrain(value, 0, CURVE_MAX);
+}
+
+ADJUSTMENT_GET(YAW_EXPO)
+{
+    return currentRateProfile->expo[FD_YAW];
+}
+
+ADJUSTMENT_SET(YAW_EXPO)
+{
+    currentRateProfile->expo[FD_YAW] = constrain(value, 0, EXPO_MAX);
+}
+
+ADJUSTMENT_GET(COLL_RATE)
+{
+    return currentRateProfile->rates[FD_COLL];
+}
+
+ADJUSTMENT_SET(COLL_RATE)
+{
+    currentRateProfile->rates[FD_COLL] = constrain(value, 0, RATE_MAX);
+}
+
+ADJUSTMENT_GET(COLL_CURVE)
+{
+    return currentRateProfile->curve[FD_COLL];
+}
+
+ADJUSTMENT_SET(COLL_CURVE)
+{
+    currentRateProfile->curve[FD_COLL] = constrain(value, 0, CURVE_MAX);
+}
+
+ADJUSTMENT_GET(COLL_EXPO)
+{
+    return currentRateProfile->expo[FD_COLL];
+}
+
+ADJUSTMENT_SET(COLL_EXPO)
+{
+    currentRateProfile->expo[FD_COLL] = constrain(value, 0, EXPO_MAX);
+}

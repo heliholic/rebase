@@ -1619,3 +1619,16 @@ displayPort_t *osdGetDisplayPort(osdDisplayPortDevice_e *displayPortDeviceType)
 }
 
 #endif // USE_OSD
+
+
+#ifdef USE_OSD_PROFILES
+ADJUSTMENT_GET(OSD_PROFILE)
+{
+    return getCurrentOsdProfileIndex();
+}
+
+ADJUSTMENT_SET(OSD_PROFILE)
+{
+    changeOsdProfileIndex(value);
+}
+#endif

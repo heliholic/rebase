@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "pg/adjustments.h"
 #include "pg/rates.h"
 
 #define RATE_MAX        1000    // maximum rate in deg/s
@@ -39,3 +40,20 @@ void loadRateProfile(void);
 
 void changeRateProfile(uint8_t rateProfileIndex);
 void copyRateProfile(uint8_t dstRateProfileIndex, uint8_t srcRateProfileIndex);
+
+ADJUSTMENT_DECLARE(RATE_PROFILE)
+
+ADJUSTMENT_DECLARE(PITCH_RATE)
+ADJUSTMENT_DECLARE(ROLL_RATE)
+ADJUSTMENT_DECLARE(YAW_RATE)
+ADJUSTMENT_DECLARE(COLL_RATE)
+
+ADJUSTMENT_DECLARE(PITCH_CURVE)
+ADJUSTMENT_DECLARE(ROLL_CURVE)
+ADJUSTMENT_DECLARE(YAW_CURVE)
+ADJUSTMENT_DECLARE(COLL_CURVE)
+
+ADJUSTMENT_DECLARE(PITCH_EXPO)
+ADJUSTMENT_DECLARE(ROLL_EXPO)
+ADJUSTMENT_DECLARE(YAW_EXPO)
+ADJUSTMENT_DECLARE(COLL_EXPO)

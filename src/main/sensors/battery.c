@@ -564,3 +564,14 @@ float getWhDrawn(void)
 {
     return wattHoursDrawn;
 }
+
+
+ADJUSTMENT_GET(BATTERY_PROFILE)
+{
+    return getCurrentBatteryProfileIndex() + 1;
+}
+
+ADJUSTMENT_SET(BATTERY_PROFILE)
+{
+    changeBatteryProfile(value - 1);
+}

@@ -27,6 +27,7 @@
 
 #include "sensors/esc_sensor.h"
 
+#include "pg/adjustments.h"
 #include "pg/osd.h"
 
 #define OSD_NUM_TIMER_TYPES 4
@@ -189,6 +190,8 @@ void osdSuppressStats(bool flag);
 void osdAnalyzeActiveElements(void);
 void changeOsdProfileIndex(uint8_t profileIndex);
 uint8_t getCurrentOsdProfileIndex(void);
+
+ADJUSTMENT_DECLARE(OSD_PROFILE)
 displayPort_t *osdGetDisplayPort(osdDisplayPortDevice_e *displayPortDevice);
 
 void osdWarnSetState(uint8_t warningIndex, bool enabled);

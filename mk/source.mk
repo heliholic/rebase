@@ -106,6 +106,7 @@ COMMON_SRC = \
             config/config_streamer.c \
             cli/cli.c \
             cli/settings.c \
+            controls/adjustments.c \
             controls/modes.c \
             controls/rates.c \
             controls/rc.c \
@@ -174,7 +175,6 @@ COMMON_SRC = \
             drivers/serial_softserial.c \
             fc/arming.c \
             fc/core.c \
-            fc/rc_adjustments.c \
             fc/rc_controls.c \
             fc/servos.c \
             fc/motors.c \

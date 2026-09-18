@@ -149,7 +149,8 @@
 
 #include "controls/rates.h"
 #include "fc/core.h"
-#include "fc/rc_adjustments.h"
+#include "controls/adjustments.h"
+#include "controls/modes.h"
 #include "fc/rc_controls.h"
 #include "controls/modes.h"
 #include "fc/runtime_config.h"

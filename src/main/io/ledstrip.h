@@ -26,6 +26,7 @@
 #include "drivers/io_types.h"
 #include "drivers/light_ws2811strip.h"
 
+#include "pg/adjustments.h"
 #include "pg/ledstrip.h"
 
 #define TASK_LEDSTRIP_RATE_HZ 60
@@ -160,6 +161,8 @@ void applyDefaultModeColors(modeColorIndexes_t *modeColors);
 void applyDefaultSpecialColors(specialColorIndexes_t *specialColors);
 
 void updateRequiredOverlay(void);
+
+ADJUSTMENT_DECLARE(LED_PROFILE)
 
 uint8_t getLedProfile(void);
 void setLedProfile(uint8_t profile);

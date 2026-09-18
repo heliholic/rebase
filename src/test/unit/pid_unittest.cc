@@ -96,6 +96,9 @@ extern "C" {
     void beeperConfirmationBeeps(uint8_t) { }
     void disarm(flightLogDisarmReason_e) { }
     void initRcProcessing(void) { }
+    uint8_t getCurrentPidProfileIndex(void) { return 0; }
+    void changePidProfile(uint8_t) { }
+    uint8_t getCurrentRateProfileIndex(void) { return 0; }
 }
 
 pidProfile_t *pidProfile;

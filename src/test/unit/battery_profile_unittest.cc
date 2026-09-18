@@ -178,6 +178,10 @@ extern "C" {
         return THROTTLE_HIGH;
     }
 
+    uint8_t getCurrentBatteryProfileIndex(void) {
+        return 0;
+    }
+
     bool isRxReceivingSignal(void) {
         return true;
     }
