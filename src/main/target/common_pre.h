@@ -294,8 +294,8 @@
 #define USE_HUFFMAN
 
 #define PID_PROFILE_COUNT 4
-#ifndef CONTROL_RATE_PROFILE_COUNT
-#define CONTROL_RATE_PROFILE_COUNT 4 // or maybe 6
+#ifndef RATE_PROFILE_COUNT
+#define RATE_PROFILE_COUNT 4 // or maybe 6
 #endif
 #define BATTERY_PROFILE_COUNT 3
 

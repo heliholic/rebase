@@ -30,7 +30,7 @@ extern "C" {
     #include "config/config.h"
     #include "fc/feature.h"
 
-    #include "fc/controlrate_profile.h"
+    #include "controls/rates.h"
     #include "fc/core.h"
     #include "fc/rc_controls.h"
     #include "fc/rc_modes.h"
@@ -88,7 +88,7 @@ extern "C" {
     int32_t debug[DEBUG_VALUE_COUNT];
     uint32_t _debug_timing[DEBUG_VALUE_COUNT];
     pidProfile_t *currentPidProfile;
-    controlRateConfig_t *currentControlRateProfile;
+    rateProfile_t *currentRateProfile;
     attitudeEulerAngles_t attitude;
 
     gpsSolutionData_t gpsSol;
@@ -596,7 +596,7 @@ extern "C" {
     bool rxAreFlightChannelsValid(void) { return false; }
     void pidResetIterm(void) {}
     void updateAdjustmentStates(void) {}
-    void processRcAdjustments(controlRateConfig_t *) {}
+    void processRcAdjustments(rateProfile_t *) {}
     void updateGpsWaypointsAndMode(void) {}
     void mspSerialReleaseSharedTelemetryPorts(void) {}
     void telemetryCheckState(void) {}
@@ -613,7 +613,7 @@ extern "C" {
     bool accHasBeenCalibrated(void) { return true; }
     void baroSetGroundLevel(void) {}
     void changePidProfile(uint8_t) {}
-    void changeControlRateProfile(uint8_t) {}
+    void changeRateProfile(uint8_t) {}
     void dashboardEnablePageCycling(void) {}
     void dashboardDisablePageCycling(void) {}
     void rescheduleTask(taskId_e, timeDelta_t) {}

@@ -40,8 +40,9 @@
 #include "drivers/time.h"
 
 #include "config/config.h"
+#include "controls/rates.h"
 #include "controls/rc.h"
-#include "fc/controlrate_profile.h"
+
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
 
@@ -204,29 +205,29 @@ static const adjustmentConfig_t defaultAdjustmentConfigs[ADJUSTMENT_FUNCTION_COU
     }
 };
 
-static int applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t adjustmentFunction, int delta)
+static int applyStepAdjustment(rateProfile_t *rateProfile, uint8_t adjustmentFunction, int delta)
 {
     beeperConfirmationBeeps(delta > 0 ? 2 : 1);
     int newValue;
     switch (adjustmentFunction) {
     case ADJUSTMENT_RC_RATE:
-        newValue = constrain((int)controlRateConfig->rcRates[FD_ROLL] + delta, 1, CONTROL_RATE_CONFIG_RC_RATES_MAX);
-        controlRateConfig->rcRates[FD_ROLL] = newValue;
-        newValue = constrain((int)controlRateConfig->rcRates[FD_PITCH] + delta, 1, CONTROL_RATE_CONFIG_RC_RATES_MAX);
-        controlRateConfig->rcRates[FD_PITCH] = newValue;
+        newValue = constrain((int)rateProfile->rates[FD_ROLL] + delta, 1, RATE_MAX);
+        rateProfile->rates[FD_ROLL] = newValue;
+        newValue = constrain((int)rateProfile->rates[FD_PITCH] + delta, 1, RATE_MAX);
+        rateProfile->rates[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_RATE, newValue);
         break;
     case ADJUSTMENT_RC_EXPO:
-        newValue = constrain((int)controlRateConfig->rcExpo[FD_ROLL] + delta, 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX);
-        controlRateConfig->rcExpo[FD_ROLL] = newValue;
-        newValue = constrain((int)controlRateConfig->rcExpo[FD_PITCH] + delta, 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX);
-        controlRateConfig->rcExpo[FD_PITCH] = newValue;
+        newValue = constrain((int)rateProfile->expo[FD_ROLL] + delta, 0, EXPO_MAX);
+        rateProfile->expo[FD_ROLL] = newValue;
+        newValue = constrain((int)rateProfile->expo[FD_PITCH] + delta, 0, EXPO_MAX);
+        rateProfile->expo[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_EXPO, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_RATE:
     case ADJUSTMENT_PITCH_RATE:
-        newValue = constrain((int)controlRateConfig->rates[FD_PITCH] + delta, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_PITCH] = newValue;
+        newValue = constrain((int)rateProfile->curve[FD_PITCH] + delta, 0, CURVE_MAX);
+        rateProfile->curve[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_PITCH_RATE, newValue);
         if (adjustmentFunction == ADJUSTMENT_PITCH_RATE) {
             break;
@@ -234,13 +235,13 @@ static int applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t a
         // fall through for combined ADJUSTMENT_PITCH_ROLL_RATE
         FALLTHROUGH;
     case ADJUSTMENT_ROLL_RATE:
-        newValue = constrain((int)controlRateConfig->rates[FD_ROLL] + delta, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_ROLL] = newValue;
+        newValue = constrain((int)rateProfile->curve[FD_ROLL] + delta, 0, CURVE_MAX);
+        rateProfile->curve[FD_ROLL] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_ROLL_RATE, newValue);
         break;
     case ADJUSTMENT_YAW_RATE:
-        newValue = constrain((int)controlRateConfig->rates[FD_YAW] + delta, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_YAW] = newValue;
+        newValue = constrain((int)rateProfile->curve[FD_YAW] + delta, 0, CURVE_MAX);
+        rateProfile->curve[FD_YAW] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_YAW_RATE, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_P:
@@ -305,8 +306,8 @@ static int applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t a
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_YAW_D, newValue);
         break;
     case ADJUSTMENT_RC_RATE_YAW:
-        newValue = constrain((int)controlRateConfig->rcRates[FD_YAW] + delta, 1, CONTROL_RATE_CONFIG_RC_RATES_MAX);
-        controlRateConfig->rcRates[FD_YAW] = newValue;
+        newValue = constrain((int)rateProfile->rates[FD_YAW] + delta, 1, RATE_MAX);
+        rateProfile->rates[FD_YAW] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_RATE_YAW, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_F:
@@ -338,27 +339,27 @@ static int applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t a
     return newValue;
 }
 
-static int applyAbsoluteAdjustment(controlRateConfig_t *controlRateConfig, adjustmentFunction_e adjustmentFunction, int value)
+static int applyAbsoluteAdjustment(rateProfile_t *rateProfile, adjustmentFunction_e adjustmentFunction, int value)
 {
     int newValue;
 
     switch (adjustmentFunction) {
     case ADJUSTMENT_RC_RATE:
-        newValue = constrain(value, 1, CONTROL_RATE_CONFIG_RC_RATES_MAX);
-        controlRateConfig->rcRates[FD_ROLL] = newValue;
-        controlRateConfig->rcRates[FD_PITCH] = newValue;
+        newValue = constrain(value, 1, RATE_MAX);
+        rateProfile->rates[FD_ROLL] = newValue;
+        rateProfile->rates[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_RATE, newValue);
         break;
     case ADJUSTMENT_RC_EXPO:
-        newValue = constrain(value, 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX);
-        controlRateConfig->rcExpo[FD_ROLL] = newValue;
-        controlRateConfig->rcExpo[FD_PITCH] = newValue;
+        newValue = constrain(value, 0, EXPO_MAX);
+        rateProfile->expo[FD_ROLL] = newValue;
+        rateProfile->expo[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_EXPO, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_RATE:
     case ADJUSTMENT_PITCH_RATE:
-        newValue = constrain(value, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_PITCH] = newValue;
+        newValue = constrain(value, 0, CURVE_MAX);
+        rateProfile->curve[FD_PITCH] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_PITCH_RATE, newValue);
         if (adjustmentFunction == ADJUSTMENT_PITCH_RATE) {
             break;
@@ -366,13 +367,13 @@ static int applyAbsoluteAdjustment(controlRateConfig_t *controlRateConfig, adjus
         // fall through for combined ADJUSTMENT_PITCH_ROLL_RATE
         FALLTHROUGH;
     case ADJUSTMENT_ROLL_RATE:
-        newValue = constrain(value, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_ROLL] = newValue;
+        newValue = constrain(value, 0, CURVE_MAX);
+        rateProfile->curve[FD_ROLL] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_ROLL_RATE, newValue);
         break;
     case ADJUSTMENT_YAW_RATE:
-        newValue = constrain(value, 0, CONTROL_RATE_CONFIG_RATE_MAX);
-        controlRateConfig->rates[FD_YAW] = newValue;
+        newValue = constrain(value, 0, CURVE_MAX);
+        rateProfile->curve[FD_YAW] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_YAW_RATE, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_P:
@@ -437,8 +438,8 @@ static int applyAbsoluteAdjustment(controlRateConfig_t *controlRateConfig, adjus
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_YAW_D, newValue);
         break;
     case ADJUSTMENT_RC_RATE_YAW:
-        newValue = constrain(value, 1, CONTROL_RATE_CONFIG_RC_RATES_MAX);
-        controlRateConfig->rcRates[FD_YAW] = newValue;
+        newValue = constrain(value, 1, RATE_MAX);
+        rateProfile->rates[FD_YAW] = newValue;
         blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RC_RATE_YAW, newValue);
         break;
     case ADJUSTMENT_PITCH_ROLL_F:
@@ -476,8 +477,8 @@ static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, ui
 
     switch (adjustmentFunction) {
     case ADJUSTMENT_RATE_PROFILE:
-        if (getCurrentControlRateProfileIndex() != position) {
-            changeControlRateProfile(position);
+        if (getCurrentRateProfileIndex() != position) {
+            changeRateProfile(position);
             blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RATE_PROFILE, position);
 
             beeps = position + 1;
@@ -561,7 +562,7 @@ static void calcActiveAdjustmentRanges(void)
 
 #define RESET_FREQUENCY_2HZ (1000 / 2)
 
-static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, const bool canUseRxData)
+static void processStepwiseAdjustments(rateProfile_t *rateProfile, const bool canUseRxData)
 {
     const timeMs_t now = millis();
 
@@ -605,7 +606,7 @@ static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, c
                 continue;
             }
 
-            int newValue = applyStepAdjustment(controlRateConfig, adjustmentFunction, delta);
+            int newValue = applyStepAdjustment(rateProfile, adjustmentFunction, delta);
 
             setConfigDirty();
 
@@ -626,7 +627,7 @@ static void setConfigDirtyIfNotPermanent(const channelRange_t *range)
     }
 }
 
-static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
+static void processContinuosAdjustments(rateProfile_t *rateProfile)
 {
     for (int i = 0; i < continuosAdjustmentCount; i++) {
         continuosAdjustmentState_t *adjustmentState = &continuosAdjustments[i];
@@ -655,7 +656,7 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
                         (adjustmentConfig->mode == ADJUSTMENT_MODE_STEP)) {
                         int value = (((rcInput[channelIndex] - PWM_RANGE_MIDDLE) * adjustmentRange->adjustmentScale) / (PWM_RANGE_MIDDLE - PWM_RANGE_MIN)) + adjustmentRange->adjustmentCenter;
 
-                        newValue = applyAbsoluteAdjustment(controlRateConfig, adjustmentFunction, value);
+                        newValue = applyAbsoluteAdjustment(rateProfile, adjustmentFunction, value);
 
                         setConfigDirtyIfNotPermanent(&adjustmentRange->range);
 
@@ -671,7 +672,7 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
     }
 }
 
-void processRcAdjustments(controlRateConfig_t *controlRateConfig)
+void processRcAdjustments(rateProfile_t *rateProfile)
 {
     const bool canUseRxData = isRxReceivingSignal();
 
@@ -682,10 +683,10 @@ void processRcAdjustments(controlRateConfig_t *controlRateConfig)
         calcActiveAdjustmentRanges();
     }
 
-    processStepwiseAdjustments(controlRateConfig, canUseRxData);
+    processStepwiseAdjustments(rateProfile, canUseRxData);
 
     if (canUseRxData) {
-        processContinuosAdjustments(controlRateConfig);
+        processContinuosAdjustments(rateProfile);
     }
 
 }

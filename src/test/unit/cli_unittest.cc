@@ -327,8 +327,8 @@ bool parseLedStripConfig(int, const char *){return false; }
 bool setModeColor(ledModeIndex_e, int, int) { return false; }
 void motorShutdown(void) { }
 uint8_t getCurrentPidProfileIndex(void){ return 1; }
-uint8_t getCurrentControlRateProfileIndex(void){ return 1; }
-void changeControlRateProfile(uint8_t) {}
+uint8_t getCurrentRateProfileIndex(void){ return 1; }
+void changeRateProfile(uint8_t) {}
 void resetAllRxChannelRangeConfigurations(rxChannelRangeConfig_t *) {}
 void writeEEPROM() {}
 serialPortConfig_t *serialFindPortConfigurationMutable(serialPortIdentifier_e) {return NULL; }

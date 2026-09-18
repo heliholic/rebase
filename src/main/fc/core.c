@@ -49,8 +49,8 @@
 #include "drivers/system.h"
 #include "drivers/time.h"
 
+#include "controls/rates.h"
 #include "controls/rc.h"
-#include "fc/controlrate_profile.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
@@ -542,7 +542,7 @@ void processRxModes(timeUs_t currentTimeUs)
     updateActivatedModes();
 
     if (!cliMode && !(IS_RC_MODE_ACTIVE(BOXPARALYZE) && !ARMING_FLAG(ARMED))) {
-        processRcAdjustments(currentControlRateProfile);
+        processRcAdjustments(currentRateProfile);
     }
 
     bool canUseHorizonMode = true;

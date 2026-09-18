@@ -306,16 +306,16 @@ void processRcStickPositions(void)
         // in ACRO mode, so use sticks to change RATE profile
         switch (rcSticks) {
         case COL_HI + YAW_CE + PIT_HI + ROL_CE:
-            changeControlRateProfile(0);
+            changeRateProfile(0);
             return;
         case COL_HI + YAW_CE + PIT_LO + ROL_CE:
-            changeControlRateProfile(1);
+            changeRateProfile(1);
             return;
         case COL_HI + YAW_CE + PIT_CE + ROL_HI:
-            changeControlRateProfile(2);
+            changeRateProfile(2);
             return;
         case COL_HI + YAW_CE + PIT_CE + ROL_LO:
-            changeControlRateProfile(3);
+            changeRateProfile(3);
             return;
         }
     }

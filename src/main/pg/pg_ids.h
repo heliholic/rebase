@@ -33,7 +33,7 @@ enum {
     PG_SENSOR_TRIMS                    =    9,
     PG_GYRO_CONFIG                     =   10,
     PG_BATTERY_CONFIG                  =   11,
-    PG_CONTROL_RATE_PROFILES           =   12,
+    PG_RATE_PROFILES                   =   12,
     PG_SERIAL_CONFIG                   =   13,
     PG_PID_PROFILE                     =   14,
     PG_ARMING_CONFIG                   =   16,

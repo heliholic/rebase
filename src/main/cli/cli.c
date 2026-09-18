@@ -88,7 +88,7 @@ bool cliMode = false;
 #include "drivers/usb_msc.h"
 
 #include "fc/board_info.h"
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/rc_adjustments.h"
@@ -774,7 +774,7 @@ static uint8_t getPidProfileIndexToUse(void)
 
 static uint8_t getRateProfileIndexToUse(void)
 {
-    return rateProfileIndexToUse == CURRENT_PROFILE_INDEX ? getCurrentControlRateProfileIndex() : rateProfileIndexToUse;
+    return rateProfileIndexToUse == CURRENT_PROFILE_INDEX ? getCurrentRateProfileIndex() : rateProfileIndexToUse;
 }
 
 static uint8_t getBatteryProfileIndexToUse(void)
@@ -791,7 +791,7 @@ static uint16_t getValueOffset(const clivalue_t *value)
     case PROFILE_VALUE:
         return value->offset + sizeof(pidProfile_t) * getPidProfileIndexToUse();
     case PROFILE_RATE_VALUE:
-        return value->offset + sizeof(controlRateConfig_t) * getRateProfileIndexToUse();
+        return value->offset + sizeof(rateProfile_t) * getRateProfileIndexToUse();
     case PROFILE_BATTERY_VALUE:
         return value->offset + sizeof(batteryProfile_t) * getBatteryProfileIndexToUse();
     }
@@ -3555,11 +3555,11 @@ RAM_CODE static void cliRateProfile(const char *cmdName, char *cmdline)
         return;
     } else {
         const int i = atoi(cmdline);
-        if (i >= 0 && i < CONTROL_RATE_PROFILE_COUNT) {
-            changeControlRateProfile(i);
+        if (i >= 0 && i < RATE_PROFILE_COUNT) {
+            changeRateProfile(i);
             cliRateProfile(cmdName, "");
         } else {
-            cliPrintErrorLinef(cmdName, "RATE PROFILE OUTSIDE OF [0..%d]", CONTROL_RATE_PROFILE_COUNT - 1);
+            cliPrintErrorLinef(cmdName, "RATE PROFILE OUTSIDE OF [0..%d]", RATE_PROFILE_COUNT - 1);
         }
     }
 }
@@ -3585,7 +3585,7 @@ static void cliDumpPidProfile(const char *cmdName, uint8_t pidProfileIndex, dump
 
 static void cliDumpRateProfile(const char *cmdName, uint8_t rateProfileIndex, dumpFlags_t dumpMask)
 {
-    if (rateProfileIndex >= CONTROL_RATE_PROFILE_COUNT) {
+    if (rateProfileIndex >= RATE_PROFILE_COUNT) {
         // Faulty values
         return;
     }
@@ -3810,7 +3810,7 @@ RAM_CODE STATIC_UNIT_TESTED void cliGet(const char *cmdName, char *cmdline)
     int matchedCommands = 0;
 
     pidProfileIndexToUse = getCurrentPidProfileIndex();
-    rateProfileIndexToUse = getCurrentControlRateProfileIndex();
+    rateProfileIndexToUse = getCurrentRateProfileIndex();
     batteryProfileIndexToUse = getCurrentBatteryProfileIndex();
 
     backupAndResetConfigs();
@@ -4417,7 +4417,7 @@ int cliGetSettingInfoByName(const char *name, int offset, char *buf, int bufLen,
 
     // get default value by resetting a copy of the PG config (non-destructive)
     pidProfileIndexToUse = getCurrentPidProfileIndex();
-    rateProfileIndexToUse = getCurrentControlRateProfileIndex();
+    rateProfileIndexToUse = getCurrentRateProfileIndex();
     const int valueOffset = getValueOffset(val);
     pidProfileIndexToUse = CURRENT_PROFILE_INDEX;
     rateProfileIndexToUse = CURRENT_PROFILE_INDEX;
@@ -6685,7 +6685,7 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
 
                 pidProfileIndexToUse = CURRENT_PROFILE_INDEX;
 
-                for (uint32_t rateIndex = 0; rateIndex < CONTROL_RATE_PROFILE_COUNT; rateIndex++) {
+                for (uint32_t rateIndex = 0; rateIndex < RATE_PROFILE_COUNT; rateIndex++) {
                     cliDumpRateProfile(cmdName, rateIndex, dumpMask);
                 }
 

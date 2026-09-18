@@ -41,7 +41,7 @@
 #include "drivers/sdio.h"
 
 #include "config/config.h"
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "fc/parameter_names.h"
 #include "controls/rc.h"
@@ -249,9 +249,6 @@ static const char * const lookupTableGyroOverflowCheck[] = {
 };
 #endif
 
-static const char * const lookupTableRatesType[] = {
-    "BETAFLIGHT", "RACEFLIGHT", "KISS", "ACTUAL", "QUICK"
-};
 
 #ifdef USE_OVERCLOCK
 static const char * const lookupOverclock[] = {
@@ -375,7 +372,6 @@ const lookupTableEntry_t lookupTables[] = {
 #ifdef USE_GYRO_OVERFLOW_CHECK
     LOOKUP_TABLE_ENTRY(lookupTableGyroOverflowCheck),
 #endif
-    LOOKUP_TABLE_ENTRY(lookupTableRatesType),
 #ifdef USE_OVERCLOCK
     LOOKUP_TABLE_ENTRY(lookupOverclock),
 #endif
@@ -655,24 +651,24 @@ const clivalue_t valueTable[] = {
 #endif
 #endif // USE_BEEPER
 
-// PG_CONTROLRATE_PROFILES
+// PG_RATE_PROFILES
 #ifdef USE_PROFILE_NAMES
-    { "rateprofile_name",           VAR_UINT8  | PROFILE_RATE_VALUE | MODE_STRING, .config.string = { 1, MAX_RATE_PROFILE_NAME_LENGTH, STRING_FLAGS_NONE }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, profileName) },
+    { "rateprofile_name",           VAR_UINT8  | PROFILE_RATE_VALUE | MODE_STRING, .config.string = { 1, MAX_RATE_PROFILE_NAME_LENGTH, STRING_FLAGS_NONE }, PG_RATE_PROFILES, offsetof(rateProfile_t, profileName) },
 #endif
-    { PARAM_NAME_RATES_TYPE,        VAR_UINT8  | PROFILE_RATE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_RATES_TYPE }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rates_type) },
-    { "quickrates_rc_expo",         VAR_UINT8  | PROFILE_RATE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, quickRatesRcExpo) },
-    { "roll_rc_rate",               VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 1, CONTROL_RATE_CONFIG_RC_RATES_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcRates[FD_ROLL]) },
-    { "pitch_rc_rate",              VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 1, CONTROL_RATE_CONFIG_RC_RATES_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcRates[FD_PITCH]) },
-    { "yaw_rc_rate",                VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 1, CONTROL_RATE_CONFIG_RC_RATES_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcRates[FD_YAW]) },
-    { "roll_expo",                  VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcExpo[FD_ROLL]) },
-    { "pitch_expo",                 VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcExpo[FD_PITCH]) },
-    { "yaw_expo",                   VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RC_EXPO_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rcExpo[FD_YAW]) },
-    { "roll_srate",                 VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RATE_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rates[FD_ROLL]) },
-    { "pitch_srate",                VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RATE_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rates[FD_PITCH]) },
-    { "yaw_srate",                  VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CONTROL_RATE_CONFIG_RATE_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rates[FD_YAW]) },
-    { "roll_rate_limit",            VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { CONTROL_RATE_CONFIG_RATE_LIMIT_MIN, CONTROL_RATE_CONFIG_RATE_LIMIT_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rate_limit[FD_ROLL]) },
-    { "pitch_rate_limit",           VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { CONTROL_RATE_CONFIG_RATE_LIMIT_MIN, CONTROL_RATE_CONFIG_RATE_LIMIT_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rate_limit[FD_PITCH]) },
-    { "yaw_rate_limit",             VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { CONTROL_RATE_CONFIG_RATE_LIMIT_MIN, CONTROL_RATE_CONFIG_RATE_LIMIT_MAX }, PG_CONTROL_RATE_PROFILES, offsetof(controlRateConfig_t, rate_limit[FD_YAW]) },
+    { "roll_rate",                  VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, RATE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, rates[FD_ROLL]) },
+    { "pitch_rate",                 VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, RATE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, rates[FD_PITCH]) },
+    { "yaw_rate",                   VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, RATE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, rates[FD_YAW]) },
+    { "collective_rate",            VAR_UINT16 | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, RATE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, rates[FD_COLL]) },
+
+    { "roll_expo",                  VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, EXPO_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, expo[FD_ROLL]) },
+    { "pitch_expo",                 VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, EXPO_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, expo[FD_PITCH]) },
+    { "yaw_expo",                   VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, EXPO_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, expo[FD_YAW]) },
+    { "collective_expo",            VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, EXPO_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, expo[FD_COLL]) },
+
+    { "roll_curve",                 VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CURVE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, curve[FD_ROLL]) },
+    { "pitch_curve",                VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CURVE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, curve[FD_PITCH]) },
+    { "yaw_curve",                  VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CURVE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, curve[FD_YAW]) },
+    { "collective_curve",           VAR_UINT8  | PROFILE_RATE_VALUE, .config.minmaxUnsigned = { 0, CURVE_MAX }, PG_RATE_PROFILES, offsetof(rateProfile_t, curve[FD_COLL]) },
 
 // PG_SERIAL_CONFIG
     { "reboot_character",           VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 48, 126 }, PG_SERIAL_CONFIG, offsetof(serialConfig_t, reboot_character) },
