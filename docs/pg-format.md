@@ -91,7 +91,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `featureConfig` | 19 | `0x9C1E8EBD` | [`featureConfig_t`](#featureconfig_t) | 4 | `pg/feature.h` |
 | `flashConfig` | 506 | `0x0FCA0D96` | [`flashConfig_t`](#flashconfig_t) | 4 | `pg/flash.h` |
 | `gpsConfig` | 30 | `0x74F0A839` | [`gpsConfig_t`](#gpsconfig_t) | 78 | `pg/gps.h` |
-| `gyroConfig` | 10 | `0xABA932D4` | [`gyroConfig_t`](#gyroconfig_t) | 28 | `pg/gyro.h` |
+| `gyroConfig` | 10 | `0x3512C78A` | [`gyroConfig_t`](#gyroconfig_t) | 26 | `pg/gyro.h` |
 | `gyroDeviceConfig` | 540 | `0x6DD87CDA` | [`gyroDeviceConfig_t`](#gyrodeviceconfig_t) | 16 &times; `MAX_GYRODEV_COUNT` | `pg/gyrodev.h` |
 | `i2cConfig` | 518 | `0xB026B875` | [`i2cConfig_t`](#i2cconfig_t) | 6 &times; `I2CDEV_COUNT` | `pg/bus_i2c.h` |
 | `imuConfig` | 22 | `0xBE4FB408` | [`imuConfig_t`](#imuconfig_t) | 10 | `pg/imu.h` |
@@ -562,9 +562,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### gyroConfig_t
 
-- `gyroConfig` &mdash; PGN 10 (`PG_GYRO_CONFIG`), hash `0xABA932D4`
+- `gyroConfig` &mdash; PGN 10 (`PG_GYRO_CONFIG`), hash `0x3512C78A`
 
-`sizeof` = 28 bytes.
+`sizeof` = 26 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
@@ -584,10 +584,8 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 20 | 1 | `uint8_t` | `gyro_lpf2_type` |
 | 21 | 1 | &mdash; | *(padding)* |
 | 22 | 2 | `uint16_t` | `gyroCalibrationDuration` |
-| 24 | 1 | `uint8_t` | `gyro_filter_debug_axis` |
-| 25 | 1 | `uint8_t` | `gyrosDetected` |
-| 26 | 1 | `uint8_t` | `gyro_enabled_bitmask` |
-| 27 | 1 | &mdash; | *(tail padding)* |
+| 24 | 1 | `uint8_t` | `gyrosDetected` |
+| 25 | 1 | `uint8_t` | `gyro_enabled_bitmask` |
 
 ### gyroDeviceConfig_t
 
