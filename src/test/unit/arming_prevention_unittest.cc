@@ -42,7 +42,7 @@ extern "C" {
     #include "flight/pid.h"
     #include "flight/position.h"
     #include "flight/position_estimator.h"
-    #include "flight/servos.h"
+    #include "fc/servos.h"
 
     #include "io/beeper.h"
     #include "io/gps.h"
@@ -599,7 +599,7 @@ extern "C" {
     void pidController(const pidProfile_t *, timeUs_t) {}
     void mixTable(timeUs_t) {};
     void writeMotors(void) {};
-    void writeServos(void) {};
+    void servoUpdate(void) {};
     bool calculateRxChannelsAndUpdateFailsafe(timeUs_t) { return true; }
     bool isMixerUsingServos(void) { return false; }
     void gyroUpdate(void) {}

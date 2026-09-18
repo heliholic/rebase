@@ -166,7 +166,8 @@ cli_unittest_SRC := \
 		$(USER_DIR)/drivers/serial.c \
 		$(USER_DIR)/drivers/serial_impl.c \
 		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/pg/feature.c
+		$(USER_DIR)/pg/feature.c \
+		$(TEST_DIR)/servo_stubs.c
 
 cli_unittest_DEFINES := \
 		USE_OSD= \
@@ -177,7 +178,8 @@ cms_unittest_SRC := \
 		$(USER_DIR)/cms/cms.c \
 		$(USER_DIR)/cms/cms_menu_saveexit.c \
 		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/drivers/display.c
+		$(USER_DIR)/drivers/display.c \
+		$(TEST_DIR)/servo_stubs.c
 
 
 common_filter_unittest_SRC := \
@@ -223,7 +225,7 @@ flight_imu_unittest_SRC := \
 
 flight_mixer_unittest :=  \
 		$(USER_DIR)/flight/mixer.c \
-		$(USER_DIR)/flight/servos.c \
+		$(USER_DIR)/fc/servos.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/stddev.c \
 		$(USER_DIR)/common/trig.c

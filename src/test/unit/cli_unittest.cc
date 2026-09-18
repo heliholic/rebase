@@ -40,7 +40,7 @@ extern "C" {
     #include "fc/runtime_config.h"
     #include "flight/mixer.h"
     #include "flight/pid.h"
-    #include "flight/servos.h"
+    #include "fc/servos.h"
     #include "io/beeper.h"
     #include "io/ledstrip.h"
     #include "io/serial.h"
