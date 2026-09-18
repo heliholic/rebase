@@ -52,7 +52,7 @@ extern "C" {
     #include "drivers/sound_beeper.h"
     #include "drivers/time.h"
 
-    #include "fc/controlrate_profile.h"
+    #include "controls/rates.h"
     #include "fc/core.h"
     #include "controls/rc.h"
 
@@ -144,7 +144,7 @@ void resetTest(void)
 
     flightModeFlags = 0;
     pidInit(pidProfile);
-    loadControlRateProfile();
+    loadRateProfile();
 
     for (int loop = 0; loop < 20; loop++) {
         pidController(pidProfile, currentTestTime());

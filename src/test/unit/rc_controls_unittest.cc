@@ -46,7 +46,7 @@ extern "C" {
     #include "flight/pid.h"
 
     #include "config/config.h"
-    #include "fc/controlrate_profile.h"
+    #include "controls/rates.h"
     #include "fc/rc_modes.h"
     #include "fc/rc_adjustments.h"
 
@@ -197,7 +197,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
 
 enum {
     COUNTER_QUEUE_CONFIRMATION_BEEP,
-    COUNTER_CHANGE_CONTROL_RATE_PROFILE
+    COUNTER_CHANGE_RATE_PROFILE
 };
 #define CALL_COUNT_ITEM_COUNT 2
 
@@ -216,9 +216,9 @@ void beeper(beeperMode_e mode)
     UNUSED(mode);
 }
 
-void changeControlRateProfile(uint8_t)
+void changeRateProfile(uint8_t)
 {
-    callCounts[COUNTER_CHANGE_CONTROL_RATE_PROFILE]++;
+    callCounts[COUNTER_CHANGE_RATE_PROFILE]++;
 }
 
 }
@@ -365,14 +365,22 @@ extern "C" {
 
 class RcControlsAdjustmentsTest : public ::testing::Test {
 protected:
-    controlRateConfig_t controlRateConfig = {
-        .rates_type = RATES_TYPE_BETAFLIGHT,
-        .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
-        .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
-        .rates = {0, 0, 0},
-        .rate_limit = {0, 0, 0},
+    rateProfile_t rateProfile = {
         .profileName = "default",
-        .quickRatesRcExpo = 0,
+        .rates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
+        .expo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
+        .curve = {0, 0, 0},
+        .levelExpo = {0, 0},
+        .response_time = {0, 0, 0, 0},
+        .accel_limit = {0, 0, 0, 0},
+        .cyclic_ring = 0,
+        .cyclic_polar = 0,
+        .setpoint_boost_gain = {0, 0, 0, 0},
+        .setpoint_boost_cutoff = {0, 0, 0, 0},
+        .yaw_dynamic_ceiling_gain = 0,
+        .yaw_dynamic_deadband_gain = 0,
+        .yaw_dynamic_deadband_cutoff = 0,
+        .yaw_dynamic_deadband_filter = 0,
     };
 
     channelRange_t fullRange = {
@@ -386,14 +394,14 @@ protected:
         PG_RESET(rxConfig);
         PG_RESET(rcControlsConfig);
 
-        controlRateConfig.rcRates[FD_ROLL] = 90;
-        controlRateConfig.rcRates[FD_PITCH] = 90;
-        controlRateConfig.rcExpo[FD_ROLL] = 0;
-        controlRateConfig.rcExpo[FD_PITCH] = 0;
-        controlRateConfig.rcExpo[FD_YAW] = 0;
-        controlRateConfig.rates[0] = 0;
-        controlRateConfig.rates[1] = 0;
-        controlRateConfig.rates[2] = 0;
+        rateProfile.rates[FD_ROLL] = 90;
+        rateProfile.rates[FD_PITCH] = 90;
+        rateProfile.expo[FD_ROLL] = 0;
+        rateProfile.expo[FD_PITCH] = 0;
+        rateProfile.expo[FD_YAW] = 0;
+        rateProfile.curve[FD_ROLL] = 0;
+        rateProfile.curve[FD_PITCH] = 0;
+        rateProfile.curve[FD_YAW] = 0;
 
         PG_RESET(adjustmentRanges);
         adjustmentRangesIndex = 0;
@@ -450,11 +458,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsSticksInMiddle)
     resetMillis();
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(90, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(90, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(90, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(90, rateProfile.rates[FD_PITCH]);
     EXPECT_EQ(0, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
     EXPECT_TRUE(adjustmentState->ready);
 }
@@ -462,14 +470,22 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsSticksInMiddle)
 TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp)
 {
     // given
-    controlRateConfig_t controlRateConfig = {
-        .rates_type = RATES_TYPE_BETAFLIGHT,
-        .rcRates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
-        .rcExpo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
-        .rates = {0, 0, 0},
-        .rate_limit = {0, 0, 0},
+    rateProfile_t rateProfile = {
         .profileName = "default",
-        .quickRatesRcExpo = 0,
+        .rates = {[FD_ROLL] = 90, [FD_PITCH] = 90},
+        .expo = {[FD_ROLL] = 0, [FD_PITCH] = 0, [FD_YAW] = 0},
+        .curve = {0, 0, 0},
+        .levelExpo = {0, 0},
+        .response_time = {0, 0, 0, 0},
+        .accel_limit = {0, 0, 0, 0},
+        .cyclic_ring = 0,
+        .cyclic_polar = 0,
+        .setpoint_boost_gain = {0, 0, 0, 0},
+        .setpoint_boost_cutoff = {0, 0, 0, 0},
+        .yaw_dynamic_ceiling_gain = 0,
+        .yaw_dynamic_deadband_gain = 0,
+        .yaw_dynamic_deadband_cutoff = 0,
+        .yaw_dynamic_deadband_filter = 0,
     };
 
     // and
@@ -495,11 +511,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 496;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(91, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(91, rateProfile.rates[FD_PITCH]);
     EXPECT_EQ(1, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
     EXPECT_FALSE(adjustmentState->ready);
 
@@ -511,10 +527,10 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 497;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(91, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(91, rateProfile.rates[FD_PITCH]);
     EXPECT_FALSE(adjustmentState->ready);
 
 
@@ -530,10 +546,10 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 498;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(91, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(91, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(91, rateProfile.rates[FD_PITCH]);
     EXPECT_TRUE(adjustmentState->ready);
 
 
@@ -547,11 +563,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 499;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(92, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(92, rateProfile.rates[FD_PITCH]);
     EXPECT_EQ(2, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
     EXPECT_FALSE(adjustmentState->ready);
 
@@ -564,11 +580,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 500;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(92, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(92, rateProfile.rates[FD_PITCH]);
     EXPECT_FALSE(adjustmentState->ready);
 
     //
@@ -579,11 +595,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 997;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(92, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(92, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(92, rateProfile.rates[FD_PITCH]);
     EXPECT_FALSE(adjustmentState->ready);
 
     //
@@ -596,11 +612,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     fixedMillis = 998;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
-    EXPECT_EQ(93, controlRateConfig.rcRates[FD_ROLL]);
-    EXPECT_EQ(93, controlRateConfig.rcRates[FD_PITCH]);
+    EXPECT_EQ(93, rateProfile.rates[FD_ROLL]);
+    EXPECT_EQ(93, rateProfile.rates[FD_PITCH]);
     EXPECT_EQ(3, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
     EXPECT_FALSE(adjustmentState->ready);
 }
@@ -625,11 +641,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcRateProfileAdjustments)
     rcInput[8] = PWM_RANGE_MAX;
 
     // when
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
     EXPECT_EQ(1, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
-    EXPECT_EQ(1, CALL_COUNTER(COUNTER_CHANGE_CONTROL_RATE_PROFILE));
+    EXPECT_EQ(1, CALL_COUNTER(COUNTER_CHANGE_RATE_PROFILE));
 }
 
 #define ADJUSTMENT_PITCH_ROLL_P_INDEX ADJUSTMENT_PITCH_ROLL_P
@@ -655,8 +671,8 @@ TEST_F(RcControlsAdjustmentsTest, processPIDIncreasePidController0)
     pidProfile.pid[PID_YAW].D = 27;
 
     // and
-    controlRateConfig_t controlRateConfig;
-    memset(&controlRateConfig, 0, sizeof(controlRateConfig));
+    rateProfile_t rateProfile;
+    memset(&rateProfile, 0, sizeof(rateProfile));
 
     const timedAdjustmentState_t *adjustmentState1 = configureStepwiseAdjustment(5, ADJUSTMENT_PITCH_ROLL_P_INDEX);
     const timedAdjustmentState_t *adjustmentState2 = configureStepwiseAdjustment(6, ADJUSTMENT_PITCH_ROLL_I_INDEX);
@@ -682,7 +698,7 @@ TEST_F(RcControlsAdjustmentsTest, processPIDIncreasePidController0)
     // when
     currentPidProfile = &pidProfile;
     rcControlsInit();
-    processRcAdjustments(&controlRateConfig);
+    processRcAdjustments(&rateProfile);
 
     // then
     EXPECT_EQ(6, CALL_COUNTER(COUNTER_QUEUE_CONFIRMATION_BEEP));
@@ -730,7 +746,7 @@ bool failsafeIsActive() { return false; }
 bool isRxReceivingSignal() { return true; }
 bool failsafeIsReceivingRxData() { return true; }
 
-uint8_t getCurrentControlRateProfileIndex(void)
+uint8_t getCurrentRateProfileIndex(void)
 {
     return 0;
 }

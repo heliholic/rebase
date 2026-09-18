@@ -594,6 +594,7 @@ rcdevice_unittest_SRC := \
 
 pid_unittest_SRC :=  \
 		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/explog_approx.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/stddev.c \
@@ -601,7 +602,7 @@ pid_unittest_SRC :=  \
 		$(USER_DIR)/common/pwl.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
-		$(USER_DIR)/fc/controlrate_profile.c \
+		$(USER_DIR)/controls/rates.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/pid.c \
 		$(USER_DIR)/pg/pg.c \

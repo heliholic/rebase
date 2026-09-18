@@ -1350,7 +1350,7 @@ static bool blackboxWriteSysinfo(void)
         return false;
     }
 
-    const controlRateConfig_t *currentControlRateProfile = controlRateProfiles(systemConfig()->activeRateProfile);
+    const rateProfile_t *currentRateProfile = rateProfiles(systemConfig()->activeRateProfile);
 
     switch (xmitState.headerIndex) {
         BLACKBOX_PRINT_HEADER_LINE("Firmware type", "%s",                   "Rotorflight");
@@ -1398,11 +1398,9 @@ static bool blackboxWriteSysinfo(void)
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_PID_PROCESS_DENOM, "%d",      activePidLoopDenom);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_FILTER_PROCESS_DENOM, "%d",   activeFilterLoopDenom);
 
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_RATES_TYPE, "%d",             currentControlRateProfile->rates_type);
-        BLACKBOX_PRINT_HEADER_ARRAY("rc_rates", "%d", 3,                    currentControlRateProfile->rcRates);
-        BLACKBOX_PRINT_HEADER_ARRAY("rc_expo", "%d", 3,                     currentControlRateProfile->rcExpo);
-        BLACKBOX_PRINT_HEADER_ARRAY("rates", "%d", 3,                       currentControlRateProfile->rates);
-        BLACKBOX_PRINT_HEADER_ARRAY("rate_limits", "%d", 3,                 currentControlRateProfile->rate_limit);
+        BLACKBOX_PRINT_HEADER_ARRAY("rates", "%d", 4,                       currentRateProfile->rates);
+        BLACKBOX_PRINT_HEADER_ARRAY("expo", "%d", 4,                        currentRateProfile->expo);
+        BLACKBOX_PRINT_HEADER_ARRAY("curve", "%d", 4,                       currentRateProfile->curve);
 
         BLACKBOX_PRINT_HEADER_LINE("rollPID", "%d,%d,%d,%d",                currentPidProfile->pid[PID_ROLL].P,
                                                                             currentPidProfile->pid[PID_ROLL].I,

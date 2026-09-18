@@ -51,7 +51,7 @@
 #include "pg/rx.h"
 
 #include "config/config.h"
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
@@ -308,40 +308,40 @@ static void showRateProfilePage(void)
 {
     uint8_t rowIndex = PAGE_TITLE_LINE_COUNT;
 
-    const uint8_t currentRateProfileIndex = getCurrentControlRateProfileIndex();
+    const uint8_t currentRateProfileIndex = getCurrentRateProfileIndex();
     tfp_sprintf(lineBuffer, "Rate profile: %d", currentRateProfileIndex);
     i2c_OLED_set_line(dev, rowIndex++);
     i2c_OLED_send_string(dev, lineBuffer);
 
-    const controlRateConfig_t *controlRateConfig = controlRateProfiles(currentRateProfileIndex);
+    const rateProfile_t *rateProfile = rateProfiles(currentRateProfileIndex);
 
     tfp_sprintf(lineBuffer, "         R   P   Y");
     padLineBuffer();
     i2c_OLED_set_line(dev, rowIndex++);
     i2c_OLED_send_string(dev, lineBuffer);
 
-    tfp_sprintf(lineBuffer, "RcRate %3d %3d %3d",
-        controlRateConfig->rcRates[FD_ROLL],
-        controlRateConfig->rcRates[FD_PITCH],
-        controlRateConfig->rcRates[FD_YAW]
+    tfp_sprintf(lineBuffer, "Rate   %3d %3d %3d",
+        rateProfile->rates[FD_ROLL],
+        rateProfile->rates[FD_PITCH],
+        rateProfile->rates[FD_YAW]
     );
     padLineBuffer();
     i2c_OLED_set_line(dev, rowIndex++);
     i2c_OLED_send_string(dev, lineBuffer);
 
-    tfp_sprintf(lineBuffer, "Super  %3d %3d %3d",
-        controlRateConfig->rates[FD_ROLL],
-        controlRateConfig->rates[FD_PITCH],
-        controlRateConfig->rates[FD_YAW]
+    tfp_sprintf(lineBuffer, "Curve  %3d %3d %3d",
+        rateProfile->curve[FD_ROLL],
+        rateProfile->curve[FD_PITCH],
+        rateProfile->curve[FD_YAW]
     );
     padLineBuffer();
     i2c_OLED_set_line(dev, rowIndex++);
     i2c_OLED_send_string(dev, lineBuffer);
 
     tfp_sprintf(lineBuffer, "Expo   %3d %3d %3d",
-        controlRateConfig->rcExpo[FD_ROLL],
-        controlRateConfig->rcExpo[FD_PITCH],
-        controlRateConfig->rcExpo[FD_YAW]
+        rateProfile->expo[FD_ROLL],
+        rateProfile->expo[FD_PITCH],
+        rateProfile->expo[FD_YAW]
     );
     padLineBuffer();
     i2c_OLED_set_line(dev, rowIndex++);

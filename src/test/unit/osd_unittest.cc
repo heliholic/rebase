@@ -1533,7 +1533,7 @@ extern "C" {
         return 0;
     }
 
-    uint8_t getCurrentControlRateProfileIndex() {
+    uint8_t getCurrentRateProfileIndex() {
         return 0;
     }
 

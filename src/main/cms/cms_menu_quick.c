@@ -36,7 +36,7 @@
 
 #include "drivers/motor_types.h"
 
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "fc/runtime_config.h"
 #include "flight/pid.h"
@@ -47,7 +47,7 @@
 
 #include "cms_menu_quick.h"
 
-static controlRateConfig_t rateProfile;
+static rateProfile_t rateProfile;
 static uint8_t rateProfileIndex;
 static batteryProfile_t cmsx_batteryProfile;
 static uint8_t pidProfileIndex;
@@ -60,8 +60,8 @@ static const void *quickMenuOnEnter(displayPort_t *pDisp)
     pidProfileIndex = getCurrentPidProfileIndex();
     pidProfile = pidProfilesMutable(pidProfileIndex);
 
-    rateProfileIndex = getCurrentControlRateProfileIndex();
-    memcpy(&rateProfile, controlRateProfiles(rateProfileIndex), sizeof(controlRateConfig_t));
+    rateProfileIndex = getCurrentRateProfileIndex();
+    memcpy(&rateProfile, rateProfiles(rateProfileIndex), sizeof(rateProfile_t));
     batteryProfileIndex = systemConfig()->activeBatteryProfile;
     memcpy(&cmsx_batteryProfile, batteryProfilesMutable(batteryProfileIndex), sizeof(batteryProfile_t));
 
@@ -73,7 +73,7 @@ static const void *cmsx_RateProfileWriteback(displayPort_t *pDisp, const OSD_Ent
     UNUSED(pDisp);
     UNUSED(self);
 
-    memcpy(controlRateProfilesMutable(rateProfileIndex), &rateProfile, sizeof(controlRateConfig_t));
+    memcpy(rateProfilesMutable(rateProfileIndex), &rateProfile, sizeof(rateProfile_t));
     memcpy(batteryProfilesMutable(batteryProfileIndex), &cmsx_batteryProfile, sizeof(batteryProfile_t));
 
     return NULL;

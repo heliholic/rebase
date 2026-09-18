@@ -477,7 +477,7 @@ extern "C" {
     void beeperConfirmationBeeps(uint8_t) {}
     bool isBeeperOn() { return false; }
     uint8_t getCurrentPidProfileIndex() { return 0; }
-    uint8_t getCurrentControlRateProfileIndex() { return 0; }
+    uint8_t getCurrentRateProfileIndex() { return 0; }
     uint8_t getCurrentBatteryProfileIndex() { return 0; }
     batteryState_e getBatteryState() { return BATTERY_OK; }
     uint8_t getBatteryCellCount() { return 4; }

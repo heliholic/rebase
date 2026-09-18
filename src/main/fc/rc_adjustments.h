@@ -22,7 +22,7 @@
 
 #include <stdbool.h>
 
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "pg/adjustments.h"
 
 typedef enum {
@@ -86,7 +86,7 @@ typedef struct continuosAdjustmentState_s {
     int16_t lastRcData;
 } continuosAdjustmentState_t;
 
-void processRcAdjustments(controlRateConfig_t *controlRateConfig);
+void processRcAdjustments(rateProfile_t *rateProfile);
 const char *getAdjustmentsRangeName(void);
 int getAdjustmentsRangeValue(void);
 void activeAdjustmentRangeReset(void);

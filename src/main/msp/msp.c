@@ -72,7 +72,7 @@
 #include "drivers/rangefinder/rangefinder_lidarmt.h"
 
 #include "fc/board_info.h"
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/rc_adjustments.h"
@@ -1067,7 +1067,7 @@ RAM_CODE static bool mspProcessOutCommand(mspDescriptor_t srcDesc, int16_t cmdMS
         sbufWriteU16(dst, constrain(getAverageSystemLoadPercent(), 0, LOAD_PERCENTAGE_ONE));
         if (cmdMSP == MSP_STATUS_EX) {
             sbufWriteU8(dst, PID_PROFILE_COUNT);
-            sbufWriteU8(dst, getCurrentControlRateProfileIndex());
+            sbufWriteU8(dst, getCurrentRateProfileIndex());
         } else {  // MSP_STATUS
             sbufWriteU16(dst, 0); // gyro cycle time
         }
@@ -1097,7 +1097,7 @@ RAM_CODE static bool mspProcessOutCommand(mspDescriptor_t srcDesc, int16_t cmdMS
 #else
         sbufWriteU16(dst, 0);
 #endif
-        sbufWriteU8(dst, CONTROL_RATE_PROFILE_COUNT);
+        sbufWriteU8(dst, RATE_PROFILE_COUNT);
 
         // Added in API version 1.48
         sbufWriteU8(dst, BATTERY_PROFILE_COUNT);
@@ -1297,38 +1297,6 @@ case MSP_NAME:
         sbufWriteU8(dst, 0);
         sbufWriteU8(dst, 0); // imuConfig()->small_angle
         sbufWriteU8(dst, armingConfig()->gyro_cal_on_first_arm);
-        break;
-
-    case MSP_RC_TUNING:
-        sbufWriteU8(dst, currentControlRateProfile->rcRates[FD_ROLL]);
-        sbufWriteU8(dst, currentControlRateProfile->rcExpo[FD_ROLL]);
-        for (int i = 0 ; i < 3; i++) {
-            sbufWriteU8(dst, currentControlRateProfile->rates[i]); // R,P,Y see flight_dynamics_index_t
-        }
-        sbufWriteU8(dst, 0);   // was currentControlRateProfile->tpa_rate
-        sbufWriteU8(dst, 0);   // currentControlRateProfile->thrMid8
-        sbufWriteU8(dst, 0);   // currentControlRateProfile->thrExpo8
-        sbufWriteU16(dst, 0);   // was currentControlRateProfile->tpa_breakpoint
-        sbufWriteU8(dst, currentControlRateProfile->rcExpo[FD_YAW]);
-        sbufWriteU8(dst, currentControlRateProfile->rcRates[FD_YAW]);
-        sbufWriteU8(dst, currentControlRateProfile->rcRates[FD_PITCH]);
-        sbufWriteU8(dst, currentControlRateProfile->rcExpo[FD_PITCH]);
-
-        // added in 1.41
-        sbufWriteU8(dst, 0);  // was currentControlRateProfile->throttle_limit_type
-        sbufWriteU8(dst, 0);  // was currentControlRateProfile->throttle_limit_percent
-
-        // added in 1.42
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_ROLL]);
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_PITCH]);
-        sbufWriteU16(dst, currentControlRateProfile->rate_limit[FD_YAW]);
-
-        // added in 1.43
-        sbufWriteU8(dst, currentControlRateProfile->rates_type);
-
-        // added in 1.47
-        sbufWriteU8(dst, 0); // currentControlRateProfile->thrHover8
-
         break;
 
     case MSP_PID:
@@ -2148,7 +2116,7 @@ RAM_CODE static mspResult_e mspFcProcessOutCommandWithArg(mspDescriptor_t srcDes
                     break;
 
                 case MSP2TEXT_RATE_PROFILE_NAME:
-                    textVar = currentControlRateProfile->profileName;
+                    textVar = currentRateProfile->profileName;
                     break;
 
                 case MSP2TEXT_BUILDKEY:
@@ -2350,22 +2318,22 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         } else {
             value = value & ~RATEPROFILE_MASK;
 
-            if (value >= CONTROL_RATE_PROFILE_COUNT) {
+            if (value >= RATE_PROFILE_COUNT) {
                 value = 0;
             }
-            changeControlRateProfile(value);
+            changeRateProfile(value);
         }
         break;
 
     case MSP_COPY_PROFILE:
-        value = sbufReadU8(src);        // 0 = pid profile, 1 = control rate profile
+        value = sbufReadU8(src);        // 0 = pid profile, 1 = rate profile
         uint8_t dstProfileIndex = sbufReadU8(src);
         uint8_t srcProfileIndex = sbufReadU8(src);
         if (value == 0) {
             pidCopyProfile(dstProfileIndex, srcProfileIndex);
         }
         else if (value == 1) {
-            copyControlRateProfile(dstProfileIndex, srcProfileIndex);
+            copyRateProfile(dstProfileIndex, srcProfileIndex);
         }
         break;
 
@@ -2461,74 +2429,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             }
 
             activeAdjustmentRangeReset();
-        } else {
-            return MSP_RESULT_ERROR;
-        }
-        break;
-
-    case MSP_SET_RC_TUNING:
-        if (sbufBytesRemaining(src) >= 10) {
-            value = sbufReadU8(src);
-            if (currentControlRateProfile->rcRates[FD_PITCH] == currentControlRateProfile->rcRates[FD_ROLL]) {
-                currentControlRateProfile->rcRates[FD_PITCH] = value;
-            }
-            currentControlRateProfile->rcRates[FD_ROLL] = value;
-
-            value = sbufReadU8(src);
-            if (currentControlRateProfile->rcExpo[FD_PITCH] == currentControlRateProfile->rcExpo[FD_ROLL]) {
-                currentControlRateProfile->rcExpo[FD_PITCH] = value;
-            }
-            currentControlRateProfile->rcExpo[FD_ROLL] = value;
-
-            for (int i = 0; i < 3; i++) {
-                currentControlRateProfile->rates[i] = sbufReadU8(src);
-            }
-
-            sbufReadU8(src);    // tpa_rate is moved to PID profile
-            sbufReadU8(src);    // currentControlRateProfile->thrMid8
-            sbufReadU8(src);    // currentControlRateProfile->thrExpo8
-            sbufReadU16(src);   // tpa_breakpoint is moved to PID profile
-
-            if (sbufBytesRemaining(src) >= 1) {
-                currentControlRateProfile->rcExpo[FD_YAW] = sbufReadU8(src);
-            }
-
-            if (sbufBytesRemaining(src) >= 1) {
-                currentControlRateProfile->rcRates[FD_YAW] = sbufReadU8(src);
-            }
-
-            if (sbufBytesRemaining(src) >= 1) {
-                currentControlRateProfile->rcRates[FD_PITCH] = sbufReadU8(src);
-            }
-
-            if (sbufBytesRemaining(src) >= 1) {
-                currentControlRateProfile->rcExpo[FD_PITCH] = sbufReadU8(src);
-            }
-
-            // version 1.41
-            if (sbufBytesRemaining(src) >= 2) {
-                sbufReadU8(src);  // currentControlRateProfile->throttle_limit_type
-                sbufReadU8(src);  // currentControlRateProfile->throttle_limit_percent
-            }
-
-            // version 1.42
-            if (sbufBytesRemaining(src) >= 6) {
-                currentControlRateProfile->rate_limit[FD_ROLL] = sbufReadU16(src);
-                currentControlRateProfile->rate_limit[FD_PITCH] = sbufReadU16(src);
-                currentControlRateProfile->rate_limit[FD_YAW] = sbufReadU16(src);
-            }
-
-            // version 1.43
-            if (sbufBytesRemaining(src) >= 1) {
-                currentControlRateProfile->rates_type = sbufReadU8(src);
-            }
-
-            // version 1.47
-            if (sbufBytesRemaining(src) >= 1) {
-                sbufReadU8(src); // currentControlRateProfile->thrHover8
-            }
-
-            initRcProcessing();
         } else {
             return MSP_RESULT_ERROR;
         }
@@ -3515,8 +3415,8 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
                     break;
 
                 case MSP2TEXT_RATE_PROFILE_NAME:
-                    textVar = currentControlRateProfile->profileName;
-                    textSpace = sizeof(currentControlRateProfile->profileName) - 1;
+                    textVar = currentRateProfile->profileName;
+                    textSpace = sizeof(currentRateProfile->profileName) - 1;
                     break;
 
                 case MSP2TEXT_BATTERY_PROFILE_NAME:

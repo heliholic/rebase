@@ -31,7 +31,6 @@ extern "C" {
     #include "fc/runtime_config.h"
 
     #include "fc/rc_modes.h"
-    #include "fc/controlrate_profile.h"
 
     #include "io/serial.h"
 
@@ -76,7 +75,7 @@ extern "C" {
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
 
     PG_REGISTER_ARRAY(batteryProfile_t, BATTERY_PROFILE_COUNT, batteryProfiles, PG_BATTERY_PROFILES);
-    PG_REGISTER_ARRAY(controlRateConfig_t, CONTROL_RATE_PROFILE_COUNT, controlRateProfiles, PG_CONTROL_RATE_PROFILES);
+    PG_REGISTER_ARRAY(rateProfile_t, RATE_PROFILE_COUNT, rateProfiles, PG_RATE_PROFILES);
     PG_REGISTER_ARRAY(gyroDeviceConfig_t, MAX_GYRODEV_COUNT, gyroDeviceConfig, PG_GYRO_DEVICE_CONFIG);
     PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE);
     PG_REGISTER_ARRAY(pidProfile_t, PID_PROFILE_COUNT, pidProfiles, PG_PID_PROFILE);
@@ -316,9 +315,8 @@ bool loadEEPROM(void) { return true; }
 void writeConfigToEEPROM(void) { }
 bool isEEPROMStructureValid(void) { return true; }
 
-void loadControlRateProfile(void) { }
+void loadRateProfile(void) { }
 void activeAdjustmentRangeReset(void) { }
-const ratesSettingsLimits_t ratesSettingLimits[RATES_TYPE_COUNT] = { };
 void loadBatteryProfile(void) { }
 void initRcProcessing(void) { }
 void adjustmentRangeInit(void) { }

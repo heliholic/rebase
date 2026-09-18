@@ -177,7 +177,6 @@
 #define MSP_ATTITUDE                    108  // out message: 2 angles 1 heading
 #define MSP_ALTITUDE                    109  // out message: Altitude, variometer
 #define MSP_ANALOG                      110  // out message: Vbat, powermetersum, rssi if available on RX
-#define MSP_RC_TUNING                   111  // out message: RC rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID
 #define MSP_PID                         112  // out message: P I D coeff (9 are used currently)
 #define MSP_BOXNAMES                    116  // out message: The aux switch names
 #define MSP_PIDNAMES                    117  // out message: The PID names
@@ -223,7 +222,6 @@
 #define MSP_SET_RAW_RC                  200  // in message:  8 rc chan
 #define MSP_SET_RAW_GPS                 201  // in message:  Fix, numsat, lat, lon, alt, speed
 #define MSP_SET_PID                     202  // in message:  P I D coeff (9 are used currently)
-#define MSP_SET_RC_TUNING               204  // in message:  RC rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID, yaw expo
 #define MSP_ACC_CALIBRATION             205  // in message:  No param - calibrate accelerometer
 #define MSP_MAG_CALIBRATION             206  // in message:  No param - calibrate magnetometer
 #define MSP_RESET_CONF                  208  // in message:  No param - reset settings

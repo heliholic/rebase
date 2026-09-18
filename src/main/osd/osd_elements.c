@@ -147,7 +147,7 @@
 
 #include "drivers/pinio.h"
 
-#include "fc/controlrate_profile.h"
+#include "controls/rates.h"
 #include "fc/core.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
@@ -1002,10 +1002,10 @@ static void osdElementTotalFlights(osdElementParms_t *element)
 #ifdef USE_PROFILE_NAMES
 static void osdElementRateProfileName(osdElementParms_t *element)
 {
-    if (strlen(currentControlRateProfile->profileName) == 0) {
-        tfp_sprintf(element->buff, "RATE_%u", getCurrentControlRateProfileIndex() + 1);
+    if (strlen(currentRateProfile->profileName) == 0) {
+        tfp_sprintf(element->buff, "RATE_%u", getCurrentRateProfileIndex() + 1);
     } else {
-        toUpperCase(element->buff, currentControlRateProfile->profileName, MAX_PROFILE_NAME_LENGTH);
+        toUpperCase(element->buff, currentRateProfile->profileName, MAX_PROFILE_NAME_LENGTH);
     }
 }
 
@@ -1477,7 +1477,7 @@ static void osdElementNumericalVario(osdElementParms_t *element)
 
 static void osdElementPidRateProfile(osdElementParms_t *element)
 {
-    tfp_sprintf(element->buff, "%d-%d", getCurrentPidProfileIndex() + 1, getCurrentControlRateProfileIndex() + 1);
+    tfp_sprintf(element->buff, "%d-%d", getCurrentPidProfileIndex() + 1, getCurrentRateProfileIndex() + 1);
 }
 
 static void osdElementPidsPitch(osdElementParms_t *element)
