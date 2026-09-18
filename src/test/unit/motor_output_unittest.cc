@@ -32,7 +32,6 @@ extern "C" {
 extern "C" {
 
 bool featureIsEnabled(uint8_t f);
-float scaleRangef(float a, float b, float c, float d, float e);
 
 // Mocking functions
 
@@ -40,16 +39,6 @@ bool featureIsEnabled(uint8_t f)
 {
     UNUSED(f);
     return true;
-}
-
-float scaleRangef(float a, float b, float c, float d, float e)
-{
-    UNUSED(a);
-    UNUSED(b);
-    UNUSED(c);
-    UNUSED(d);
-    UNUSED(e);
-    return 0;
 }
 
 }

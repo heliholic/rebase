@@ -82,14 +82,17 @@ COMMON_SRC = \
             common/huffman.c \
             common/huffman_table.c \
             common/maths.c \
+            common/median.c \
             common/printf.c \
             common/pwl.c \
             common/sensor_alignment.c \
+            common/stddev.c \
             common/stopwatch.c \
             common/streambuf.c \
             common/string_light.c \
             common/strtol.c \
             common/rtc.c \
+            common/trig.c \
             common/typeconversion.c \
             common/uvarint.c \
             common/vector.c \
@@ -376,9 +379,12 @@ SPEED_OPTIMISED_SRC += \
             common/encoding.c \
             common/filter.c \
             common/maths.c \
+            common/median.c \
             common/printf.c \
             common/pwl.c \
+            common/stddev.c \
             common/stopwatch.c \
+            common/trig.c \
             common/typeconversion.c \
             common/vector.c \
             drivers/buf_writer.c \
