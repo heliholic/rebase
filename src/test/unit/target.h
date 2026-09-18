@@ -22,6 +22,7 @@
 
 #define DMA_DATA
 #define DMA_DATA_ZERO_INIT
+#define STATIC_DMA_DATA_AUTO        static
 
 #define USE_ACC
 #define USE_CMS

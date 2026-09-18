@@ -70,7 +70,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `batteryProfiles` | 561 | `0x561E7785` | [`batteryProfile_t`](#batteryprofile_t) | 22 &times; `BATTERY_PROFILE_COUNT` | `pg/battery.h` |
 | `beeperConfig` | 502 | `0x937634D6` | [`beeperConfig_t`](#beeperconfig_t) | 12 | `pg/beeper.h` |
 | `beeperDevConfig` | 503 | `0x8A1FED2B` | [`beeperDevConfig_t`](#beeperdevconfig_t) | 6 | `pg/beeper_dev.h` |
-| `blackboxConfig` | 5 | `0x40771718` | [`blackboxConfig_t`](#blackboxconfig_t) | 8 | `pg/blackbox.h` |
+| `blackboxConfig` | 5 | `0x4EB5AA96` | [`blackboxConfig_t`](#blackboxconfig_t) | 12 | `pg/blackbox.h` |
 | `boardAlignment` | 2 | `0xAC3A314A` | [`alignment_u`](#alignment_u) | 6 | `pg/alignment.h` |
 | `boardConfig` | 538 | `0xE3C054A1` | [`boardConfig_t`](#boardconfig_t) | 27 | `pg/board.h` |
 | `cameraControlConfig` | 522 | `0x83D548B1` | [`cameraControlConfig_t`](#cameracontrolconfig_t) | 20 | `pg/camera_control.h` |
@@ -312,9 +312,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### blackboxConfig_t
 
-- `blackboxConfig` &mdash; PGN 5 (`PG_BLACKBOX_CONFIG`), hash `0x40771718`
+- `blackboxConfig` &mdash; PGN 5 (`PG_BLACKBOX_CONFIG`), hash `0x4EB5AA96`
 
-`sizeof` = 8 bytes.
+`sizeof` = 12 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
@@ -323,6 +323,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 5 | 1 | [`BlackboxDevice_e`](#blackboxdevice_e) | `device` |
 | 6 | 1 | [`BlackboxMode`](#blackboxmode) | `mode` |
 | 7 | 1 | `bool` | `high_resolution` |
+| 8 | 2 | `uint16_t` | `initialEraseFreeSpaceKiB` |
+| 10 | 1 | `bool` | `rollingErase` |
+| 11 | 1 | &mdash; | *(tail padding)* |
 
 ### boardConfig_t
 
