@@ -72,8 +72,6 @@
 #include "controls/modes.h"
 #include "controls/rc.h"
 
-#include "fc/rc_controls.h"
-
 #include "arming.h"
 
 
@@ -82,7 +80,6 @@ enum {
     ARMING_DELAYED_NORMAL = 1,
 };
 
-static timeUs_t disarmAt;     // Time of automatic disarm when "Don't spin the motors when armed" is enabled and auto_disarm_delay is nonzero
 static int lastArmingDisabledReason = 0;
 static timeUs_t lastDisarmTimeUs;
 static int tryingToArm = ARMING_DELAYED_DISARMED;
@@ -96,7 +93,7 @@ static const char * const armingDisableFlagNames[ARMING_DISABLE_FLAGS_COUNT] = {
     ENTRY(RX_FAILSAFE),
     ENTRY(NOT_DISARMED),
     ENTRY(BOXFAILSAFE),
-    ENTRY(UNUSED_5),
+    ENTRY(NO_ARM_SWITCH),
     ENTRY(UNUSED_6),
     ENTRY(THROTTLE),
     ENTRY(ANGLE),
@@ -260,22 +257,28 @@ void updateArmingStatus(void)
         if (graceTimeElapsed) {
             unsetArmingDisabled(ARMING_DISABLED_BOOT_GRACE_TIME);
         }
-        // If switch is used for arming then check it is not defaulting to on when the RX link recovers from a fault
-        if (!isUsingSticksForArming()) {
-            static bool hadRx = false;
-            const bool haveRx = isRxReceivingSignal();
 
-            const bool justGotRxBack = !hadRx && haveRx;
-
-            if (justGotRxBack && isArmSwitchActive()) {
-                // If the RX has just started to receive a signal again and the arm switch is on, apply arming restriction
-                setArmingDisabled(ARMING_DISABLED_NOT_DISARMED);
-            } else if (haveRx && !isArmSwitchActive()) {
-                // If RX signal is OK and the arm switch is off, remove arming restriction
-                unsetArmingDisabled(ARMING_DISABLED_NOT_DISARMED);
-            }
-        hadRx = haveRx;
+        // The arm switch is the only way to arm
+        if (isArmSwitchConfigured()) {
+            unsetArmingDisabled(ARMING_DISABLED_NO_ARM_SWITCH);
+        } else {
+            setArmingDisabled(ARMING_DISABLED_NO_ARM_SWITCH);
         }
+
+        // Check the arm switch is not defaulting to on when the RX link recovers from a fault
+        static bool hadRx = false;
+        const bool haveRx = isRxReceivingSignal();
+
+        const bool justGotRxBack = !hadRx && haveRx;
+
+        if (justGotRxBack && isArmSwitchActive()) {
+            // If the RX has just started to receive a signal again and the arm switch is on, apply arming restriction
+            setArmingDisabled(ARMING_DISABLED_NOT_DISARMED);
+        } else if (haveRx && !isArmSwitchActive()) {
+            // If RX signal is OK and the arm switch is off, remove arming restriction
+            unsetArmingDisabled(ARMING_DISABLED_NOT_DISARMED);
+        }
+        hadRx = haveRx;
 
         if (IS_RC_MODE_ACTIVE(BOXFAILSAFE)) {
             setArmingDisabled(ARMING_DISABLED_BOXFAILSAFE);
@@ -350,19 +353,17 @@ void updateArmingStatus(void)
             setArmingDisabled(ARMING_DISABLED_MOTOR_PROTOCOL);
         }
 
-        if (!isUsingSticksForArming()) {
-            /* Ignore ARMING_DISABLED_CALIBRATING if we are going to calibrate gyro on first arm */
-            bool ignoreGyro = armingConfig()->gyro_cal_on_first_arm
-                && !(getArmingDisableFlags() & ~(ARMING_DISABLED_ARM_SWITCH | ARMING_DISABLED_CALIBRATING));
+        /* Ignore ARMING_DISABLED_CALIBRATING if we are going to calibrate gyro on first arm */
+        bool ignoreGyro = armingConfig()->gyro_cal_on_first_arm
+            && !(getArmingDisableFlags() & ~(ARMING_DISABLED_ARM_SWITCH | ARMING_DISABLED_CALIBRATING));
 
-            // If arming is disabled and the ARM switch is on
-            if (isArmingDisabled()
-                && !ignoreGyro
-                && isArmSwitchActive()) {
-                setArmingDisabled(ARMING_DISABLED_ARM_SWITCH);
-            } else if (!isArmSwitchActive()) {
-                unsetArmingDisabled(ARMING_DISABLED_ARM_SWITCH);
-            }
+        // If arming is disabled and the ARM switch is on
+        if (isArmingDisabled()
+            && !ignoreGyro
+            && isArmSwitchActive()) {
+            setArmingDisabled(ARMING_DISABLED_ARM_SWITCH);
+        } else if (!isArmSwitchActive()) {
+            unsetArmingDisabled(ARMING_DISABLED_ARM_SWITCH);
         }
 
         if (isArmingDisabled()) {
@@ -421,11 +422,10 @@ void tryArm(void)
             return;
             // don't allow arming if there are active armingDisabled flags or already armed
         }
-        const timeUs_t currentTimeUs = micros();
 
 #ifdef USE_DSHOT
         // Handle DShot factors that should delay arming
-        timeDelta_t beaconTimeDiff = cmpTimeUs(currentTimeUs, getLastDshotBeaconCommandTimeUs());
+        timeDelta_t beaconTimeDiff = cmpTimeUs(micros(), getLastDshotBeaconCommandTimeUs());
         if (beaconTimeDiff < DSHOT_BEACON_GUARD_DELAY_US && beaconTimeDiff >= 0) {
             if (tryingToArm == ARMING_DELAYED_DISARMED) {
                 tryingToArm = ARMING_DELAYED_NORMAL;
@@ -464,8 +464,6 @@ void tryArm(void)
             ENABLE_ARMING_FLAG(WAS_ARMED_WITH_PREARM);
         }
 
-        disarmAt = currentTimeUs + armingConfig()->auto_disarm_delay * 1000 * 1000;   // start disarm timeout, will be extended when throttle is nonzero
-
         lastArmingDisabledReason = 0;
 
 #ifdef USE_GPS
@@ -503,50 +501,52 @@ void tryArm(void)
 }
 
 /*
- * Auto-disarm and the armed beeper
+ * Arming and disarming with the arm switch
  */
 
-void updateAutoDisarm(timeUs_t currentTimeUs)
+void processArmSwitch(void)
+{
+    // an extra guard for disarming through switch to prevent that one frame can disarm it
+    static uint8_t rcDisarmTicks;
+
+    if (isArmSwitchActive()) {
+        rcDisarmTicks = 0;
+        tryArm();
+    } else {
+        resetTryingToArm();
+        resetArmingDisabled();
+        const bool boxFailsafeSwitchIsOn = IS_RC_MODE_ACTIVE(BOXFAILSAFE);
+        if (ARMING_FLAG(ARMED) && (failsafeIsReceivingRxData() || boxFailsafeSwitchIsOn)) {
+            // in a true signal loss situation, allow disarm only once we regain validated RxData (failsafeIsReceivingRxData = true),
+            // to avoid potentially false disarm signals soon after link recover
+            // Note that BOXFAILSAFE will also drive failsafeIsReceivingRxData false (immediately at start or end)
+            // That's why we explicitly allow disarm here if BOXFAILSAFE switch is active
+            rcDisarmTicks++;
+            if (rcDisarmTicks > 3) {
+                // require three duplicate disarm values in a row before we disarm
+                disarm(DISARM_REASON_SWITCH);
+            }
+        }
+    }
+}
+
+/*
+ * The armed beeper
+ */
+
+void updateArmedBeeper(void)
 {
     static bool armedBeeperOn = false;
 
-    // When armed and motors aren't spinning, do beeps and then disarm
-    // board after delay so users without buzzer won't lose fingers.
-    const timeUs_t autoDisarmDelayUs = armingConfig()->auto_disarm_delay * 1e6f;
-
+    // While armed with the throttle off, beep to warn that the machine is live
     if (ARMING_FLAG(ARMED)) {
-        if (isUsingSticksForArming()) {
-            if (isThrottleOff()) {
-                if ((autoDisarmDelayUs > 0) && (currentTimeUs > disarmAt)) {
-                    // auto-disarm configured and delay is over
-                    disarm(DISARM_REASON_THROTTLE_TIMEOUT);
-                    armedBeeperOn = false;
-                } else {
-                    // still armed; do warning beeps while armed
-                    beeper(BEEPER_ARMED);
-                    armedBeeperOn = true;
-                }
-            } else {
-                // throttle is not low - extend disarm time
-                disarmAt = currentTimeUs + autoDisarmDelayUs;
-
-                if (armedBeeperOn) {
-                    beeperSilence();
-                    armedBeeperOn = false;
-                }
-            }
-        } else {
-            // arming is via the arm switch; beep while throttle low
-            if (isThrottleOff()) {
-                beeper(BEEPER_ARMED);
-                armedBeeperOn = true;
-            } else if (armedBeeperOn) {
-                beeperSilence();
-                armedBeeperOn = false;
-            }
+        if (isThrottleOff()) {
+            beeper(BEEPER_ARMED);
+            armedBeeperOn = true;
+        } else if (armedBeeperOn) {
+            beeperSilence();
+            armedBeeperOn = false;
         }
-    } else {
-        disarmAt = currentTimeUs + autoDisarmDelayUs;  // extend auto-disarm timer
     }
 }
 

@@ -42,7 +42,6 @@
 #include "drivers/dshot.h"
 #include "drivers/vtx_common.h"
 
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/imu.h"

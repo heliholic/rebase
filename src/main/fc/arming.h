@@ -33,8 +33,8 @@
 typedef enum {
     DISARM_REASON_ARMING_DISABLED   = 0,
     DISARM_REASON_FAILSAFE          = 1,
-    DISARM_REASON_THROTTLE_TIMEOUT  = 2,
-    DISARM_REASON_STICKS            = 3,
+    DISARM_REASON_UNUSED_2          = 2,
+    DISARM_REASON_UNUSED_3          = 3,
     DISARM_REASON_SWITCH            = 4,
     DISARM_REASON_UNUSED_5          = 5,
     DISARM_REASON_UNUSED_6          = 6,
@@ -56,7 +56,7 @@ typedef enum {
     ARMING_DISABLED_RX_FAILSAFE_BIT     = 2,
     ARMING_DISABLED_NOT_DISARMED_BIT    = 3,
     ARMING_DISABLED_BOXFAILSAFE_BIT     = 4,
-    ARMING_DISABLED_UNUSED_5_BIT        = 5,
+    ARMING_DISABLED_NO_ARM_SWITCH_BIT   = 5,
     ARMING_DISABLED_UNUSED_6_BIT        = 6,
     ARMING_DISABLED_THROTTLE_BIT        = 7,
     ARMING_DISABLED_ANGLE_BIT           = 8,
@@ -95,7 +95,7 @@ typedef enum {
     ENTRY(RX_FAILSAFE),
     ENTRY(NOT_DISARMED),
     ENTRY(BOXFAILSAFE),
-    ENTRY(UNUSED_5),
+    ENTRY(NO_ARM_SWITCH),
     ENTRY(UNUSED_6),
     ENTRY(THROTTLE),
     ENTRY(ANGLE),
@@ -133,7 +133,8 @@ const char *getArmingDisableFlagName(armingDisableFlags_e flag);
 void resetArmingDisabled(void);
 
 void updateArmingStatus(void);
-void updateAutoDisarm(timeUs_t currentTimeUs);
+void processArmSwitch(void);
+void updateArmedBeeper(void);
 
 void tryArm(void);
 void disarm(flightLogDisarmReason_e reason);

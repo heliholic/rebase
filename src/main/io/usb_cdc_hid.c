@@ -25,7 +25,6 @@
 #ifdef USE_USB_CDC_HID
 
 #include "common/maths.h"
-#include "fc/rc_controls.h"
 #include "rx/rx.h"
 #include "pg/usb.h"
 #include "sensors/battery.h"

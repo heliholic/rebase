@@ -44,7 +44,6 @@ extern "C" {
     #include "drivers/system.h"
 
     #include "fc/core.h"
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
 
     #include "flight/failsafe.h"
@@ -507,7 +506,7 @@ extern "C" {
     bool failsafeIsActive(void) { return false; }
     bool failsafeIsReceivingRxData(void) { return true; }
     bool gpsIsHealthy(void) { return true; }
-    int8_t calculateThrottlePercent(void) { return 0; }
+    float getThrottle(void) { return 0.0f; }
     uint32_t persistentObjectRead(persistentObjectId_e) { return 0; }
     void persistentObjectWrite(persistentObjectId_e, uint32_t) {}
     void failsafeOnRxSuspend(uint32_t ) {}

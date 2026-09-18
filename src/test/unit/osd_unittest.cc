@@ -41,7 +41,6 @@ extern "C" {
     #include "drivers/serial.h"
 
     #include "fc/core.h"
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
 
     #include "flight/imu.h"
@@ -1626,7 +1625,7 @@ extern "C" {
     bool areMotorsRunning(void){ return true; }
     bool failsafeIsActive(void) { return false; }
     bool gpsIsHealthy(void) { return simulationGpsHealthy; }
-    int8_t calculateThrottlePercent(void) { return 0; }
+    float getThrottle(void) { return 0.0f; }
     uint32_t persistentObjectRead(persistentObjectId_e) { return 0; }
     void persistentObjectWrite(persistentObjectId_e, uint32_t) {}
     bool isUpright(void) { return true; }

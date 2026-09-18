@@ -35,7 +35,6 @@ extern "C" {
     #include "common/bitarray.h"
 
     #include "fc/runtime_config.h"
-    #include "fc/rc_controls.h"
     #include "fc/core.h"
 
     #include "flight/failsafe.h"
@@ -54,7 +53,7 @@ extern "C" {
 #include "gtest/gtest.h"
 
 uint32_t testFeatureMask = 0;
-throttleStatus_e throttleStatus = THROTTLE_HIGH;
+bool throttleOff = false;
 
 enum {
     COUNTER_MW_DISARM = 0,
@@ -188,7 +187,7 @@ TEST(FlightFailsafeTest, TestFailsafeDetectsRxLossAndStartsLanding)
 
     // given
     ENABLE_ARMING_FLAG(ARMED);
-    throttleStatus = THROTTLE_HIGH;                 // throttle HIGH to go for a failsafe landing procedure
+    throttleOff = false;                 // throttle raised to go for a failsafe landing procedure
     failsafeOnValidDataReceived();
 
     sysTickUptime = 0;
@@ -307,7 +306,7 @@ TEST(FlightFailsafeTest, TestFailsafeDetectsRxLossAndJustDisarms)
     failsafeStartMonitoring();
 
     // set to normal initial state
-    throttleStatus = THROTTLE_HIGH;                 // throttle HIGH to go for a failsafe landing procedure
+    throttleOff = false;                 // throttle raised to go for a failsafe landing procedure
     failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_KILL;
 
     sysTickUptime += PERIOD_OF_3_SECONDS;           // 3s of normality
@@ -323,7 +322,7 @@ TEST(FlightFailsafeTest, TestFailsafeDetectsRxLossAndJustDisarms)
 
 
     // run throttle_low for 11s
-    throttleStatus = THROTTLE_LOW;                  // for failsafe 'just-disarm' procedure
+    throttleOff = true;                  // for failsafe 'just-disarm' procedure
     sysTickUptime += 11000;
     failsafeOnValidDataReceived();                  // set the last valid signal to now
 
@@ -400,7 +399,7 @@ TEST(FlightFailsafeTest, TestFailsafeSwitchModeKill)
     failsafeStartMonitoring();
 
     // set to normal initial state
-    throttleStatus = THROTTLE_HIGH;                 // throttle HIGH to go for a failsafe landing procedure
+    throttleOff = false;                 // throttle raised to go for a failsafe landing procedure
     failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_KILL;
 
     sysTickUptime += PERIOD_OF_3_SECONDS;           // 3s of normality
@@ -475,7 +474,7 @@ TEST(FlightFailsafeTest, TestFailsafeSwitchModeStage1OrStage2Drop)
     failsafeStartMonitoring();
 
     // and set initial states
-    throttleStatus = THROTTLE_HIGH;                 // throttle HIGH to go for a failsafe landing procedure
+    throttleOff = false;                 // throttle raised to go for a failsafe landing procedure
     failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE2;
     failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
 
@@ -537,7 +536,7 @@ TEST(FlightFailsafeTest, TestFailsafeSwitchModeStage2Land)
     failsafeStartMonitoring();
 
     // and
-    throttleStatus = THROTTLE_HIGH;                 // throttle HIGH to go for a failsafe landing procedure
+    throttleOff = false;                 // throttle raised to go for a failsafe landing procedure
     failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE2;
     failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_AUTO_LANDING;
 
@@ -712,7 +711,6 @@ float rcControls[RC_CONTROL_COUNT];
 float rcCommand[RC_CONTROL_COUNT];
 int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode = 0;
-bool isUsingSticksToArm = true;
 
 PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
 
@@ -727,9 +725,9 @@ uint32_t micros(void)
     return millis() * 1000;
 }
 
-throttleStatus_e calculateThrottleStatus()
+bool isThrottleOff(void)
 {
-    return throttleStatus;
+    return throttleOff;
 }
 
 void delay(uint32_t) {}
@@ -764,11 +762,6 @@ void disarm(flightLogDisarmReason_e)
 void beeper(beeperMode_e mode)
 {
     UNUSED(mode);
-}
-
-bool isUsingSticksForArming(void)
-{
-    return isUsingSticksToArm;
 }
 
 bool testSticksActive = false;

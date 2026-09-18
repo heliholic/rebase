@@ -28,7 +28,6 @@ extern "C" {
 #include "io/gps.h"
 #include "flight/imu.h"
 #include "config/config.h"
-#include "fc/rc_controls.h"
 #include "telemetry/telemetry.h"
 #include "telemetry/ibus.h"
 #include "sensors/gyro.h"
@@ -80,7 +79,7 @@ extern "C" {
 static int32_t amperage = 100;
 static int16_t estimatedVario = 0;
 static uint8_t batteryRemaining = 0;
-static throttleStatus_e throttleStatus = THROTTLE_HIGH;
+static bool throttleOff = false;
 static uint32_t definedFeatures = 0;
 static uint32_t definedSensors = SENSOR_GYRO | SENSOR_ACC | SENSOR_MAG | SENSOR_SONAR | SENSOR_GPS | SENSOR_GPSMAG;
 static uint16_t testBatteryVoltage = 1000;
@@ -120,9 +119,9 @@ int32_t getMAhDrawn(void)
     return 0;
 }
 
-throttleStatus_e calculateThrottleStatus(void)
+bool isThrottleOff(void)
 {
-    return throttleStatus;
+    return throttleOff;
 }
 
 bool featureIsEnabled(uint32_t mask)

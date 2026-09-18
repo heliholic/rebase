@@ -54,7 +54,7 @@
 #include "controls/rates.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
-#include "fc/rc_controls.h"
+#include "controls/sticks.h"
 #include "fc/runtime_config.h"
 #include "fc/stats.h"
 
@@ -120,17 +120,6 @@ static bool canUpdateVTX(void)
 
 
 
-// calculate the throttle stick percent
-int8_t calculateThrottlePercent(void)
-{
-    return getThrottlePercent();
-}
-
-uint8_t calculateThrottlePercentAbs(void)
-{
-    return abs(calculateThrottlePercent());
-}
-
 // Throttle percentage above which throttleRaised latches for the rest of the arm.
 // Was the airmode_start_throttle_percent setting; kept at its former default.
 #define THROTTLE_RAISED_PERCENT 25
@@ -158,7 +147,7 @@ bool processRx(timeUs_t currentTimeUs)
         failsafeStartMonitoring();
     }
 
-    const uint8_t throttlePercent = calculateThrottlePercentAbs();
+    const uint8_t throttlePercent = getThrottlePercent();
 
     if (ARMING_FLAG(ARMED)) {
         if (throttlePercent >= THROTTLE_RAISED_PERCENT) {
@@ -171,20 +160,24 @@ bool processRx(timeUs_t currentTimeUs)
     return true;
 }
 
-void processRxModes(timeUs_t currentTimeUs)
+void processRxModes(void)
 {
 #ifdef USE_TELEMETRY
     static bool sharedPortTelemetryEnabled = false;
 #endif
 
-    updateAutoDisarm(currentTimeUs);
+    updateArmedBeeper();
 
     if (!(IS_RC_MODE_ACTIVE(BOXPARALYZE) && !ARMING_FLAG(ARMED))
 #ifdef USE_CMS
         && !cmsInMenu
 #endif
         ) {
-        processRcStickPositions();
+        processArmSwitch();
+
+#ifdef USE_STICK_COMMANDS
+        processStickCommands();
+#endif
     }
 
     updateActivatedModes();

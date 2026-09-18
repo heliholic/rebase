@@ -49,7 +49,6 @@
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/dispatch.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/imu.h"
@@ -205,7 +204,7 @@ static void taskUpdateRxMain(timeUs_t currentTimeUs)
         break;
 
     case RX_STATE_MODES:
-        processRxModes(currentTimeUs);
+        processRxModes();
         rxState = RX_STATE_UPDATE;
         break;
 

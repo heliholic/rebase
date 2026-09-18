@@ -43,7 +43,6 @@
 #include "drivers/rx/rx_pwm.h"
 #include "drivers/time.h"
 
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "fc/tasks.h"
 

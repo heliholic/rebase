@@ -65,7 +65,6 @@
 #include "drivers/pinio.h"
 
 #include "fc/core.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

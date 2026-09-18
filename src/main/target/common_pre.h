@@ -96,6 +96,7 @@
 #define USE_TIMER
 
 #define USE_CLI
+#define USE_STICK_COMMANDS
 #define USE_SERIAL_PASSTHROUGH
 #define USE_GYRO_REGISTER_DUMP  // Adds gyroregisters command to cli to dump configured register values
 #define USE_IMU_CALC

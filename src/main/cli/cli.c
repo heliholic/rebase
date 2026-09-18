@@ -98,7 +98,6 @@ bool cliMode = false;
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "fc/motors.h"
 #include "fc/servos.h"

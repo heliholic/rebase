@@ -56,6 +56,7 @@
 #define BATTERY_PROFILE_COUNT 3
 #define USE_MAG
 #define USE_BARO
+#define USE_STICK_COMMANDS
 #define USE_GPS
 #define USE_DASHBOARD
 #define USE_TELEMETRY

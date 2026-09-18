@@ -34,7 +34,6 @@ extern "C" {
 
     #include "controls/rates.h"
     #include "fc/core.h"
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
 
     #include "flight/failsafe.h"
@@ -130,7 +129,7 @@ TEST(ArmingPreventionTest, CalibrationPowerOnGraceAngleThrottleArmSwitch)
     // and
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
-    rcControlsInit();
+    rcModeInit();
 
     // and
     // default channel positions
@@ -216,7 +215,7 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
     // and
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
-    rcControlsInit();
+    rcModeInit();
 
     // and
     rcControls[RC_THROTTLE] = 1000;
@@ -227,7 +226,6 @@ TEST(ArmingPreventionTest, ArmingGuardRadioLeftOnAndArmed)
     updateArmingStatus();
 
     // expect
-    EXPECT_FALSE(isUsingSticksForArming());
     EXPECT_TRUE(isArmingDisabled());
     EXPECT_EQ(ARMING_DISABLED_CALIBRATING, getArmingDisableFlags());
 
@@ -289,7 +287,7 @@ TEST(ArmingPreventionTest, Prearm)
     modeActivationConditionsMutable(1)->boxId = BOXPREARM;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
-    rcControlsInit();
+    rcModeInit();
 
     // given
     rcControls[RC_THROTTLE] = 1000;
@@ -300,7 +298,6 @@ TEST(ArmingPreventionTest, Prearm)
     updateArmingStatus();
 
     // expect
-    EXPECT_FALSE(isUsingSticksForArming());
     EXPECT_TRUE(isArmingDisabled());
     EXPECT_EQ(ARMING_DISABLED_NOPREARM, getArmingDisableFlags());
 
@@ -327,7 +324,7 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     // and
     armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
-    rcControlsInit();
+    rcModeInit();
 
     // and
     rcControls[RC_THROTTLE] = 1000;
@@ -346,7 +343,6 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     updateArmingStatus();
 
     // expect
-    EXPECT_FALSE(isUsingSticksForArming());
     EXPECT_FALSE(isArmingDisabled());
     EXPECT_EQ(0, getArmingDisableFlags());
 
@@ -360,7 +356,6 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     updateArmingStatus();
 
     // expect
-    EXPECT_FALSE(isUsingSticksForArming());
     EXPECT_TRUE(isArmingDisabled());
     EXPECT_EQ(ARMING_DISABLED_NOT_DISARMED | ARMING_DISABLED_ARM_SWITCH, getArmingDisableFlags());
 
@@ -373,7 +368,46 @@ TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
     updateArmingStatus();
 
     // expect
-    EXPECT_FALSE(isUsingSticksForArming());
+    EXPECT_FALSE(isArmingDisabled());
+    EXPECT_EQ(0, getArmingDisableFlags());
+}
+
+TEST(ArmingPreventionTest, NoArmSwitchConfigured)
+{
+    // given
+    simulationTime = 30e6; // 30 seconds after boot
+    gyroCalibDone = true;
+
+    // and
+    // no arm switch is configured
+    armingConfigMutable()->arm_range.startStep = 0;
+    armingConfigMutable()->arm_range.endStep = 0;
+
+    // and
+    rcControls[RC_THROTTLE] = 1000;
+    rcControls[RC_ARM] = 1100;
+    mockIsUpright = true;
+    simulationHaveRx = true;
+
+    // when
+    updateActivatedModes();
+    updateArmingStatus();
+
+    // expect
+    // nothing can arm, and the pilot is told why
+    EXPECT_TRUE(isArmingDisabled());
+    EXPECT_EQ(ARMING_DISABLED_NO_ARM_SWITCH, getArmingDisableFlags());
+
+    // given
+    // an arm switch is configured
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
+
+    // when
+    updateActivatedModes();
+    updateArmingStatus();
+
+    // expect
     EXPECT_FALSE(isArmingDisabled());
     EXPECT_EQ(0, getArmingDisableFlags());
 }
@@ -392,7 +426,7 @@ TEST(ArmingPreventionTest, ParalyzeOnAtBoot)
     modeActivationConditionsMutable(1)->boxId = BOXPARALYZE;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(1)->range.endStep = MAX_MODE_RANGE_STEP;
-    rcControlsInit();
+    rcModeInit();
 
     // given
     rcControls[RC_THROTTLE] = 1000;
@@ -437,7 +471,7 @@ TEST(ArmingPreventionTest, Paralyze)
     modeActivationConditionsMutable(2)->range.endStep = MAX_MODE_RANGE_STEP;
     modeActivationConditionsMutable(3)->boxId = BOXVTXPITMODE;
     modeActivationConditionsMutable(3)->linkedTo = BOXPARALYZE;
-    rcControlsInit();
+    rcModeInit();
 
     // given
     rcControls[RC_THROTTLE] = 1000;

@@ -44,7 +44,6 @@
 #include "config/config.h"
 #include "controls/rates.h"
 #include "fc/core.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/mixer.h"

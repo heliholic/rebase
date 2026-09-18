@@ -50,7 +50,6 @@ extern "C" {
     #include "config/config.h"
     #include "controls/rates.h"
 
-    #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
     #include "fc/core.h"
 
@@ -67,14 +66,14 @@ void unsetArmingDisabled(armingDisableFlags_e flag)
   UNUSED(flag);
 }
 
-class RcControlsModesTest : public ::testing::Test {
+class ModesTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
         memset(&stickyModesEverDisabled, 0, sizeof(stickyModesEverDisabled));
     }
 };
 
-TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
+TEST_F(ModesTest, updateActivatedModesWithAllInputsAtMidde)
 {
     // given
     rcModeUpdate(0);
@@ -101,7 +100,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
     }
 }
 
-TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXValues)
+TEST_F(ModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXValues)
 {
     // given
     modeActivationConditionsMutable(0)->boxId = (boxId_e)1;
@@ -237,7 +236,7 @@ void resetMillis(void)
     fixedMillis = 0;
 }
 
-TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceActivated)
+TEST_F(ModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceActivated)
 {
     // given
     modeActivationConditionsMutable(7)->boxId = BOXPARALYZE;
@@ -287,7 +286,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
 }
 
-TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchForever)
+TEST_F(ModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchForever)
 {
     // given
     modeActivationConditionsMutable(8)->boxId = BOXBLACKBOXERASE;

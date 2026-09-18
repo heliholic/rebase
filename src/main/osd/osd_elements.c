@@ -147,12 +147,12 @@
 
 #include "drivers/pinio.h"
 
-#include "controls/rates.h"
-#include "fc/core.h"
 #include "controls/adjustments.h"
 #include "controls/modes.h"
-#include "fc/rc_controls.h"
-#include "controls/modes.h"
+#include "controls/rates.h"
+#include "controls/rc.h"
+
+#include "fc/core.h"
 #include "fc/runtime_config.h"
 
 #include "flight/position.h"
@@ -1658,7 +1658,7 @@ static void osdElementStickOverlay(osdElementParms_t *element)
 
 static void osdElementThrottlePosition(osdElementParms_t *element)
 {
-    tfp_sprintf(element->buff, "%c%3d", SYM_THR, calculateThrottlePercent());
+    tfp_sprintf(element->buff, "%c%3d", SYM_THR, getThrottlePercent());
 }
 
 static void osdElementTimer(osdElementParms_t *element)

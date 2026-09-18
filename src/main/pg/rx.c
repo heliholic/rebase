@@ -29,7 +29,6 @@
 #include "common/maths.h"
 
 #include "drivers/io.h"
-#include "fc/rc_controls.h"
 #include "rx/rx.h"
 
 #ifndef SERIALRX_PROVIDER

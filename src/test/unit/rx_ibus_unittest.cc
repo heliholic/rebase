@@ -30,7 +30,6 @@ extern "C" {
 #include "rx/ibus.h"
 #include "telemetry/ibus_shared.h"
 #include "telemetry/telemetry.h"
-#include "fc/rc_controls.h"
 #include "sensors/battery.h"
 }
 

@@ -45,7 +45,8 @@
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
-#include "fc/rc_controls.h"
+#include "controls/modes.h"
+#include "controls/sticks.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
@@ -144,7 +145,11 @@ static void activateConfig(void)
 
     pidInit(currentPidProfile);
 
-    rcControlsInit();
+    rcModeInit();
+
+#ifdef USE_STICK_COMMANDS
+    stickCommandsInit();
+#endif
 
     failsafeReset();
 #ifdef USE_ACC

@@ -41,8 +41,6 @@
 
 #include "drivers/time.h"
 
-#include "fc/rc_controls.h"
-
 #include "flight/mixer.h"
 
 #include "pg/motor.h"
