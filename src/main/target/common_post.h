@@ -53,6 +53,10 @@
 #define NOINLINE __attribute__((noinline))
 #endif
 
+#ifndef INIT_CODE
+#define INIT_CODE
+#endif
+
 #ifndef FAST_CODE
 #define FAST_CODE
 #endif
