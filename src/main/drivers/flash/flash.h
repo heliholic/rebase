@@ -67,6 +67,7 @@ bool flashIsReady(void);
 bool flashIsReadyOrFail(void);
 bool flashWaitForReady(void);
 void flashEraseSector(uint32_t address);
+bool flashEraseCompletelySupported(void);
 void flashEraseCompletely(void);
 void flashPageProgramBegin(uint32_t address, void (*callback)(uintptr_t arg));
 uint32_t flashPageProgramContinue(const uint8_t **buffers, uint32_t *bufferSizes, uint32_t bufferCount);
@@ -74,6 +75,10 @@ void flashPageProgramFinish(void);
 void flashPageProgram(uint32_t address, const uint8_t *data, uint32_t length, void (*callback)(uintptr_t arg));
 int flashReadBytes(uint32_t address, uint8_t *buffer, uint32_t length);
 void flashFlush(void);
+bool flashSuspendSupported(void);
+void flashSuspend(void);
+void flashResume(void);
+bool flashIsSuspended(void);
 const flashGeometry_t *flashGetGeometry(void);
 
 void flashMemoryMappedModeDisable(void);

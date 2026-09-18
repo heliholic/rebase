@@ -25,6 +25,7 @@
 #include "platform.h"
 
 #include "build/debug.h"
+#include "common/utils.h"
 
 #ifdef USE_FLASH_M25P16
 
@@ -55,6 +56,12 @@
 #define M25P16_STATUS_FLAG_WRITE_ENABLED     0x02
 
 #define W25Q256_INSTRUCTION_ENTER_4BYTE_ADDRESS_MODE 0xB7
+
+// Erase/program suspend, as implemented by the Winbond W25Q family and compatibles
+#define W25Q_INSTRUCTION_SUSPEND            0x75
+#define W25Q_INSTRUCTION_RESUME             0x7A
+#define W25Q_INSTRUCTION_READ_STATUS2_REG   0x35
+#define W25Q_STATUS2_SUS_MASK               (1 << 7)
 
 #define M25P16_FAST_READ_DUMMY_CYCLES       8
 
@@ -191,11 +198,40 @@ struct {
     { 0x000000, 0, 0, 0, 0 }
 };
 
+/*
+ * JEDEC IDs of the chips handled by this driver that implement the W25Q
+ * erase suspend/resume instructions. Those get a vTable with the suspend
+ * methods filled in; everything else keeps the plain m25p16 one.
+ */
+static const uint32_t m25p16EraseSuspendIDs[] = {
+    0xEF4015, // Winbond W25Q16
+    0xEF4016, // Winbond W25Q32
+    0xEF4017, // Winbond W25Q64JV-IQ/JQ
+    0xEF7017, // Winbond W25Q64JV-IM/JM*
+    0xEF4018, // Winbond W25Q128
+    0xEF7018, // Winbond W25Q128_DTR
+    0xEF4019, // Winbond W25Q256
+    0x852018, // PUYA PY25Q128
+    0xE04016, // BergMicro W25Q32
+};
+
+static bool m25p16_supportsEraseSuspend(uint32_t jedecID)
+{
+    for (unsigned i = 0; i < ARRAYLEN(m25p16EraseSuspendIDs); i++) {
+        if (m25p16EraseSuspendIDs[i] == jedecID) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 #define M25P16_PAGESIZE 256
 
 STATIC_ASSERT(M25P16_PAGESIZE < FLASH_MAX_PAGE_SIZE, M25P16_PAGESIZE_too_small);
 
 const flashVTable_t m25p16_vTable;
+const flashVTable_t w25q_vTable;
 
 #ifdef USE_QUADSPI
 const flashVTable_t m25p16Qspi_vTable;
@@ -288,7 +324,8 @@ bool m25p16_identify(flashDevice_t *fdevice, uint32_t jedecID)
     fdevice->couldBeBusy = true; // Just for luck we'll assume the chip could be busy even though it isn't specced to be
 
     if (fdevice->io.mode == FLASHIO_SPI) {
-        fdevice->vTable = &m25p16_vTable;
+        // The suspend/resume instructions are only issued over SPI
+        fdevice->vTable = m25p16_supportsEraseSuspend(jedecID) ? &w25q_vTable : &m25p16_vTable;
     }
 #ifdef USE_QUADSPI
     else if (fdevice->io.mode == FLASHIO_QUADSPI) {
@@ -689,6 +726,49 @@ const flashVTable_t m25p16_vTable = {
     .pageProgram = m25p16_pageProgram,
     .readBytes = m25p16_readBytes,
     .getGeometry = m25p16_getGeometry,
+};
+
+/*
+ * The m25p16 family itself has no erase suspend, but several of the chips
+ * handled by this driver - the Winbond W25Q series and its clones - do.
+ * Those are given a vTable with the suspend methods filled in.
+ */
+static void w25q_suspend(flashDevice_t *fdevice)
+{
+    spiReadWrite(fdevice->io.handle.dev, W25Q_INSTRUCTION_SUSPEND);
+}
+
+static void w25q_resume(flashDevice_t *fdevice)
+{
+    spiReadWrite(fdevice->io.handle.dev, W25Q_INSTRUCTION_RESUME);
+    fdevice->couldBeBusy = true;
+}
+
+static bool w25q_isSuspended(flashDevice_t *fdevice)
+{
+    STATIC_DMA_DATA_AUTO uint8_t readStatus[2] = { W25Q_INSTRUCTION_READ_STATUS2_REG, 0 };
+    STATIC_DMA_DATA_AUTO uint8_t status[2];
+
+    spiReadWriteBuf(fdevice->io.handle.dev, readStatus, status, sizeof(readStatus));
+
+    return status[1] & W25Q_STATUS2_SUS_MASK;
+}
+
+const flashVTable_t w25q_vTable = {
+    .configure = m25p16_configure,
+    .isReady = m25p16_isReady,
+    .waitForReady = m25p16_waitForReady,
+    .eraseSector = m25p16_eraseSector,
+    .eraseCompletely = m25p16_eraseCompletely,
+    .pageProgramBegin = m25p16_pageProgramBegin,
+    .pageProgramContinue = m25p16_pageProgramContinue,
+    .pageProgramFinish = m25p16_pageProgramFinish,
+    .pageProgram = m25p16_pageProgram,
+    .readBytes = m25p16_readBytes,
+    .getGeometry = m25p16_getGeometry,
+    .suspend = w25q_suspend,
+    .resume = w25q_resume,
+    .isSuspended = w25q_isSuspended,
 };
 
 #ifdef USE_QUADSPI

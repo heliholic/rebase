@@ -312,6 +312,8 @@ static const blackboxSimpleFieldDefinition_t blackboxSlowFields[] = {
 typedef enum {
     BLACKBOX_STATE_DISABLED = 0,
     BLACKBOX_STATE_STOPPED,
+    BLACKBOX_STATE_WAIT_FOR_READY,
+    BLACKBOX_STATE_INITIAL_ERASE,
     BLACKBOX_STATE_PREPARE_LOG_FILE,
     BLACKBOX_STATE_SEND_HEADER,
     BLACKBOX_STATE_SEND_MAIN_FIELD_HEADER,
@@ -322,6 +324,7 @@ typedef enum {
     BLACKBOX_STATE_CACHE_FLUSH,
     BLACKBOX_STATE_PAUSED,
     BLACKBOX_STATE_RUNNING,
+    BLACKBOX_STATE_FULL,
     BLACKBOX_STATE_SHUTTING_DOWN,
     BLACKBOX_STATE_START_ERASE,
     BLACKBOX_STATE_ERASING,
@@ -1077,7 +1080,7 @@ static void blackboxStart(void)
     blackboxLastArmingBeep = getArmingBeepTimeMicros();
     memcpy(&blackboxLastFlightModeFlags, &rcModeActivationMask, sizeof(blackboxLastFlightModeFlags)); // record startup status
 
-    blackboxSetState(BLACKBOX_STATE_PREPARE_LOG_FILE);
+    blackboxSetState(BLACKBOX_STATE_WAIT_FOR_READY);
 }
 
 /**
@@ -1709,6 +1712,17 @@ void blackboxUpdate(timeUs_t currentTimeUs)
         }
 #endif
         break;
+    case BLACKBOX_STATE_WAIT_FOR_READY:
+        if (isBlackboxDeviceReady()) {
+            blackboxDeviceInitialErase();
+            blackboxSetState(BLACKBOX_STATE_INITIAL_ERASE);
+        }
+        break;
+    case BLACKBOX_STATE_INITIAL_ERASE:
+        if (isBlackboxDeviceReady()) {
+            blackboxSetState(BLACKBOX_STATE_PREPARE_LOG_FILE);
+        }
+        break;
     case BLACKBOX_STATE_PREPARE_LOG_FILE:
         if (blackboxDeviceBeginLog()) {
             blackboxSetState(BLACKBOX_STATE_SEND_HEADER);
@@ -1854,19 +1868,21 @@ void blackboxUpdate(timeUs_t currentTimeUs)
         }
     break;
 #endif
+    case BLACKBOX_STATE_FULL:
+        // Nothing more can be logged. Wait for the disarm to shut the log down.
+        break;
     default:
         break;
     }
 
     // Did we run out of room on the device? Stop!
-    if (isBlackboxDeviceFull()) {
-#ifdef USE_FLASHFS
-        if (blackboxState != BLACKBOX_STATE_ERASING
-            && blackboxState != BLACKBOX_STATE_START_ERASE
-            && blackboxState != BLACKBOX_STATE_ERASED)
-#endif
-        {
-            blackboxSetState(BLACKBOX_STATE_STOPPED);
+    // With rolling erase enabled the oldest data is erased to make room instead.
+    if (isBlackboxDeviceFull() && !blackboxConfig()->rollingErase) {
+        // WAIT_FOR_READY and INITIAL_ERASE are excluded: the device is expected
+        // to report full there, that is what the initial erase is for.
+        if (blackboxState >= BLACKBOX_STATE_PREPARE_LOG_FILE
+            && blackboxState <= BLACKBOX_STATE_RUNNING) {
+            blackboxSetState(BLACKBOX_STATE_FULL);
         }
     }
 }
