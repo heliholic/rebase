@@ -641,10 +641,6 @@
 #undef USE_DSHOT_TELEMETRY_STATS
 #endif
 
-#if !defined(USE_BOARD_INFO)
-#undef USE_SIGNATURE
-#endif
-
 #ifndef USE_BEEPER
 #undef BEEPER_PIN
 #undef BEEPER_PWM_HZ

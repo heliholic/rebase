@@ -29,9 +29,3 @@ bool boardInformationIsSet(void);
 bool setBoardName(const char *newBoardName);
 bool setManufacturerId(const char *newManufacturerId);
 bool persistBoardInformation(void);
-
-const uint8_t * getSignature(void);
-bool signatureIsSet(void);
-
-bool setSignature(const uint8_t *newSignature);
-bool persistSignature(void);
