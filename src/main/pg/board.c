@@ -46,14 +46,5 @@ void pgResetFn_boardConfig(boardConfig_t *boardConfig)
     } else {
         boardConfig->boardInformationSet = false;
     }
-
-#if defined(USE_SIGNATURE)
-    if (signatureIsSet()) {
-        memcpy(boardConfig->signature, getSignature(), SIGNATURE_LENGTH);
-        boardConfig->signatureSet = true;
-    } else {
-        boardConfig->signatureSet = false;
-    }
-#endif
 }
 #endif // USE_BOARD_INFO:

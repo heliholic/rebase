@@ -688,14 +688,7 @@ RAM_CODE static bool mspCommonProcessOutCommand(int16_t cmdMSP, sbuf_t *dst, msp
         sbufWriteU8(dst, 0);
 #endif
 
-#if defined(USE_SIGNATURE)
-        // Signature
-        sbufWriteData(dst, getSignature(), SIGNATURE_LENGTH);
-#else
-        uint8_t emptySignature[SIGNATURE_LENGTH];
-        memset(emptySignature, 0, sizeof(emptySignature));
-        sbufWriteData(dst, &emptySignature, sizeof(emptySignature));
-#endif
+        sbufFill(dst, 0, 32); // was the board signature
 
         sbufWriteU8(dst, MCU_TYPE_ID_PROVIDED_BY_NAME);
 
@@ -3527,19 +3520,6 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
         }
 
         break;
-#if defined(USE_SIGNATURE)
-    case MSP_SET_SIGNATURE:
-        if (!signatureIsSet()) {
-            uint8_t signature[SIGNATURE_LENGTH];
-            sbufReadData(src, signature, SIGNATURE_LENGTH);
-            setSignature(signature);
-            persistSignature();
-        } else {
-            return MSP_RESULT_ERROR;
-        }
-
-        break;
-#endif
 #endif // USE_BOARD_INFO
 #if defined(USE_RX_BIND)
     case MSP2_BETAFLIGHT_BIND:

@@ -34,9 +34,6 @@ static char boardName[MAX_BOARD_NAME_LENGTH + 1];
 static bool boardInformationWasUpdated = false;
 #endif
 
-static bool signatureSet = false;
-static uint8_t signature[SIGNATURE_LENGTH];
-
 void initBoardInformation(void)
 {
 #if !defined(BOARD_NAME)
@@ -48,11 +45,6 @@ void initBoardInformation(void)
         boardName[MAX_BOARD_NAME_LENGTH] = 0;
     }
 #endif
-
-    signatureSet = boardConfig()->signatureSet;
-    if (signatureSet) {
-        memcpy(signature, boardConfig()->signature, SIGNATURE_LENGTH);
-    }
 }
 
 const char *getManufacturerId(void)
@@ -142,41 +134,4 @@ bool persistBoardInformation(void)
     return false;
 #endif
 }
-
-#if defined(USE_SIGNATURE)
-const uint8_t *getSignature(void)
-{
-    return signature;
-}
-
-bool signatureIsSet(void)
-{
-    return signatureSet;
-}
-
-bool setSignature(const uint8_t *newSignature)
-{
-    if (!signatureSet) {
-        memcpy(signature, newSignature, SIGNATURE_LENGTH);
-
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool persistSignature(void)
-{
-    if (!signatureSet) {
-        memcpy(boardConfigMutable()->signature, signature, SIGNATURE_LENGTH);
-        boardConfigMutable()->signatureSet = true;
-
-        initBoardInformation();
-
-        return true;
-    } else {
-        return false;
-    }
-}
-#endif
 #endif // USE_BOARD_INFO

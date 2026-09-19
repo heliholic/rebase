@@ -198,9 +198,6 @@ static bool commandBatchError = false;
 
 #if defined(USE_BOARD_INFO)
 static bool boardInformationUpdated = false;
-#if defined(USE_SIGNATURE)
-static bool signatureUpdated = false;
-#endif
 #endif // USE_BOARD_INFO
 
 static const char* const emptyName = "-";
@@ -3010,64 +3007,6 @@ RAM_CODE static void cliManufacturerId(const char *cmdName, char *cmdline)
     }
 }
 
-#if defined(USE_SIGNATURE)
-static void writeSignature(char *signatureStr, const uint8_t *signature)
-{
-    for (unsigned i = 0; i < SIGNATURE_LENGTH; i++) {
-        tfp_sprintf(&signatureStr[2 * i], "%02x", signature[i]);
-    }
-}
-
-RAM_CODE static void cliSignature(const char *cmdName, char *cmdline)
-{
-    const int len = strlen(cmdline);
-
-    uint8_t signature[SIGNATURE_LENGTH] = {0};
-    if (len > 0) {
-        if (len != 2 * SIGNATURE_LENGTH) {
-            cliPrintErrorLinef(cmdName, "INVALID LENGTH: %d (EXPECTED: %d)", len, 2 * SIGNATURE_LENGTH);
-
-            return;
-        }
-
-#define BLOCK_SIZE 2
-        for (unsigned i = 0; i < SIGNATURE_LENGTH; i++) {
-            char temp[BLOCK_SIZE + 1];
-            strncpy(temp, &cmdline[i * BLOCK_SIZE], BLOCK_SIZE);
-            temp[BLOCK_SIZE] = '\0';
-            char *end;
-            unsigned result = strtoul(temp, &end, 16);
-            if (end == &temp[BLOCK_SIZE]) {
-                signature[i] = result;
-            } else {
-                cliPrintErrorLinef(cmdName, "INVALID CHARACTER FOUND: %c", end[0]);
-
-                return;
-            }
-        }
-#undef BLOCK_SIZE
-    }
-
-    char signatureStr[SIGNATURE_LENGTH * 2 + 1] = {0};
-    if (len > 0 && signatureIsSet() && memcmp(signature, getSignature(), SIGNATURE_LENGTH)) {
-        writeSignature(signatureStr, getSignature());
-        cliPrintErrorLinef(cmdName, ERROR_MESSAGE, "SIGNATURE", signatureStr);
-    } else {
-        if (len > 0 && !configIsInCopy && setSignature(signature)) {
-            signatureUpdated = true;
-
-            writeSignature(signatureStr, getSignature());
-
-            cliPrintHashLine("Set signature.");
-        } else if (signatureUpdated || signatureIsSet()) {
-            writeSignature(signatureStr, getSignature());
-        }
-
-        cliPrintLinef("signature %s", signatureStr);
-    }
-}
-#endif
-
 #undef ERROR_MESSAGE
 
 #endif // USE_BOARD_INFO
@@ -4084,11 +4023,6 @@ static bool prepareSave(void)
     if (boardInformationUpdated) {
         persistBoardInformation();
     }
-#if defined(USE_SIGNATURE)
-    if (signatureUpdated) {
-        persistSignature();
-    }
-#endif
 #endif // USE_BOARD_INFO
 
     return true;
@@ -7049,9 +6983,6 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
 
         if ((dumpMask & DUMP_ALL) && !(dumpMask & BARE)) {
             cliMcuId(cmdName, "");
-#if defined(USE_SIGNATURE)
-            cliSignature(cmdName, "");
-#endif
         }
 
         if (!(dumpMask & HARDWARE_ONLY)) {
@@ -7392,9 +7323,6 @@ const clicmd_t cmdTable[] = {
     CLI_COMMAND_DEF("servo", "configure servos", NULL, cliServo),
 #endif
     CLI_COMMAND_DEF("set", "change setting", "[<name>=<value>]", cliSet),
-#if defined(USE_SIGNATURE)
-    CLI_COMMAND_DEF("signature", "get / set the board type signature", "[signature]", cliSignature),
-#endif
     CLI_COMMAND_DEF("status", "show status", NULL, cliStatus),
     CLI_COMMAND_DEF("tasks", "show task stats", NULL, cliTasks),
 #ifdef USE_TIMER_MGMT
