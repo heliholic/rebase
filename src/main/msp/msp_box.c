@@ -72,7 +72,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] =
     BOXITEM(BOXPREARM, "PREARM", 36),
     BOXITEM(BOXBEEPGPSCOUNT, "GPS BEEP SATELLITE COUNT", 37),
     BOXITEM(BOXVTXPITMODE, "VTX PIT MODE", 39),
-    BOXITEM(BOXUSER1, BOX_USER1_NAME, 40),   // may be overridden by modeActivationConfig
+    BOXITEM(BOXUSER1, BOX_USER1_NAME, 40),   // may be overridden by customBoxConfig
     BOXITEM(BOXUSER2, BOX_USER2_NAME, 41),
     BOXITEM(BOXUSER3, BOX_USER3_NAME, 42),
     BOXITEM(BOXUSER4, BOX_USER4_NAME, 43),
@@ -123,10 +123,10 @@ int serializeBoxNameFn(sbuf_t *dst, const box_t *box)
 #if defined(USE_CUSTOM_BOX_NAMES)
     if (box->boxId >= BOXUSER1 && box->boxId <= BOXUSER4) {
         const int n = box->boxId - BOXUSER1;
-        name = modeActivationConfig()->box_user_names[n];
+        name = customBoxConfig(n)->name;
         // possibly there is no '\0' in boxname
         if (*name) {
-            len = strnlen(name, sizeof(modeActivationConfig()->box_user_names[n]));
+            len = strnlen(name, sizeof(customBoxConfig(n)->name));
         } else {
             name = NULL;
         }

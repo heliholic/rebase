@@ -78,6 +78,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `canPinConfig` | 563 | `0x21890503` | [`canPinConfig_t`](#canpinconfig_t) | 3 &times; `CANDEV_COUNT` | `pg/can.h` |
 | `compassConfig` | 40 | `0xF9FD2DDC` | [`compassConfig_t`](#compassconfig_t) | 22 | `pg/compass.h` |
 | `currentSensorADCConfig` | 256 | `0xFAFE3B75` | [`currentSensorADCConfig_t`](#currentsensoradcconfig_t) | 4 | `pg/current.h` |
+| `customBoxConfig` | 553 | `0x7C447B48` | [`customBoxConfig_t`](#customboxconfig_t) | 16 &times; `BOX_USER_COUNT` | `pg/modes.h` |
 | `dashboardConfig` | 519 | `0x8765A83F` | [`dashboardConfig_t`](#dashboardconfig_t) | 2 | `pg/dashboard.h` |
 | `dronecanConfig` | 565 | `0x0A37AC83` | [`dronecanConfig_t`](#dronecanconfig_t) | 8 | `pg/dronecan.h` |
 | `dronecanDnaConfig` | 567 | `0x255EBADA` | [`dronecanDnaConfig_t`](#dronecandnaconfig_t) | 272 | `pg/dronecan_dna.h` |
@@ -95,7 +96,6 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ledStripStatusModeConfig` | 545 | `0x34ECEA5E` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
 | `mcoConfig` | 541 | `0x010C2C94` | [`mcoConfig_t`](#mcoconfig_t) | 3 &times; `2` | `pg/mco.h` |
 | `modeActivationConditions` | 41 | `0x55454DC6` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
-| `modeActivationConfig` | 553 | `0x68633E8C` | [`modeActivationConfig_t`](#modeactivationconfig_t) | 64 | `pg/modes.h` |
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
 | `opticalflowConfig` | 560 | `0x258240D2` | [`opticalflowConfig_t`](#opticalflowconfig_t) | 8 | `pg/opticalflow.h` |
@@ -404,6 +404,16 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 0 | 2 | `int16_t` | `scale` |
 | 2 | 2 | `int16_t` | `offset` |
 
+### customBoxConfig_t
+
+- `customBoxConfig` &mdash; PGN 553 (`PG_CUSTOM_BOX_CONFIG`), hash `0x7C447B48` &mdash; array of `BOX_USER_COUNT` elements
+
+`sizeof` = 16 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 16 | `char` | `name[16]` |
+
 ### dashboardConfig_t
 
 - `dashboardConfig` &mdash; PGN 519 (`PG_DASHBOARD_CONFIG`), hash `0x8765A83F`
@@ -663,16 +673,6 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 2 | 1 | `uint8_t` | `modeLogic` |
 | 3 | 1 | `uint8_t` | `rcChannel` |
 | 4 | 2 | [`channelRange_t`](#channelrange_t) | `range` |
-
-### modeActivationConfig_t
-
-- `modeActivationConfig` &mdash; PGN 553 (`PG_MODE_ACTIVATION_CONFIG`), hash `0x68633E8C`
-
-`sizeof` = 64 bytes.
-
-| Offset | Size | Type | Member |
-| ---: | ---: | --- | --- |
-| 0 | 64 | `char` | `box_user_names[4][16]` |
 
 ### motorConfig_t
 

@@ -139,7 +139,7 @@ enum {
     PG_SDIO_PIN_CONFIG                 =  550,
     PG_PULLUP_CONFIG                   =  551,
     PG_PULLDOWN_CONFIG                 =  552,
-    PG_MODE_ACTIVATION_CONFIG          =  553,
+    PG_CUSTOM_BOX_CONFIG               =  553,
 //  PG_RX_EXPRESSLRS_SPI_CONFIG        =  555,
     PG_SCHEDULER_CONFIG                =  556,
     PG_MSP_CONFIG                      =  557,
