@@ -21,11 +21,10 @@
 #pragma once
 
 #include "pg/pg.h"
-#include "common/rtc.h"
 
 typedef struct rcdeviceConfig_s {
     uint8_t initDeviceAttempts;
-    timeMs_t initDeviceAttemptInterval;
+    uint32_t initDeviceAttemptInterval;
 
     // sometimes FC can't get featureInfo from devie(still no idea), so user can set it manaually.
     uint32_t feature;

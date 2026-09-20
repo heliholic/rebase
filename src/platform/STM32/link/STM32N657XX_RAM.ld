@@ -41,9 +41,11 @@ _estack = ORIGIN(STACKRAM) + LENGTH(STACKRAM) - 8;
  * but isEEPROMVersionValid() / isEEPROMStructureValid() in config_eeprom.c
  * read straight from &__config_start regardless of build flavour. Alias
  * the symbol onto eepromData[] (laid out in .bss) so those reads land on
- * real memory. EEPROM_SIZE is 4096 (default) which matches the array. */
+ * real memory. The literal below must match EEPROM_SIZE in
+ * target/common_post.h; a smaller one truncates the scan and a larger one
+ * runs it off the end of the array. */
 __config_start = ABSOLUTE(eepromData);
-__config_end   = ABSOLUTE(eepromData) + 4096;
+__config_end   = ABSOLUTE(eepromData) + 8192;
 
 _Min_Heap_Size = 0;
 _Min_Stack_Size = 0x800;
@@ -102,17 +104,40 @@ SECTIONS
 
   .pg_registry :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_registry_start = .);
     KEEP (*(.pg_registry))
     KEEP (*(SORT(.pg_registry.*)))
     PROVIDE_HIDDEN (__pg_registry_end = .);
+    . = ALIGN(4);
   } >RAM
 
   .pg_resetdata :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_resetdata_start = .);
     KEEP (*(.pg_resetdata))
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
+    . = ALIGN(4);
+  } >RAM
+
+  .pg_resetarray :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetarray_start = .);
+    KEEP (*(.pg_resetarray))
+    PROVIDE_HIDDEN (__pg_resetarray_end = .);
+    . = ALIGN(4);
+  } >RAM
+
+  .pg_resetfunc :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetfunc_start = .);
+    KEEP (*(.pg_resetfunc))
+    KEEP (*(SORT(.pg_resetfunc.*)))
+    PROVIDE_HIDDEN (__pg_resetfunc_end = .);
+    . = ALIGN(4);
   } >RAM
 
   .data :

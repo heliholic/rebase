@@ -33,9 +33,9 @@
 
 #include "board.h"
 
-PG_REGISTER_WITH_RESET_FN(boardConfig_t, boardConfig, PG_BOARD_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(boardConfig_t, boardConfig, PG_BOARD_CONFIG);
 
-void pgResetFn_boardConfig(boardConfig_t *boardConfig)
+PG_RESET_FN(boardConfig_t, boardConfig)
 {
     if (boardInformationIsSet()) {
         strncpy(boardConfig->manufacturerId, getManufacturerId(), sizeof(boardConfig->manufacturerId) - 1);

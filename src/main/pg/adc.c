@@ -25,6 +25,8 @@
 
 #ifdef USE_ADC
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 
@@ -33,9 +35,13 @@
 
 #include "pg/adc.h"
 
-PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG, 0);
+#ifdef USE_DMA_SPEC
+STATIC_ASSERT(ADCDEV_COUNT <= PG_MAX_ADC_DEVICES, adc_device_count_exceeds_stored_bound);
+#endif
 
-void pgResetFn_adcConfig(adcConfig_t *adcConfig)
+PG_REGISTER_WITH_RESET_FN(adcConfig_t, adcConfig, PG_ADC_CONFIG);
+
+PG_RESET_FN(adcConfig_t, adcConfig)
 {
 #ifdef ADC_VBAT_PIN
     adcConfig->vbat.enabled = true;

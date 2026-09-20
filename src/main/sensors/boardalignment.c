@@ -20,16 +20,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <math.h>
-#include <string.h>
 
 #include "platform.h"
 
 #include "common/utils.h"
 #include "common/sensor_alignment.h"
-
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
 
 #include "drivers/sensor.h"
 
@@ -38,30 +33,12 @@
 static bool standardBoardAlignment = true;     // board orientation correction
 static matrix33_t boardRotation;
 
-PG_REGISTER_WITH_RESET_TEMPLATE(boardAlignment_t, boardAlignment, PG_BOARD_ALIGNMENT, 1);
-
-#ifndef DEFAULT_ALIGN_BOARD_ROLL
-#define DEFAULT_ALIGN_BOARD_ROLL 0
-#endif
-#ifndef DEFAULT_ALIGN_BOARD_PITCH
-#define DEFAULT_ALIGN_BOARD_PITCH 0
-#endif
-#ifndef DEFAULT_ALIGN_BOARD_YAW
-#define DEFAULT_ALIGN_BOARD_YAW 0
-#endif
-
-PG_RESET_TEMPLATE(boardAlignment_t, boardAlignment,
-        .rollDegrees = DEFAULT_ALIGN_BOARD_ROLL,
-        .pitchDegrees = DEFAULT_ALIGN_BOARD_PITCH,
-        .yawDegrees = DEFAULT_ALIGN_BOARD_YAW,
-);
-
-static bool isBoardAlignmentStandard(const boardAlignment_t *boardAlignment)
+static bool isBoardAlignmentStandard(const alignment_t *boardAlignment)
 {
-    return !boardAlignment->rollDegrees && !boardAlignment->pitchDegrees && !boardAlignment->yawDegrees;
+    return !boardAlignment->roll && !boardAlignment->pitch && !boardAlignment->yaw;
 }
 
-void initBoardAlignment(const boardAlignment_t *boardAlignment)
+void initBoardAlignment(const alignment_t *boardAlignment)
 {
     if (isBoardAlignmentStandard(boardAlignment)) {
         return;
@@ -69,12 +46,7 @@ void initBoardAlignment(const boardAlignment_t *boardAlignment)
 
     standardBoardAlignment = false;
 
-    fp_angles_t rotationAngles;
-    rotationAngles.angles.roll  = degreesToRadians(boardAlignment->rollDegrees );
-    rotationAngles.angles.pitch = degreesToRadians(boardAlignment->pitchDegrees);
-    rotationAngles.angles.yaw   = degreesToRadians(boardAlignment->yawDegrees  );
-
-    buildRotationMatrix(&boardRotation, &rotationAngles);
+    buildRotationMatrixFromAngles(&boardRotation, boardAlignment);
 }
 
 static void alignBoard(vector3_t *vec)

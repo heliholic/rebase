@@ -37,6 +37,14 @@
 #include "timer_def.h"
 #endif
 
+// timer_def.h derives this from USED_TIMERS, but only on a platform that has
+// timers and only under USE_TIMER - which leaves SITL and the unit tests
+// without it. pg/timerup.h declares timerUpConfig unconditionally, so the
+// count that sizes it has to exist in every build.
+#ifndef HARDWARE_TIMER_DEFINITION_COUNT
+#define HARDWARE_TIMER_DEFINITION_COUNT 0
+#endif
+
 #include "pg/timerio.h"
 
 #define CC_CHANNELS_PER_TIMER         4 // TIM_Channel_1..4

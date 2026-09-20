@@ -30,7 +30,7 @@ extern "C" {
 #include "pg/pg_ids.h"
 #include "sensors/gyro.h"
 
-PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG, 0);
+PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG);
 
 bool icm426xxSpiGyroDetect(gyroDev_t *gyro);
 bool icm426xxSpiAccDetect(accDev_t *acc);

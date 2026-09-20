@@ -20,23 +20,7 @@
 
 #pragma once
 
-#include "pg/pg.h"
-
-#ifndef DEFAULT_FEATURES
-#define DEFAULT_FEATURES 0
-#endif
-
-#ifndef DEFAULT_RX_FEATURE
-
-#if ENABLE_RX_UDP
-#define DEFAULT_RX_FEATURE FEATURE_RX_UDP
-#elif defined(USE_SERIALRX)
-#define DEFAULT_RX_FEATURE FEATURE_RX_SERIAL
-#elif defined(USE_RX_MSP)
-#define DEFAULT_RX_FEATURE FEATURE_RX_MSP
-#endif
-
-#endif // DEFAULT_RX_FEATURE
+#include "pg/feature.h"
 
 // features must be listed in
 //  fc/feature.c:featuresSupportedByBuild
@@ -63,11 +47,21 @@ typedef enum {
     //FEATURE_DYNAMIC_FILTER = 1 << 29, (removed)
 } features_e;
 
-typedef struct featureConfig_s {
-    uint32_t enabledFeatures;
-} featureConfig_t;
+#ifndef DEFAULT_RX_FEATURE
 
-PG_DECLARE(featureConfig_t, featureConfig);
+#if ENABLE_RX_UDP
+#define DEFAULT_RX_FEATURE FEATURE_RX_UDP
+#elif defined(USE_SERIALRX)
+#define DEFAULT_RX_FEATURE FEATURE_RX_SERIAL
+#elif defined(USE_RX_MSP)
+#define DEFAULT_RX_FEATURE FEATURE_RX_MSP
+#endif
+
+#endif // DEFAULT_RX_FEATURE
+
+#ifndef DEFAULT_RX_FEATURE
+#define DEFAULT_RX_FEATURE 0
+#endif
 
 // Mask of features that have code compiled in with current config.
 //  Other restrictions on available features may apply.

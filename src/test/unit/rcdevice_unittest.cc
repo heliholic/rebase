@@ -60,7 +60,7 @@ extern "C" {
     extern bool isButtonPressed;
     extern bool rcdeviceInMenu;
     extern rcdeviceWaitingResponseQueue waitingResponseQueue;
-    PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG, 0);
+    PG_REGISTER_WITH_RESET_FN(rcdeviceConfig_t, rcdeviceConfig, PG_RCDEVICE_CONFIG);
     bool unitTestIsSwitchActivited(boxId_e boxId)
     {
         uint8_t adjustBoxID = boxId - BOXCAMERA1;
@@ -69,7 +69,7 @@ extern "C" {
     }
 
 
-    void pgResetFn_rcdeviceConfig(rcdeviceConfig_t *rcdeviceConfig)
+    PG_RESET_FN(rcdeviceConfig_t, rcdeviceConfig)
     {
         rcdeviceConfig->initDeviceAttempts = 4;
         rcdeviceConfig->initDeviceAttemptInterval = 1000;

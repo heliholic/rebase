@@ -87,14 +87,14 @@ extern "C" {
 
     acc_t acc;
 
-    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
-    PG_REGISTER_ARRAY(batteryProfile_t, BATTERY_PROFILE_COUNT, batteryProfiles, PG_BATTERY_PROFILES, 0);
+    PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
+    PG_REGISTER_ARRAY(batteryProfile_t, BATTERY_PROFILE_COUNT, batteryProfiles, PG_BATTERY_PROFILES);
     const batteryProfile_t *currentBatteryProfile;
-    PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG, 0);
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 0);
-    PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG, 0);
-    PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG, 0);
-    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 0);
+    PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
+    PG_REGISTER(pilotConfig_t, pilotConfig, PG_PILOT_CONFIG);
+    PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG);
+    PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
 
     timeUs_t simulationTime = 0;
     batteryState_e simulationBatteryState;

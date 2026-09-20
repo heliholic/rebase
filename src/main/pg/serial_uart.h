@@ -24,9 +24,12 @@
 #include <stdbool.h>
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 #include "drivers/serial_resource.h"
 
-#define UARTDEV_CONFIG_MAX (RESOURCE_UART_COUNT + RESOURCE_LPUART_COUNT)
+// Indexed by the same linear resource index as serialPinConfig, so it has to
+// span the fixed UART and LPUART blocks rather than this target's counts.
+#define UARTDEV_CONFIG_MAX (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES)
 
 typedef struct serialUartConfig_s {
     int8_t txDmaopt;

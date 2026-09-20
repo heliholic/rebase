@@ -44,16 +44,6 @@
 
 #include "osd/osd.h"
 
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
-
-PG_REGISTER_WITH_RESET_TEMPLATE(vtxConfig_t, vtxConfig, PG_VTX_CONFIG, 1);
-
-PG_RESET_TEMPLATE(vtxConfig_t, vtxConfig,
-//    .vtxChannelActivationConditions = { 0 },
-    .halfDuplex = true
-);
-
 // Latched on first arm and intentionally never cleared for the rest of the session, so band
 // and channel can no longer be changed by switch once the craft has been armed. STATIC_UNIT_TESTED
 // (still 'static' in firmware builds) so unit tests can reset it between cases.

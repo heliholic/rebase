@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "pg/pg_limits.h"
+
 /*
   #defines used for serial port resource access (pin/dma/inversion)
   target/serial_post.h normalizes enabled port definitions (and port counts),
@@ -37,7 +39,14 @@
 
 // resources are stored in one array, in UART, LPUART, SOFTSERIAL, PIOUART order. Code does assume this ordering,
 //  do not change it without adapting relevant code.
+//
+// The blocks are laid out at the fixed sizes in pg/pg_limits.h rather than at
+// this target's counts. The offsets are part of what a stored slot means: the
+// layout hash no longer distinguishes targets by port count, so deriving them
+// from RESOURCE_*_COUNT would let a record written where SERIAL_UART_MAX is 6
+// load somewhere it is 15 and read that target's UART7 pin out of the slot
+// holding LPUART1's.
 #define RESOURCE_UART_OFFSET 0
-#define RESOURCE_LPUART_OFFSET RESOURCE_UART_COUNT
-#define RESOURCE_SOFTSERIAL_OFFSET (RESOURCE_UART_COUNT + RESOURCE_LPUART_COUNT)
-#define RESOURCE_PIOUART_OFFSET (RESOURCE_UART_COUNT + RESOURCE_LPUART_COUNT + RESOURCE_SOFTSERIAL_COUNT)
+#define RESOURCE_LPUART_OFFSET PG_MAX_UART_RESOURCES
+#define RESOURCE_SOFTSERIAL_OFFSET (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES)
+#define RESOURCE_PIOUART_OFFSET (PG_MAX_UART_RESOURCES + PG_MAX_LPUART_RESOURCES + PG_MAX_SOFTSERIAL_RESOURCES)

@@ -47,9 +47,9 @@
 #define FLASH_QUADSPI_INSTANCE NULL
 #endif
 
-PG_REGISTER_WITH_RESET_FN(flashConfig_t, flashConfig, PG_FLASH_CONFIG, 0);
+PG_REGISTER_WITH_RESET_FN(flashConfig_t, flashConfig, PG_FLASH_CONFIG);
 
-void pgResetFn_flashConfig(flashConfig_t *flashConfig)
+PG_RESET_FN(flashConfig_t, flashConfig)
 {
     // CS pin can be used by all IO interfaces, not just SPI.
     flashConfig->csTag = IO_TAG(FLASH_CS_PIN);

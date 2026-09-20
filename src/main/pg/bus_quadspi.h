@@ -25,11 +25,10 @@
 
 #include "pg/pg.h"
 
-#ifdef USE_QUADSPI
-
 typedef struct quadSpiConfig_s {
     ioTag_t ioTagClk;
 
+    // Either or both CS pin may be used in DUAL_FLASH mode, any unused pins should be IO_NONE
     ioTag_t ioTagBK1IO0;
     ioTag_t ioTagBK1IO1;
     ioTag_t ioTagBK1IO2;
@@ -49,5 +48,3 @@ typedef struct quadSpiConfig_s {
 } quadSpiConfig_t;
 
 PG_DECLARE_ARRAY(quadSpiConfig_t, QUADSPIDEV_COUNT, quadSpiConfig);
-
-#endif

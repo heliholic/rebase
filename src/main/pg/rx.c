@@ -22,11 +22,13 @@
 
 #if defined(USE_RX_PPM) || defined(USE_SERIALRX) || defined(USE_RX_MSP)
 
+#include <string.h>
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "rx.h"
 
-#include "config/config_reset.h"
+#include "common/maths.h"
 
 #include "drivers/io.h"
 #include "fc/rc.h"
@@ -77,41 +79,65 @@
 #endif
 #endif
 
-PG_REGISTER_WITH_RESET_FN(rxConfig_t, rxConfig, PG_RX_CONFIG, 5);
-void pgResetFn_rxConfig(rxConfig_t *rxConfig)
+PG_REGISTER_WITH_RESET_FN(rxConfig_t, rxConfig, PG_RX_CONFIG);
+
+PG_RESET_TEMPLATE(rxConfig_t, rxConfig)
 {
-    RESET_CONFIG_2(rxConfig_t, rxConfig,
-        .halfDuplex = SERIALRX_HALFDUPLEX,
-        .serialrx_provider = SERIALRX_PROVIDER,
-        .serialrx_inverted = 0,
-        .spektrum_bind_pin_override_ioTag = IO_TAG(SPEKTRUM_BIND_PIN),
-        .spektrum_bind_plug_ioTag = IO_TAG(BINDPLUG_PIN),
-        .spektrum_sat_bind = 0,
-        .spektrum_sat_bind_autoreset = 1,
-        .midrc = RX_MID_USEC,
-        .mincheck = 1050,
-        .maxcheck = 1900,
-        .rx_min_usec = RX_MIN_USEC,          // any of first 4 channels below this value will trigger rx loss detection
-        .rx_max_usec = RX_MAX_USEC,         // any of first 4 channels above this value will trigger rx loss detection
-        .rssi_src_frame_errors = false,
-        .rssi_channel = 0,
-        .rssi_scale = RSSI_SCALE_DEFAULT,
-        .rssi_offset = 0,
-        .rssi_invert = 0,
-        .rssi_src_frame_lpf_period = 30,
-        .rssi_smoothing = 125,
-        .max_aux_channel = DEFAULT_AUX_CHANNEL_COUNT,
-        .srxl2_unit_id = 1,
-        .srxl2_baud_fast = true,
-        .sbus_baud_fast = false,
-        .crsf_use_negotiated_baud = false,
-    );
+    .halfDuplex = SERIALRX_HALFDUPLEX,
+    .serialrx_provider = SERIALRX_PROVIDER,
+    .serialrx_inverted = 0,
+    .spektrum_bind_pin_override_ioTag = IO_TAG(SPEKTRUM_BIND_PIN),
+    .spektrum_bind_plug_ioTag = IO_TAG(BINDPLUG_PIN),
+    .spektrum_sat_bind = 0,
+    .spektrum_sat_bind_autoreset = 1,
+    .midrc = RX_MID_USEC,
+    .mincheck = 1050,
+    .maxcheck = 1900,
+    .rx_min_usec = RX_MIN_USEC,          // any of first 4 channels below this value will trigger rx loss detection
+    .rx_max_usec = RX_MAX_USEC,         // any of first 4 channels above this value will trigger rx loss detection
+    .rssi_src_frame_errors = false,
+    .rssi_channel = 0,
+    .rssi_scale = RSSI_SCALE_DEFAULT,
+    .rssi_offset = 0,
+    .rssi_invert = 0,
+    .rssi_src_frame_lpf_period = 30,
+    .rssi_smoothing = 125,
+    .max_aux_channel = DEFAULT_AUX_CHANNEL_COUNT,
+    .srxl2_unit_id = 1,
+    .srxl2_baud_fast = true,
+    .sbus_baud_fast = false,
+    .crsf_use_negotiated_baud = false,
+};
+
+PG_RESET_FN(rxConfig_t, rxConfig)
+{
+    memcpy(rxConfig, &_pgResetTemplate_rxConfig, sizeof(*rxConfig));
 
 #ifdef RX_CHANNELS_TAER
     parseRcChannels("TAER1234", rxConfig);
 #else
     parseRcChannels("AETR1234", rxConfig);
 #endif
+}
+
+
+PG_REGISTER_ARRAY_WITH_RESET_TEMPLATE(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG);
+
+// default calibration is full range and a 1:1 mapping
+PG_RESET_TEMPLATE(rxChannelRangeConfig_t, rxChannelRangeConfigs)
+{
+    .min = PWM_RANGE_MIN,
+    .max = PWM_RANGE_MAX,
+};
+
+PG_REGISTER_ARRAY_WITH_RESET_FN(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG);
+
+PG_RESET_FN(rxFailsafeChannelConfig_t, rxFailsafeChannelConfigs)
+{
+    rxFailsafeChannelConfigs->mode = (index < NON_AUX_CHANNEL_COUNT) ? RX_FAILSAFE_MODE_AUTO : RX_FAILSAFE_MODE_HOLD;
+    rxFailsafeChannelConfigs->step = (index == THROTTLE)
+        ? CHANNEL_VALUE_TO_RXFAIL_STEP(RX_MIN_USEC)
+        : CHANNEL_VALUE_TO_RXFAIL_STEP(RX_MID_USEC);
 }
 
 #endif

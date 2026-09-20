@@ -82,9 +82,8 @@
 #include "osd/osd_warnings.h"
 
 #include "pg/motor.h"
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
 #include "pg/stats.h"
+#include "pg/osd.h"
 
 #include "rx/crsf.h"
 #include "rx/rc_stats.h"
@@ -152,10 +151,6 @@ escSensorData_t *osdEscDataCombined;
 #endif
 
 STATIC_ASSERT(OSD_POS_MAX == OSD_POS(63,31), OSD_POS_MAX_incorrect);
-
-PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG, 13);
-
-PG_REGISTER_WITH_RESET_FN(osdElementConfig_t, osdElementConfig, PG_OSD_ELEMENT_CONFIG, 3);
 
 // Controls the display order of the OSD post-flight statistics.
 // Adjust the ordering here to control how the post-flight stats are presented.
@@ -319,7 +314,7 @@ const uint16_t osdTimerDefault[OSD_TIMER_COUNT] = {
         OSD_TIMER(OSD_TIMER_SRC_TOTAL_ARMED, OSD_TIMER_PREC_SECOND, 10)
 };
 
-void pgResetFn_osdConfig(osdConfig_t *osdConfig)
+PG_RESET_FN(osdConfig_t, osdConfig)
 {
     // Enable the default stats
     osdConfig->enabled_stats = 0; // reset all to off and enable only a few initially
@@ -392,9 +387,7 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
     osdConfig->stat_show_cell_value = false;
     osdConfig->framerate_hz = OSD_FRAMERATE_DEFAULT_HZ;
     osdConfig->cms_background_type = DISPLAY_BACKGROUND_TRANSPARENT;
-    #ifdef USE_CRAFTNAME_MSGS
     osdConfig->osd_craftname_msgs = false;   // Insert LQ/RSSI-dBm and warnings into CraftName
-    #endif //USE_CRAFTNAME_MSGS
 
     osdConfig->aux_channel = 1;
     osdConfig->aux_scale = 200;
@@ -411,12 +404,10 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
     osdConfig->canvas_rows = OSD_SD_ROWS;
 #endif
 
-#ifdef USE_OSD_QUICK_MENU
     osdConfig->osd_use_quick_menu = true;
-#endif // USE_OSD_QUICK_MENU
 }
 
-void pgResetFn_osdElementConfig(osdElementConfig_t *osdElementConfig)
+PG_RESET_FN(osdElementConfig_t, osdElementConfig)
 {
 // If user includes OSD_HD in the build assume they want to use it as default
 #ifdef USE_OSD_HD

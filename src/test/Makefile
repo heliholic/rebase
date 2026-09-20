@@ -34,7 +34,8 @@ alignsensor_unittest_SRC := \
 		$(USER_DIR)/sensors/boardalignment.c \
 		$(USER_DIR)/common/sensor_alignment.c \
 		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/common/vector.c
+		$(USER_DIR)/common/vector.c \
+		$(USER_DIR)/pg/alignment.c
 
 arming_prevention_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
@@ -44,7 +45,10 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/fc/dispatch.c \
 		$(USER_DIR)/fc/rc_controls.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c
+		$(USER_DIR)/fc/runtime_config.c \
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c
 
 atomic_unittest_SRC := \
 		$(USER_DIR)/common/atomic.c \
@@ -116,7 +120,8 @@ battery_profile_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/pg/pg.c
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/battery.c
 
 blackbox_unittest_SRC :=  \
 		$(USER_DIR)/blackbox/blackbox.c \
@@ -127,7 +132,8 @@ blackbox_unittest_SRC :=  \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
-		$(USER_DIR)/pg/gps.c
+		$(USER_DIR)/pg/gps.c \
+		$(USER_DIR)/pg/blackbox.c
 
 blackbox_encoding_unittest_SRC :=  \
 		$(USER_DIR)/blackbox/blackbox_encoding.c \
@@ -149,7 +155,8 @@ cli_unittest_SRC := \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/drivers/serial.c \
 		$(USER_DIR)/drivers/serial_impl.c \
-		$(USER_DIR)/common/typeconversion.c
+		$(USER_DIR)/common/typeconversion.c \
+		$(USER_DIR)/pg/feature.c
 
 cli_unittest_DEFINES := \
 		USE_OSD= \
@@ -176,7 +183,9 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/flight/failsafe.c
+		$(USER_DIR)/flight/failsafe.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/failsafe.c
 
 
 flight_imu_unittest_SRC := \
@@ -187,7 +196,11 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/fc/feature.c \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/flight/position.c \
-		$(USER_DIR)/flight/imu.c
+		$(USER_DIR)/flight/imu.c \
+		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/imu.c \
+		$(USER_DIR)/pg/position.c
 
 
 flight_mixer_unittest :=  \
@@ -221,13 +234,16 @@ $(OBJECT_DIR)/dronecan_gnss_unittest/dronecan_gnss_unittest.o: \
 
 io_serial_unittest_SRC := \
 		$(USER_DIR)/io/serial.c \
-		$(USER_DIR)/io/serial_resource.c
+		$(USER_DIR)/io/serial_resource.c \
+		$(USER_DIR)/pg/serial.c
 
 
 ledstrip_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/io/ledstrip.c
+		$(USER_DIR)/io/ledstrip.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/ledstrip.c
 
 ledstrip_unittest_DEFINES := \
 		USE_LED_STRIP=
@@ -265,7 +281,9 @@ osd_unittest_SRC := \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/common/vector.c \
 		$(USER_DIR)/drivers/display.c \
-		$(USER_DIR)/fc/runtime_config.c
+		$(USER_DIR)/fc/runtime_config.c \
+		$(USER_DIR)/pg/time.c \
+		$(USER_DIR)/pg/osd.c
 
 osd_unittest_DEFINES := \
 		USE_OSD= \
@@ -293,12 +311,26 @@ link_quality_unittest_SRC := \
 		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/pg/rx.c \
 		$(USER_DIR)/rx/rx.c \
-		$(USER_DIR)/rx/crsf.c
+		$(USER_DIR)/rx/crsf.c \
+		$(USER_DIR)/pg/time.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/osd.c
 
 link_quality_unittest_DEFINES := \
 		USE_OSD= \
 		USE_CRSF_LINK_STATISTICS= \
 		USE_RX_LINK_QUALITY_INFO=
+
+config_eeprom_unittest_SRC := \
+		$(USER_DIR)/config/config_eeprom.c \
+		$(USER_DIR)/config/config_streamer.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/pg/pg.c
+
+config_eeprom_unittest_DEFINES := \
+		CONFIG_IN_RAM=
+
 
 pg_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
@@ -314,7 +346,11 @@ rc_controls_unittest_SRC := \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/fc/rc_adjustments.c \
-		$(USER_DIR)/fc/rc_modes.c
+		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/pg/adjustments.c \
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c
 
 rx_crsf_unittest_SRC := \
 		$(USER_DIR)/rx/crsf.c \
@@ -338,7 +374,8 @@ rx_ranges_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/rx/rx.c \
 		$(USER_DIR)/pg/pg.c \
-		$(USER_DIR)/pg/rx.c
+		$(USER_DIR)/pg/rx.c \
+		$(USER_DIR)/pg/modes.c
 
 
 rx_rx_unittest_SRC := \
@@ -347,7 +384,9 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/fc/feature.c \
-		$(USER_DIR)/pg/rx.c
+		$(USER_DIR)/pg/rx.c \
+		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/modes.c
 
 rx_sumd_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
@@ -376,7 +415,9 @@ sensor_gyro_unittest_SRC := \
 		$(USER_DIR)/drivers/accgyro/accgyro_virtual.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
 		$(USER_DIR)/pg/pg.c \
-		$(USER_DIR)/pg/gyrodev.c
+		$(USER_DIR)/pg/gyrodev.c \
+		$(USER_DIR)/pg/alignment.c \
+		$(USER_DIR)/pg/gyro.c
 
 sitl_gyro_unittest_SRC := \
 		$(TEST_DIR)/sitl_gyro_unittest_c.c
@@ -474,6 +515,7 @@ rcdevice_unittest_SRC := \
 		$(USER_DIR)/io/rcdevice.c \
 		$(USER_DIR)/io/rcdevice_cam.c \
 		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/modes.c
 
 pid_unittest_SRC :=  \
 		$(USER_DIR)/common/crc.c \
@@ -485,7 +527,9 @@ pid_unittest_SRC :=  \
 		$(USER_DIR)/fc/controlrate_profile.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/pid.c \
-		$(USER_DIR)/pg/pg.c
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/pg/rates.c \
+		$(USER_DIR)/pg/pid.c
 
 pid_unittest_DEFINES := \
 
@@ -514,7 +558,11 @@ vtx_unittest_SRC := \
 		$(USER_DIR)/drivers/vtx_table.c \
 		$(USER_DIR)/io/vtx_control.c \
 		$(USER_DIR)/io/vtx.c \
-		$(USER_DIR)/common/bitarray.c
+		$(USER_DIR)/common/bitarray.c \
+		$(USER_DIR)/pg/rc_controls.c \
+		$(USER_DIR)/pg/arming.c \
+		$(USER_DIR)/pg/modes.c \
+		$(USER_DIR)/pg/vtx.c
 
 vtx_unittest_DEFINES := \
 		USE_VTX_COMMON= \
@@ -531,6 +579,7 @@ vtx_msp_unittest_SRC := \
 		$(USER_DIR)/io/vtx_control.c \
 		$(USER_DIR)/io/vtx.c \
 		$(USER_DIR)/io/vtx_msp.c \
+		$(USER_DIR)/pg/vtx.c \
 
 vtx_msp_unittest_DEFINES := \
 		USE_VTX_COMMON= \
@@ -569,6 +618,12 @@ COMMON_FLAGS = \
 	-isystem $(GTEST_DIR)/include \
 	-MMD -MP \
 	-pipe
+
+# PG_DECLARE expands to a set of static inline accessors, and a test that
+# declares a parameter group of its own does not call every one of them. The
+# macro expands in the .cc itself rather than in an included header, where
+# clang counts an uncalled accessor as an unused function.
+COMMON_FLAGS += -Wno-unused-function
 
 CC_VERSION = $(shell $(CC) -dumpversion)
 CXX_VERSION = $(shell $(CXX) -dumpversion)
@@ -644,12 +699,11 @@ CXX_FLAGS += $(COVERAGE_FLAGS)
 
 C_FLAGS   += -D_GNU_SOURCE
 
-# Set up the parameter group linker flags according to OS
-ifeq ($(OSFAMILY), macosx)
-LDFLAGS  += -Wl,-map,$(OBJECT_DIR)/$@.map
-else
-LDFLAGS  += -Wl,-T,$(TEST_DIR)/pg.ld -Wl,-Map,$(OBJECT_DIR)/$@.map
-endif
+# Set up the parameter group linker flags.
+# PG_LINKER_SCRIPT is a link prerequisite as well as a flag: it decides where
+# .pg_registry lands, so a binary linked before an edit to it is stale.
+PG_LINKER_SCRIPT := $(TEST_DIR)/pg.ld
+LDFLAGS  += -Wl,-T,$(PG_LINKER_SCRIPT) -Wl,-Map,$(OBJECT_DIR)/$@.map
 
 # Gather up all of the tests.
 TEST_SRCS = $(sort $(wildcard $(TEST_DIR)/*.cc))
@@ -761,6 +815,32 @@ test_cflags	   = $(addprefix -I,$(call test_include_dirs,$1))
 # param $1 = expanded test name in the form of test.target
 target = $(1:$(basename $1).%=%)
 
+# Generated pg_hash.h for unit tests.
+#
+# pg/pg.h needs a PG_<NAME>_HASH define for every PG a TU registers, because
+# PG_REGISTER* pastes _pgn ## _HASH. The firmware derives those from the DWARF
+# layout of the TARGET build (mk/pg_hash.mk); tests are host builds with no
+# TARGET and never persist to real EEPROM, so the values only have to exist and
+# be distinct. Derive them from the PGN names in pg_ids.h (which reserves the
+# PG_RESERVED_FOR_TESTING_* ids the tests register).
+PG_TEST_HASH_DIR    := $(OBJECT_DIR)/pg_hash
+PG_TEST_HASH_HEADER := $(PG_TEST_HASH_DIR)/pg_hash.h
+PG_IDS_HEADER       := $(USER_DIR)/pg/pg_ids.h
+
+$(PG_TEST_HASH_HEADER): $(PG_IDS_HEADER) Makefile
+	@echo "generating $@" "$(STDOUT)"
+	$(V1) mkdir -p $(dir $@)
+	$(V1) { \
+		echo "/* AUTO-GENERATED for unit tests. DO NOT EDIT. */"; \
+		echo "#pragma once"; \
+		sed -n 's|^[[:space:]]*\(PG_[A-Z0-9_]*\)[[:space:]]*=.*|\1|p' $(PG_IDS_HEADER) \
+		| while read -r pg; do echo "#define $${pg}_HASH ($${pg} + 0x50470000u)"; done; \
+	} > $@
+
+C_FLAGS   += -I$(PG_TEST_HASH_DIR)
+CXX_FLAGS += -I$(PG_TEST_HASH_DIR)
+
+
 # canned recipe for all test builds
 #
 # variable expansion rules of thumb (number of $'s):
@@ -800,14 +880,14 @@ endif
 -include $$($1_OBJS:.o=.d)
 -include $(OBJECT_DIR)/$1/$(basename $1).d
 
-$(OBJECT_DIR)/$1/%.c.o: $(USER_DIR)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(USER_DIR)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
                 $$(foreach def,$$($1_DEFINES),-D $$(def)) \
                 -c $$< -o $$@
 
-$(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling test c file: $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
@@ -816,7 +896,7 @@ $(OBJECT_DIR)/$1/%.c.o: $(TEST_DIR)/%.c
 
 ifneq ($1,$(basename $1))
 # per-target tests may compile files from the target directory
-$(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c
+$(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c $(PG_TEST_HASH_HEADER)
 	@echo "compiling target c file: $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CC) $(C_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
@@ -824,7 +904,7 @@ $(OBJECT_DIR)/$1/%.c.o: $(TARGET_DIR)/$(TARGET)/%.c
                 -c $$< -o $$@
 endif
 
-$(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc
+$(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc $(PG_TEST_HASH_HEADER)
 	@echo "compiling $$<" "$(STDOUT)"
 	$(V1) mkdir -p $$(dir $$@)
 	$(V1) $(CXX) $(CXX_FLAGS) $$(call test_cflags,$$($1_INCLUDE_DIRS)) \
@@ -833,11 +913,13 @@ $(OBJECT_DIR)/$1/$(basename $1).o: $(TEST_DIR)/$(basename $1).cc
 
 $(OBJECT_DIR)/$1/$(basename $1): $$($1_OBJS) \
 	$(OBJECT_DIR)/$1/$(basename $1).o \
-	$(OBJECT_DIR)/gtest_main.a
+	$(OBJECT_DIR)/gtest_main.a \
+	$(PG_LINKER_SCRIPT)
 
 	@echo "linking $$@" "$(STDOUT)"
 	$(V1) mkdir -p $(dir $$@)
-	$(V1) $(CXX) $(CXX_FLAGS) $(LDFLAGS) $$^ -o $$@
+	$(V1) $(CXX) $(CXX_FLAGS) $(LDFLAGS) \
+		$$(filter-out $(PG_LINKER_SCRIPT),$$^) -o $$@
 
 test_$1: $(OBJECT_DIR)/$1/$(basename $1)
 	$(V1) $$< $$(EXEC_OPTS) "$(STDOUT)" && echo "running $$@: PASS"

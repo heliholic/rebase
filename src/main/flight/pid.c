@@ -27,12 +27,9 @@
 #include "common/axis.h"
 #include "common/utils.h"
 
-#include "config/config_reset.h"
-
 #include "drivers/dshot_command.h"
 
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
+#include "pg/pid.h"
 
 #include "sensors/gyro.h"
 
@@ -43,31 +40,6 @@ FAST_DATA_ZERO_INIT uint32_t targetPidLooptime;
 
 FAST_DATA_ZERO_INIT pidAxisData_t pidData[XYZ_AXIS_COUNT];
 
-PG_REGISTER_WITH_RESET_TEMPLATE(pidConfig_t, pidConfig, PG_PID_CONFIG, 4);
-
-#ifndef DEFAULT_PID_PROCESS_DENOM
-#define DEFAULT_PID_PROCESS_DENOM       1
-#endif
-
-PG_RESET_TEMPLATE(pidConfig_t, pidConfig,
-    .pid_process_denom = DEFAULT_PID_PROCESS_DENOM,
-);
-
-PG_REGISTER_ARRAY_WITH_RESET_FN(pidProfile_t, PID_PROFILE_COUNT, pidProfiles, PG_PID_PROFILE, 11);
-
-void resetPidProfile(pidProfile_t *pidProfile)
-{
-    RESET_CONFIG(pidProfile_t, pidProfile,
-        .profileName = { 0 },
-    );
-}
-
-void pgResetFn_pidProfiles(pidProfile_t *pidProfiles)
-{
-    for (int i = 0; i < PID_PROFILE_COUNT; i++) {
-        resetPidProfile(&pidProfiles[i]);
-    }
-}
 
 static void pidSetTargetLooptime(uint32_t pidLooptime)
 {

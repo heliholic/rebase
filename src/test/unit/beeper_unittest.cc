@@ -61,12 +61,13 @@ extern "C" {
 
     #include "io/beeper.h"
 
-    PG_REGISTER_WITH_RESET_TEMPLATE(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG, 0);
-    PG_RESET_TEMPLATE(beeperConfig_t, beeperConfig,
+    PG_REGISTER_WITH_RESET_TEMPLATE(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG);
+    PG_RESET_TEMPLATE(beeperConfig_t, beeperConfig)
+    {
         .beeper_off_flags = 0,
         .dshotBeaconTone = 1,
         .dshotBeaconOffFlags = 0,
-    );
+    };
 
     // Simulation variables
     static bool simulatorMspConfiguratorActive = false;

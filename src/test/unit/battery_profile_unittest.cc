@@ -48,7 +48,7 @@ extern "C" {
 
     #include "sensors/battery.h"
 
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 4);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
 }
 
 #include "unittest_macros.h"
