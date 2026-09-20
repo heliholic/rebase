@@ -28,14 +28,13 @@ member array rather than as a group.
 
 ## Tier 1 — a singleton wrapping exactly one array
 
-Three groups are a one-member struct whose only member is an array. The struct
+Two groups are a one-member struct whose only member is an array. The struct
 adds a name and an indirection and nothing else; `X()->member[i]` is spelling
 `x(i)` the long way.
 
 | Group | Type | Size |
 | --- | --- | ---: |
 | `dronecanDnaConfig` | `{ dronecanDnaEntry_t entry[DRONECAN_DNA_MAX_ENTRIES]; }` | 272 |
-| `modeActivationConfig` | `{ char box_user_names[4][16]; }` | 64 |
 | `pinioBoxConfig` | `{ uint8_t permanentId[PINIO_COUNT]; }` | 4 |
 
 **`dronecanDnaConfig` is the clearest case in the tree.** `pg/dronecan_dna.h`
@@ -45,9 +44,10 @@ most array-like data here: a slot table mutated at runtime, with `nodeId == 0`
 marking a free slot, scanned by index in `io/dronecan/dronecan_dna.c`. Three
 call sites.
 
-`modeActivationConfig` and `pinioBoxConfig` are the same shape with less at
-stake. `modeActivationConfig` is the odd sibling of `modeActivationConditions`,
-which is already an array PG in the same header.
+`pinioBoxConfig` is the same shape with less at stake. `customBoxConfig` in
+`pg/modes.h` shows the converted form: one `{ char name[16]; }` element per
+user box, registered as an array beside `modeActivationConditions`, rather
+than a singleton wrapping `char names[4][16]`.
 
 ## Tier 2 — parallel arrays indexed in lockstep
 
