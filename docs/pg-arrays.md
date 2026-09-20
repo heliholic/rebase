@@ -28,7 +28,7 @@ member array rather than as a group.
 
 ## Tier 1 — a singleton wrapping exactly one array
 
-Four groups are a one-member struct whose only member is an array. The struct
+Three groups are a one-member struct whose only member is an array. The struct
 adds a name and an indirection and nothing else; `X()->member[i]` is spelling
 `x(i)` the long way.
 
@@ -36,7 +36,6 @@ adds a name and an indirection and nothing else; `X()->member[i]` is spelling
 | --- | --- | ---: |
 | `dronecanDnaConfig` | `{ dronecanDnaEntry_t entry[DRONECAN_DNA_MAX_ENTRIES]; }` | 272 |
 | `osdElementConfig` | `{ uint16_t item_pos[OSD_ITEM_COUNT]; }` | 168 |
-| `modeActivationConfig` | `{ char box_user_names[4][16]; }` | 64 |
 | `pinioBoxConfig` | `{ uint8_t permanentId[PINIO_COUNT]; }` | 4 |
 
 **`dronecanDnaConfig` is the clearest case in the tree.** `pg/dronecan_dna.h`
@@ -56,9 +55,10 @@ Note this one is *not* covered by `pg_limits.h`: the bound was never pinned
 because `OSD_ITEM_COUNT` does not vary by target — it varies by release, which
 the fixed-bound technique cannot help with at all.
 
-`modeActivationConfig` and `pinioBoxConfig` are the same shape with less at
-stake. `modeActivationConfig` is the odd sibling of `modeActivationConditions`,
-which is already an array PG in the same header.
+`pinioBoxConfig` is the same shape with less at stake. `customBoxConfig` in
+`pg/modes.h` shows the converted form: one `{ char name[16]; }` element per
+user box, registered as an array beside `modeActivationConditions`, rather
+than a singleton wrapping `char names[4][16]`.
 
 ## Tier 2 — parallel arrays indexed in lockstep
 
@@ -116,10 +116,10 @@ bytes — pure clarity, no other payoff.
 The scalar is the only reason these are not arrays.
 
 **`vtxConfig`** = `vtxChannelActivationCondition_t conditions[10]` + `bool
-halfDuplex`. The correct shape is already in the tree one header over:
-`modeActivationConditions` (array PG) beside `modeActivationConfig` (singleton).
-And `halfDuplex` is a *transport* property — it has nothing to do with channel
-activation conditions and would sit more naturally in `vtxSettingsConfig`.
+halfDuplex`. The correct shape for the conditions is already in the tree one
+header over, as `modeActivationConditions`. And `halfDuplex` is a *transport*
+property — it has nothing to do with channel activation conditions and would
+sit more naturally in `vtxSettingsConfig`.
 
 **`serialConfig`** = `portConfigs[PG_MAX_SERIAL_PORTS]` + update rate + reboot
 character. 244 bytes, third-largest group. `serialUartConfig` next door is

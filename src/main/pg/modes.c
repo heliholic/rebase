@@ -30,6 +30,6 @@ PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT
 
 #if defined(USE_CUSTOM_BOX_NAMES)
 
-PG_REGISTER(modeActivationConfig_t, modeActivationConfig, PG_MODE_ACTIVATION_CONFIG);
+PG_REGISTER_ARRAY(customBoxConfig_t, BOX_USER_COUNT, customBoxConfig, PG_CUSTOM_BOX_CONFIG);
 
 #endif
