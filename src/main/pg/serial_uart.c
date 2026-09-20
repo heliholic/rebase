@@ -37,7 +37,7 @@
 #include "drivers/dma_reqmap.h"
 
 // TODO(hertz@): UARTDEV_CONFIG_MAX is measured to be exactly 8, which cannot accommodate even all the UARTs below
-PG_REGISTER_ARRAY_WITH_RESET_FN(serialUartConfig_t, UARTDEV_CONFIG_MAX, serialUartConfig, PG_SERIAL_UART_CONFIG, 0);
+PG_REGISTER_ARRAY_WITH_RESET_FN(serialUartConfig_t, UARTDEV_CONFIG_MAX, serialUartConfig, PG_SERIAL_UART_CONFIG);
 
 typedef struct uartDmaopt_s {
     serialPortIdentifier_e identifier;
@@ -99,18 +99,17 @@ static const uartDmaopt_t uartDmaopt[] = {
 #endif
 };
 
-void pgResetFn_serialUartConfig(serialUartConfig_t *config)
+PG_RESET_FN(serialUartConfig_t, serialUartConfig)
 {
-    for (unsigned i = 0; i < UARTDEV_CONFIG_MAX; i++) {
-        config[i].txDmaopt = DMA_OPT_UNUSED;
-        config[i].rxDmaopt = DMA_OPT_UNUSED;
-    }
+    serialUartConfig->txDmaopt = DMA_OPT_UNUSED;
+    serialUartConfig->rxDmaopt = DMA_OPT_UNUSED;
 
     for (unsigned i = 0; i < ARRAYLEN(uartDmaopt); i++) {
-        const int resourceIndex = serialResourceIndex(uartDmaopt[i].identifier);
-        if (resourceIndex >= 0 && resourceIndex < UARTDEV_CONFIG_MAX) {  // hadle corrupted config gracefuly
-            config[resourceIndex].txDmaopt = uartDmaopt[i].txDmaopt;
-            config[resourceIndex].rxDmaopt = uartDmaopt[i].rxDmaopt;
+        // an identifier with no resource index yields -1 and matches nothing,
+        // which is how a corrupted uartDmaopt entry is handled gracefully
+        if (serialResourceIndex(uartDmaopt[i].identifier) == index) {
+            serialUartConfig->txDmaopt = uartDmaopt[i].txDmaopt;
+            serialUartConfig->rxDmaopt = uartDmaopt[i].rxDmaopt;
         }
     }
 }

@@ -63,9 +63,6 @@
 #include "io/dronecan/dronecan_mag.h"
 #endif
 
-#include "pg/pg.h"
-#include "pg/pg_ids.h"
-
 #include "scheduler/scheduler.h"
 
 #include "sensors/boardalignment.h"
@@ -96,8 +93,6 @@ static compassBiasEstimator_t compassBiasEstimator;
 magDev_t magDev;
 mag_t mag;
 
-PG_REGISTER_WITH_RESET_FN(compassConfig_t, compassConfig, PG_COMPASS_CONFIG, 4);
-
 // If the i2c bus is busy, try again in 500us
 #define COMPASS_BUS_BUSY_INTERVAL_US 500
 // If we check for new mag data, and there is none, try again in 1000us
@@ -122,7 +117,7 @@ static uint32_t compassReadIntervalUs = TASK_PERIOD_HZ(TASK_COMPASS_RATE_HZ);
 #define MAG_I2C_ADDRESS 0
 #endif
 
-void pgResetFn_compassConfig(compassConfig_t *compassConfig)
+PG_RESET_FN(compassConfig_t, compassConfig)
 {
     compassConfig->mag_alignment = MAG_ALIGN;
     compassConfig->mag_hardware = MAG_DEFAULT;
@@ -491,7 +486,7 @@ bool compassInit(void)
     // Custom alignments are applied via a transposed rotation matrix (matrixTrnVectorMul),
     // which reverses rotation direction. Negate angles for mag so the resulting rotation
     // matches the user-entered convention and the standard CW alignments.
-    sensorAlignment_t magCustomAlignment = compassConfig()->mag_customAlignment;
+    alignment_t magCustomAlignment = compassConfig()->mag_customAlignment;
     magCustomAlignment.roll = -magCustomAlignment.roll;
     magCustomAlignment.pitch = -magCustomAlignment.pitch;
     magCustomAlignment.yaw = -magCustomAlignment.yaw;

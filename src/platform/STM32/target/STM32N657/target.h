@@ -98,7 +98,10 @@
 #if !defined(CONFIG_IN_RAM) && !defined(CONFIG_IN_SDCARD) && !defined(CONFIG_IN_EXTERNAL_FLASH) && !defined(CONFIG_IN_MEMORY_MAPPED_FLASH)
 #define CONFIG_IN_MEMORY_MAPPED_FLASH
 #endif
-#define EEPROM_SIZE     5120
+// Must match the literal in link/STM32N657XX_RAM.ld, which aliases
+// __config_end onto eepromData for the RAM_ONLY build: a smaller array than
+// the linker's bound lets the config scan read off the end of it.
+#define EEPROM_SIZE     8192
 
 #define USE_I2C
 #define I2C_FULL_RECONFIGURABILITY

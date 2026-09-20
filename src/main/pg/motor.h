@@ -21,6 +21,7 @@
 #pragma once
 
 #include "pg/pg.h"
+#include "pg/pg_limits.h"
 
 #include "drivers/io.h"
 
@@ -37,44 +38,44 @@ typedef enum {
     DSHOT_BITBANGED_TIMER_AUTO = 0,
     DSHOT_BITBANGED_TIMER_TIM1,
     DSHOT_BITBANGED_TIMER_TIM8,
-} dshotBitbangedTimer_e;
+} PG_ENUM dshotBitbangedTimer_e;
 
 //TODO: DMAR is platform specific. This should be moved to platform specific code.
 typedef enum {
     DSHOT_DMAR_OFF,
     DSHOT_DMAR_ON,
     DSHOT_DMAR_AUTO
-} dshotDmar_e;
+} PG_ENUM dshotDmar_e;
 
 typedef enum {
     DSHOT_BITBANG_OFF,
     DSHOT_BITBANG_ON,
     DSHOT_BITBANG_AUTO,
-} dshotBitbangMode_e;
+} PG_ENUM dshotBitbangMode_e;
 
 typedef enum {
     DSHOT_TELEMETRY_OFF,
     DSHOT_TELEMETRY_ON,
-} dshotTelemetry_e;
+} PG_ENUM dshotTelemetry_e;
 
 typedef enum {
     DSHOT_EDT_OFF = 0,
     DSHOT_EDT_ON = 1,
     DSHOT_EDT_FORCE = 2,
-} dshotEdt_e;
+} PG_ENUM dshotEdt_e;
 
 typedef struct motorDevConfig_s {
-    uint16_t motorPwmRate;               // The update rate of motor outputs (50-498Hz)
-    uint8_t  motorProtocol;              // Pwm Protocol
-    uint8_t  motorInversion;             // Active-High vs Active-Low. Useful for brushed FCs converted for brushless operation
-    uint8_t  useContinuousUpdate;
-    uint8_t  useBurstDshot;
-    uint8_t  useDshotTelemetry;
-    uint8_t  useDshotEdt;
-    ioTag_t  ioTags[MAX_SUPPORTED_MOTORS];
-    uint8_t  motorTransportProtocol;
-    uint8_t  useDshotBitbang;
-    uint8_t  useDshotBitbangedTimer;
+    uint16_t              motorPwmRate;           // The update rate of motor outputs (50-498Hz)
+    uint8_t               motorProtocol;          // Pwm Protocol
+    bool                  motorInversion;         // Active-High vs Active-Low. Useful for brushed FCs converted for brushless operation
+    bool                  useContinuousUpdate;
+    dshotDmar_e           useBurstDshot;
+    dshotTelemetry_e      useDshotTelemetry;
+    dshotEdt_e            useDshotEdt;
+    ioTag_t               ioTags[PG_MAX_MOTORS];   // MAX_SUPPORTED_MOTORS of these are used
+    uint8_t               motorTransportProtocol;
+    dshotBitbangMode_e    useDshotBitbang;
+    dshotBitbangedTimer_e useDshotBitbangedTimer;
 } motorDevConfig_t;
 
 typedef struct motorConfig_s {

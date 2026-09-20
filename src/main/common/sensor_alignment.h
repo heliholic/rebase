@@ -24,6 +24,8 @@
 #include "common/maths.h"
 #include "common/vector.h"
 
+#include "pg/alignment.h"
+
 typedef enum {
     ALIGN_DEFAULT = 0, // driver-provided alignment
 
@@ -42,23 +44,10 @@ typedef enum {
     ALIGN_CUSTOM = 9,    // arbitrary sensor angles, e.g. for external sensors
 } sensor_align_e;
 
-typedef union sensorAlignment_u {
-    // value order is the same as axis_e
-
-    // values are in DECIDEGREES, and should be limited to +/- 3600
-
-    int16_t raw[XYZ_AXIS_COUNT];
-    struct {
-        int16_t roll;
-        int16_t pitch;
-        int16_t yaw;
-    };
-} sensorAlignment_t;
-
-#define SENSOR_ALIGNMENT(ROLL, PITCH, YAW) ((const sensorAlignment_t) { \
-    .roll = DEGREES_TO_DECIDEGREES(ROLL),                               \
-    .pitch = DEGREES_TO_DECIDEGREES(PITCH),                             \
-    .yaw = DEGREES_TO_DECIDEGREES(YAW),                                 \
+#define SENSOR_ALIGNMENT(ROLL, PITCH, YAW) ((const alignment_t) {   \
+    .roll = DEGREES_TO_DECIDEGREES(ROLL),                           \
+    .pitch = DEGREES_TO_DECIDEGREES(PITCH),                         \
+    .yaw = DEGREES_TO_DECIDEGREES(YAW),                             \
 })
 
 #define CUSTOM_ALIGN_CW(deg)         SENSOR_ALIGNMENT( 0, 0, (deg) )
@@ -75,5 +64,5 @@ typedef union sensorAlignment_u {
 #define CUSTOM_ALIGN_CW180_DEG_FLIP  CUSTOM_ALIGN_CW_FLIP( 180 )
 #define CUSTOM_ALIGN_CW270_DEG_FLIP  CUSTOM_ALIGN_CW_FLIP( 270 )
 
-void buildRotationMatrixFromAngles(matrix33_t *rm, const sensorAlignment_t *rpy);
-void buildAlignmentFromStandardAlignment(sensorAlignment_t *rpy, sensor_align_e stdAlignment);
+void buildRotationMatrixFromAngles(matrix33_t *rm, const alignment_t *rpy);
+void buildAlignmentFromStandardAlignment(alignment_t *rpy, sensor_align_e stdAlignment);

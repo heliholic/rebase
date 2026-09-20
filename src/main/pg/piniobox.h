@@ -21,7 +21,6 @@
 #pragma once
 
 #include "drivers/pinio.h"
-#include "fc/rc_modes.h"
 #include "pg/pg.h"
 
 typedef struct pinioBoxConfig_s {

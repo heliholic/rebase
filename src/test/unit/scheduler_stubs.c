@@ -25,11 +25,12 @@
 #include "scheduler/scheduler.h"
 #include "scheduler_stubs.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG, 0);
+PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG);
 
-PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig,
+PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig)
+{
     .rxRelaxDeterminism = 25,
-);
+};
 
 #define TEST_GYRO_SAMPLE_HZ 8000
 

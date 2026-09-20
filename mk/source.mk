@@ -1,37 +1,70 @@
 PG_SRC = \
+            pg/acceleration.c \
             pg/adc.c \
+            pg/adjustments.c \
+            pg/alignment.c \
+            pg/arming.c \
+            pg/barometer.c \
+            pg/battery.c \
             pg/beeper.c \
             pg/beeper_dev.c \
+            pg/blackbox.c \
             pg/board.c \
             pg/bus_i2c.c \
             pg/bus_quadspi.c \
             pg/bus_spi.c \
             pg/can.c \
+            pg/camera_control.c \
+            pg/compass.c \
+            pg/current.c \
             pg/dashboard.c \
             pg/dronecan.c \
             pg/dronecan_dna.c \
+            pg/esc_sensor.c \
+            pg/esc_serial.c \
+            pg/failsafe.c \
+            pg/feature.c \
             pg/flash.c \
             pg/gps.c \
+            pg/gyro.c \
             pg/gyrodev.c \
+            pg/imu.c \
+            pg/leds.c \
+            pg/ledstrip.c \
             pg/mco.c \
+            pg/modes.c \
             pg/motor.c \
             pg/msp.c \
+            pg/opticalflow.c \
             pg/pg.c \
+            pg/pid.c \
             pg/pilot.c \
             pg/piniobox.c \
             pg/pinio.c \
             pg/pin_pull_up_down.c \
+            pg/position.c \
+            pg/rangefinder.c \
+            pg/rates.c \
             pg/rcdevice.c \
+            pg/rc_controls.c \
             pg/rx.c \
             pg/rx_pwm.c \
             pg/scheduler.c \
             pg/sdcard.c \
             pg/sdio.c \
+            pg/serial.c \
+            pg/serial_port.c \
             pg/serial_uart.c \
+            pg/servo.c \
             pg/stats.c \
+            pg/system.c \
+            pg/telemetry.c \
+            pg/time.c \
             pg/timerio.c \
             pg/timerup.c \
             pg/usb.c \
+            pg/voltage.c \
+            pg/vtx.c \
             pg/vtx_io.c \
             pg/vtx_table.c
 

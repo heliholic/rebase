@@ -129,8 +129,6 @@ const hsvColor_t hsv[] = {
 // macro to save typing on default colors
 #define HSV(color) (hsv[COLOR_ ## color])
 
-
-
 #define VTX_HUE_START_FREQ 5658     //  R1, returns solid red at R1
 #define VTX_HUE_STOP_FREQ 5900      // frequency just below R8  at 5917,  above which Hue does not exceed VTX_HUE_MAX
 #define VTX_HUE_MAX 355             // Maximum Hue value. Hue is circular in degrees, with red at 0 and 360.  345 is a strong magenta that is easily distinguished from red.
@@ -175,16 +173,13 @@ static hsvColor_t getHsvFromVtxFrequency(uint16_t freq)
 }
 #endif
 
-
-PG_REGISTER_WITH_RESET_FN(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 3);
-
 // Default LED strip brightness (percent). A target may lower this, e.g. when a
 // single bright addressable LED is used as a status indicator.
 #ifndef LED_STRIP_DEFAULT_BRIGHTNESS
 #define LED_STRIP_DEFAULT_BRIGHTNESS 100
 #endif
 
-void pgResetFn_ledStripConfig(ledStripConfig_t *ledStripConfig)
+PG_RESET_FN(ledStripConfig_t, ledStripConfig)
 {
     ledStripConfig->ledstrip_visual_beeper = 1;
 #ifdef USE_LED_STRIP_STATUS_MODE
@@ -254,9 +249,7 @@ static const specialColorIndexes_t defaultSpecialColors[] = {
     }}
 };
 
-PG_REGISTER_WITH_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG, 0);
-
-void pgResetFn_ledStripStatusModeConfig(ledStripStatusModeConfig_t *ledStripStatusModeConfig)
+PG_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig)
 {
     memset(ledStripStatusModeConfig->ledConfigs, 0, LED_STRIP_MAX_LENGTH * sizeof(ledConfig_t));
 #ifdef LED_STRIP_DEFAULT_LED0

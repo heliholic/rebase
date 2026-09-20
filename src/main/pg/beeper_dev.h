@@ -27,8 +27,8 @@
 
 typedef struct beeperDevConfig_s {
     ioTag_t ioTag;
-    uint8_t isInverted;
-    uint8_t isOpenDrain;
+    bool isInverted;
+    bool isOpenDrain;
     uint16_t frequency;
 } beeperDevConfig_t;
 

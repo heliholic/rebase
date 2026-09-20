@@ -48,6 +48,7 @@ extern "C" {
     #include "msp/msp.h"
     #include "msp/msp_serial.h"
     #include "pg/msp.h"
+    #include "pg/pg_ids.h"
 
     // --- controllable time ---
     static uint32_t fakeMillis = 1000;
@@ -100,9 +101,11 @@ extern "C" {
     void closeSerialPort(serialPort_t *) {}
     mspDescriptor_t mspDescriptorAlloc(void) { return 0; }
 
-    // --- PG backing storage + tables referenced by the unit under test ---
-    serialConfig_t serialConfig_System;
-    mspConfig_t mspConfig_System;
+    // --- PGs + tables referenced by the unit under test ---
+    // The groups the unit reads through their accessors; this test does not
+    // link the pg/ files that register them.
+    PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);
+    PG_REGISTER(mspConfig_t, mspConfig, PG_MSP_CONFIG);
     const uint32_t baudRates[BAUD_COUNT] = { 0 };
 
     // --- MSP command/reply sinks ---
@@ -131,9 +134,9 @@ protected:
 
         memset(&fakeSerialPort, 0, sizeof(fakeSerialPort));
         memset(&fakePortConfig, 0, sizeof(fakePortConfig));
-        memset(&serialConfig_System, 0, sizeof(serialConfig_System));
-        memset(&mspConfig_System, 0, sizeof(mspConfig_System));
-        serialConfig_System.reboot_character = 'R';
+        memset(serialConfigMutable(), 0, sizeof(serialConfig_t));
+        memset(mspConfigMutable(), 0, sizeof(mspConfig_t));
+        serialConfigMutable()->reboot_character = 'R';
 
         // memset all ports + re-allocate one from the mocked config above.
         mspSerialInit();

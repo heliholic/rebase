@@ -25,7 +25,7 @@
 #include "pg/pg.h"
 
 typedef struct mspConfig_s {
-    uint8_t halfDuplex; // allow msp to operate in half duplex mode
+    bool halfDuplex; // allow msp to operate in half duplex mode
 } mspConfig_t;
 
 PG_DECLARE(mspConfig_t, mspConfig);

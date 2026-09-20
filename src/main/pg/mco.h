@@ -27,7 +27,7 @@
 #include "drivers/io_types.h"
 
 typedef struct mcoConfig_s {
-    uint8_t enabled;
+    bool enabled;
     uint8_t source;
     uint8_t divider;
 } mcoConfig_t;
