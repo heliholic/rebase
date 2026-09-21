@@ -184,6 +184,8 @@ cli_unittest_SRC := \
 		$(USER_DIR)/drivers/serial_impl.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/pg/feature.c \
+		$(USER_DIR)/pg/mixer.c \
+		$(TEST_DIR)/mixer_stubs.c \
 		$(TEST_DIR)/servo_stubs.c
 
 cli_unittest_DEFINES := \
@@ -244,9 +246,10 @@ flight_imu_unittest_SRC := \
 		$(USER_DIR)/pg/position.c
 
 
-flight_mixer_unittest :=  \
+flight_mixer_unittest_SRC := \
 		$(USER_DIR)/flight/mixer.c \
-		$(USER_DIR)/fc/servos.c \
+		$(USER_DIR)/pg/mixer.c \
+		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/common/stddev.c \
 		$(USER_DIR)/common/trig.c

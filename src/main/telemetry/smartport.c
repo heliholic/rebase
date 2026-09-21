@@ -49,6 +49,7 @@
 
 #include "config/config.h"
 #include "controls/rates.h"
+#include "fc/motors.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"

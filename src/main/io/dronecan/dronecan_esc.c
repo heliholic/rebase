@@ -35,6 +35,7 @@
 #include "common/utils.h"
 
 #include "fc/feature.h"
+#include "fc/motors.h"
 
 #include "drivers/motor.h"
 #include "drivers/motor_types.h"

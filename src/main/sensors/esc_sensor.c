@@ -32,6 +32,7 @@
 #include "common/rtc.h"
 
 #include "fc/feature.h"
+#include "fc/motors.h"
 #include "pg/motor.h"
 
 #include "common/maths.h"

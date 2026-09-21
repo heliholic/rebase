@@ -115,6 +115,8 @@ uint32_t simulationFeatureFlags = 0;
 uint32_t simulationTime = 0;
 bool gyroCalibDone = false;
 bool simulationHaveRx = false;
+bool simulationMixerOverride = false;
+bool simulationServoOverride = false;
 
 #include "gtest/gtest.h"
 
@@ -312,6 +314,68 @@ TEST(ArmingPreventionTest, Prearm)
     // arming enabled as arm switch has been off for sufficient time
     EXPECT_EQ(0, getArmingDisableFlags());
     EXPECT_FALSE(isArmingDisabled());
+}
+
+TEST(ArmingPreventionTest, BenchOverrideBlocksArming)
+{
+    // given
+    simulationTime = 30e6; // 30 seconds after boot
+    gyroCalibDone = true;
+    simulationMixerOverride = false;
+    simulationServoOverride = false;
+
+    // and
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1750);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
+    rcModeInit();
+
+    // and
+    rcControls[RC_THROTTLE] = 1000;
+    rcControls[RC_ARM] = 1100;
+    mockIsUpright = true;
+    simulationHaveRx = true;
+
+    // when
+    updateActivatedModes();
+    updateArmingStatus();
+
+    // expect
+    EXPECT_FALSE(isArmingDisabled());
+    EXPECT_EQ(0, getArmingDisableFlags());
+
+    // given
+    // a mixer input is driven from the CLI
+    simulationMixerOverride = true;
+
+    // when
+    updateArmingStatus();
+
+    // expect
+    EXPECT_TRUE(isArmingDisabled());
+    EXPECT_EQ(ARMING_DISABLED_OVERRIDE, getArmingDisableFlags());
+
+    // given
+    // the mixer override is released, a servo override takes its place
+    simulationMixerOverride = false;
+    simulationServoOverride = true;
+
+    // when
+    updateArmingStatus();
+
+    // expect
+    EXPECT_TRUE(isArmingDisabled());
+    EXPECT_EQ(ARMING_DISABLED_OVERRIDE, getArmingDisableFlags());
+
+    // given
+    // both released
+    simulationServoOverride = false;
+
+    // when
+    updateArmingStatus();
+
+    // expect
+    EXPECT_FALSE(isArmingDisabled());
+    EXPECT_EQ(0, getArmingDisableFlags());
 }
 
 TEST(ArmingPreventionTest, RadioTurnedOnAtAnyTimeArmed)
@@ -603,12 +667,13 @@ extern "C" {
     void gyroStartCalibration(bool) {}
     bool isFirstArmingGyroCalibrationRunning(void) { return false; }
     void pidController(const pidProfile_t *, timeUs_t) {}
-    void mixTable(timeUs_t) {};
+    void mixerUpdate(void) {};
     void motorUpdate(timeUs_t) {};
     void motorStop(void) {};
     void servoUpdate(void) {};
     bool calculateRxChannelsAndUpdateFailsafe(timeUs_t) { return true; }
-    bool isMixerUsingServos(void) { return false; }
+    bool isMixerOverrideActive(void) { return simulationMixerOverride; }
+    bool isServoOverrideActive(void) { return simulationServoOverride; }
     void gyroUpdate(void) {}
     timeDelta_t getTaskDeltaTimeUs(taskId_e) { return 0; }
     void updateRSSI(timeUs_t) {}

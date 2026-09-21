@@ -73,6 +73,15 @@ int setServoOverride(uint8_t servo, int val)
     return servoOverride[servo] = (val < SERVO_OVERRIDE_MIN || val > SERVO_OVERRIDE_MAX) ? NAN : val / 1000.0f;
 }
 
+bool isServoOverrideActive(void)
+{
+    for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
+        if (hasServoOverride(i))
+            return true;
+    }
+    return false;
+}
+
 void INIT_CODE validateAndFixServoConfig(void)
 {
     for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {

@@ -306,6 +306,7 @@ void serialRemovePort(serialPortIdentifier_e) { }
 void buildAlignmentFromStandardAlignment(alignment_t *, sensor_align_e) { }
 bool checkMotorProtocolDshot(const motorDevConfig_t *) { return false; }
 void validateAndFixServoConfig(void) { }
+void validateAndFixMixerConfig(void) { }
 
 bool isModeActivationConditionLinked(boxId_e) { return false; }
 void removeModeActivationCondition(boxId_e) { }

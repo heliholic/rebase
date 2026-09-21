@@ -28,8 +28,7 @@
 #include "drivers/time.h"
 
 #include "fc/init.h"
-
-#include "flight/mixer.h"
+#include "fc/motors.h"
 
 #include "faults.h"
 

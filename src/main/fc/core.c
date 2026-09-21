@@ -349,6 +349,7 @@ FAST_CODE void taskMainPidLoop(timeUs_t currentTimeUs)
     DEBUG_SET(DEBUG_PIDLOOP, 0, micros() - currentTimeUs);
 
     subTaskPidController(currentTimeUs);
+    mixerUpdate();
     subTaskMotorUpdate(currentTimeUs);
     subTaskPidSubprocesses(currentTimeUs);
     subTaskBlackboxFlush(currentTimeUs);

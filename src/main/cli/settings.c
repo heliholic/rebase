@@ -77,6 +77,7 @@
 #include "pg/flash.h"
 #include "pg/gyrodev.h"
 #include "pg/mco.h"
+#include "pg/mixer.h"
 #include "pg/motor.h"
 #include "pg/msp.h"
 #include "pg/pg.h"
@@ -346,6 +347,18 @@ static const char* const lookupTableDshotBitbangedTimer[] = {
     "AUTO", "TIM1", "TIM8"
 };
 
+static const char * const lookupTableRotationDir[] = {
+    "CW", "CCW",
+};
+
+static const char * const lookupTableTailMode[] = {
+    "SERVO", "MOTOR",
+};
+
+static const char * const lookupTableSwashType[] = {
+    "NONE", "PASSTHROUGH", "CP120", "CP135", "CP140", "FP90L", "FP90V",
+};
+
 #define LOOKUP_TABLE_ENTRY(name) { name, ARRAYLEN(name) }
 
 const lookupTableEntry_t lookupTables[] = {
@@ -418,6 +431,9 @@ const lookupTableEntry_t lookupTables[] = {
     LOOKUP_TABLE_ENTRY(lookupTableOffOnAuto),
     LOOKUP_TABLE_ENTRY(lookupTableDshotBitbangedTimer),
 
+    LOOKUP_TABLE_ENTRY(lookupTableRotationDir),
+    LOOKUP_TABLE_ENTRY(lookupTableTailMode),
+    LOOKUP_TABLE_ENTRY(lookupTableSwashType),
 };
 
 #undef LOOKUP_TABLE_ENTRY
@@ -1066,6 +1082,23 @@ const clivalue_t valueTable[] = {
     { PARAM_NAME_ALTITUDE_LPF,          VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 10, 5000 }, PG_POSITION, offsetof(positionConfig_t, altitude_lpf) },
     { "rangefinder_max_range_cm",       VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 50, 1000 }, PG_POSITION, offsetof(positionConfig_t, rangefinder_max_range_cm) },
     { PARAM_NAME_ALTITUDE_D_LPF,        VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 10, 5000 }, PG_POSITION, offsetof(positionConfig_t, altitude_d_lpf) },
+
+
+// PG_MIXER_CONFIG
+    { "main_rotor_dir",                 VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_ROTATION_DIR }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, main_rotor_dir) },
+    { "tail_rotor_mode",                VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_TAIL_MODE }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, tail_rotor_mode) },
+    { "tail_motor_idle",                VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 250 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, tail_motor_idle) },
+    { "tail_center_trim",               VAR_INT16  | MASTER_VALUE, .config.minmax = { -1000, 1000 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, tail_center_trim) },
+    { "swash_type",                     VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_SWASH_TYPE }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_type) },
+    { "swash_ring",                     VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 100 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_ring) },
+    { "swash_phase",                    VAR_INT16  | MASTER_VALUE, .config.minmax = { -1800, 1800 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_phase) },
+    { "swash_roll_trim",                VAR_INT16  | MASTER_VALUE, .config.minmax = { -1000, 1000 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_trim[0]) },
+    { "swash_pitch_trim",               VAR_INT16  | MASTER_VALUE, .config.minmax = { -1000, 1000 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_trim[1]) },
+    { "swash_collective_trim",          VAR_INT16  | MASTER_VALUE, .config.minmax = { -1000, 1000 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_trim[2]) },
+    { "swash_pitch_limit",              VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 0, 3000 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_pitch_limit) },
+    { "swash_geo_correction",           VAR_INT8   | MASTER_VALUE, .config.minmax = { -125, 125 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, swash_geo_correction) },
+    { "collective_tilt_correction_pos", VAR_INT8   | MASTER_VALUE, .config.minmax = { -100, 100 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, collective_tilt_correction_pos) },
+    { "collective_tilt_correction_neg", VAR_INT8   | MASTER_VALUE, .config.minmax = { -100, 100 }, PG_MIXER_CONFIG, offsetof(mixerConfig_t, collective_tilt_correction_neg) },
 
 
 // PG_CUSTOM_BOX_CONFIG

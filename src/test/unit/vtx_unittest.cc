@@ -330,12 +330,13 @@ extern "C" {
     void gyroStartCalibration(bool) {}
     bool isFirstArmingGyroCalibrationRunning(void) { return false; }
     void pidController(const pidProfile_t *, timeUs_t) {}
-    void mixTable(timeUs_t) {};
+    void mixerUpdate(void) {};
     void motorUpdate(timeUs_t) {};
     void motorStop(void) {};
     void servoUpdate(void) {};
     bool calculateRxChannelsAndUpdateFailsafe(timeUs_t) { return true; }
-    bool isMixerUsingServos(void) { return false; }
+    bool isMixerOverrideActive(void) { return false; }
+    bool isServoOverrideActive(void) { return false; }
     void gyroUpdate() {}
     timeDelta_t getTaskDeltaTimeUs(taskId_e) { return 0; }
     void updateRSSI(timeUs_t) {}

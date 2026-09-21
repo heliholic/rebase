@@ -43,6 +43,7 @@
 
 #include "controls/rates.h"
 #include "fc/core.h"
+#include "fc/motors.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
 #include "controls/modes.h"
@@ -209,6 +210,8 @@ STATIC_UNIT_TESTED void validateAndFixConfig(void)
     }
 
     validateAndFixGyroConfig();
+
+    validateAndFixMixerConfig();
 
 #ifdef USE_SERVOS
     validateAndFixServoConfig();
