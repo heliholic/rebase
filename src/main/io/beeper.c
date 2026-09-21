@@ -41,6 +41,7 @@
 #include "config/config.h"
 #include "controls/modes.h"
 #include "fc/core.h"
+#include "fc/motors.h"
 #include "fc/runtime_config.h"
 
 #include "io/statusindicator.h"

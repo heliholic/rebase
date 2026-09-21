@@ -30,6 +30,7 @@ PG_SRC = \
             pg/imu.c \
             pg/leds.c \
             pg/ledstrip.c \
+            pg/mixer.c \
             pg/mco.c \
             pg/modes.c \
             pg/motor.c \

@@ -42,3 +42,4 @@ int  getServoOutput(uint8_t servo);
 bool  hasServoOverride(uint8_t servo);
 int   getServoOverride(uint8_t servo);
 int   setServoOverride(uint8_t servo, int val);
+bool  isServoOverrideActive(void);

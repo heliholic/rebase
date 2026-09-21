@@ -70,6 +70,7 @@
 #include "fc/board_info.h"
 #include "controls/rates.h"
 #include "fc/core.h"
+#include "fc/motors.h"
 #include "controls/rc.h"
 #include "controls/adjustments.h"
 #include "fc/runtime_config.h"

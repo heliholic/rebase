@@ -43,10 +43,12 @@
 #include "fc/feature.h"
 #include "fc/motors.h"
 #include "fc/runtime_config.h"
+#include "fc/servos.h"
 #include "fc/stats.h"
 
 #include "flight/failsafe.h"
 #include "flight/imu.h"
+#include "flight/mixer.h"
 
 #include "io/beeper.h"
 #include "io/gps.h"
@@ -111,7 +113,7 @@ static const char * const armingDisableFlagNames[ARMING_DISABLE_FLAGS_COUNT] = {
     ENTRY(DSHOT_BITBANG),
     ENTRY(ACC_CALIBRATION),
     ENTRY(MOTOR_PROTOCOL),
-    ENTRY(UNUSED_25),
+    ENTRY(OVERRIDE),
     ENTRY(UNUSED_26),
     ENTRY(UNUSED_27),
     ENTRY(UNUSED_28),
@@ -338,6 +340,19 @@ void updateArmingStatus(void)
 
         if (!isMotorProtocolEnabled()) {
             setArmingDisabled(ARMING_DISABLED_MOTOR_PROTOCOL);
+        }
+
+        // A bench override drives an output from the CLI rather than from the
+        // flight controller. Both are ignored once armed, but say so up front
+        // instead of letting a rotor start on a swash that is not being flown.
+        bool overrideActive = isMixerOverrideActive();
+#ifdef USE_SERVOS
+        overrideActive = overrideActive || isServoOverrideActive();
+#endif
+        if (overrideActive) {
+            setArmingDisabled(ARMING_DISABLED_OVERRIDE);
+        } else {
+            unsetArmingDisabled(ARMING_DISABLED_OVERRIDE);
         }
 
         /* Ignore ARMING_DISABLED_CALIBRATING if we are going to calibrate gyro on first arm */

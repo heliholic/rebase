@@ -68,6 +68,9 @@ float pidGetPreviousSetpoint(int axis);
 float pidGetDT(void);
 float pidGetPidFrequency(void);
 
+float pidGetOutput(int axis);
+float pidGetCollective(void);
+
 void pidInitFilters(const pidProfile_t *pidProfile);
 void pidInitConfig(const pidProfile_t *pidProfile);
 void pidInit(const pidProfile_t *pidProfile);

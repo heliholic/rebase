@@ -57,7 +57,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ## Parameter groups
 
-73 groups, 14 nested structures, 19 enumerations.
+76 groups, 14 nested structures, 19 enumerations.
 
 | Group | PGN | Hash | Type | Size | Header |
 | --- | ---: | --- | --- | ---: | --- |
@@ -94,6 +94,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `ledStripConfig` | 27 | `0xC62B80FD` | [`ledStripConfig_t`](#ledstripconfig_t) | 16 | `pg/ledstrip.h` |
 | `ledStripStatusModeConfig` | 545 | `0x34ECEA5E` | [`ledStripStatusModeConfig_t`](#ledstripstatusmodeconfig_t) | 368 | `pg/ledstrip.h` |
 | `mcoConfig` | 541 | `0x010C2C94` | [`mcoConfig_t`](#mcoconfig_t) | 3 &times; `2` | `pg/mco.h` |
+| `mixerConfig` | 20 | `0x80E59A46` | [`mixerConfig_t`](#mixerconfig_t) | 20 | `pg/mixer.h` |
+| `mixerInputs` | 15 | `0x7838A8CF` | [`mixerInput_t`](#mixerinput_t) | 6 &times; `MIXER_INPUT_COUNT` | `pg/mixer.h` |
+| `mixerRules` | 21 | `0x2C09DFA2` | [`mixerRule_t`](#mixerrule_t) | 8 &times; `MIXER_RULE_COUNT` | `pg/mixer.h` |
 | `modeActivationConditions` | 41 | `0x55454DC6` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
 | `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
@@ -636,6 +639,54 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 0 | 1 | `bool` | `enabled` |
 | 1 | 1 | `uint8_t` | `source` |
 | 2 | 1 | `uint8_t` | `divider` |
+
+### mixerConfig_t
+
+- `mixerConfig` &mdash; PGN 20 (`PG_MIXER_CONFIG`), hash `0x80E59A46`
+
+`sizeof` = 20 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 1 | `uint8_t` | `main_rotor_dir` |
+| 1 | 1 | `uint8_t` | `tail_rotor_mode` |
+| 2 | 1 | `uint8_t` | `tail_motor_idle` |
+| 3 | 1 | `uint8_t` | `swash_type` |
+| 4 | 1 | `uint8_t` | `swash_ring` |
+| 5 | 1 | `int8_t` | `swash_geo_correction` |
+| 6 | 1 | `int8_t` | `collective_tilt_correction_pos` |
+| 7 | 1 | `int8_t` | `collective_tilt_correction_neg` |
+| 8 | 2 | `int16_t` | `tail_center_trim` |
+| 10 | 2 | `int16_t` | `swash_phase` |
+| 12 | 2 | `uint16_t` | `swash_pitch_limit` |
+| 14 | 6 | `int16_t` | `swash_trim[3]` |
+
+### mixerInput_t
+
+- `mixerInputs` &mdash; PGN 15 (`PG_MIXER_INPUTS`), hash `0x7838A8CF` &mdash; array of `MIXER_INPUT_COUNT` elements
+
+`sizeof` = 6 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 2 | `int16_t` | `rate` |
+| 2 | 2 | `int16_t` | `min` |
+| 4 | 2 | `int16_t` | `max` |
+
+### mixerRule_t
+
+- `mixerRules` &mdash; PGN 21 (`PG_MIXER_RULES`), hash `0x2C09DFA2` &mdash; array of `MIXER_RULE_COUNT` elements
+
+`sizeof` = 8 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 1 | `uint8_t` | `oper` |
+| 1 | 1 | `uint8_t` | `input` |
+| 2 | 1 | `uint8_t` | `output` |
+| 3 | 1 | &mdash; | *(padding)* |
+| 4 | 2 | `int16_t` | `offset` |
+| 6 | 2 | `int16_t` | `weight` |
 
 ### modeActivationCondition_t
 

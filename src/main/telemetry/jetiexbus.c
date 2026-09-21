@@ -32,6 +32,7 @@
 #include "build/debug.h"
 #include "fc/runtime_config.h"
 #include "fc/feature.h"
+#include "fc/motors.h"
 
 #include "common/utils.h"
 #include "common/bitarray.h"

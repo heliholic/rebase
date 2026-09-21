@@ -69,6 +69,19 @@ float pidGetPreviousSetpoint(int axis)
     return 0;
 }
 
+float pidGetOutput(int axis)
+{
+    return pidData[axis].Sum;
+}
+
+float pidGetCollective(void)
+{
+    // The collective channel is not a PID axis. It arrives with the
+    // Rotorflight PID, which is what applies the collective pushrod trim
+    // and the level/rescue overrides to it.
+    return 0;
+}
+
 float pidGetDT(void)
 {
     return gyro.targetLooptime / 1000000.0f;
