@@ -73,9 +73,6 @@ uint32_t featuresSupportedByBuild =
 #ifdef USE_DASHBOARD
     | FEATURE_DASHBOARD
 #endif
-#ifdef USE_OSD
-    | FEATURE_OSD
-#endif
 #ifdef USE_ESC_SENSOR
     | FEATURE_ESC_SENSOR
 #endif

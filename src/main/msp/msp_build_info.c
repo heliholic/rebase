@@ -126,15 +126,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_OPTICALFLOW
         BUILD_OPTION_OPTICALFLOW,
 #endif
-#ifdef USE_OSD_SD
-        BUILD_OPTION_OSD_SD,
-#endif
-#ifdef USE_OSD_HD
-        BUILD_OPTION_OSD_HD,
-#endif
-#ifdef USE_FRSKYOSD
-        BUILD_OPTION_FRSKYOSD,
-#endif
 #ifdef USE_PINIO
         BUILD_OPTION_PINIO,
 #endif

@@ -61,7 +61,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
 //    { .boxId = BOXLLIGHTS, .boxName = "LLIGHTS", .permanentId = 16 }, (removed)
 //    { .boxId = BOXCALIB, .boxName = "CALIB", .permanentId = 17 }, (removed)
 //    { .boxId = BOXGOV, .boxName = "GOVERNOR", .permanentId = 18 }, (removed)
-    { .boxId = BOXOSD, .boxName = "OSD DISABLE", .permanentId = 19 },
+//    { .boxId = BOXOSD, .boxName = "OSD DISABLE", .permanentId = 19 }, (removed)
     { .boxId = BOXTELEMETRY, .boxName = "TELEMETRY", .permanentId = 20 },
 //    { .boxId = BOXGTUNE, .boxName = "GTUNE", .permanentId = 21 }, (removed)
 //    { .boxId = BOXRANGEFINDER, .boxName = "RANGEFINDER", .permanentId = 22 }, (removed)
@@ -226,8 +226,6 @@ void initActiveBoxIds(void)
     bool configuredMotorProtocolDshot;
     checkMotorProtocolEnabled(&motorConfig()->dev, &configuredMotorProtocolDshot);
 #endif
-
-    BME(BOXOSD);
 
 #ifdef USE_TELEMETRY
     if (featureIsEnabled(FEATURE_TELEMETRY)) {

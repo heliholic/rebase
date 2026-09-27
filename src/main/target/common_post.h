@@ -263,7 +263,7 @@
 
 #endif // USE_OPTICALFLOW
 
-#if defined(CAMERA_CONTROL_PIN) && defined(USE_OSD_SD) && !defined(USE_CAMERA_CONTROL)
+#if defined(CAMERA_CONTROL_PIN) && !defined(USE_CAMERA_CONTROL)
 #define USE_CAMERA_CONTROL
 #endif
 
@@ -503,13 +503,6 @@
 #define USE_USB_ADVANCED_PROFILES
 #endif
 
-#if !defined(USE_OSD)
-#undef USE_RX_LINK_QUALITY_INFO
-#undef USE_OSD_PROFILES
-#undef USE_OSD_STICK_OVERLAY
-#undef USE_RX_LINK_UPLINK_POWER
-#endif
-
 // Older ACC/GYRO sensors use MPU6500 driver
 #if !defined(USE_ACC_MPU6500) && (defined(USE_ACC_ICM20601) || defined(USE_ACC_ICM20602) || defined(USE_ACC_ICM20608G))
 #define USE_ACC_MPU6500
@@ -576,12 +569,6 @@
 
 #if !defined(USE_LED_STRIP)
 #undef USE_LED_STRIP_STATUS_MODE
-#endif
-
-#if defined(USE_MAX7456) || defined(USE_FRSKYOSD) || defined(USE_MSP_DISPLAYPORT)
-#ifndef USE_VIDEO_SYSTEM
-#define USE_VIDEO_SYSTEM
-#endif
 #endif
 
 #if defined(USE_LED_STRIP) && !defined(USE_LED_STRIP_STATUS_MODE)
@@ -696,10 +683,6 @@ extern struct linker_symbol __fontdata_end;
 #define USE_RX_BIND
 #endif
 
-#ifndef USE_GPS
-#undef USE_GPS_PLUS_CODES
-#endif
-
 // Enable PINIO by default if any PIN is defined
 #if !defined(USE_PINIO) && (defined(PINIO1_BOX) || defined(PINIO2_BOX) || defined(PINIO3_BOX) || defined(PINIO4_BOX))
 #define USE_PINIO
@@ -805,8 +788,8 @@ extern struct linker_symbol __fontdata_end;
 #endif
 
 // LCD console — runtime debug terminal that scrolls printf/trace output to
-// an attached LCD. Independent of the OSD/displayPort stack. Off by default;
-// configs opt in by setting ENABLE_LCD_CONSOLE 1 plus a panel selector
+// an attached LCD. Off by default; configs opt in by setting
+// ENABLE_LCD_CONSOLE 1 plus a panel selector
 // (LCD_CONSOLE_PANEL_STUB / _LTDC / _SSD1306_I2C / _ST7789_SPI / ...).
 // ENABLE_LCD_PRINTF_REDIRECT routes the global tfp_printf sink to the LCD
 // at boot; turn it off to keep the LCD reachable only via lcdConsolePrintf().

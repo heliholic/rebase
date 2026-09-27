@@ -40,7 +40,6 @@ typedef enum {
     // RCMODE flags
     BOXBEEPERON,
     BOXLEDLOW,
-    BOXOSD,
     BOXTELEMETRY,
     BOXSERVO1,
     BOXSERVO2,

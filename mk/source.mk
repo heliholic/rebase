@@ -10,11 +10,9 @@ PG_SRC = \
             pg/dashboard.c \
             pg/dronecan.c \
             pg/dronecan_dna.c \
-            pg/displayport_profiles.c \
             pg/flash.c \
             pg/gps.c \
             pg/gyrodev.c \
-            pg/max7456.c \
             pg/mco.c \
             pg/motor.c \
             pg/msp.c \
@@ -34,7 +32,6 @@ PG_SRC = \
             pg/timerio.c \
             pg/timerup.c \
             pg/usb.c \
-            pg/vcd.c \
             pg/vtx_io.c \
             pg/vtx_table.c
 
@@ -82,8 +79,6 @@ COMMON_SRC = \
             drivers/bus_quadspi.c \
             drivers/buttons.c \
             drivers/camera_control.c \
-            drivers/display.c \
-            drivers/display_canvas.c \
             drivers/dma.c \
             drivers/io.c \
             drivers/io_preinit.c \
@@ -190,19 +185,10 @@ COMMON_SRC = \
             drivers/vtx_common.c \
             drivers/vtx_table.c \
             io/dashboard.c \
-            io/displayport_fb_osd.c \
-            io/displayport_frsky_osd.c \
-            io/displayport_max7456.c \
-            io/displayport_msp.c \
-            io/frsky_osd.c \
             io/rcdevice_cam.c \
             io/rcdevice.c \
             io/gps.c \
             io/ledstrip.c \
-            osd/osd.c \
-            osd/osd_custom_text.c \
-            osd/osd_elements.c \
-            osd/osd_warnings.c \
             sensors/barometer.c \
             sensors/rangefinder.c \
             sensors/opticalflow.c \
@@ -271,7 +257,6 @@ COMMON_SRC += \
             drivers/compass/compass_mpu925x_ak8963.c \
             drivers/compass/compass_qmc5883.c \
             drivers/compass/compass_virtual.c \
-            drivers/max7456.c \
             drivers/vtx_rtc6705.c \
             drivers/vtx_rtc6705_soft_spi.c
 
@@ -419,10 +404,6 @@ SIZE_OPTIMISED_SRC += \
             io/vtx_tramp.c \
             io/vtx_control.c \
             io/spektrum_vtx_control.c \
-            osd/osd.c \
-            osd/osd_custom_text.c \
-            osd/osd_elements.c \
-            osd/osd_warnings.c \
             rx/rx_bind.c \
             io/vtx_msp.c
 
@@ -450,15 +431,6 @@ SIZE_OPTIMISED_SRC  := $(filter-out $(MCU_EXCLUDES), $(SIZE_OPTIMISED_SRC))
 SRC += $(VCP_SRC)
 
 # end target specific make file checks
-
-# Search path and source files for the Open Location Code library
-OLC_DIR := google/olc
-
-ifneq ($(OLC_DIR),)
-INCLUDE_DIRS += $(LIB_MAIN_DIR)/$(OLC_DIR)
-SRC += $(OLC_DIR)/olc.c
-SIZE_OPTIMISED_SRC += $(OLC_DIR)/olc.c
-endif
 
 # libcanard (DroneCAN transport) and the Betaflight-side glue live in the
 # per-MCU makefiles: they're only wired into the build for families whose

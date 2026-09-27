@@ -361,7 +361,6 @@ extern "C" {
     void rescheduleTask(taskId_e, timeDelta_t) {}
     bool usbCableIsInserted(void) { return false; }
     bool usbVcpIsConnected(void) { return false; }
-    void osdSuppressStats(bool) {}
     void applyAccelerometerTrimsDelta(rollAndPitchTrims_t*) {}
     bool isFixedWing(void) { return false; }
     void compassStartCalibration(void) {}

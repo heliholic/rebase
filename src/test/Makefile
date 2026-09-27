@@ -152,7 +152,6 @@ cli_unittest_SRC := \
 		$(USER_DIR)/common/typeconversion.c
 
 cli_unittest_DEFINES := \
-		USE_OSD= \
 		USE_CLI= \
 		SystemCoreClock=1000000
 
@@ -244,54 +243,7 @@ msp_serial_unittest_SRC := \
 		$(USER_DIR)/common/streambuf.c
 
 msp_serial_unittest_DEFINES := \
-		USE_CLI= \
-		USE_MSP_DISPLAYPORT=
-
-osd_unittest_SRC := \
-		$(USER_DIR)/osd/osd.c \
-		$(USER_DIR)/osd/osd_elements.c \
-		$(USER_DIR)/osd/osd_warnings.c \
-		$(USER_DIR)/common/filter.c \
-		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/common/printf.c \
-		$(USER_DIR)/common/time.c \
-		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/common/vector.c \
-		$(USER_DIR)/drivers/display.c \
-		$(USER_DIR)/fc/runtime_config.c
-
-osd_unittest_DEFINES := \
-		USE_OSD= \
-		USE_GPS= \
-		USE_RTC_TIME= \
-		USE_ADC_INTERNAL=
-
-link_quality_unittest_SRC := \
-		$(USER_DIR)/osd/osd.c \
-		$(USER_DIR)/osd/osd_elements.c \
-		$(USER_DIR)/osd/osd_warnings.c \
-		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/common/crc.c \
-		$(USER_DIR)/common/maths.c \
-		$(USER_DIR)/common/printf.c \
-		$(USER_DIR)/common/streambuf.c \
-		$(USER_DIR)/common/time.c \
-		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/common/vector.c \
-		$(USER_DIR)/drivers/display.c \
-		$(USER_DIR)/drivers/serial.c \
-		$(USER_DIR)/drivers/serial_impl.c \
-		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/fc/runtime_config.c \
-		$(USER_DIR)/pg/pg.c \
-		$(USER_DIR)/pg/rx.c \
-		$(USER_DIR)/rx/rx.c \
-		$(USER_DIR)/rx/crsf.c
-
-link_quality_unittest_DEFINES := \
-		USE_OSD= \
-		USE_CRSF_LINK_STATISTICS= \
-		USE_RX_LINK_QUALITY_INFO=
+		USE_CLI=
 
 pg_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
@@ -352,9 +304,6 @@ scheduler_unittest_SRC := \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(TEST_DIR)/scheduler_stubs.c
-
-scheduler_unittest_DEFINES := \
-		USE_OSD=
 
 sensor_gyro_unittest_SRC := \
 		$(USER_DIR)/sensors/gyro.c \

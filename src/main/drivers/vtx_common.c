@@ -157,24 +157,6 @@ const char *vtxCommonLookupBandName(const vtxDevice_t *vtxDevice, int band)
     }
 }
 
-char vtxCommonLookupBandLetter(const vtxDevice_t *vtxDevice, int band)
-{
-    if (vtxDevice && band > 0 && band <= vtxTableBandCount) {
-        return vtxTableBandLetters[band];
-    } else {
-        return '?';
-    }
-}
-
-const char *vtxCommonLookupChannelName(const vtxDevice_t *vtxDevice, int channel)
-{
-    if (vtxDevice && channel > 0 && channel <= vtxTableChannelCount) {
-        return vtxTableChannelNames[channel];
-    } else {
-        return "?";
-    }
-}
-
 //Converts frequency (in MHz) to band and channel values.
 //If frequency not found in the vtxtable then band and channel will return 0
 void vtxCommonLookupBandChan(const vtxDevice_t *vtxDevice, uint16_t freq, uint8_t *pBand, uint8_t *pChannel)
@@ -210,15 +192,6 @@ uint16_t vtxCommonLookupFrequency(const vtxDevice_t *vtxDevice, int band, int ch
     }
 
     return 0;
-}
-
-const char *vtxCommonLookupPowerName(const vtxDevice_t *vtxDevice, int index)
-{
-    if (vtxDevice && index > 0 && index <= vtxTablePowerLevels) {
-        return vtxTablePowerLabels[index];
-    } else {
-        return "?";
-    }
 }
 
 bool vtxCommonLookupPowerValue(const vtxDevice_t *vtxDevice, int index, uint16_t *pPowerValue)

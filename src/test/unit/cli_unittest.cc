@@ -47,7 +47,6 @@ extern "C" {
     #include "io/vtx.h"
     #include "msp/msp.h"
     #include "msp/msp_box.h"
-    #include "osd/osd.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/beeper.h"
@@ -72,13 +71,11 @@ extern "C" {
     };
     const uint16_t valueTableEntryCount = ARRAYLEN(valueTable);
     const lookupTableEntry_t lookupTables[] = {};
-    const char * const lookupTableOsdDisplayPortDevice[] = {};
     const char * const buildKey = NULL;
     const char * const releaseName = NULL;
 
     gyro_t gyro;
 
-    PG_REGISTER(osdConfig_t, osdConfig, PG_OSD_CONFIG, 0);
     PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG, 0);
     PG_REGISTER(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 0);
     PG_REGISTER(ledStripStatusModeConfig_t, ledStripStatusModeConfig, PG_LED_STRIP_STATUS_MODE_CONFIG, 0);
@@ -409,7 +406,6 @@ void analyzeModeActivationConditions(void) {}
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *, const modeActivationCondition_t *) { return false; }
 
 void delay(uint32_t) {}
-displayPort_t *osdGetDisplayPort(osdDisplayPortDevice_e *) { return NULL; }
 const char *getMcuTypeName(void) { return targetName; }
 float getCurrentRxRateHz(void) { return 0; }
 uint16_t getAverageSystemLoadPercent(void) { return 0; }

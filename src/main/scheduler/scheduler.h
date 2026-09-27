@@ -59,7 +59,6 @@
 #endif
 
 #define TASK_AGE_EXPEDITE_RX            schedulerConfig()->rxRelaxDeterminism  // Make RX tasks more schedulable if it's failed to be scheduled this many times
-#define TASK_AGE_EXPEDITE_OSD           schedulerConfig()->osdRelaxDeterminism  // Make OSD tasks more schedulable if it's failed to be scheduled this many times
 #define TASK_AGE_EXPEDITE_COUNT         1    // Make aged tasks more schedulable
 #define TASK_AGE_EXPEDITE_SCALE         0.9f // By scaling their expected execution time
 
@@ -152,9 +151,6 @@ typedef enum {
 #ifdef USE_STACK_CHECK
     TASK_STACK_CHECK,
 #endif
-#ifdef USE_OSD
-    TASK_OSD,
-#endif
 #ifdef USE_BST
     TASK_BST_MASTER_PROCESS,
 #endif
@@ -181,9 +177,6 @@ typedef enum {
 #endif
 #ifdef USE_RC_STATS
     TASK_RC_STATS,
-#endif
-#if ENABLE_OSD_CUSTOM_TEXT
-    TASK_OSD_CUSTOM_TEXT,
 #endif
 #if ENABLE_DRONECAN
     TASK_DRONECAN,

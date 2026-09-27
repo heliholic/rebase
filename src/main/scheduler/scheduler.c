@@ -113,9 +113,6 @@ static int32_t desiredPeriodCycles;
 static uint32_t lastTargetCycles;
 
 static uint8_t skippedRxAttempts = 0;
-#ifdef USE_OSD
-static uint8_t skippedOSDAttempts = 0;
-#endif
 
 #if defined(USE_LATE_TASK_STATISTICS)
 static uint32_t lateTaskCount = 0;
@@ -808,11 +805,6 @@ FAST_CODE void scheduler(void)
                 if ((currentTask - tasks) == TASK_RX) {
                     skippedRxAttempts = 0;
                 }
-#ifdef USE_OSD
-                else if ((currentTask - tasks) == TASK_OSD) {
-                    skippedOSDAttempts = 0;
-                }
-#endif
 
                 if ((cyclesOverdue > 0) || (-cyclesOverdue < taskGuardMinCycles)) {
                     if (taskGuardCycles < taskGuardMaxCycles) {
@@ -825,9 +817,6 @@ FAST_CODE void scheduler(void)
                 taskCount++;
 #endif  // USE_LATE_TASK_STATISTICS
             } else if ((selectedTask->taskAgePeriods > TASK_AGE_EXPEDITE_COUNT) ||
-#ifdef USE_OSD
-                       (((selectedTask - tasks) == TASK_OSD) && (TASK_AGE_EXPEDITE_OSD != 0) && (++skippedOSDAttempts > TASK_AGE_EXPEDITE_OSD)) ||
-#endif
                        (((selectedTask - tasks) == TASK_RX) && (TASK_AGE_EXPEDITE_RX != 0) && (++skippedRxAttempts > TASK_AGE_EXPEDITE_RX))) {
                 // If a task has been unable to run, then reduce it's recorded estimated run time to ensure
                 // it's ultimate scheduling

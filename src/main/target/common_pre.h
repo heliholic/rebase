@@ -188,10 +188,6 @@
 #endif // USE_FLASH
 #endif // USE_FLASH_CHIP
 
-#if !defined(USE_MAX7456)
-#define USE_MAX7456
-#endif
-
 #if !defined(USE_EXST) && !defined(USE_SDCARD)
 #define USE_SDCARD
 #endif
@@ -228,11 +224,6 @@
 #define USE_SERVOS
 
 #define USE_VTX
-#define USE_OSD
-#if !defined(USE_OSD_SD) && !defined(USE_OSD_HD)
-#define USE_OSD_SD
-#define USE_OSD_HD
-#endif
 #define USE_BLACKBOX
 
 #if TARGET_FLASH_SIZE >= 1024
@@ -256,11 +247,6 @@
 
 #endif // USE_TELEMETRY
 
-#ifdef USE_OSD
-#define USE_RC_STATS
-#define USE_SPEC_PREARM_SCREEN
-#endif
-
 #define USE_BATTERY_CONTINUE
 #define USE_DASHBOARD
 #define USE_EMFAT_AUTORUN
@@ -271,14 +257,11 @@
 #define USE_GPS
 #endif
 
-#if !defined(USE_GPS_PLUS_CODES)
-#define USE_GPS_PLUS_CODES
-#endif
-
 #if !defined(USE_LED_STRIP)
 #define USE_LED_STRIP
 #endif
 
+#define USE_RC_STATS
 #define USE_SERIAL_4WAY_SK_BOOTLOADER
 
 #define USE_VTX_RTC6705
@@ -382,7 +365,6 @@
 #define USE_PERSISTENT_STATS
 #define USE_PROFILE_NAMES
 #define USE_CUSTOM_BOX_NAMES
-#define USE_CRAFTNAME_MSGS
 
 #if !defined(CORE_BUILD)
 // CORE_BUILD is only hardware drivers, and the bare minimum
@@ -393,37 +375,6 @@
 
 // Note: USE_GPS secondary defines (USE_GPS_NMEA, USE_GPS_UBLOX) are in
 // common_post.h because SITL defines USE_GPS in target.h (after common_pre.h).
-
-#if (defined(USE_OSD_HD) || defined(USE_OSD_SD) || defined(USE_FRSKYOSD)) && !defined(USE_OSD)
-// If either USE_OSD_SD for USE_OSD_HD are defined, ensure that USE_OSD is also defined
-#define USE_OSD
-#endif
-
-#if defined(USE_OSD)
-
-#if !defined(USE_OSD_HD) && !defined(USE_OSD_SD)
-// If USE_OSD is defined without specifying SD or HD, then support both
-#define USE_OSD_SD
-#define USE_OSD_HD
-#endif
-
-#if !defined(USE_OSD_SD) && defined(USE_MAX7456)
-// If USE_OSD_SD isn't defined then explicitly exclude MAX7456 support
-#undef USE_MAX7456
-#endif
-
-#define USE_CANVAS
-#define USE_MSP_DISPLAYPORT
-#define USE_OSD_OVER_MSP_DISPLAYPORT
-#define USE_OSD_ADJUSTMENTS
-#define USE_OSD_PROFILES
-#define USE_OSD_STICK_OVERLAY
-#define USE_OSD_CUSTOM_TEXT
-
-#if defined(USE_GPS)
-#endif
-
-#endif // defined(USE_OSD)
 
 #if defined(USE_SERIALRX_CRSF)
 
@@ -507,7 +458,3 @@
 #endif
 
 /* ENABLE CATCH ALLS HERE */
-
-#if defined(USE_OSD_CUSTOM_TEXT) && !defined(ENABLE_OSD_CUSTOM_TEXT)
-#define ENABLE_OSD_CUSTOM_TEXT 1
-#endif

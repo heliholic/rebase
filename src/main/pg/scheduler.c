@@ -27,20 +27,15 @@
 #define SCHEDULER_RELAX_RX  25
 #endif
 
-#ifndef SCHEDULER_RELAX_OSD
-#define SCHEDULER_RELAX_OSD 25
-#endif
-
 // Tenths of a % of tasks late
 #ifndef CPU_LOAD_LATE_LIMIT
 #define CPU_LOAD_LATE_LIMIT 10
 #endif
 
-PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG, 2);
+PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG, 3);
 
 PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig,
     .rxRelaxDeterminism = SCHEDULER_RELAX_RX,
-    .osdRelaxDeterminism = SCHEDULER_RELAX_OSD,
     .cpuLatePercentageLimit = CPU_LOAD_LATE_LIMIT,
     .debugTask = 0
 );
