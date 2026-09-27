@@ -343,7 +343,6 @@ typedef struct osdConfig_s {
     uint8_t camera_frame_width;               // The width of the box for the camera frame element
     uint8_t camera_frame_height;              // The height of the box for the camera frame element
     uint16_t framerate_hz;
-    uint8_t cms_background_type;              // For supporting devices, determines whether the CMS background is transparent or opaque
     uint8_t stat_show_cell_value;
 #ifdef USE_CRAFTNAME_MSGS
     uint8_t osd_craftname_msgs;               // Insert LQ/RSSI-dBm and warnings into CraftName
@@ -353,9 +352,6 @@ typedef struct osdConfig_s {
     uint8_t aux_symbol;
     uint8_t canvas_cols;                      // Canvas dimensions for HD display
     uint8_t canvas_rows;
-#ifdef USE_OSD_QUICK_MENU
-    uint8_t osd_use_quick_menu;               // use QUICK menu YES/NO
-#endif // USE_OSD_QUICK_MENU
 #ifdef USE_SPEC_PREARM_SCREEN
     uint8_t osd_show_spec_prearm;
 #endif // USE_SPEC_PREARM_SCREEN

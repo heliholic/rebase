@@ -78,11 +78,6 @@ PG_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig,
     .failsafe_recovery_delay = DEFAULT_FAILSAFE_RECOVERY_DELAY,
 );
 
-const char * const failsafeProcedureNames[FAILSAFE_PROCEDURE_COUNT] = {
-    "AUTO-LAND",
-    "DROP",
-};
-
 /*
  * Should called when the failsafe config needs to be changed - e.g. a different profile has been selected.
  */

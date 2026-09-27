@@ -108,9 +108,6 @@ typedef enum {
     TABLE_OSD_CUSTOM_TEXT_TERMINATOR,
 #endif
 #endif
-#ifdef USE_OSD
-    TABLE_CMS_BACKGROUND,
-#endif
     LOOKUP_TABLE_COUNT
 } lookupTableIndex_e;
 
@@ -219,5 +216,3 @@ extern const char * const lookupTableOsdDisplayPortDevice[];
 extern const char * const lookupTableFeedforwardAveraging[];
 
 extern const char * const lookupTableOffOn[];
-
-extern const char * const lookupTableCMSMenuBackgroundType[];

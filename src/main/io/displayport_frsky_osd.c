@@ -37,18 +37,6 @@
 
 static displayPort_t frskyOsdDisplayPort;
 
-static int grab(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-    return 0;
-}
-
-static int release(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-    return 0;
-}
-
 static int clearScreen(displayPort_t *displayPort, displayClearOption_e options)
 {
     UNUSED(displayPort);
@@ -475,8 +463,6 @@ static bool getCanvas(displayCanvas_t *canvas, const displayPort_t *instance)
 }
 
 static const displayPortVTable_t frskyOsdVTable = {
-    .grab = grab,
-    .release = release,
     .clearScreen = clearScreen,
     .drawScreen = drawScreen,
     .screenSize = screenSize,

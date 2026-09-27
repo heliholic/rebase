@@ -156,13 +156,6 @@ cli_unittest_DEFINES := \
 		USE_CLI= \
 		SystemCoreClock=1000000
 
-cms_unittest_SRC := \
-		$(USER_DIR)/cms/cms.c \
-		$(USER_DIR)/cms/cms_menu_saveexit.c \
-		$(USER_DIR)/common/typeconversion.c \
-		$(USER_DIR)/drivers/display.c
-
-
 common_filter_unittest_SRC := \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c

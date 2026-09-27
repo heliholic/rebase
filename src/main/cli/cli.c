@@ -43,8 +43,6 @@ bool cliMode = false;
 
 #include "cli/settings.h"
 
-#include "cms/cms.h"
-
 #include "common/axis.h"
 #include "common/color.h"
 #include "common/maths.h"

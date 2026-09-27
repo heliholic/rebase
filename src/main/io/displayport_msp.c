@@ -74,18 +74,6 @@ static int heartbeat(displayPort_t *displayPort)
     return 0;
 }
 
-static int grab(displayPort_t *displayPort)
-{
-    return heartbeat(displayPort);
-}
-
-static int release(displayPort_t *displayPort)
-{
-    uint8_t subcmd[] = { MSP_DP_RELEASE };
-
-    return output(displayPort, MSP_DISPLAYPORT, subcmd, sizeof(subcmd));
-}
-
 static int clearScreen(displayPort_t *displayPort, displayClearOption_e options)
 {
     UNUSED(options);
@@ -215,8 +203,6 @@ static bool checkReady(displayPort_t *displayPort, bool rescan)
 #endif
 
 static const displayPortVTable_t mspDisplayPortVTable = {
-    .grab = grab,
-    .release = release,
     .clearScreen = clearScreen,
     .drawScreen = drawScreen,
     .screenSize = screenSize,

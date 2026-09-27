@@ -36,9 +36,6 @@
 
 #include "build/debug.h"
 
-#include "cms/cms.h"
-#include "cms/cms_menu_vtx_smartaudio.h"
-
 #include "common/maths.h"
 #include "common/printf.h"
 #include "common/utils.h"
@@ -126,7 +123,7 @@ static smartAudioDevice_t saDevicePrev = {
 };
 
 // XXX Possible compliance problem here. Need LOCK/UNLOCK menu?
-static uint8_t saLockMode = SA_MODE_SET_UNLOCK; // saCms variable?
+static uint8_t saLockMode = SA_MODE_SET_UNLOCK;
 
 #ifdef USE_VTX_TABLE
 #define VTX_SMARTAUDIO_POWER_COUNT VTX_TABLE_MAX_POWER_LEVELS
@@ -137,9 +134,6 @@ static char *saSupportedPowerLabelPointerArray[VTX_SMARTAUDIO_POWER_COUNT + 1];
 #endif // USE_VTX_TABLE
 static uint8_t saSupportedNumPowerLevels = VTX_SMARTAUDIO_POWER_COUNT;
 static uint16_t saSupportedPowerValues[VTX_SMARTAUDIO_POWER_COUNT];
-
-// XXX Should be configurable by user?
-bool saDeferred = true; // saCms variable?
 
 // Receive frame reassembly buffer
 #define SA_MAX_RCVLEN 21
@@ -391,9 +385,6 @@ static void saProcessResponse(uint8_t *buf, int len)
     }
 
     if (memcmp(&saDevice, &saDevicePrev, sizeof(smartAudioDevice_t))) {
-#ifdef USE_CMS    //if changes then trigger saCms update
-        saCmsResetOpmodel();
-#endif
 #ifdef USE_SMARTAUDIO_DPRINTF    // Debug
         saPrintSettings();
 #endif
@@ -402,12 +393,6 @@ static void saProcessResponse(uint8_t *buf, int len)
 
 #ifdef USE_VTX_COMMON
     // Todo: Update states in saVtxDevice?
-#endif
-
-#ifdef USE_CMS
-    // Export current device status for CMS
-    saCmsUpdate();
-    saUpdateStatusString();
 #endif
 }
 
@@ -663,11 +648,6 @@ void saSetFreq(uint16_t freq)
     }
 
     saQueueCmd(buf, 7);
-}
-
-void saSetPitFreq(uint16_t freq)
-{
-    saSetFreq(freq | SA_FREQ_SETPIT);
 }
 
 void saSetMode(int mode)

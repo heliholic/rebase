@@ -28,6 +28,3 @@
 #define VTX_TRAMP_MAX_FREQUENCY_MHZ 5999             //max freq in MHz
 
 bool vtxTrampInit(void);
-
-uint16_t vtxTrampGetCurrentActualPower(void);
-uint16_t vtxTrampGetCurrentTemp(void);

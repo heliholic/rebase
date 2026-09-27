@@ -67,7 +67,7 @@ uint32_t featuresSupportedByBuild =
 #ifdef USE_ADC
     | FEATURE_RSSI_ADC
 #endif
-#ifdef USE_LED_STRIP  // but cms will try to use it
+#ifdef USE_LED_STRIP
     | FEATURE_LED_STRIP
 #endif
 #ifdef USE_DASHBOARD

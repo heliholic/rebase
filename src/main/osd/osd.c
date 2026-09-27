@@ -42,8 +42,6 @@
 #include "build/build_config.h"
 #include "build/version.h"
 
-#include "cms/cms.h"
-
 #include "common/axis.h"
 #include "common/maths.h"
 #include "common/printf.h"
@@ -116,8 +114,6 @@ const char * const osdTimerSourceNames[] = {
 #define OSD_LOGO_ROWS 4
 #define OSD_LOGO_COLS 24
 
-// Things in both OSD and CMS
-
 #define IS_HI(X)  (rcData[X] > 1750)
 #define IS_LO(X)  (rcData[X] < 1250)
 #define IS_MID(X) (rcData[X] > 1250 && rcData[X] < 1750)
@@ -153,7 +149,7 @@ escSensorData_t *osdEscDataCombined;
 
 STATIC_ASSERT(OSD_POS_MAX == OSD_POS(63,31), OSD_POS_MAX_incorrect);
 
-PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG, 13);
+PG_REGISTER_WITH_RESET_FN(osdConfig_t, osdConfig, PG_OSD_CONFIG, 14);
 
 PG_REGISTER_WITH_RESET_FN(osdElementConfig_t, osdElementConfig, PG_OSD_ELEMENT_CONFIG, 3);
 
@@ -391,7 +387,6 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 
     osdConfig->stat_show_cell_value = false;
     osdConfig->framerate_hz = OSD_FRAMERATE_DEFAULT_HZ;
-    osdConfig->cms_background_type = DISPLAY_BACKGROUND_TRANSPARENT;
     #ifdef USE_CRAFTNAME_MSGS
     osdConfig->osd_craftname_msgs = false;   // Insert LQ/RSSI-dBm and warnings into CraftName
     #endif //USE_CRAFTNAME_MSGS
@@ -410,10 +405,6 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
     osdConfig->canvas_cols = OSD_SD_COLS;
     osdConfig->canvas_rows = OSD_SD_ROWS;
 #endif
-
-#ifdef USE_OSD_QUICK_MENU
-    osdConfig->osd_use_quick_menu = true;
-#endif // USE_OSD_QUICK_MENU
 }
 
 void pgResetFn_osdElementConfig(osdElementConfig_t *osdElementConfig)
@@ -449,7 +440,7 @@ void pgResetFn_osdElementConfig(osdElementConfig_t *osdElementConfig)
 
 static void osdDrawLogo(int x, int y, displayPortSeverity_e fontSel)
 {
-    // display logo and help
+    // display logo
     int fontOffset = 160;
     for (int row = 0; row < OSD_LOGO_ROWS; row++) {
         for (int column = 0; column < OSD_LOGO_COLS; column++) {
@@ -488,12 +479,6 @@ static void osdCompleteInitialization(void)
     }
     displayWrite(osdDisplayPort, midCol + 12 - version_str_len, midRow, DISPLAYPORT_SEVERITY_NORMAL, version_str_buf);
 
-#ifdef USE_CMS
-    displayWrite(osdDisplayPort, midCol - 8, midRow + 2, DISPLAYPORT_SEVERITY_NORMAL, CMS_STARTUP_HELP_TEXT1);
-    displayWrite(osdDisplayPort, midCol - 4, midRow + 3, DISPLAYPORT_SEVERITY_NORMAL, CMS_STARTUP_HELP_TEXT2);
-    displayWrite(osdDisplayPort, midCol - 4, midRow + 4, DISPLAYPORT_SEVERITY_NORMAL, CMS_STARTUP_HELP_TEXT3);
-#endif
-
 #ifdef USE_RTC_TIME
     char dateTimeBuffer[FORMATTED_DATE_TIME_BUFSIZE];
     if (osdFormatRtcDateTime(&dateTimeBuffer[0])) {
@@ -521,9 +506,6 @@ void osdInit(displayPort_t *osdDisplayPortToUse, osdDisplayPortDevice_e displayP
     }
 
     osdDisplayPort = osdDisplayPortToUse;
-#ifdef USE_CMS
-    cmsDisplayPortRegister(osdDisplayPort);
-#endif
 
     if (osdDisplayPort->cols && osdDisplayPort->rows) {
         // Ensure that osd_canvas_width/height are correct
@@ -1188,23 +1170,17 @@ STATIC_UNIT_TESTED bool osdProcessStats1(timeUs_t currentTimeUs)
         osdFlyTime += deltaT;
         stats.armed_time += deltaT;
     } else if (osdStatsEnabled) {  // handle showing/hiding stats based on OSD disable switch position
-        if (displayIsGrabbed(osdDisplayPort)) {
-            osdStatsEnabled = false;
-            resumeRefreshAt = 0;
-            stats.armed_time = 0;
-        } else {
-            if (IS_RC_MODE_ACTIVE(BOXOSD) && osdStatsVisible) {
-                osdStatsVisible = false;
-                displayClearScreen(osdDisplayPort, DISPLAY_CLEAR_NONE);
-            } else if (!IS_RC_MODE_ACTIVE(BOXOSD)) {
-                if (!osdStatsVisible) {
-                    osdStatsVisible = true;
-                    osdStatsRefreshTimeUs = 0;
-                }
-                if (currentTimeUs >= osdStatsRefreshTimeUs) {
-                    osdStatsRefreshTimeUs = currentTimeUs + REFRESH_1S;
-                    refreshStatsRequired = true;
-                }
+        if (IS_RC_MODE_ACTIVE(BOXOSD) && osdStatsVisible) {
+            osdStatsVisible = false;
+            displayClearScreen(osdDisplayPort, DISPLAY_CLEAR_NONE);
+        } else if (!IS_RC_MODE_ACTIVE(BOXOSD)) {
+            if (!osdStatsVisible) {
+                osdStatsVisible = true;
+                osdStatsRefreshTimeUs = 0;
+            }
+            if (currentTimeUs >= osdStatsRefreshTimeUs) {
+                osdStatsRefreshTimeUs = currentTimeUs + REFRESH_1S;
+                refreshStatsRequired = true;
             }
         }
     }
@@ -1395,15 +1371,7 @@ void osdUpdate(timeUs_t currentTimeUs)
     case OSD_STATE_PROCESS_STATS3:
         osdProcessStats3();
 
-#ifdef USE_CMS
-        if (!displayIsGrabbed(osdDisplayPort))
-#endif
-        {
-            osdState = OSD_STATE_UPDATE_ALARMS;
-            break;
-        }
-
-        osdState = OSD_STATE_COMMIT;
+        osdState = OSD_STATE_UPDATE_ALARMS;
         break;
 
     case OSD_STATE_UPDATE_ALARMS:

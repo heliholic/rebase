@@ -24,6 +24,7 @@ extern "C" {
     #include "platform.h"
 
     #include "build/debug.h"
+    #include "build/version.h"
 
     #include "blackbox/blackbox.h"
     #include "blackbox/blackbox_io.h"
@@ -374,10 +375,9 @@ TEST_F(OsdTest, TestInit)
     osdRefresh();
 
     // then
-    // display buffer should contain splash screen
-    displayPortTestBufferSubstring(7, 10, "MENU:THR MID");
-    displayPortTestBufferSubstring(11, 11, "+ YAW LEFT");
-    displayPortTestBufferSubstring(11, 12, "+ PITCH UP");
+    // display buffer should contain splash screen, with the version on the middle row
+    const char *version = "V" FC_VERSION_STRING;
+    displayPortTestBufferSubstring(UNITTEST_DISPLAYPORT_COLS / 2 + 11 - strlen(version), UNITTEST_DISPLAYPORT_ROWS / 2, "%s", version);
 
     // when
     // splash screen timeout has elapsed
@@ -1602,10 +1602,6 @@ extern "C" {
     }
 
     void serialWrite(serialPort_t *, uint8_t) {}
-
-    bool cmsDisplayPortRegister(displayPort_t *) {
-        return false;
-    }
 
     uint16_t getRssi(void) { return rssi; }
 

@@ -48,18 +48,6 @@ static displayPort_t fbOsdDisplayPort;
 static vcdProfile_t const *fbOsdVcdProfile;
 static bool fbOsdDeviceDetected;
 
-static int grab(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-    return 0;
-}
-
-static int release(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-    return 0;
-}
-
 static int clearScreen(displayPort_t *displayPort, displayClearOption_e options)
 {
     UNUSED(displayPort);
@@ -178,12 +166,6 @@ static bool checkReady(displayPort_t *displayPort, bool rescan)
     return true;
 }
 
-static void setBackgroundType(displayPort_t *displayPort, displayPortBackground_e backgroundType)
-{
-    UNUSED(displayPort);
-    fbOsdSetBackgroundType(backgroundType);
-}
-
 static bool drawOsdItem(displayPort_t *displayPort, uint8_t elemPosX, uint8_t elemPosY, uint8_t /* osd_items_e */ item, bool isBackground)
 {
     UNUSED(displayPort);
@@ -197,8 +179,6 @@ static void redrawBackground(displayPort_t *displayPort)
 }
 
 static const displayPortVTable_t fbOsdVTable = {
-    .grab = grab,
-    .release = release,
     .clearScreen = clearScreen,
     .drawScreen = drawScreen,
     .screenSize = screenSize,
@@ -215,7 +195,6 @@ static const displayPortVTable_t fbOsdVTable = {
     .writeFontCharacter = writeFontCharacter,
     .fontUpdateCompletion = fontUpdateCompletion,
     .checkReady = checkReady,
-    .setBackgroundType = setBackgroundType,
     .drawOsdItem = drawOsdItem,
     .redrawBackground = redrawBackground,
 };

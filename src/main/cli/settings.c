@@ -28,8 +28,6 @@
 #include "blackbox/blackbox.h"
 #include "blackbox/blackbox_fielddefs.h"
 
-#include "cms/cms.h"
-
 #include "common/utils.h"
 #include "common/time.h"
 
@@ -393,13 +391,6 @@ static const char * const lookupTableOsdCustomTextTerminator[] = {
 #endif
 #endif
 
-#ifdef USE_OSD
-const char * const lookupTableCMSMenuBackgroundType[] = {
-    "TRANSPARENT", "BLACK", "GRAY", "LIGHT_GRAY"
-};
-#endif
-
-
 #define LOOKUP_TABLE_ENTRY(name) { name, ARRAYLEN(name) }
 
 const lookupTableEntry_t lookupTables[] = {
@@ -488,9 +479,6 @@ const lookupTableEntry_t lookupTables[] = {
 #if ENABLE_OSD_CUSTOM_TEXT
     LOOKUP_TABLE_ENTRY(lookupTableOsdCustomTextTerminator),
 #endif
-#endif
-#ifdef USE_OSD
-    LOOKUP_TABLE_ENTRY(lookupTableCMSMenuBackgroundType),
 #endif
 };
 
@@ -955,9 +943,6 @@ const clivalue_t valueTable[] = {
     { "osd_logo_on_arming",         VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OSD_LOGO_ON_ARMING }, PG_OSD_CONFIG, offsetof(osdConfig_t, logo_on_arming) },
     { "osd_logo_on_arming_duration",VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 5, 50 }, PG_OSD_CONFIG, offsetof(osdConfig_t, logo_on_arming_duration) },
     { "osd_arming_logo",            VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, DISPLAYPORT_SEVERITY_COUNT - 1 }, PG_OSD_CONFIG, offsetof(osdConfig_t, arming_logo) },
-#ifdef USE_OSD_QUICK_MENU
-    { "osd_use_quick_menu",   VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_OSD_CONFIG, offsetof(osdConfig_t, osd_use_quick_menu) },
-#endif // USE_OSD_QUICK_MENU
 #ifdef USE_SPEC_PREARM_SCREEN
     { "osd_show_spec_prearm",       VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_OSD_CONFIG, offsetof(osdConfig_t, osd_show_spec_prearm) },
 #endif // USE_SPEC_PREARM_SCREEN
@@ -1088,7 +1073,6 @@ const clivalue_t valueTable[] = {
     { "osd_camera_frame_height",    VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { OSD_CAMERA_FRAME_MIN_HEIGHT, OSD_CAMERA_FRAME_MAX_HEIGHT }, PG_OSD_CONFIG, offsetof(osdConfig_t, camera_frame_height) },
     { "osd_stat_avg_cell_value",    VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_OSD_CONFIG, offsetof(osdConfig_t, stat_show_cell_value) },
     { "osd_framerate_hz",           VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { OSD_FRAMERATE_MIN_HZ, OSD_FRAMERATE_MAX_HZ }, PG_OSD_CONFIG, offsetof(osdConfig_t, framerate_hz) },
-    { "osd_menu_background",        VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_CMS_BACKGROUND }, PG_OSD_CONFIG, offsetof(osdConfig_t, cms_background_type) },
     { "osd_aux_channel",            VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 1, MAX_SUPPORTED_RC_CHANNEL_COUNT }, PG_OSD_CONFIG, offsetof(osdConfig_t, aux_channel) },
     { "osd_aux_scale",              VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 1, 1000 }, PG_OSD_CONFIG, offsetof(osdConfig_t, aux_scale) },
     { "osd_aux_symbol",             VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 255 },  PG_OSD_CONFIG, offsetof(osdConfig_t, aux_symbol) },

@@ -46,20 +46,6 @@
 static displayPort_t max7456DisplayPort;
 static vcdProfile_t const *max7456VcdProfile;
 
-static int grab(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-
-    return 0;
-}
-
-static int release(displayPort_t *displayPort)
-{
-    UNUSED(displayPort);
-
-    return 0;
-}
-
 static int clearScreen(displayPort_t *displayPort, displayClearOption_e options)
 {
     UNUSED(displayPort);
@@ -185,15 +171,7 @@ static bool checkReady(displayPort_t *displayPort, bool rescan)
     return true;
 }
 
-static void setBackgroundType(displayPort_t *displayPort, displayPortBackground_e backgroundType)
-{
-    UNUSED(displayPort);
-    max7456SetBackgroundType(backgroundType);
-}
-
 static const displayPortVTable_t max7456VTable = {
-    .grab = grab,
-    .release = release,
     .clearScreen = clearScreen,
     .drawScreen = drawScreen,
     .screenSize = screenSize,
@@ -209,7 +187,6 @@ static const displayPortVTable_t max7456VTable = {
     .layerCopy = layerCopy,
     .writeFontCharacter = writeFontCharacter,
     .checkReady = checkReady,
-    .setBackgroundType = setBackgroundType,
 };
 
 bool max7456DisplayPortInit(const vcdProfile_t *vcdProfile, displayPort_t **displayPort)
