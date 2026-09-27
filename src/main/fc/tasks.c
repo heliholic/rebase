@@ -28,8 +28,6 @@
 
 #include "cli/cli.h"
 
-#include "cms/cms.h"
-
 #include "common/color.h"
 #include "common/utils.h"
 
@@ -416,10 +414,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_ESC_SENSOR] = DEFINE_TASK("ESC_SENSOR", NULL, NULL, escSensorProcess, TASK_PERIOD_HZ(100), TASK_PRIORITY_LOW),
 #endif
 
-#ifdef USE_CMS
-    [TASK_CMS] = DEFINE_TASK("CMS", NULL, NULL, cmsHandler, TASK_PERIOD_HZ(20), TASK_PRIORITY_LOW),
-#endif
-
 #ifdef USE_VTX_CONTROL
     [TASK_VTXCTRL] = DEFINE_TASK("VTXCTRL", NULL, NULL, vtxUpdate, TASK_PERIOD_HZ(5), TASK_PRIORITY_LOWEST),
 #endif
@@ -593,14 +587,6 @@ void tasksInit(void)
 
 #ifdef USE_PINIOBOX
     pinioBoxTaskControl();
-#endif
-
-#ifdef USE_CMS
-#ifdef USE_MSP_DISPLAYPORT
-    setTaskEnabled(TASK_CMS, true);
-#else
-    setTaskEnabled(TASK_CMS, featureIsEnabled(FEATURE_OSD) || featureIsEnabled(FEATURE_DASHBOARD));
-#endif
 #endif
 
 #ifdef USE_VTX_CONTROL

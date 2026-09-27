@@ -32,12 +32,8 @@
 
 typedef enum {
     DISPLAYPORT_DEVICE_TYPE_MAX7456 = 0,
-    DISPLAYPORT_DEVICE_TYPE_OLED,
     DISPLAYPORT_DEVICE_TYPE_MSP,
     DISPLAYPORT_DEVICE_TYPE_FRSKYOSD,
-    DISPLAYPORT_DEVICE_TYPE_CRSF,
-    DISPLAYPORT_DEVICE_TYPE_HOTT,
-    DISPLAYPORT_DEVICE_TYPE_SRXL,
     DISPLAYPORT_DEVICE_TYPE_FBOSD,
 } displayPortDeviceType_e;
 
@@ -80,14 +76,6 @@ typedef enum {
 } displayTransactionOption_e;
 
 typedef enum {
-    DISPLAY_BACKGROUND_TRANSPARENT,
-    DISPLAY_BACKGROUND_BLACK,
-    DISPLAY_BACKGROUND_GRAY,
-    DISPLAY_BACKGROUND_LTGRAY,
-    DISPLAY_BACKGROUND_COUNT    // must be the last entry
-} displayPortBackground_e;
-
-typedef enum {
     // Display drivers that can perform screen clearing in the background, e.g. via DMA, should do so.
     // use `displayCheckReady` function to check if the screen clear has been completed.
     DISPLAY_CLEAR_NONE = 0,
@@ -112,12 +100,6 @@ typedef struct displayPort_s {
     uint8_t posX;
     uint8_t posY;
 
-    // CMS state
-    bool useFullscreen;
-    bool cleared;
-    int8_t cursorRow;
-    int8_t grabCount;
-
     // Displayport device capability
     bool useDeviceBlink;
 
@@ -126,8 +108,6 @@ typedef struct displayPort_s {
 } displayPort_t;
 
 typedef struct displayPortVTable_s {
-    int (*grab)(displayPort_t *displayPort);
-    int (*release)(displayPort_t *displayPort);
     int (*clearScreen)(displayPort_t *displayPort, displayClearOption_e options);
     bool (*drawScreen)(displayPort_t *displayPort);
     int (*screenSize)(const displayPort_t *displayPort);
@@ -147,7 +127,6 @@ typedef struct displayPortVTable_s {
     void (*beginTransaction)(displayPort_t *displayPort, displayTransactionOption_e opts);
     void (*commitTransaction)(displayPort_t *displayPort);
     bool (*getCanvas)(struct displayCanvas_s *canvas, const displayPort_t *displayPort);
-    void (*setBackgroundType)(displayPort_t *displayPort, displayPortBackground_e backgroundType);
 
     // Allow display drivers to render OSD elements, e.g. pixel-based FBOSD (framebuffer) can cache information for AH and paint later.
     bool (*drawOsdItem)(displayPort_t *displayPort, uint8_t elemPosX, uint8_t elemPosY, uint8_t /* osd_items_e */ item, bool isBackground);
@@ -155,10 +134,6 @@ typedef struct displayPortVTable_s {
     void (*fontUpdateCompletion)(displayPort_t *displayPort);
 } displayPortVTable_t;
 
-void displayGrab(displayPort_t *instance);
-void displayRelease(displayPort_t *instance);
-void displayReleaseAll(displayPort_t *instance);
-bool displayIsGrabbed(const displayPort_t *instance);
 void displayClearScreen(displayPort_t *instance, displayClearOption_e options);
 bool displayDrawScreen(displayPort_t *instance);
 int displayScreenSize(const displayPort_t *instance);
@@ -182,6 +157,5 @@ void displayInit(displayPort_t *instance, const displayPortVTable_t *vTable, dis
 bool displayLayerSupported(displayPort_t *instance, displayPortLayer_e layer);
 bool displayLayerSelect(displayPort_t *instance, displayPortLayer_e layer);
 bool displayLayerCopy(displayPort_t *instance, displayPortLayer_e destLayer, displayPortLayer_e sourceLayer);
-void displaySetBackgroundType(displayPort_t *instance, displayPortBackground_e backgroundType);
 bool displaySupportsOsdSymbols(displayPort_t *instance);
 void displayRedrawBackground(displayPort_t *instance);

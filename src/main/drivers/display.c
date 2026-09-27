@@ -34,8 +34,6 @@
 void displayClearScreen(displayPort_t *instance, displayClearOption_e options)
 {
     instance->vTable->clearScreen(instance, options);
-    instance->cleared = true;
-    instance->cursorRow = -1;
 }
 
 // Return true if screen still being transferred
@@ -47,31 +45,6 @@ bool displayDrawScreen(displayPort_t *instance)
 int displayScreenSize(const displayPort_t *instance)
 {
     return instance->vTable->screenSize(instance);
-}
-
-void displayGrab(displayPort_t *instance)
-{
-    instance->vTable->grab(instance);
-    instance->vTable->clearScreen(instance, DISPLAY_CLEAR_WAIT);
-    ++instance->grabCount;
-}
-
-void displayRelease(displayPort_t *instance)
-{
-    instance->vTable->release(instance);
-    --instance->grabCount;
-}
-
-void displayReleaseAll(displayPort_t *instance)
-{
-    instance->vTable->release(instance);
-    instance->grabCount = 0;
-}
-
-bool displayIsGrabbed(const displayPort_t *instance)
-{
-    // can be called before initialised
-    return (instance && instance->grabCount > 0);
 }
 
 void displaySetXY(displayPort_t *instance, uint8_t x, uint8_t y)
@@ -185,13 +158,6 @@ void displayFontUpdateCompletion(displayPort_t *instance)
     }
 }
 
-void displaySetBackgroundType(displayPort_t *instance, displayPortBackground_e backgroundType)
-{
-    if (instance->vTable->setBackgroundType) {
-        instance->vTable->setBackgroundType(instance, backgroundType);
-    }
-}
-
 bool displayCheckReady(displayPort_t *instance, bool rescan)
 {
     if (instance->vTable->checkReady) {
@@ -247,8 +213,6 @@ bool displaySupportsOsdSymbols(displayPort_t *instance)
 void displayInit(displayPort_t *instance, const displayPortVTable_t *vTable, displayPortDeviceType_e deviceType)
 {
     instance->vTable = vTable;
-    instance->useFullscreen = false;
-    instance->grabCount = 0;
     instance->deviceType = deviceType;
 
     displayBeginTransaction(instance, DISPLAY_TRANSACTION_OPT_NONE);

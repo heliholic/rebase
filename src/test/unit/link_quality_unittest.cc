@@ -23,6 +23,7 @@
 extern "C" {
     #include "platform.h"
     #include "build/debug.h"
+    #include "build/version.h"
 
     #include "blackbox/blackbox.h"
     #include "blackbox/blackbox_io.h"
@@ -224,10 +225,9 @@ TEST(LQTest, TestInit)
     }
 
     // then
-    // display buffer should contain splash screen
-    displayPortTestBufferSubstring(7, 10, "MENU:THR MID");
-    displayPortTestBufferSubstring(11, 11, "+ YAW LEFT");
-    displayPortTestBufferSubstring(11, 12, "+ PITCH UP");
+    // display buffer should contain splash screen, with the version on the middle row
+    const char *version = "V" FC_VERSION_STRING;
+    displayPortTestBufferSubstring(UNITTEST_DISPLAYPORT_COLS / 2 + 11 - strlen(version), UNITTEST_DISPLAYPORT_ROWS / 2, "%s", version);
 
     // when
     // splash screen timeout has elapsed
@@ -497,7 +497,7 @@ extern "C" {
     serialPort_t *openSerialPort(serialPortIdentifier_e, serialPortFunction_e, serialReceiveCallbackPtr, void *, uint32_t, portMode_e, portOptions_e) {return NULL;}
     const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e ) {return NULL;}
     bool telemetryCheckRxPortShared(const serialPortConfig_t *) {return false;}
-    bool cmsDisplayPortRegister(displayPort_t *) { return false; }
+    void crsfScheduleDeviceInfoResponse(void) {}
     uint16_t getCoreTemperatureCelsius(void) { return 0; }
     uint8_t getMotorCount(void){ return 4; }
     bool areMotorsRunning(void){ return true; }

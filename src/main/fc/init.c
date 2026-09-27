@@ -31,9 +31,6 @@
 #include "build/debug.h"
 #include "build/debug_pin.h"
 
-#include "cms/cms.h"
-#include "cms/cms_types.h"
-
 #include "common/axis.h"
 #include "common/color.h"
 #include "common/maths.h"
@@ -869,17 +866,10 @@ void initPhase3(void)
     mspSerialInit();
 
 /*
- * CMS, display devices and OSD
+ * Display devices and OSD
  */
-#ifdef USE_CMS
-    cmsInit();
-#endif
-
-#if (defined(USE_OSD) || (defined(USE_MSP_DISPLAYPORT) && defined(USE_CMS)))
-    displayPort_t *osdDisplayPort = NULL;
-#endif
-
 #if defined(USE_OSD)
+    displayPort_t *osdDisplayPort = NULL;
     osdDisplayPortDevice_e osdDisplayPortDevice = OSD_DISPLAYPORT_DEVICE_NONE;
 
     //The OSD need to be initialised after GYRO to avoid GYRO initialisation failure on some targets
@@ -930,7 +920,7 @@ void initPhase3(void)
             FALLTHROUGH;
 #endif
 
-#if defined(USE_CMS) && defined(USE_MSP_DISPLAYPORT) && defined(USE_OSD_OVER_MSP_DISPLAYPORT)
+#if defined(USE_MSP_DISPLAYPORT) && defined(USE_OSD_OVER_MSP_DISPLAYPORT)
         case OSD_DISPLAYPORT_DEVICE_MSP:
             osdDisplayPort = displayPortMspInit();
             if (osdDisplayPort || device == OSD_DISPLAYPORT_DEVICE_MSP) {
@@ -947,7 +937,6 @@ void initPhase3(void)
             break;
         }
 
-        // osdInit will register with CMS by itself.
         osdInit(osdDisplayPort, osdDisplayPortDevice);
 
         if (osdDisplayPortDevice == OSD_DISPLAYPORT_DEVICE_NONE) {
@@ -956,15 +945,7 @@ void initPhase3(void)
     }
 #endif // USE_OSD
 
-#if defined(USE_CMS) && defined(USE_MSP_DISPLAYPORT)
-    // If BFOSD is not active, then register MSP_DISPLAYPORT as a CMS device.
-    if (!osdDisplayPort) {
-        cmsDisplayPortRegister(displayPortMspInit());
-    }
-#endif
-
 #ifdef USE_DASHBOARD
-    // Dashbord will register with CMS by itself.
     if (featureIsEnabled(FEATURE_DASHBOARD)) {
         dashboardInit();
 #ifdef USE_OLED_GPS_DEBUG_PAGE_ONLY
@@ -977,7 +958,6 @@ void initPhase3(void)
 #endif
 
 #ifdef USE_TELEMETRY
-    // Telemetry will initialise displayport and register with CMS by itself.
     if (featureIsEnabled(FEATURE_TELEMETRY)) {
         telemetryInit();
     }

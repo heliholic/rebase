@@ -84,11 +84,9 @@ extern smartAudioDevice_t saDevice;
 extern smartAudioStat_t saStat;
 
 extern uint16_t sa_smartbaud;
-extern bool saDeferred;
 
 void saSetMode(int mode);
 void saSetFreq(uint16_t freq);
-void saSetPitFreq(uint16_t freq);
 bool vtxSmartAudioInit(void);
 
 #ifdef USE_SMARTAUDIO_DPRINTF

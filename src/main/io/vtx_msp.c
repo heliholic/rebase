@@ -32,7 +32,6 @@
 
 #include "build/debug.h"
 
-#include "cms/cms_menu_vtx_msp.h"
 #include "common/crc.h"
 #include "config/feature.h"
 
@@ -181,9 +180,6 @@ static void vtxMspProcess(vtxDevice_t *vtxDevice, timeUs_t currentTimeUs)
     switch (mspVtxStatus) {
     case MSP_VTX_STATUS_OFFLINE:
         // wait for MSP communication from the VTX
-#ifdef USE_CMS
-        mspCmsUpdateStatusString();
-#endif
         break;
     case MSP_VTX_STATUS_READY:
         if (isLowPowerDisarmed() != prevLowPowerDisarmedState) {
@@ -204,10 +200,6 @@ static void vtxMspProcess(vtxDevice_t *vtxDevice, timeUs_t currentTimeUs)
             packetCounter++;
             mspVtxLastTimeUs = currentTimeUs;
             mspVtxConfigChanged = false;
-
-#ifdef USE_CMS
-            mspCmsUpdateStatusString();
-#endif
         }
         break;
     default:

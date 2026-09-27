@@ -29,8 +29,7 @@ ARM_SDK_PREFIX  =
 MCU_EXCLUDES = \
         drivers/display_ug2864hsweg01.c \
         telemetry/crsf.c \
-        telemetry/srxl.c \
-        io/displayport_oled.c
+        telemetry/srxl.c
 
 TARGET_MAP  = $(OBJECT_DIR)/$(FORKNAME)_$(TARGET).map
 

@@ -223,8 +223,6 @@ static bool fontIsLoading       = false;
 
 static uint8_t max7456DeviceType;
 
-static displayPortBackground_e deviceBackgroundType = DISPLAY_BACKGROUND_TRANSPARENT;
-
 // previous states initialized outside the valid range to force update on first call
 #define INVALID_PREVIOUS_REGISTER_STATE 255
 static uint8_t previousBlackWhiteRegister = INVALID_PREVIOUS_REGISTER_STATE;
@@ -238,29 +236,6 @@ static uint8_t *getLayerBuffer(displayPortLayer_e layer)
 static uint8_t *getActiveLayerBuffer(void)
 {
     return getLayerBuffer(activeLayer);
-}
-
-static void max7456SetRegisterVM1(void)
-{
-    uint8_t backgroundGray = BACKGROUND_BRIGHTNESS_28; // this is the device default background gray level
-    uint8_t vm1Register = BLINK_TIME_1 | BLINK_DUTY_CYCLE_75_25; // device defaults
-    if (deviceBackgroundType != DISPLAY_BACKGROUND_TRANSPARENT) {
-        vm1Register |= BACKGROUND_MODE_GRAY;
-        switch (deviceBackgroundType) {
-        case DISPLAY_BACKGROUND_BLACK:
-            backgroundGray = BACKGROUND_BRIGHTNESS_0;
-            break;
-        case DISPLAY_BACKGROUND_LTGRAY:
-            backgroundGray = BACKGROUND_BRIGHTNESS_49;
-            break;
-        case DISPLAY_BACKGROUND_GRAY:
-        default:
-            backgroundGray = BACKGROUND_BRIGHTNESS_28;
-            break;
-        }
-    }
-    vm1Register |= (backgroundGray << 4);
-    spiWriteReg(dev, MAX7456ADD_VM1, vm1Register);
 }
 
 uint8_t max7456GetRowsCount(void)
@@ -324,7 +299,8 @@ static void max7456ReInit(void)
     spiWriteReg(dev, MAX7456ADD_HOS, hosRegValue);
     spiWriteReg(dev, MAX7456ADD_VOS, vosRegValue);
 
-    max7456SetRegisterVM1();
+    // Device default blink and a transparent background
+    spiWriteReg(dev, MAX7456ADD_VM1, BLINK_TIME_1 | BLINK_DUTY_CYCLE_75_25 | (BACKGROUND_BRIGHTNESS_28 << 4));
 
     // Clear shadow to force redraw all screen
     max7456ClearShadowBuffer();
@@ -341,7 +317,6 @@ void max7456Preinit(const max7456Config_t *max7456Config)
 max7456InitStatus_e max7456Init(const max7456Config_t *max7456Config, const vcdProfile_t *pVcdProfile, bool cpuOverclock)
 {
     max7456DeviceDetected = false;
-    deviceBackgroundType = DISPLAY_BACKGROUND_TRANSPARENT;
 
     // initialize all layers
     for (unsigned i = 0; i < MAX7456_SUPPORTED_LAYER_COUNT; i++) {
@@ -802,13 +777,6 @@ void max7456HardwareReset(void)
 bool max7456IsDeviceDetected(void)
 {
     return max7456DeviceDetected;
-}
-
-void max7456SetBackgroundType(displayPortBackground_e backgroundType)
-{
-    deviceBackgroundType = backgroundType;
-
-    max7456SetRegisterVM1();
 }
 
 #endif // USE_MAX7456

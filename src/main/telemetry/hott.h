@@ -24,7 +24,6 @@
  * Carsten Giesen
  * Adam Majerczyk (majerczyk.adam@gmail.com)
  * Textmode add-on by Michi (mamaretti32@gmail.com)
- * Scavanger & Ziege-One: CMS Textmode addon
  */
 
 #pragma once
@@ -497,13 +496,6 @@ void checkHoTTTelemetryState(void);
 void initHoTTTelemetry(void);
 void configureHoTTTelemetryPort(void);
 void freeHoTTTelemetryPort(void);
-
-#if defined(USE_HOTT_TEXTMODE) && defined(USE_CMS)
-bool hottTextmodeIsAlive(void);
-void hottTextmodeGrab(void);
-void hottTextmodeExit(void);
-void hottTextmodeWriteChar(uint8_t column, uint8_t row, char c);
-#endif
 
 uint32_t getHoTTTelemetryProviderBaudRate(void);
 

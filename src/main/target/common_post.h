@@ -373,10 +373,6 @@
 #undef USE_RX_RSSI_DBM
 #endif
 
-#if !defined(USE_TELEMETRY_CRSF) || !defined(USE_CMS)
-#undef USE_CRSF_CMS_TELEMETRY
-#endif
-
 #if !defined(USE_TELEMETRY_CRSF)
 #undef USE_CRSF_V3
 #undef USE_CRSF_ACCGYRO_TELEMETRY
@@ -405,10 +401,6 @@
 #undef USE_SPEKTRUM_VTX_TELEMETRY
 #undef USE_TELEMETRY_SRXL
 #endif // !defined(USE_SERIALRX_SPEKTRUM) && !defined(USE_SERIALRX_SRXL2)
-
-#if !defined(USE_CMS) || !defined(USE_TELEMETRY_SRXL)
-#undef USE_SPEKTRUM_CMS_TELEMETRY
-#endif
 
 #if defined(USE_SERIALRX_SBUS) || defined(USE_SERIALRX_FPORT)
 #if !defined(USE_SBUS_CHANNELS)
@@ -626,10 +618,6 @@
 #else
 #define ENABLE_SIMULATOR_GYROPID_SYNC 0
 #endif
-#endif
-
-#ifndef USE_CMS
-#undef USE_CMS_FAILSAFE_MENU
 #endif
 
 #ifndef USE_DSHOT
