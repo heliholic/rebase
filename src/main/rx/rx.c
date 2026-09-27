@@ -67,7 +67,6 @@
 #include "rx/ibus.h"
 #include "rx/jetiexbus.h"
 #include "rx/crsf.h"
-#include "rx/targetcustomserial.h"
 #include "rx/mavlink.h"
 
 const char rcChannelLetters[] = "AERT12345678abcdefgh";
@@ -285,11 +284,6 @@ static bool serialRxInit(const rxConfig_t *rxConfig, rxRuntimeState_t *rxRuntime
 #ifdef USE_SERIALRX_CRSF
     case SERIALRX_CRSF:
         enabled = crsfRxInit(rxConfig, rxRuntimeState);
-        break;
-#endif
-#ifdef USE_SERIALRX_TARGET_CUSTOM
-    case SERIALRX_TARGET_CUSTOM:
-        enabled = targetCustomSerialRxInit(rxConfig, rxRuntimeState);
         break;
 #endif
 #ifdef USE_SERIALRX_FPORT

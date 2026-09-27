@@ -62,7 +62,7 @@ typedef enum {
     SERIALRX_JETIEXBUS = 8,
     SERIALRX_CRSF = 9,
     SERIALRX_SRXL = 10,
-    SERIALRX_TARGET_CUSTOM = 11,
+    //SERIALRX_TARGET_CUSTOM = 11, (removed)
     SERIALRX_FPORT = 12,
     SERIALRX_SRXL2 = 13,
     //SERIALRX_GHST = 14, (removed)
