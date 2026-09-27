@@ -32,7 +32,6 @@
 
 #include "config/feature.h"
 
-#include "drivers/max7456.h"
 #include "drivers/time.h"
 #include "drivers/vtx_table.h"
 #include "drivers/vtx_rtc6705.h"
@@ -80,16 +79,6 @@ bool vtxRTC6705Init(void)
     return true;
 }
 
-bool vtxRTC6705CanUpdate(void)
-{
-#if defined(MAX7456_SPI_INSTANCE) && defined(RTC6705_SPI_INSTANCE) && defined(SPI_SHARED_MAX7456_AND_RTC6705)
-    if (featureIsEnabled(FEATURE_OSD)) {
-        return !max7456DmaInProgress();
-    }
-#endif
-    return true;
-}
-
 #ifdef RTC6705_POWER_PIN
 static void vtxRTC6705Configure(vtxDevice_t *vtxDevice)
 {
@@ -101,8 +90,6 @@ static void vtxRTC6705Configure(vtxDevice_t *vtxDevice)
 
 static void vtxRTC6705EnableAndConfigure(vtxDevice_t *vtxDevice)
 {
-    while (!vtxRTC6705CanUpdate());
-
     rtc6705Enable();
 
     delay(VTX_RTC6705_BOOT_DELAY);
@@ -141,8 +128,6 @@ static void vtxRTC6705SetBandAndChannel(vtxDevice_t *vtxDevice, uint8_t band, ui
 
 static void vtxRTC6705SetPowerByIndex(vtxDevice_t *vtxDevice, uint8_t index)
 {
-    while (!vtxRTC6705CanUpdate());
-
     uint16_t newPowerValue = 0;
     if (!vtxCommonLookupPowerValue(vtxDevice, index, &newPowerValue)) {
         return;

@@ -145,11 +145,8 @@ uint8_t vtxCommonGetVTXPowerLevels(const vtxDevice_t *vtxDevice, uint16_t *level
 // end of VTable functions
 
 const char *vtxCommonLookupBandName(const vtxDevice_t *vtxDevice, int band);
-char vtxCommonLookupBandLetter(const vtxDevice_t *vtxDevice, int band);
 char vtxCommonGetBandLetter(const vtxDevice_t *vtxDevice, int band);
-const char *vtxCommonLookupChannelName(const vtxDevice_t *vtxDevice, int channel);
 uint16_t vtxCommonLookupFrequency(const vtxDevice_t *vtxDevice, int band, int channel);
 void vtxCommonLookupBandChan(const vtxDevice_t *vtxDevice, uint16_t freq, uint8_t *pBand, uint8_t *pChannel);
-const char *vtxCommonLookupPowerName(const vtxDevice_t *vtxDevice, int index);
 bool vtxCommonLookupPowerValue(const vtxDevice_t *vtxDevice, int index, uint16_t *pPowerValue);
 void vtxCommonSerializeDeviceStatus(const vtxDevice_t *vtxDevice, sbuf_t *dst);

@@ -18,8 +18,6 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-// pg/max7456
-
 #ifndef DEBUG_MODE
 #define DEBUG_MODE DEBUG_NONE
 #endif

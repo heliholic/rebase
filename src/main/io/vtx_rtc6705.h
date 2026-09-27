@@ -25,5 +25,4 @@
 
 #include "platform.h"
 
-bool vtxRTC6705CanUpdate(void);
 bool vtxRTC6705Init(void);

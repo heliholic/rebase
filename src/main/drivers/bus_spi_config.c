@@ -31,11 +31,9 @@
 #include "drivers/system.h"
 
 #include "drivers/flash/flash.h"
-#include "drivers/max7456.h"
 #include "drivers/sdcard.h"
 
 #include "pg/flash.h"
-#include "pg/max7456.h"
 #include "pg/sdcard.h"
 
 void spiPreinit(void)
@@ -52,9 +50,6 @@ void spiPreinit(void)
     flashPreinit(flashConfig());
 #endif
 
-#ifdef USE_MAX7456
-    max7456Preinit(max7456Config());
-#endif
 }
 
 #endif

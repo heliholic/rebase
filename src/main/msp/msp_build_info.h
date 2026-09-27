@@ -64,9 +64,6 @@
 #define BUILD_OPTION_LED_STRIP_64               16414
 #define BUILD_OPTION_MAG                        16415
 #define BUILD_OPTION_OPTICALFLOW                16428
-#define BUILD_OPTION_OSD_SD                     16416
-#define BUILD_OPTION_OSD_HD                     16417
-#define BUILD_OPTION_FRSKYOSD                   16411
 #define BUILD_OPTION_PINIO                      16418
 #define BUILD_OPTION_RANGEFINDER                16429
 #define BUILD_OPTION_SOFTSERIAL                 16423

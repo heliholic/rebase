@@ -27,8 +27,8 @@
 
 // 5x7 bitmap font, column-major (LSB at the top of each column). Mirrors
 // the long-standing MultiWii-derived font used by the SSD1306 OLED
-// displayPort driver (drivers/display_ug2864hsweg01.c) so the visual style
-// matches what the existing OSD path produces. Indexed by
+// dashboard driver (drivers/display_ug2864hsweg01.c) so the visual style
+// matches the dashboard. Indexed by
 // (codepoint - LCD_PANEL_FONT_FIRST_GLYPH); 95 glyphs covering ASCII
 // 0x20 (space) through 0x7E (tilde).
 const uint8_t lcdPanelFont5x7[][LCD_PANEL_FONT_GLYPH_COLS] = {

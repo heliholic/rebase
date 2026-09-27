@@ -132,7 +132,6 @@
 #undef USE_TELEMETRY_LTM
 #undef USE_ADC
 #undef USE_VCP
-#undef USE_OSD
 #undef USE_RX_PPM
 #undef USE_SERIALRX
 #undef USE_SERIALRX_CRSF

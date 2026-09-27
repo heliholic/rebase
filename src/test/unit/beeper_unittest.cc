@@ -578,12 +578,6 @@ IO_t IOGetByTag(ioTag_t tag) {
     return IO_NONE;
 }
 
-#ifdef USE_OSD
-void osdSetVisualBeeperState(bool state) {
-    UNUSED(state);
-}
-#endif
-
 // -- Runtime config --
 uint16_t flightModeFlags = 0;
 uint8_t stateFlags = 0;

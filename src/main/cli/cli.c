@@ -68,7 +68,6 @@ bool cliMode = false;
 #include "drivers/dshot_command.h"
 #include "drivers/camera_control.h"
 #include "drivers/compass/compass.h"
-#include "drivers/display.h"
 #include "drivers/dma.h"
 #include "drivers/flash/flash.h"
 #include "drivers/inverter.h"
@@ -123,8 +122,6 @@ bool cliMode = false;
 #include "msp/msp_build_info.h"
 #include "msp/msp_protocol.h"
 
-#include "osd/osd.h"
-
 #include "pg/adc.h"
 #include "pg/beeper.h"
 #include "pg/beeper_dev.h"
@@ -134,7 +131,6 @@ bool cliMode = false;
 #include "pg/can.h"
 #include "pg/dronecan.h"
 #include "pg/gyrodev.h"
-#include "pg/max7456.h"
 #include "pg/mco.h"
 #include "pg/motor.h"
 #include "pg/pilot.h"
@@ -222,7 +218,6 @@ static const char * const featureNames[] = {
     _R(FEATURE_RSSI_ADC, "RSSI_ADC"),
     _R(FEATURE_LED_STRIP, "LED_STRIP"),
     _R(FEATURE_DASHBOARD, "DISPLAY"),
-    _R(FEATURE_OSD, "OSD"),
     _R(FEATURE_ESC_SENSOR, "ESC_SENSOR"),
 };
 #undef _R
@@ -5213,17 +5208,6 @@ RAM_CODE static void cliStatus(const char *cmdName, char *cmdline)
     }
 #endif
 
-#if defined(USE_OSD)
-    osdDisplayPortDevice_e displayPortDeviceType;
-    displayPort_t *osdDisplayPort = osdGetDisplayPort(&displayPortDeviceType);
-
-    cliPrintf("OSD: %s ", lookupTableOsdDisplayPortDevice[displayPortDeviceType]);
-    if (osdDisplayPort) {
-        cliPrintf("(%u x %u)", osdDisplayPort->cols, osdDisplayPort->rows);
-    }
-    cliPrintLinefeed();
-#endif
-
 #ifdef USE_SDCARD
     cliSdInfo(cmdName, "");
 #endif
@@ -5598,16 +5582,6 @@ RAM_CODE static void cliEnv(const char *cmdName, char *cmdline)
     }
 #endif
 
-#if defined(USE_OSD)
-    osdDisplayPortDevice_e displayPortDeviceType;
-    displayPort_t *osdDisplayPort = osdGetDisplayPort(&displayPortDeviceType);
-    cliPrintNameValue("OSD_DEVICE", lookupTableOsdDisplayPortDevice[displayPortDeviceType]);
-    if (osdDisplayPort) {
-        cliPrintNameValuef("OSD_COLS", "%u", osdDisplayPort->cols);
-        cliPrintNameValuef("OSD_ROWS", "%u", osdDisplayPort->rows);
-    }
-#endif
-
 #ifdef USE_FLASH_CHIP
     const flashGeometry_t *layout = flashGetGeometry();
     if (layout->jedecId != 0) {
@@ -5793,9 +5767,6 @@ const cliResourceValue_t resourceTable[] = {
 #endif
 #ifdef USE_FLASH_CHIP
     DEFS( OWNER_FLASH_CS,      PG_FLASH_CONFIG, flashConfig_t, csTag ),
-#endif
-#ifdef USE_MAX7456
-    DEFS( OWNER_OSD_CS,        PG_MAX7456_CONFIG, max7456Config_t, csTag ),
 #endif
     DEFW( OWNER_GYRO_EXTI,     PG_GYRO_DEVICE_CONFIG, gyroDeviceConfig_t, extiTag, MAX_GYRODEV_COUNT ),
     DEFW( OWNER_GYRO_CS,       PG_GYRO_DEVICE_CONFIG, gyroDeviceConfig_t, csnTag, MAX_GYRODEV_COUNT ),

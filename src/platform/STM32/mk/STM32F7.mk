@@ -189,7 +189,6 @@ MSC_SRC = \
 SPEED_OPTIMISED_SRC += \
             STM32/bus_i2c_ll.c \
             STM32/bus_spi_ll.c \
-            drivers/max7456.c \
             STM32/pwm_output_dshot_hal.c \
             STM32/exti.c
 

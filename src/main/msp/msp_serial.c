@@ -34,8 +34,6 @@
 
 #include "drivers/system.h"
 
-#include "io/displayport_msp.h"
-
 #include "msp/msp.h"
 
 #include "msp_serial.h"
@@ -44,12 +42,13 @@
 
 static mspPort_t mspPorts[MAX_MSP_PORT_COUNT];
 
-static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort, bool sharedWithTelemetry)
+static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort, bool sharedWithTelemetry, bool vtxPort)
 {
     memset(mspPortToReset, 0, sizeof(mspPort_t));
 
     mspPortToReset->port = serialPort;
     mspPortToReset->sharedWithTelemetry = sharedWithTelemetry;
+    mspPortToReset->vtxPort = vtxPort;
     mspPortToReset->descriptor = mspDescriptorAlloc();
 }
 
@@ -80,7 +79,7 @@ void mspSerialAllocatePorts(void)
         serialPort_t *serialPort = openSerialPort(portConfig->identifier, FUNCTION_MSP, NULL, NULL, baudRates[portConfig->msp_baudrateIndex], MODE_RXTX, options);
         if (serialPort) {
             bool sharedWithTelemetry = isSerialPortShared(portConfig, FUNCTION_MSP, TELEMETRY_PORT_FUNCTIONS_MASK);
-            resetMspPort(mspPort, serialPort, sharedWithTelemetry);
+            resetMspPort(mspPort, serialPort, sharedWithTelemetry, portConfig->functionMask & FUNCTION_VTX_MSP);
 
             portIndex++;
         }
@@ -544,11 +543,8 @@ void mspSerialProcess(mspEvaluateNonMspData_e evaluateNonMspData, mspProcessComm
                 mspPort->portState = PORT_MSP_PACKET;
                 mspPort->packetState = MSP_HEADER_START;
             } else if ((evaluateNonMspData == MSP_EVALUATE_NON_MSP_DATA)
-#ifdef USE_MSP_DISPLAYPORT
                        // Don't evaluate non-MSP commands on VTX MSP port
-                       && (mspPort->port->identifier != displayPortMspGetSerial())
-#endif
-                       ) {
+                       && !mspPort->vtxPort) {
                 // evaluate the non-MSP data
                 if (c == serialConfig()->reboot_character) {
                     mspPort->pendingRequest = MSP_PENDING_BOOTLOADER_ROM;

@@ -65,9 +65,6 @@ typedef enum {
     TABLE_CAMERA_CONTROL_MODE,
 #endif
     TABLE_BUS_TYPE,
-#ifdef USE_MAX7456
-    TABLE_MAX7456_CLOCK,
-#endif
 #ifdef USE_RANGEFINDER
     TABLE_RANGEFINDER_HARDWARE,
 #endif
@@ -84,9 +81,6 @@ typedef enum {
 #ifdef USE_LED_STRIP
     TABLE_RGB_GRB,
 #endif
-#if defined(USE_VIDEO_SYSTEM)
-    TABLE_VIDEO_SYSTEM,
-#endif
 #ifdef USE_VTX_COMMON
     TABLE_VTX_LOW_POWER_DISARM,
 #endif
@@ -101,13 +95,6 @@ typedef enum {
     TABLE_POSITION_ALT_SOURCE,
     TABLE_OFF_ON_AUTO,
     TABLE_DSHOT_BITBANGED_TIMER,
-    TABLE_OSD_DISPLAYPORT_DEVICE,
-#ifdef USE_OSD
-    TABLE_OSD_LOGO_ON_ARMING,
-#if ENABLE_OSD_CUSTOM_TEXT
-    TABLE_OSD_CUSTOM_TEXT_TERMINATOR,
-#endif
-#endif
     LOOKUP_TABLE_COUNT
 } lookupTableIndex_e;
 
@@ -210,8 +197,6 @@ extern const clivalue_t valueTable[];
 
 extern const char * const lookupTableLedstripColors[];
 
-
-extern const char * const lookupTableOsdDisplayPortDevice[];
 
 extern const char * const lookupTableFeedforwardAveraging[];
 

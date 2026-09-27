@@ -393,10 +393,9 @@
 #define SCHEDULER_DELAY_LIMIT           100
 #endif
 
-// Allow RX and OSD tasks to be scheduled at the second attempt on F411 processors
+// Allow the RX task to be scheduled at the second attempt on F411 processors
 #if defined(STM32F411xE)
 #define SCHEDULER_RELAX_RX  1
-#define SCHEDULER_RELAX_OSD 1
 #endif
 
 // Set the default cpu_overclock to the first level (108MHz) for F411

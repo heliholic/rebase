@@ -25,7 +25,7 @@
 int16_t debug[DEBUG16_VALUE_COUNT];
 uint8_t debugMode;
 
-// Please ensure that these names are aligned with the enum values defined in 'debug.h' - for OSD be sure the name is unique with 12 chars.
+// Please ensure that these names are aligned with the enum values defined in 'debug.h'.
 const char * const debugModeNames[DEBUG_COUNT] = {
     [DEBUG_NONE] = "NONE",
     [DEBUG_CYCLETIME] = "CYCLETIME",
@@ -44,8 +44,6 @@ const char * const debugModeNames[DEBUG_COUNT] = {
     [DEBUG_GYRO_RAW] = "GYRO_RAW",
     [DEBUG_MULTI_GYRO_RAW] = "MULTI_GYRO_RAW",
     [DEBUG_MULTI_GYRO_DIFF] = "MULTI_GYRO_DIFF",
-    [DEBUG_MAX7456_SIGNAL] = "MAX7456_SIGNAL",
-    [DEBUG_MAX7456_SPICLOCK] = "MAX7456_SPICLOCK",
     [DEBUG_SBUS] = "SBUS",
     [DEBUG_FPORT] = "FPORT",
     [DEBUG_RANGEFINDER] = "RANGEFINDER",

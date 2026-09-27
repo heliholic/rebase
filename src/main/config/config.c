@@ -55,7 +55,6 @@
 #include "flight/position.h"
 
 #include "io/beeper.h"
-#include "io/displayport_msp.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/serial.h"
@@ -63,12 +62,9 @@
 
 #include "msp/msp_box.h"
 
-#include "osd/osd.h"
-
 #include "pg/adc.h"
 #include "pg/beeper.h"
 #include "pg/beeper_dev.h"
-#include "pg/displayport_profiles.h"
 #include "pg/gyrodev.h"
 #include "pg/motor.h"
 #include "pg/pg.h"
@@ -330,7 +326,7 @@ static void validateAndFixConfig(void)
     if (systemConfig()->configurationState == CONFIGURATION_STATE_UNCONFIGURED) {
         // enable some compiled-in features by default
         uint32_t autoFeatures =
-            FEATURE_TELEMETRY | FEATURE_OSD | FEATURE_LED_STRIP;
+            FEATURE_TELEMETRY | FEATURE_LED_STRIP;
 #if defined(USE_SOFTSERIAL)
         // enable softserial if at least one pin is configured
         for (unsigned i = RESOURCE_SOFTSERIAL_OFFSET; i < RESOURCE_SOFTSERIAL_OFFSET + RESOURCE_SOFTSERIAL_COUNT; i++) {
@@ -394,16 +390,6 @@ static void validateAndFixConfig(void)
 #endif // USE_DSHOT_TELEMETRY
 #endif // USE_DSHOT
 
-#if defined(USE_OSD)
-    for (int i = 0; i < OSD_TIMER_COUNT; i++) {
-         const uint16_t t = osdConfig()->timers[i];
-         if (OSD_TIMER_SRC(t) >= OSD_TIMER_SRC_COUNT ||
-                 OSD_TIMER_PRECISION(t) >= OSD_TIMER_PREC_COUNT) {
-             osdConfigMutable()->timers[i] = osdTimerDefault[i];
-         }
-     }
-#endif
-
 #if defined(USE_VTX_COMMON) && defined(USE_VTX_TABLE)
     // reset vtx band, channel, power if outside range specified by vtxtable
     if (vtxSettingsConfig()->channel > vtxTableConfig()->channels) {
@@ -443,21 +429,6 @@ static void validateAndFixConfig(void)
             batteryProfilesMutable(i)->consumptionWarningPercentage = 10;
         }
     }
-
-#ifdef USE_MSP_DISPLAYPORT
-    // Find the first serial port on which MSP Displayport is enabled
-    displayPortMspSetSerial(SERIAL_PORT_NONE);
-
-    for (const serialPortConfig_t *portConfig = serialConfig()->portConfigs;
-         portConfig < ARRAYEND(serialConfig()->portConfigs);
-         portConfig++) {
-        if ((portConfig->identifier != SERIAL_PORT_USB_VCP)
-            && ((portConfig->functionMask & (FUNCTION_VTX_MSP | FUNCTION_MSP)) == (FUNCTION_VTX_MSP | FUNCTION_MSP))) {
-            displayPortMspSetSerial(portConfig->identifier);
-            break;
-        }
-    }
-#endif
 
 #ifdef USE_BLACKBOX
     validateAndFixBlackBox();

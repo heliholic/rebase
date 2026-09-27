@@ -68,11 +68,8 @@
 #include "io/serial.h"
 #include "io/statusindicator.h"
 #include "io/vtx_control.h"
-#include "io/vtx_rtc6705.h"
 
 #include "msp/msp_serial.h"
-
-#include "osd/osd.h"
 
 #include "pg/motor.h"
 #include "pg/pg.h"
@@ -164,17 +161,6 @@ static bool accNeedsCalibration(void)
             isModeActivationConditionPresent(BOXHORIZON)) {
             return true;
         }
-
-
-#ifdef USE_OSD
-        // Check for any enabled OSD elements that need the ACC
-        if (featureIsEnabled(FEATURE_OSD)) {
-            if (osdNeedsAccelerometer()) {
-                return true;
-            }
-        }
-#endif
-
     }
 
     return false;
@@ -404,9 +390,6 @@ if (isMotorProtocolDshot()) {
 #endif // USE_DSHOT
 
 
-#ifdef USE_OSD
-        osdSuppressStats(false);
-#endif
         ENABLE_ARMING_FLAG(ARMED);  // ***ARM NOW ***
 
 #ifdef USE_RC_STATS
@@ -456,18 +439,6 @@ if (isMotorProtocolDshot()) {
         }
     }
 }
-
-#ifdef USE_VTX_CONTROL
-static bool canUpdateVTX(void)
-{
-#ifdef USE_VTX_RTC6705
-    return vtxRTC6705CanUpdate();
-#endif
-    return true;
-}
-#endif
-
-
 
 // calculate the throttle stick percent - integer math is good enough here.
 // returns negative values for reversed thrust in 3D mode
@@ -638,10 +609,7 @@ void processRxModes(timeUs_t currentTimeUs)
 
 #ifdef USE_VTX_CONTROL
     vtxUpdateActivatedChannel();
-
-    if (canUpdateVTX()) {
-        handleVTXControlButton();
-    }
+    handleVTXControlButton();
 #endif
 }
 

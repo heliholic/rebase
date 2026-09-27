@@ -29,7 +29,6 @@ PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER
 
 PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig,
     .rxRelaxDeterminism = 25,
-    .osdRelaxDeterminism = 25,
 );
 
 #define TEST_GYRO_SAMPLE_HZ 8000
@@ -44,8 +43,6 @@ bool rxUpdateCheck(timeUs_t, timeDelta_t);
 void taskUpdateRxMain(timeUs_t);
 void imuUpdateAttitude(timeUs_t);
 void dispatchProcess(timeUs_t);
-bool osdUpdateCheck(timeUs_t, timeDelta_t);
-void osdUpdate(timeUs_t);
 
 task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_SYSTEM] = {
@@ -108,12 +105,5 @@ task_attribute_t task_attributes[TASK_COUNT] = {
         .taskFunc = taskUpdateBatteryVoltage,
         .desiredPeriodUs = TASK_PERIOD_HZ(50),
         .staticPriority = TASK_PRIORITY_MEDIUM,
-    },
-    [TASK_OSD] = {
-        .taskName = "OSD",
-        .checkFunc = osdUpdateCheck,
-        .taskFunc = osdUpdate,
-        .desiredPeriodUs = TASK_PERIOD_HZ(12),
-        .staticPriority = TASK_PRIORITY_LOW,
     }
 };

@@ -99,8 +99,6 @@ extern "C" {
     void waitForSerialPortToFinishTransmitting(serialPort_t *) {}
     void closeSerialPort(serialPort_t *) {}
     mspDescriptor_t mspDescriptorAlloc(void) { return 0; }
-    // Never the test port's identifier, so non-MSP bytes are always evaluated.
-    serialPortIdentifier_e displayPortMspGetSerial(void) { return (serialPortIdentifier_e)-1; }
 
     // --- PG backing storage + tables referenced by the unit under test ---
     serialConfig_t serialConfig_System;

@@ -51,10 +51,6 @@
 #include "io/gps.h"
 #endif
 
-#ifdef USE_OSD
-#include "osd/osd.h"
-#endif
-
 #include "pg/beeper.h"
 
 #include "scheduler/scheduler.h"
@@ -498,7 +494,6 @@ void beeperUpdate(timeUs_t currentTimeUs)
         return;
     }
 
-    bool visualBeep = false;
     switch (beeperSequenceAdvance(currentTimeUs)) {
     case BeepOnFirst:
         // if this is arming beep then mark time (for blackbox)
@@ -512,7 +507,6 @@ void beeperUpdate(timeUs_t currentTimeUs)
             && !beeperUsbSuppressed()) {
             BEEP_ON;
             beeperIsOn = true;
-            visualBeep = true;
         }
         warningLedEnable();
         warningLedRefresh();
@@ -528,16 +522,6 @@ void beeperUpdate(timeUs_t currentTimeUs)
         beeperSilence();
         break;
     }
-
-#if defined(USE_OSD)
-    static bool visualWasOn = false;
-    if (visualBeep && !visualWasOn) {
-        osdSetVisualBeeperState(true);
-    }
-    visualWasOn = visualBeep;
-#else
-    UNUSED(visualBeep);
-#endif
 }
 
 /*

@@ -49,8 +49,6 @@
 #include "io/beeper.h"
 #include "io/ledstrip.h"
 
-#include "osd/osd.h"
-
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/rx.h"
@@ -207,45 +205,6 @@ static const adjustmentConfig_t defaultAdjustmentConfigs[ADJUSTMENT_FUNCTION_COU
         .data = { .switchPositions = BATTERY_PROFILE_COUNT }
     }
 };
-
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-static const char * const adjustmentLabels[] = {
-    "RC RATE",
-    "RC EXPO",
-    "THROTTLE EXPO",
-    "ROLL RATE",
-    "YAW RATE",
-    "PITCH/ROLL P",
-    "PITCH/ROLL I",
-    "PITCH/ROLL D",
-    "YAW P",
-    "YAW I",
-    "YAW D",
-    "RATE PROFILE",
-    "PITCH RATE",
-    "ROLL RATE",
-    "PITCH P",
-    "PITCH I",
-    "PITCH D",
-    "ROLL P",
-    "ROLL I",
-    "ROLL D",
-    "RC RATE YAW",
-    "PITCH/ROLL F",
-    "FF TRANSITION",
-    "HORIZON STRENGTH",
-    "PITCH F",
-    "ROLL F",
-    "YAW F",
-    "OSD PROFILE",
-    "LED PROFILE",
-    "LED DIMMER",
-    "BATTERY PROFILE",
-};
-
-static int adjustmentRangeNameIndex = 0;
-static int adjustmentRangeValue = -1;
-#endif
 
 static int applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t adjustmentFunction, int delta)
 {
@@ -545,11 +504,6 @@ static uint8_t applySelectAdjustment(adjustmentFunction_e adjustmentFunction, ui
         }
         break;
     case ADJUSTMENT_OSD_PROFILE:
-#ifdef USE_OSD_PROFILES
-        if (getCurrentOsdProfileIndex() != (position + 1)) {
-            changeOsdProfileIndex(position+1);
-        }
-#endif
         break;
     case ADJUSTMENT_LED_PROFILE:
 #ifdef USE_LED_STRIP
@@ -607,32 +561,6 @@ static void calcActiveAdjustmentRanges(void)
     }
 }
 
-#define VALUE_DISPLAY_LATENCY_MS 2000
-
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-static void updateOsdAdjustmentData(int newValue, adjustmentFunction_e adjustmentFunction)
-{
-    static timeMs_t lastValueChangeMs;
-
-    timeMs_t currentTimeMs = millis();
-    if (newValue != -1
-        && adjustmentFunction != ADJUSTMENT_RATE_PROFILE  // Rate profile already has an OSD element
-#ifdef USE_OSD_PROFILES
-        && adjustmentFunction != ADJUSTMENT_OSD_PROFILE
-#endif
-        ) {
-        adjustmentRangeNameIndex = adjustmentFunction;
-        adjustmentRangeValue = newValue;
-
-        lastValueChangeMs = currentTimeMs;
-    }
-
-    if (cmp32(currentTimeMs, lastValueChangeMs + VALUE_DISPLAY_LATENCY_MS) >= 0) {
-        adjustmentRangeNameIndex = 0;
-    }
-}
-#endif
-
 #define RESET_FREQUENCY_2HZ (1000 / 2)
 
 static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, const bool canUseRxData)
@@ -687,11 +615,7 @@ static void processStepwiseAdjustments(controlRateConfig_t *controlRateConfig, c
 
             adjustmentState->ready = false;
 
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-            updateOsdAdjustmentData(newValue, adjustmentConfig->adjustmentFunction);
-#else
             UNUSED(newValue);
-#endif
         }
     }
 }
@@ -740,11 +664,7 @@ static void processContinuosAdjustments(controlRateConfig_t *controlRateConfig)
                         pidInitConfig(currentPidProfile);
                     }
                 }
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-                updateOsdAdjustmentData(newValue, adjustmentConfig->adjustmentFunction);
-#else
                 UNUSED(newValue);
-#endif
                 adjustmentState->lastRcData = rcData[channelIndex];
             }
         } else {
@@ -770,27 +690,7 @@ void processRcAdjustments(controlRateConfig_t *controlRateConfig)
         processContinuosAdjustments(controlRateConfig);
     }
 
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-    // Hide the element if there is no change
-    updateOsdAdjustmentData(-1, 0);
-#endif
 }
-
-#if defined(USE_OSD) && defined(USE_OSD_ADJUSTMENTS)
-const char *getAdjustmentsRangeName(void)
-{
-    if (adjustmentRangeNameIndex > 0) {
-        return &adjustmentLabels[adjustmentRangeNameIndex - 1][0];
-    } else {
-        return NULL;
-    }
-}
-
-int getAdjustmentsRangeValue(void)
-{
-    return adjustmentRangeValue;
-}
-#endif
 
 void activeAdjustmentRangeReset(void)
 {

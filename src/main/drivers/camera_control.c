@@ -34,10 +34,6 @@
 #include "drivers/time.h"
 #include "pg/pg_ids.h"
 
-#ifdef USE_OSD
-#include "osd/osd.h"
-#endif
-
 PG_REGISTER_WITH_RESET_FN(cameraControlConfig_t, cameraControlConfig, PG_CAMERA_CONTROL_CONFIG, 0);
 
 void pgResetFn_cameraControlConfig(cameraControlConfig_t *cameraControlConfig)
@@ -92,11 +88,6 @@ void cameraControlKeyPress(cameraControlKey_e key, uint32_t holdDurationMs)
     if (key >= CAMERA_CONTROL_KEYS_COUNT) {
         return;
     }
-
-#ifdef USE_OSD
-    // Force OSD timeout so we are alone on the display.
-    resumeRefreshAt = 0;
-#endif
 
     cameraControlKeyPressImpl(key, holdDurationMs);
 }
