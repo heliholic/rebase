@@ -63,7 +63,6 @@
 #include "io/ledstrip.h"
 #include "io/piniobox.h"
 #include "io/serial.h"
-#include "io/rcdevice_cam.h"
 #include "io/usb_cdc_hid.h"
 
 #include "msp/msp.h"
@@ -402,10 +401,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_ESC_SENSOR] = DEFINE_TASK("ESC_SENSOR", NULL, NULL, escSensorProcess, TASK_PERIOD_HZ(100), TASK_PRIORITY_LOW),
 #endif
 
-#ifdef USE_RCDEVICE
-    [TASK_RCDEVICE] = DEFINE_TASK("RCDEVICE", NULL, NULL, rcdeviceUpdate, TASK_PERIOD_HZ(20), TASK_PRIORITY_MEDIUM),
-#endif
-
 #ifdef USE_CAMERA_CONTROL
     [TASK_CAMCTRL] = DEFINE_TASK("CAMCTRL", NULL, NULL, taskCameraControl, TASK_PERIOD_HZ(5), TASK_PRIORITY_LOW),
 #endif
@@ -565,10 +560,6 @@ void tasksInit(void)
 
 #ifdef USE_CAMERA_CONTROL
     setTaskEnabled(TASK_CAMCTRL, true);
-#endif
-
-#ifdef USE_RCDEVICE
-    setTaskEnabled(TASK_RCDEVICE, rcdeviceIsEnabled());
 #endif
 
 #ifdef USE_CRSF_V3

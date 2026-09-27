@@ -47,7 +47,7 @@ typedef enum {
     // FUNCTION_VTX_SMARTAUDIO   = (1 << 11), // 2048 (removed)
     FUNCTION_TELEMETRY_IBUS      = (1 << 12), // 4096
     // FUNCTION_VTX_TRAMP        = (1 << 13), // 8192 (removed)
-    FUNCTION_RCDEVICE            = (1 << 14), // 16384
+    // FUNCTION_RCDEVICE         = (1 << 14), // 16384 (removed)
     FUNCTION_LIDAR_TF            = (1 << 15), // 32768
     // FUNCTION_FRSKY_OSD        = (1 << 16), // 65536 (removed)
     // FUNCTION_VTX_MSP          = (1 << 17), // 131072 (removed)

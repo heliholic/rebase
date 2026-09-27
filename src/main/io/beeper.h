@@ -55,9 +55,9 @@ typedef enum {
     BEEPER_SYSTEM_INIT,             // Initialisation beeps when board is powered on
     BEEPER_USB,                     // Some boards have beeper powered USB connected
     BEEPER_BLACKBOX_ERASE,          // Beep when blackbox erase completes
-    BEEPER_CAM_CONNECTION_OPEN,     // When the 5 key simulation stated
-    BEEPER_CAM_CONNECTION_CLOSE,    // When the 5 key simulation stop
-    BEEPER_ARMING_GPS_NO_FIX,       // Beep a special tone when arming the board and GPS has no fix
+    // BEEPER_CAM_CONNECTION_OPEN = 20, (removed)
+    // BEEPER_CAM_CONNECTION_CLOSE = 21, (removed)
+    BEEPER_ARMING_GPS_NO_FIX = 22,  // Beep a special tone when arming the board and GPS has no fix
     BEEPER_ALL,                     // Turn ON or OFF all beeper conditions
     // BEEPER_ALL must remain at the bottom of this enum
 } beeperMode_e;
@@ -84,8 +84,6 @@ STATIC_ASSERT(BEEPER_ALL < sizeof(uint32_t) * 8, "BEEPER bits exhausted");
     | BEEPER_GET_FLAG(BEEPER_SYSTEM_INIT) \
     | BEEPER_GET_FLAG(BEEPER_USB) \
     | BEEPER_GET_FLAG(BEEPER_BLACKBOX_ERASE) \
-    | BEEPER_GET_FLAG(BEEPER_CAM_CONNECTION_OPEN) \
-    | BEEPER_GET_FLAG(BEEPER_CAM_CONNECTION_CLOSE) \
     | BEEPER_GET_FLAG(BEEPER_ARMING_GPS_NO_FIX) \
     )
 

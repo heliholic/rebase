@@ -409,14 +409,6 @@ huffman_unittest_SRC := \
 huffman_unittest_DEFINES := \
 		USE_HUFFMAN=
 
-rcdevice_unittest_SRC := \
-		$(USER_DIR)/common/crc.c \
-		$(USER_DIR)/common/bitarray.c \
-		$(USER_DIR)/fc/rc_modes.c \
-		$(USER_DIR)/io/rcdevice.c \
-		$(USER_DIR)/io/rcdevice_cam.c \
-		$(USER_DIR)/pg/pg.c \
-
 pid_unittest_SRC :=  \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/filter.c \
@@ -442,9 +434,6 @@ position_estimator_unittest_DEFINES := \
 		USE_GPS= \
 		USE_BARO= \
 		USE_RANGEFINDER=
-
-rcdevice_unittest_DEFINES := \
-		USE_RCDEVICE=
 
 pwl_unittest_SRC := \
 		$(USER_DIR)/common/pwl.c

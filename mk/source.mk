@@ -21,7 +21,6 @@ PG_SRC = \
             pg/piniobox.c \
             pg/pinio.c \
             pg/pin_pull_up_down.c \
-            pg/rcdevice.c \
             pg/rx.c \
             pg/rx_pwm.c \
             pg/scheduler.c \
@@ -178,8 +177,6 @@ COMMON_SRC = \
             drivers/rangefinder/rangefinder_nooploop.c \
             drivers/rangefinder/rangefinder_upt1.c \
             io/dashboard.c \
-            io/rcdevice_cam.c \
-            io/rcdevice.c \
             io/gps.c \
             io/ledstrip.c \
             sensors/barometer.c \

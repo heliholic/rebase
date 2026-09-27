@@ -2691,7 +2691,7 @@ static void processBeeperCommand(const char *cmdName, char *cmdline, uint32_t *o
             }
             if (strncasecmp(cmdline, beeperNameForTableIndex(i), len) == 0 && beeperModeMaskForTableIndex(i) & (allowedFlags | BEEPER_GET_FLAG(BEEPER_ALL))) {
                 if (remove) { // beeper off
-                    if (i == BEEPER_ALL - 1) {
+                    if (beeperModeForTableIndex(i) == BEEPER_ALL) {
                         *offFlags = allowedFlags;
                     } else {
                         *offFlags |= beeperModeMaskForTableIndex(i);
@@ -2699,7 +2699,7 @@ static void processBeeperCommand(const char *cmdName, char *cmdline, uint32_t *o
                     cliPrint("Disabled");
                 }
                 else { // beeper on
-                    if (i == BEEPER_ALL - 1) {
+                    if (beeperModeForTableIndex(i) == BEEPER_ALL) {
                         *offFlags = 0;
                     } else {
                         *offFlags &= ~beeperModeMaskForTableIndex(i);

@@ -71,9 +71,9 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXBLACKBOX, .boxName = "BLACKBOX", .permanentId = 26 },
     { .boxId = BOXFAILSAFE, .boxName = "FAILSAFE", .permanentId = 27 },
     { .boxId = BOXBLACKBOXERASE, .boxName = "BLACKBOX ERASE", .permanentId = 31 },
-    { .boxId = BOXCAMERA1, .boxName = "CAMERA CONTROL 1", .permanentId = 32},
-    { .boxId = BOXCAMERA2, .boxName = "CAMERA CONTROL 2", .permanentId = 33},
-    { .boxId = BOXCAMERA3, .boxName = "CAMERA CONTROL 3", .permanentId = 34 },
+//    { .boxId = BOXCAMERA1, .boxName = "CAMERA CONTROL 1", .permanentId = 32}, (removed)
+//    { .boxId = BOXCAMERA2, .boxName = "CAMERA CONTROL 2", .permanentId = 33}, (removed)
+//    { .boxId = BOXCAMERA3, .boxName = "CAMERA CONTROL 3", .permanentId = 34 }, (removed)
     { .boxId = BOXPREARM, .boxName = "PREARM", .permanentId = 36 },
     { .boxId = BOXBEEPGPSCOUNT, .boxName = "GPS BEEP SATELLITE COUNT", .permanentId = 37 },
 //    { .boxId = BOXVTXPITMODE, .boxName = "VTX PIT MODE", .permanentId = 39 }, (removed)
@@ -231,12 +231,6 @@ void initActiveBoxIds(void)
     if (featureIsEnabled(FEATURE_TELEMETRY)) {
         BME(BOXTELEMETRY);
     }
-#endif
-
-#ifdef USE_RCDEVICE
-    BME(BOXCAMERA1);
-    BME(BOXCAMERA2);
-    BME(BOXCAMERA3);
 #endif
 
     BME(BOXPARALYZE);

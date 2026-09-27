@@ -177,16 +177,6 @@ static const uint8_t beep_gyroCalibrated[] = {
     20, 10, 20, 10, 20, 10, BEEPER_COMMAND_STOP
 };
 
-// Cam connection opened
-static const uint8_t beep_camOpenBeep[] = {
-    5, 15, 10, 15, 20, BEEPER_COMMAND_STOP
-};
-
-// Cam connection close
-static const uint8_t beep_camCloseBeep[] = {
-    10, 8, 5, BEEPER_COMMAND_STOP
-};
-
 // array used for variable # of beeps (reporting GPS sat count, etc)
 static uint8_t beep_multiBeeps[MAX_MULTI_BEEPS * 2 + 1];
 
@@ -239,8 +229,6 @@ static const beeperTableEntry_t beeperTable[] = {
     { BEEPER_ENTRY(BEEPER_SYSTEM_INIT,           17, NULL,                 "SYSTEM_INIT") },
     { BEEPER_ENTRY(BEEPER_USB,                   18, NULL,                 "ON_USB") },
     { BEEPER_ENTRY(BEEPER_BLACKBOX_ERASE,        19, beep_2shortBeeps,     "BLACKBOX_ERASE") },
-    { BEEPER_ENTRY(BEEPER_CAM_CONNECTION_OPEN,   21, beep_camOpenBeep,     "CAM_CONNECTION_OPEN") },
-    { BEEPER_ENTRY(BEEPER_CAM_CONNECTION_CLOSE,  22, beep_camCloseBeep,    "CAM_CONNECTION_CLOSE") },
     { BEEPER_ENTRY(BEEPER_ALL,                   23, NULL,                 "ALL") },
 };
 

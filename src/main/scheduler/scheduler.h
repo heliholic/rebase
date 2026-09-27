@@ -160,9 +160,6 @@ typedef enum {
 #ifdef USE_CAMERA_CONTROL
     TASK_CAMCTRL,
 #endif
-#ifdef USE_RCDEVICE
-    TASK_RCDEVICE,
-#endif
 #ifdef USE_ADC_INTERNAL
     TASK_ADC_INTERNAL,
 #endif

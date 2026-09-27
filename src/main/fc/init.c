@@ -102,7 +102,6 @@
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/piniobox.h"
-#include "io/rcdevice_cam.h"
 #include "io/serial.h"
 
 #include "msc/emfat_file.h"
@@ -793,10 +792,6 @@ void initPhase3(void)
     positionInit();
 
     batteryInit(); // always needs doing, regardless of features.
-
-#ifdef USE_RCDEVICE
-    rcdeviceInit();
-#endif // USE_RCDEVICE
 
 #ifdef USE_PERSISTENT_STATS
     statsInit();
