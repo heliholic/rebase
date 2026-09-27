@@ -34,7 +34,6 @@
 // Radio Protocols
 #define BUILD_OPTION_SERIALRX_CRSF              4097
 #define BUILD_OPTION_SERIALRX_FPORT             4098
-#define BUILD_OPTION_SERIALRX_GHST              4099
 #define BUILD_OPTION_SERIALRX_IBUS              4100
 #define BUILD_OPTION_SERIALRX_JETIEXBUS         4101
 #define BUILD_OPTION_SERIALRX_MAVLINK           4109

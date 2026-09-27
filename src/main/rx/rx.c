@@ -67,7 +67,6 @@
 #include "rx/ibus.h"
 #include "rx/jetiexbus.h"
 #include "rx/crsf.h"
-#include "rx/ghst.h"
 #include "rx/targetcustomserial.h"
 #include "rx/mavlink.h"
 
@@ -286,11 +285,6 @@ static bool serialRxInit(const rxConfig_t *rxConfig, rxRuntimeState_t *rxRuntime
 #ifdef USE_SERIALRX_CRSF
     case SERIALRX_CRSF:
         enabled = crsfRxInit(rxConfig, rxRuntimeState);
-        break;
-#endif
-#ifdef USE_SERIALRX_GHST
-    case SERIALRX_GHST:
-        enabled = ghstRxInit(rxConfig, rxRuntimeState);
         break;
 #endif
 #ifdef USE_SERIALRX_TARGET_CUSTOM

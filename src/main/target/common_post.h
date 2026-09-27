@@ -313,7 +313,6 @@
 
 #if !defined(USE_SERIALRX)
 #undef USE_SERIALRX_CRSF
-#undef USE_SERIALRX_GHST
 #undef USE_SERIALRX_IBUS
 #undef USE_SERIALRX_JETIEXBUS
 #undef USE_SERIALRX_SBUS
@@ -327,7 +326,6 @@
 
 #if !defined(USE_TELEMETRY)
 #undef USE_TELEMETRY_CRSF
-#undef USE_TELEMETRY_GHST
 #undef USE_TELEMETRY_FRSKY_HUB
 #undef USE_TELEMETRY_HOTT
 #undef USE_TELEMETRY_IBUS
@@ -375,10 +373,6 @@
 #undef USE_RX_RSSI_DBM
 #endif
 
-#if !defined(USE_SERIALRX_GHST)
-#undef USE_TELEMETRY_GHST
-#endif
-
 #if !defined(USE_TELEMETRY_CRSF) || !defined(USE_CMS)
 #undef USE_CRSF_CMS_TELEMETRY
 #endif
@@ -422,7 +416,7 @@
 #endif
 #endif
 
-#if !defined(USE_TELEMETRY_SMARTPORT) && !defined(USE_TELEMETRY_CRSF) && !defined(USE_TELEMETRY_GHST)
+#if !defined(USE_TELEMETRY_SMARTPORT) && !defined(USE_TELEMETRY_CRSF)
 #undef USE_MSP_OVER_TELEMETRY
 #endif
 

@@ -65,7 +65,7 @@ typedef enum {
     SERIALRX_TARGET_CUSTOM = 11,
     SERIALRX_FPORT = 12,
     SERIALRX_SRXL2 = 13,
-    SERIALRX_GHST = 14,
+    //SERIALRX_GHST = 14, (removed)
     SERIALRX_SPEKTRUM1024 = 15,
     SERIALRX_MAVLINK = 16,
 } SerialRXType;
@@ -162,7 +162,6 @@ extern rssiSource_e rssiSource;
 typedef enum {
     LQ_SOURCE_NONE = 0,
     LQ_SOURCE_RX_PROTOCOL_CRSF,
-    LQ_SOURCE_RX_PROTOCOL_GHST,
     LQ_SOURCE_RX_PROTOCOL_MAVLINK,
 } linkQualitySource_e;
 

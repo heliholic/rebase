@@ -234,7 +234,7 @@ static const char * const lookupTableSerialRX[] = {
     "CUSTOM",
     "FPORT",
     "SRXL2",
-    "GHST",
+    NULL, // GHST (removed)
     "SPEK1024",
     "MAVLINK",
 };

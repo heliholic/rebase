@@ -42,9 +42,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_SERIALRX_FPORT
         BUILD_OPTION_SERIALRX_FPORT,
 #endif
-#ifdef USE_SERIALRX_GHST
-        BUILD_OPTION_SERIALRX_GHST,
-#endif
 #ifdef USE_SERIALRX_IBUS
         BUILD_OPTION_SERIALRX_IBUS,
 #endif
