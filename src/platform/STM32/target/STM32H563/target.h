@@ -101,9 +101,9 @@
 #define FLASH_PAGE_SIZE ((uint32_t)0x2000) // 8K sectors
 
 // CONFIG_IN_RAM bring-up needs more than the default 4 KiB to hold every PG that
-// gets compiled in for a 2 MiB flash target (VTX table alone is ~290 B). Bump to
-// 8 KiB so writeSettingsToEEPROM doesn't overrun eepromData[] and tear the
-// next-PG size field, which makes isEEPROMStructureValid() walk off the end.
+// gets compiled in for a 2 MiB flash target. Bump to 8 KiB so
+// writeSettingsToEEPROM doesn't overrun eepromData[] and tear the next-PG size
+// field, which makes isEEPROMStructureValid() walk off the end.
 #ifndef EEPROM_SIZE
 #define EEPROM_SIZE 8192
 #endif

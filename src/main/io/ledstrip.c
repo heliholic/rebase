@@ -46,7 +46,6 @@
 #include "drivers/light_ws2811strip.h"
 #include "drivers/serial.h"
 #include "drivers/time.h"
-#include "drivers/vtx_common.h"
 
 #include "config/config.h"
 #include "fc/core.h"
@@ -65,7 +64,6 @@
 #include "io/gps.h"
 #include "io/ledstrip.h"
 #include "io/serial.h"
-#include "io/vtx.h"
 
 #include "rx/rx.h"
 
@@ -94,7 +92,6 @@ static bool ledStripEnabled = false;
 #define LED_OVERLAY_RAINBOW_RATE_HZ 60
 #define LED_OVERLAY_LARSON_RATE_HZ 60
 #define LED_OVERLAY_BLINK_RATE_HZ 10
-#define LED_OVERLAY_VTX_RATE_HZ 5
 #define LED_OVERLAY_INDICATOR_RATE_HZ 5
 #define LED_OVERLAY_WARNING_RATE_HZ 10
 
@@ -128,53 +125,6 @@ const hsvColor_t hsv[] = {
 };
 // macro to save typing on default colors
 #define HSV(color) (hsv[COLOR_ ## color])
-
-
-
-#define VTX_HUE_START_FREQ 5658     //  R1, returns solid red at R1
-#define VTX_HUE_STOP_FREQ 5900      // frequency just below R8  at 5917,  above which Hue does not exceed VTX_HUE_MAX
-#define VTX_HUE_MAX 355             // Maximum Hue value. Hue is circular in degrees, with red at 0 and 360.  345 is a strong magenta that is easily distinguished from red.
-
-#ifdef USE_VTX_COMMON
-static hsvColor_t getHsvFromVtxFrequency(uint16_t freq)
-{
-// assign LowBand and RaceBand Vtx channels to colors, with the same color for the same channel number in each band.
-
-    hsvColor_t color = HSV(BLACK);
-    const unsigned bandRange = 296; // width of the L or R bands;  8 channels per band, each 37MHz wide
-
-    if (freq < VTX_SETTINGS_MIN_FREQUENCY_MHZ) {
-        // Invalid channel or frequency value, e.g., user hasn't set band or channel
-        return color;
-        // turn LEDs off
-    } else if (freq < VTX_HUE_START_FREQ - bandRange) {
-        return HSV(WHITE);
-        // frequency too low to map; exit and show white
-    }
-    else {
-        if (freq < VTX_HUE_START_FREQ) {
-            // fold frequencies below RaceBand up to equivalent RaceBand frequencies for Hue assignment 
-            freq += bandRange;
-        }
-    if (freq > VTX_HUE_STOP_FREQ) {
-            freq = VTX_HUE_STOP_FREQ;
-            // Clamp incoming frequencies to an upper limit around R8
-    }
-
-        color.s = 0;
-        color.v = 255;
-        // for strong colours in betaflight, S must be 0 and V must be 255
-        color.h = scaleRange(freq, VTX_HUE_START_FREQ, VTX_HUE_STOP_FREQ, 0, VTX_HUE_MAX);
-        // scale Hue from 0 (red) to VTX_HUE_MAX, linearly across frequency range
-        if (color.h < 165) {
-    color.h = (color.h * 9) / 10;
-    // warm up the yellow, pull cyan a bit further from blue, and keep a decent green
-}
-        return color;
-    }
-}
-#endif
-
 
 PG_REGISTER_WITH_RESET_FN(ledStripConfig_t, ledStripConfig, PG_LED_STRIP_CONFIG, 3);
 
@@ -425,7 +375,6 @@ static const char overlayCodes[LED_OVERLAY_COUNT] = {
     [LED_OVERLAY_RAINBOW] = 'Y',
     [LED_OVERLAY_LARSON_SCANNER] = 'O',
     [LED_OVERLAY_BLINK] = 'B',
-    [LED_OVERLAY_VTX] = 'V',
     [LED_OVERLAY_INDICATOR] = 'I',
     [LED_OVERLAY_WARNING] = 'W'
 };
@@ -537,7 +486,7 @@ void generateLedConfig(ledConfig_t *ledConfig, char *ledConfigBuffer, size_t buf
     *fptr++ = baseFunctionCodes[ledGetFunction(ledConfig)];
 
     for (ledOverlayId_e ol = 0; ol < LED_OVERLAY_COUNT; ol++) {
-        if (ledGetOverlayBit(ledConfig, ol)) {
+        if (ledGetOverlayBit(ledConfig, ol) && overlayCodes[ol]) {
             *fptr++ = overlayCodes[ol];
         }
     }
@@ -792,85 +741,6 @@ static void applyLedWarningLayer(bool updateNow, timeUs_t *timer)
         applyLedHsv(LED_MOV_OVERLAY(LED_FLAG_OVERLAY(LED_OVERLAY_WARNING)), warningColor);
     }
 }
-
-#ifdef USE_VTX_COMMON
-
-
-static void applyLedVtxLayer(bool updateNow, timeUs_t *timer)
-{
-    static uint16_t frequency = 0;
-    static uint8_t power = 255;
-    static unsigned vtxStatus = UINT32_MAX;
-    static uint8_t showSettings = false;
-    static uint16_t lastCheck = 0;
-    static bool blink = false;
-
-    const vtxDevice_t *vtxDevice = vtxCommonDevice();
-    if (!vtxDevice) {
-        return;
-    }
-
-    uint8_t band = 255, channel = 255;
-
-    if (updateNow) {
-        // keep counter running, so it stays in sync with vtx
-        vtxCommonGetBandAndChannel(vtxDevice, &band, &channel);
-        vtxCommonGetPowerIndex(vtxDevice, &power);
-        vtxCommonGetStatus(vtxDevice, &vtxStatus);
-
-        frequency = vtxCommonLookupFrequency(vtxDevice, band, channel);
-
-        // check if last vtx values have changed.
-        uint16_t check = ((vtxStatus & VTX_STATUS_PIT_MODE) ? 1 : 0) + (power << 1) + (band << 4) + (channel << 8);
-        if (!showSettings && check != lastCheck) {
-            // display settings for 3 seconds.
-            showSettings = 15;
-        }
-        lastCheck = check; // quick way to check if any settings changed.
-
-        if (showSettings) {
-            showSettings--;
-        }
-        blink = !blink;
-        *timer += HZ_TO_US(LED_OVERLAY_VTX_RATE_HZ);
-    }
-
-    if (showSettings) { // show settings
-        uint8_t vtxLedCount = 0;
-        for (int i = 0; i < ledCounts.count && vtxLedCount < 6; ++i) {
-            const ledConfig_t *ledConfig = &ledStripStatusModeConfig()->ledConfigs[i];
-            if (ledGetOverlayBit(ledConfig, LED_OVERLAY_VTX)) {
-                hsvColor_t color = {0, 0, 0};
-                if (vtxLedCount == 0) {
-                    color.h = HSV(GREEN).h;
-                    color.s = HSV(GREEN).s;
-                    color.v = blink ? 15 : 0; // blink received settings
-                } else if (vtxLedCount > 0 && power >= vtxLedCount && !(vtxStatus & VTX_STATUS_PIT_MODE)) { // show power
-                    color.h = HSV(ORANGE).h;
-                    color.s = HSV(ORANGE).s;
-                    color.v = blink ? 15 : 0; // blink received settings
-                } else { // turn rest off
-                    color.h = HSV(BLACK).h;
-                    color.s = HSV(BLACK).s;
-                    color.v = HSV(BLACK).v;
-                }
-                setLedHsv(i, &color);
-                ++vtxLedCount;
-            }
-        }
-    }
-    else { // calculate the VTX color based on frequency
-
-        hsvColor_t color = getHsvFromVtxFrequency(frequency);
-        if (vtxStatus & VTX_STATUS_PIT_MODE) {
-            color.v = blink ? color.v : 15;
-            // if getHsvFromVtxFrequency returns a color, blink down to a pale color when in pit mode, but
-            // if black is returned,  blink up from off (0,0,0) to pale red (0,0,15)
-        }
-        applyLedHsv(LED_MOV_OVERLAY(LED_FLAG_OVERLAY(LED_OVERLAY_VTX)), &color);
-    }
-}
-#endif
 
 static void applyLedBatteryLayer(bool updateNow, timeUs_t *timer)
 {
@@ -1170,9 +1040,6 @@ typedef enum {
     timLarson,
     timRing,
     timIndicator,
-#ifdef USE_VTX_COMMON
-    timVtx,
-#endif
 #ifdef USE_GPS
     timGps,
 #endif
@@ -1204,9 +1071,6 @@ static applyLayerFn_timed* layerTable[] = {
     [timGps] = &applyLedGpsLayer,
 #endif
     [timWarning] = &applyLedWarningLayer,
-#ifdef USE_VTX_COMMON
-    [timVtx] = &applyLedVtxLayer,
-#endif
     [timIndicator] = &applyLedIndicatorLayer,
     [timRing] = &applyLedThrustRingLayer
 };
@@ -1229,9 +1093,6 @@ void updateRequiredOverlay(void)
     disabledTimerMask |= !isOverlayTypeUsed(LED_OVERLAY_BLINK) << timBlink;
     disabledTimerMask |= !isOverlayTypeUsed(LED_OVERLAY_LARSON_SCANNER) << timLarson;
     disabledTimerMask |= !isOverlayTypeUsed(LED_OVERLAY_WARNING) << timWarning;
-#ifdef USE_VTX_COMMON
-    disabledTimerMask |= !isOverlayTypeUsed(LED_OVERLAY_VTX) << timVtx;
-#endif
     disabledTimerMask |= !isOverlayTypeUsed(LED_OVERLAY_INDICATOR) << timIndicator;
 }
 
@@ -1417,25 +1278,7 @@ static ledProfileSequence_t applySimpleProfile(timeUs_t currentTimeUs)
         {
             const uint8_t raceColor = ledStripConfig()->ledstrip_race_color;
 
-            if (raceColor == COLOR_BLACK) {
-#ifdef USE_VTX_COMMON
-                const vtxDevice_t *vtxDevice = vtxCommonDevice();
-                if (vtxDevice) {
-                    uint8_t const band = vtxSettingsConfig()->band;
-                    uint8_t const channel = vtxSettingsConfig()->channel;
-                    uint16_t vtxFrequency = VTX_SETTINGS_MIN_FREQUENCY_MHZ;
-
-                    if (band && channel) {
-                        vtxFrequency = vtxCommonLookupFrequency(vtxDevice, band, channel);
-                    } else {
-                        vtxFrequency = vtxSettingsConfig()->freq;
-                        // use manually configured frequency if no band and channel
-                    }
-
-                    currentHsv = getHsvFromVtxFrequency(vtxFrequency);
-                }
-#endif
-            } else {
+            if (raceColor != COLOR_BLACK) {
                 currentHsv = ledStripStatusModeConfig()->colors[raceColor];
                 // non-black race colors  can be customised
             }

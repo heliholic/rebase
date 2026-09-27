@@ -44,7 +44,6 @@ extern "C" {
     #include "fc/runtime_config.h"
 
     #include "io/statusindicator.h"
-    #include "io/vtx_control.h"
 
 #ifdef USE_GPS
     #include "io/gps.h"
@@ -546,15 +545,6 @@ bool featureIsEnabled(uint32_t mask) {
 void warningLedEnable(void) {}
 void warningLedDisable(void) {}
 void warningLedRefresh(void) {}
-
-// -- VTX --
-void vtxCycleBandOrChannel(const uint8_t bandStep, const uint8_t channelStep) {
-    UNUSED(bandStep);
-    UNUSED(channelStep);
-}
-void vtxCyclePower(const uint8_t powerStep) {
-    UNUSED(powerStep);
-}
 
 // -- Scheduler --
 void schedulerIgnoreTaskExecTime(void) {}

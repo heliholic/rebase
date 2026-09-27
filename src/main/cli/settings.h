@@ -81,9 +81,6 @@ typedef enum {
 #ifdef USE_LED_STRIP
     TABLE_RGB_GRB,
 #endif
-#ifdef USE_VTX_COMMON
-    TABLE_VTX_LOW_POWER_DISARM,
-#endif
 #ifdef USE_SDCARD
     TABLE_SDCARD_MODE,
 #endif

@@ -76,7 +76,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXCAMERA3, .boxName = "CAMERA CONTROL 3", .permanentId = 34 },
     { .boxId = BOXPREARM, .boxName = "PREARM", .permanentId = 36 },
     { .boxId = BOXBEEPGPSCOUNT, .boxName = "GPS BEEP SATELLITE COUNT", .permanentId = 37 },
-    { .boxId = BOXVTXPITMODE, .boxName = "VTX PIT MODE", .permanentId = 39 },
+//    { .boxId = BOXVTXPITMODE, .boxName = "VTX PIT MODE", .permanentId = 39 }, (removed)
     { .boxId = BOXUSER1, .boxName = BOX_USER1_NAME, .permanentId = 40 }, // may be overridden by modeActivationConfig
     { .boxId = BOXUSER2, .boxName = BOX_USER2_NAME, .permanentId = 41 },
     { .boxId = BOXUSER3, .boxName = BOX_USER3_NAME, .permanentId = 42 },
@@ -84,7 +84,7 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
 //    { .boxId = BOXPIDAUDIO, .boxName = "PID AUDIO", .permanentId = 44 }, (removed)
     { .boxId = BOXPARALYZE, .boxName = "PARALYZE", .permanentId = 45 },
 //    { .boxId = BOXACROTRAINER, .boxName = "ACRO TRAINER", .permanentId = 47 }, (removed)
-    { .boxId = BOXVTXCONTROLDISABLE, .boxName = "VTX CONTROL DISABLE", .permanentId = 48},
+//    { .boxId = BOXVTXCONTROLDISABLE, .boxName = "VTX CONTROL DISABLE", .permanentId = 48}, (removed)
 //    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50}, (removed)
     { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51},
     { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
@@ -237,11 +237,6 @@ void initActiveBoxIds(void)
     BME(BOXCAMERA1);
     BME(BOXCAMERA2);
     BME(BOXCAMERA3);
-#endif
-
-#if defined(USE_VTX_SMARTAUDIO) || defined(USE_VTX_TRAMP) || defined(USE_VTX_MSP)
-    BME(BOXVTXPITMODE);
-    BME(BOXVTXCONTROLDISABLE);
 #endif
 
     BME(BOXPARALYZE);

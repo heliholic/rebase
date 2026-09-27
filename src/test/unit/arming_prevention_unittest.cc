@@ -454,7 +454,7 @@ TEST(ArmingPreventionTest, Paralyze)
     modeActivationConditionsMutable(2)->modeId = BOXBEEPERON;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1750);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
-    modeActivationConditionsMutable(3)->modeId = BOXVTXPITMODE;
+    modeActivationConditionsMutable(3)->modeId = BOXUSER1;
     modeActivationConditionsMutable(3)->linkedTo = BOXPARALYZE;
     rcControlsInit();
 
@@ -536,7 +536,7 @@ TEST(ArmingPreventionTest, Paralyze)
     EXPECT_TRUE(isArmingDisabled());
     EXPECT_EQ(ARMING_DISABLED_PARALYZE, getArmingDisableFlags());
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
-    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXVTXPITMODE));
+    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXUSER1));
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXBEEPERON));
 
     // given
@@ -547,11 +547,11 @@ TEST(ArmingPreventionTest, Paralyze)
     updateActivatedModes();
 
     // expect
-    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXVTXPITMODE));
+    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXUSER1));
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXBEEPERON));
 
     // given
-    // try exiting paralyze mode and ensure arming and pit mode are still disabled
+    // try exiting paralyze mode and ensure arming is still disabled and the linked mode still active
     rcData[AUX2] = 1000;
 
     // when
@@ -562,7 +562,7 @@ TEST(ArmingPreventionTest, Paralyze)
     EXPECT_TRUE(isArmingDisabled());
     EXPECT_EQ(ARMING_DISABLED_PARALYZE, getArmingDisableFlags());
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
-    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXVTXPITMODE));
+    EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXUSER1));
 }
 
 // STUBS

@@ -78,9 +78,6 @@
 #ifdef USE_USB_MSC
 #include "drivers/usb_msc.h"
 #endif
-#include "drivers/vtx_common.h"
-#include "drivers/vtx_rtc6705.h"
-#include "drivers/vtx_table.h"
 
 #include "fc/board_info.h"
 #include "fc/dispatch.h"
@@ -107,12 +104,6 @@
 #include "io/piniobox.h"
 #include "io/rcdevice_cam.h"
 #include "io/serial.h"
-#include "io/vtx.h"
-#include "io/vtx_control.h"
-#include "io/vtx_msp.h"
-#include "io/vtx_rtc6705.h"
-#include "io/vtx_smartaudio.h"
-#include "io/vtx_tramp.h"
 
 #include "msc/emfat_file.h"
 #ifdef USE_PERSISTENT_MSC_RTC
@@ -139,7 +130,6 @@
 #include "pg/rx.h"
 #include "pg/rx_pwm.h"
 #include "pg/sdcard.h"
-#include "pg/vtx_io.h"
 
 #include "rx/rx.h"
 #include "rx/spektrum.h"
@@ -661,10 +651,6 @@ void initPhase3(void)
     updateHardwareRevision();
 #endif
 
-#ifdef USE_VTX_RTC6705
-    bool useRTC6705 = rtc6705IOInit(vtxIOConfig());
-#endif
-
 #ifdef USE_CAMERA_CONTROL
     cameraControlInit();
 #endif
@@ -805,37 +791,6 @@ void initPhase3(void)
 #endif
 
     positionInit();
-
-#if defined(USE_VTX_COMMON) || defined(USE_VTX_CONTROL)
-    vtxTableInit();
-#endif
-
-#ifdef USE_VTX_CONTROL
-    vtxControlInit();
-
-#if defined(USE_VTX_COMMON)
-    vtxCommonInit();
-#endif
-
-#ifdef USE_VTX_MSP
-    vtxMspInit();
-#endif
-
-#ifdef USE_VTX_SMARTAUDIO
-    vtxSmartAudioInit();
-#endif
-
-#ifdef USE_VTX_TRAMP
-    vtxTrampInit();
-#endif
-
-#ifdef USE_VTX_RTC6705
-    if (!vtxCommonDevice() && useRTC6705) { // external VTX takes precedence when configured.
-        vtxRTC6705Init();
-    }
-#endif
-
-#endif // VTX_CONTROL
 
     batteryInit(); // always needs doing, regardless of features.
 

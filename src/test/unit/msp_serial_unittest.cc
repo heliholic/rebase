@@ -88,7 +88,6 @@ extern "C" {
                                  portMode_e, portOptions_e) { return &fakeSerialPort; }
     bool isSerialPortShared(const serialPortConfig_t *, uint16_t, serialPortFunction_e) { return false; }
     serialType_e serialType(serialPortIdentifier_e) { return SERIALTYPE_UART; }
-    const serialPortConfig_t *serialFindPortConfiguration(serialPortIdentifier_e) { return NULL; }
 
     // --- inert serial/system/msp stubs (off the tested path) ---
     uint32_t serialTxBytesFree(const serialPort_t *) { return FAKE_RX_CAP; }

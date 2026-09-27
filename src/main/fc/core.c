@@ -67,7 +67,6 @@
 #include "io/gps.h"
 #include "io/serial.h"
 #include "io/statusindicator.h"
-#include "io/vtx_control.h"
 
 #include "msp/msp_serial.h"
 
@@ -605,11 +604,6 @@ void processRxModes(timeUs_t currentTimeUs)
             sharedPortTelemetryEnabled = false;
         }
     }
-#endif
-
-#ifdef USE_VTX_CONTROL
-    vtxUpdateActivatedChannel();
-    handleVTXControlButton();
 #endif
 }
 

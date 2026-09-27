@@ -400,26 +400,6 @@
 #endif
 #endif
 
-#ifndef RTC6705_CS_PIN
-#define RTC6705_CS_PIN NONE
-#endif
-
-#ifndef RTC6705_POWER_PIN
-#define RTC6705_POWER_PIN NONE
-#endif
-
-#ifndef RTC6705_SPICLK_PIN
-#define RTC6705_SPICLK_PIN NONE
-#endif
-
-#ifndef RTC6705_SPI_SDO_PIN
-#define RTC6705_SPI_SDO_PIN NONE
-#endif
-
-#ifndef RTC6705_SPI_INSTANCE
-#define RTC6705_SPI_INSTANCE NULL
-#endif
-
 #ifndef MAX_SUPPORTED_MOTORS
 #define MAX_SUPPORTED_MOTORS 8
 #endif

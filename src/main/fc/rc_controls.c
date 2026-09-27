@@ -40,6 +40,7 @@
 #include "config/config.h"
 #include "fc/core.h"
 #include "fc/rc.h"
+#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/pid.h"
@@ -49,7 +50,6 @@
 #include "io/usb_cdc_hid.h"
 #include "io/dashboard.h"
 #include "io/gps.h"
-#include "io/vtx_control.h"
 
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
@@ -343,21 +343,6 @@ void processRcStickPositions(void)
 
     if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_HI) {
         dashboardEnablePageCycling();
-    }
-#endif
-
-#ifdef USE_VTX_CONTROL
-    if (rcSticks ==  THR_HI + YAW_LO + PIT_CE + ROL_HI) {
-        vtxIncrementBand();
-    }
-    if (rcSticks ==  THR_HI + YAW_LO + PIT_CE + ROL_LO) {
-        vtxDecrementBand();
-    }
-    if (rcSticks ==  THR_HI + YAW_HI + PIT_CE + ROL_HI) {
-        vtxIncrementChannel();
-    }
-    if (rcSticks ==  THR_HI + YAW_HI + PIT_CE + ROL_LO) {
-        vtxDecrementChannel();
     }
 #endif
 

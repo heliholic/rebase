@@ -93,9 +93,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_TELEMETRY_SRXL
         BUILD_OPTION_TELEMETRY_SRXL,
 #endif
-#ifdef USE_AKK_SMARTAUDIO
-        BUILD_OPTION_AKK_SMARTAUDIO,
-#endif
 #ifdef USE_BATTERY_CONTINUE
         BUILD_OPTION_BATTERY_CONTINUE,
 #endif
@@ -137,9 +134,6 @@ static const uint16_t buildOptions[] = {
 #endif
 #ifdef USE_SERVOS
         BUILD_OPTION_SERVOS,
-#endif
-#ifdef USE_VTX
-        BUILD_OPTION_VTX,
 #endif
 #ifdef USE_BRUSHED
         BUILD_OPTION_BRUSHED,

@@ -41,7 +41,6 @@
 #include "drivers/serial_usb_vcp.h"
 #include "drivers/stack_check.h"
 #include "drivers/usb_io.h"
-#include "drivers/vtx_common.h"
 
 #include "config/config.h"
 #include "fc/core.h"
@@ -64,10 +63,8 @@
 #include "io/ledstrip.h"
 #include "io/piniobox.h"
 #include "io/serial.h"
-#include "io/vtx_tramp.h" // Will be gone
 #include "io/rcdevice_cam.h"
 #include "io/usb_cdc_hid.h"
-#include "io/vtx.h"
 
 #include "msp/msp.h"
 #include "msp/msp_serial.h"
@@ -405,10 +402,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_ESC_SENSOR] = DEFINE_TASK("ESC_SENSOR", NULL, NULL, escSensorProcess, TASK_PERIOD_HZ(100), TASK_PRIORITY_LOW),
 #endif
 
-#ifdef USE_VTX_CONTROL
-    [TASK_VTXCTRL] = DEFINE_TASK("VTXCTRL", NULL, NULL, vtxUpdate, TASK_PERIOD_HZ(5), TASK_PRIORITY_LOWEST),
-#endif
-
 #ifdef USE_RCDEVICE
     [TASK_RCDEVICE] = DEFINE_TASK("RCDEVICE", NULL, NULL, rcdeviceUpdate, TASK_PERIOD_HZ(20), TASK_PRIORITY_MEDIUM),
 #endif
@@ -568,12 +561,6 @@ void tasksInit(void)
 
 #ifdef USE_PINIOBOX
     pinioBoxTaskControl();
-#endif
-
-#ifdef USE_VTX_CONTROL
-#if defined(USE_VTX_RTC6705) || defined(USE_VTX_SMARTAUDIO) || defined(USE_VTX_TRAMP) || defined(USE_VTX_MSP)
-    setTaskEnabled(TASK_VTXCTRL, true);
-#endif
 #endif
 
 #ifdef USE_CAMERA_CONTROL

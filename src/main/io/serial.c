@@ -335,36 +335,6 @@ void pgResetFn_serialConfig(serialConfig_t *serialConfig)
     }
 #endif
 
-#ifdef USE_VTX
-#ifdef VTX_SMARTAUDIO_UART
-    serialPortConfig_t *vtxSmartAudioUartConfig = serialFindPortConfigurationMutable(VTX_SMARTAUDIO_UART);
-    if (vtxSmartAudioUartConfig) {
-        vtxSmartAudioUartConfig->functionMask = FUNCTION_VTX_SMARTAUDIO;
-    }
-#endif
-
-#ifdef VTX_TRAMP_UART
-    serialPortConfig_t *vtxTrampUartConfig = serialFindPortConfigurationMutable(VTX_TRAMP_UART);
-    if (vtxTrampUartConfig) {
-        vtxTrampUartConfig->functionMask = FUNCTION_VTX_TRAMP;
-    }
-#endif
-
-#ifdef VTX_MSP_UART
-    serialPortConfig_t *vtxMspUartConfig = serialFindPortConfigurationMutable(VTX_MSP_UART);
-    if (vtxMspUartConfig) {
-        vtxMspUartConfig->functionMask = FUNCTION_VTX_MSP;
-    }
-#endif
-#endif // USE_VTX
-
-#ifdef MSP_DISPLAYPORT_UART
-    serialPortConfig_t *displayPortUartConfig = serialFindPortConfigurationMutable(MSP_DISPLAYPORT_UART);
-    if (displayPortUartConfig) {
-        displayPortUartConfig->functionMask = FUNCTION_VTX_MSP | FUNCTION_MSP;
-    }
-#endif
-
 #if defined(USE_MSP_UART)
     serialPortConfig_t * uart1Config = serialFindPortConfigurationMutable(USE_MSP_UART);
     if (uart1Config) {
@@ -493,9 +463,9 @@ serialPort_t *findSharedSerialPort(uint16_t functionMask, serialPortFunction_e s
 }
 
 #ifdef USE_TELEMETRY
-#define ALL_FUNCTIONS_SHARABLE_WITH_MSP (FUNCTION_BLACKBOX | TELEMETRY_PORT_FUNCTIONS_MASK | FUNCTION_VTX_MSP)
+#define ALL_FUNCTIONS_SHARABLE_WITH_MSP (FUNCTION_BLACKBOX | TELEMETRY_PORT_FUNCTIONS_MASK)
 #else
-#define ALL_FUNCTIONS_SHARABLE_WITH_MSP (FUNCTION_BLACKBOX | FUNCTION_VTX_MSP)
+#define ALL_FUNCTIONS_SHARABLE_WITH_MSP (FUNCTION_BLACKBOX)
 #endif
 
 bool isSerialConfigValid(serialConfig_t *serialConfigToCheck)
@@ -537,12 +507,6 @@ bool isSerialConfigValid(serialConfig_t *serialConfigToCheck)
         }
 
         uint8_t bitCount = popcount32(portConfig->functionMask);
-
-#ifdef USE_VTX_MSP
-        if ((portConfig->functionMask & FUNCTION_VTX_MSP) && bitCount == 1) { // VTX MSP has to be shared with RX or MSP serial
-            return false;
-        }
-#endif
 
         if (bitCount > 1) {
             // shared

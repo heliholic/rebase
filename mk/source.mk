@@ -31,9 +31,7 @@ PG_SRC = \
             pg/stats.c \
             pg/timerio.c \
             pg/timerup.c \
-            pg/usb.c \
-            pg/vtx_io.c \
-            pg/vtx_table.c
+            pg/usb.c
 
 COMMON_SRC = \
             build/build_config.c \
@@ -108,9 +106,7 @@ COMMON_SRC = \
             io/piniobox.c \
             io/serial.c \
             io/serial_resource.c \
-            io/smartaudio_protocol.c \
             io/statusindicator.c \
-            io/tramp_protocol.c \
             io/usb_cdc_hid.c \
             io/usb_msc.c \
             msp/msp.c \
@@ -157,7 +153,6 @@ COMMON_SRC = \
             rx/sbus_channels.c \
             rx/spektrum.c \
             rx/srxl2.c \
-            io/spektrum_vtx_control.c \
             io/spektrum_rssi.c \
             rx/sumd.c \
             rx/sumh.c \
@@ -182,8 +177,6 @@ COMMON_SRC = \
             drivers/rangefinder/rangefinder_lidarmt.c \
             drivers/rangefinder/rangefinder_nooploop.c \
             drivers/rangefinder/rangefinder_upt1.c \
-            drivers/vtx_common.c \
-            drivers/vtx_table.c \
             io/dashboard.c \
             io/rcdevice_cam.c \
             io/rcdevice.c \
@@ -204,13 +197,7 @@ COMMON_SRC = \
             telemetry/msp_shared.c \
             telemetry/ibus.c \
             telemetry/ibus_shared.c \
-            sensors/esc_sensor.c \
-            io/vtx.c \
-            io/vtx_rtc6705.c \
-            io/vtx_smartaudio.c \
-            io/vtx_tramp.c \
-            io/vtx_control.c \
-            io/vtx_msp.c
+            sensors/esc_sensor.c
 
 ifneq ($(SIMULATOR_BUILD),yes)
 
@@ -256,9 +243,7 @@ COMMON_SRC += \
             drivers/compass/compass_mmc560x.c \
             drivers/compass/compass_mpu925x_ak8963.c \
             drivers/compass/compass_qmc5883.c \
-            drivers/compass/compass_virtual.c \
-            drivers/vtx_rtc6705.c \
-            drivers/vtx_rtc6705_soft_spi.c
+            drivers/compass/compass_virtual.c
 
 RX_SRC = \
             drivers/rx/rx_pwm.c
@@ -308,9 +293,7 @@ SIZE_OPTIMISED_SRC += \
             drivers/compass/compass_lis3mdl.c \
             drivers/compass/compass_mmc560x.c \
             drivers/compass/compass_ist8310.c \
-            drivers/display_ug2864hsweg01.c \
-            drivers/vtx_rtc6705_soft_spi.c \
-            drivers/vtx_rtc6705.c
+            drivers/display_ug2864hsweg01.c
 
 
 SPEED_OPTIMISED_SRC += \
@@ -385,7 +368,6 @@ SIZE_OPTIMISED_SRC += \
             cli/cli.c \
             cli/settings.c \
             drivers/light_ws2811strip.c \
-            drivers/vtx_common.c \
             fc/init.c \
             fc/board_info.c \
             config/config_eeprom.c \
@@ -398,14 +380,7 @@ SIZE_OPTIMISED_SRC += \
             io/serial_4way_stk500v2.c \
             io/usb_cdc_hid.c \
             msp/msp_serial.c \
-            io/vtx.c \
-            io/vtx_rtc6705.c \
-            io/vtx_smartaudio.c \
-            io/vtx_tramp.c \
-            io/vtx_control.c \
-            io/spektrum_vtx_control.c \
-            rx/rx_bind.c \
-            io/vtx_msp.c
+            rx/rx_bind.c
 
 # check if target.mk supplied
 SRC := $(STARTUP_SRC) $(MCU_COMMON_SRC) $(TARGET_SRC) $(VARIANT_SRC)

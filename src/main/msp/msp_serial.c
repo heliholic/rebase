@@ -42,13 +42,12 @@
 
 static mspPort_t mspPorts[MAX_MSP_PORT_COUNT];
 
-static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort, bool sharedWithTelemetry, bool vtxPort)
+static void resetMspPort(mspPort_t *mspPortToReset, serialPort_t *serialPort, bool sharedWithTelemetry)
 {
     memset(mspPortToReset, 0, sizeof(mspPort_t));
 
     mspPortToReset->port = serialPort;
     mspPortToReset->sharedWithTelemetry = sharedWithTelemetry;
-    mspPortToReset->vtxPort = vtxPort;
     mspPortToReset->descriptor = mspDescriptorAlloc();
 }
 
@@ -79,7 +78,7 @@ void mspSerialAllocatePorts(void)
         serialPort_t *serialPort = openSerialPort(portConfig->identifier, FUNCTION_MSP, NULL, NULL, baudRates[portConfig->msp_baudrateIndex], MODE_RXTX, options);
         if (serialPort) {
             bool sharedWithTelemetry = isSerialPortShared(portConfig, FUNCTION_MSP, TELEMETRY_PORT_FUNCTIONS_MASK);
-            resetMspPort(mspPort, serialPort, sharedWithTelemetry, portConfig->functionMask & FUNCTION_VTX_MSP);
+            resetMspPort(mspPort, serialPort, sharedWithTelemetry);
 
             portIndex++;
         }
@@ -542,9 +541,7 @@ void mspSerialProcess(mspEvaluateNonMspData_e evaluateNonMspData, mspProcessComm
                 mspPort->pendingRequest = MSP_PENDING_NONE;
                 mspPort->portState = PORT_MSP_PACKET;
                 mspPort->packetState = MSP_HEADER_START;
-            } else if ((evaluateNonMspData == MSP_EVALUATE_NON_MSP_DATA)
-                       // Don't evaluate non-MSP commands on VTX MSP port
-                       && !mspPort->vtxPort) {
+            } else if (evaluateNonMspData == MSP_EVALUATE_NON_MSP_DATA) {
                 // evaluate the non-MSP data
                 if (c == serialConfig()->reboot_character) {
                     mspPort->pendingRequest = MSP_PENDING_BOOTLOADER_ROM;
@@ -599,34 +596,16 @@ bool mspSerialWaiting(void)
 }
 
 /*
- * Returns true when a configurator-class MSP port has seen inbound
- * activity in the last MSP_ACTIVITY_DEFAULT_TIMEOUT_MS (5 s).
- *
- * Only pure FUNCTION_MSP ports count.  Ports that also carry
- * FUNCTION_VTX_MSP (HD VTX / DisplayPort) are excluded so that
- * peripheral traffic does not accidentally muzzle the beeper.
+ * Returns true when an MSP port has seen inbound activity in the last
+ * MSP_ACTIVITY_DEFAULT_TIMEOUT_MS (5 s), i.e. a configurator is connected.
  */
 bool mspSerialIsConfiguratorActive(void)
 {
     const timeMs_t now = millis();
 
     for (const mspPort_t *mspPort = mspPorts; mspPort < ARRAYEND(mspPorts); mspPort++) {
-        if (!mspPort->port || mspPort->lastActivityMs == 0) {
-            continue;
-        }
-
-        const serialPortConfig_t *cfg =
-            serialFindPortConfiguration(mspPort->port->identifier);
-        if (!cfg) {
-            continue;
-        }
-
-        // Skip ports shared with a VTX — those are peripherals, not configurators
-        if (cfg->functionMask & FUNCTION_VTX_MSP) {
-            continue;
-        }
-
-        if (cmp32(now, mspPort->lastActivityMs) < (int32_t)MSP_ACTIVITY_DEFAULT_TIMEOUT_MS) {
+        if (mspPort->port && mspPort->lastActivityMs != 0
+            && cmp32(now, mspPort->lastActivityMs) < (int32_t)MSP_ACTIVITY_DEFAULT_TIMEOUT_MS) {
             return true;
         }
     }

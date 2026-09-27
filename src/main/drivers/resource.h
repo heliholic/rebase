@@ -68,10 +68,6 @@ typedef enum {
     OWNER_RX_BIND,
     OWNER_INVERTER,
     OWNER_LED_STRIP,
-    OWNER_VTX_POWER,
-    OWNER_VTX_CS,
-    OWNER_VTX_DATA,
-    OWNER_VTX_CLK,
     OWNER_COMPASS_CS,
     OWNER_RX_BIND_PLUG,
     OWNER_ESCSERIAL,
@@ -133,10 +129,6 @@ extern const resourceOwner_t resourceOwnerFree;
 const char *getOwnerName(resourceOwner_e owner);
 
 #define RESOURCE_INDEX(x) (x + 1)
-
-// NOTE: Display-only legacy constant; currently used by vtx_rtc6707_soft_spi.
-// Avoid introducing new dependencies on this in generic resource code.
-#define RESOURCE_SOFT_OFFSET    10
 
 // The `resource` CLI presents a per-owner instance ordinal that matches the
 // peripheral's hardware instance name (see resourceInputBase() in resource.c).

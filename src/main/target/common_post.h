@@ -269,10 +269,6 @@
 
 /* END HARDWARE INCLUSIONS */
 
-#if defined(USE_VTX_RTC6705_SOFTSPI)
-#define USE_VTX_RTC6705
-#endif
-
 #ifndef USE_DSHOT
 #undef USE_ESC_SENSOR
 #endif
@@ -397,8 +393,6 @@
 #undef USE_SPEKTRUM_REAL_RSSI
 #undef USE_SPEKTRUM_VIRTUAL_RSSI
 #undef USE_SPEKTRUM_RSSI_PERCENT_CONVERSION
-#undef USE_SPEKTRUM_VTX_CONTROL
-#undef USE_SPEKTRUM_VTX_TELEMETRY
 #undef USE_TELEMETRY_SRXL
 #endif // !defined(USE_SERIALRX_SPEKTRUM) && !defined(USE_SERIALRX_SRXL2)
 
@@ -410,16 +404,6 @@
 
 #if !defined(USE_TELEMETRY_SMARTPORT) && !defined(USE_TELEMETRY_CRSF)
 #undef USE_MSP_OVER_TELEMETRY
-#endif
-
-/* If either VTX_CONTROL or VTX_COMMON is undefined then remove common code and device drivers */
-#if !defined(USE_VTX_COMMON) || !defined(USE_VTX_CONTROL)
-#undef USE_VTX_COMMON
-#undef USE_VTX_CONTROL
-#undef USE_VTX_TRAMP
-#undef USE_VTX_SMARTAUDIO
-#undef USE_VTX_TABLE
-#undef USE_VTX_MSP
 #endif
 
 // Some target doesn't define USE_ADC which USE_ADC_INTERNAL depends on

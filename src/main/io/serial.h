@@ -44,13 +44,13 @@ typedef enum {
     FUNCTION_BLACKBOX            = (1 << 7),  // 128
     FUNCTION_TELEMETRY_MAVLINK   = (1 << 9),  // 512
     FUNCTION_ESC_SENSOR          = (1 << 10), // 1024
-    FUNCTION_VTX_SMARTAUDIO      = (1 << 11), // 2048
+    // FUNCTION_VTX_SMARTAUDIO   = (1 << 11), // 2048 (removed)
     FUNCTION_TELEMETRY_IBUS      = (1 << 12), // 4096
-    FUNCTION_VTX_TRAMP           = (1 << 13), // 8192
+    // FUNCTION_VTX_TRAMP        = (1 << 13), // 8192 (removed)
     FUNCTION_RCDEVICE            = (1 << 14), // 16384
     FUNCTION_LIDAR_TF            = (1 << 15), // 32768
     // FUNCTION_FRSKY_OSD        = (1 << 16), // 65536 (removed)
-    FUNCTION_VTX_MSP             = (1 << 17), // 131072
+    // FUNCTION_VTX_MSP          = (1 << 17), // 131072 (removed)
     // FUNCTION_GIMBAL           = (1 << 18), // 262144 (removed)
     FUNCTION_LIDAR_NL            = (1 << 19), // 524288
     // FUNCTION_OSD_CUSTOM_TEXT  = (1 << 20), // 1048576 (removed)

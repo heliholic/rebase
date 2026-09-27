@@ -53,7 +53,6 @@
 #define BUILD_OPTION_TELEMETRY_SMARTPORT        12306
 #define BUILD_OPTION_TELEMETRY_SRXL             12307
 // General Options
-#define BUILD_OPTION_AKK_SMARTAUDIO             16405
 #define BUILD_OPTION_BATTERY_CONTINUE           16406
 #define BUILD_OPTION_CAMERA_CONTROL             16407
 #define BUILD_OPTION_DASHBOARD                  16408
@@ -68,7 +67,6 @@
 #define BUILD_OPTION_RANGEFINDER                16429
 #define BUILD_OPTION_SOFTSERIAL                 16423
 #define BUILD_OPTION_SERVOS                     16420
-#define BUILD_OPTION_VTX                        16421
 
 // Motor Protocols
 #define BUILD_OPTION_BRUSHED                    8230
