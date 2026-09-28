@@ -48,7 +48,6 @@
 #include "drivers/io.h"
 
 #include "fc/runtime_config.h"
-#include "fc/rc_controls.h"
 #include "fc/core.h"
 #include "controls/rc.h"
 #include "fc/motors.h"

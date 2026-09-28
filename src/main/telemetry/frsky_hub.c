@@ -50,7 +50,6 @@
 
 #include "config/config.h"
 #include "controls/rc.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "sensors/sensors.h"
@@ -197,9 +196,8 @@ static void sendThrottleOrBatterySizeAsRpm(void)
     }
 #else
     if (ARMING_FLAG(ARMED)) {
-        const throttleStatus_e throttleStatus = calculateThrottleStatus();
         uint16_t throttleForRPM = getThrottleCommand() / BLADE_NUMBER_DIVIDER;
-        if (throttleStatus == THROTTLE_LOW) {
+        if (isThrottleOff()) {
             throttleForRPM = 0;
         }
         data = throttleForRPM;

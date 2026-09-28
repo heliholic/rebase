@@ -48,7 +48,6 @@
 #include "drivers/time.h"
 
 #include "config/config.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 
 #include "flight/mixer.h"

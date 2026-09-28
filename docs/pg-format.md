@@ -64,7 +64,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `accelerometerConfig` | 35 | `0x3071B171` | [`accelerometerConfig_t`](#accelerometerconfig_t) | 16 | `pg/acceleration.h` |
 | `adcConfig` | 510 | `0x278550EC` | [`adcConfig_t`](#adcconfig_t) | 26 | `pg/adc.h` |
 | `adjustmentRanges` | 37 | `0xDE2A216C` | [`adjustmentRange_t`](#adjustmentrange_t) | 16 &times; `MAX_ADJUSTMENT_RANGE_COUNT` | `pg/adjustments.h` |
-| `armingConfig` | 16 | `0xB7B4FC05` | [`armingConfig_t`](#armingconfig_t) | 5 | `pg/arming.h` |
+| `armingConfig` | 16 | `0x3D004D91` | [`armingConfig_t`](#armingconfig_t) | 5 | `pg/arming.h` |
 | `barometerConfig` | 38 | `0x358757A4` | [`barometerConfig_t`](#barometerconfig_t) | 8 | `pg/barometer.h` |
 | `batteryConfig` | 11 | `0x7E75E919` | [`batteryConfig_t`](#batteryconfig_t) | 14 | `pg/battery.h` |
 | `batteryProfiles` | 561 | `0x561E7785` | [`batteryProfile_t`](#batteryprofile_t) | 22 &times; `BATTERY_PROFILE_COUNT` | `pg/battery.h` |
@@ -127,7 +127,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `spiPinConfig` | 520 | `0x81954E3F` | [`spiPinConfig_t`](#spipinconfig_t) | 5 &times; `SPIDEV_COUNT` | `pg/bus_spi.h` |
 | `statsConfig` | 547 | `0x87526EDD` | [`statsConfig_t`](#statsconfig_t) | 24 | `pg/stats.h` |
 | `statusLedConfig` | 505 | `0x81FFF062` | [`statusLedConfig_t`](#statusledconfig_t) | 4 | `pg/leds.h` |
-| `systemConfig` | 18 | `0x97191285` | [`systemConfig_t`](#systemconfig_t) | 19 | `pg/system.h` |
+| `systemConfig` | 18 | `0xA315597B` | [`systemConfig_t`](#systemconfig_t) | 18 | `pg/system.h` |
 | `telemetryConfig` | 31 | `0xBD6D2B1A` | [`telemetryConfig_t`](#telemetryconfig_t) | 44 | `pg/telemetry.h` |
 | `timeConfig` | 526 | `0x4733E1A6` | [`timeConfig_t`](#timeconfig_t) | 2 | `pg/time.h` |
 | `timerIOConfig` | 534 | `0x09953C82` | [`timerIOConfig_t`](#timerioconfig_t) | 3 &times; `MAX_TIMER_PINMAP_COUNT` | `pg/timerio.h` |
@@ -206,15 +206,15 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### armingConfig_t
 
-- `armingConfig` &mdash; PGN 16 (`PG_ARMING_CONFIG`), hash `0xB7B4FC05`
+- `armingConfig` &mdash; PGN 16 (`PG_ARMING_CONFIG`), hash `0x3D004D91`
 
 `sizeof` = 5 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
 | 0 | 1 | `bool` | `gyro_cal_on_first_arm` |
-| 1 | 1 | `uint8_t` | `auto_disarm_delay` |
-| 2 | 1 | `bool` | `prearm_allow_rearm` |
+| 1 | 1 | `bool` | `prearm_allow_rearm` |
+| 2 | 1 | `bool` | `enable_stick_commands` |
 | 3 | 2 | [`channelRange_t`](#channelrange_t) | `arm_range` |
 
 ### barometerConfig_t
@@ -1084,9 +1084,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### systemConfig_t
 
-- `systemConfig` &mdash; PGN 18 (`PG_SYSTEM_CONFIG`), hash `0x97191285`
+- `systemConfig` &mdash; PGN 18 (`PG_SYSTEM_CONFIG`), hash `0xA315597B`
 
-`sizeof` = 19 bytes.
+`sizeof` = 18 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
@@ -1100,8 +1100,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | 7 | 8 | `char` | `boardIdentifier[8]` |
 | 15 | 1 | `uint8_t` | `hseMhz` |
 | 16 | 1 | [`configurationState_e`](#configurationstate_e) | `configurationState` |
-| 17 | 1 | `bool` | `enableStickArming` |
-| 18 | 1 | `uint8_t` | `activeBatteryProfile` |
+| 17 | 1 | `uint8_t` | `activeBatteryProfile` |
 
 ### telemetryConfig_t
 

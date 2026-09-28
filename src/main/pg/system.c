@@ -46,6 +46,5 @@ PG_RESET_TEMPLATE(systemConfig_t, systemConfig)
     .boardIdentifier = TARGET_BOARD_IDENTIFIER,
     .hseMhz = SYSTEM_HSE_MHZ,  // Only used for F4 and G4 targets
     .configurationState = CONFIGURATION_STATE_UNCONFIGURED,
-    .enableStickArming = false,
     .activeBatteryProfile = 0,
 };

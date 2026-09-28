@@ -22,7 +22,6 @@
 
 extern "C" {
     #include "sensors/battery.h"
-    #include "fc/rc_controls.h"
     #include "io/beeper.h"
 }
 

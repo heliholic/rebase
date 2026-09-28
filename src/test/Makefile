@@ -63,7 +63,7 @@ arming_prevention_unittest_SRC := \
 		$(USER_DIR)/controls/modes.c \
 		$(USER_DIR)/fc/core.c \
 		$(USER_DIR)/fc/dispatch.c \
-		$(USER_DIR)/fc/rc_controls.c \
+		$(USER_DIR)/controls/sticks.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/pg/rc_controls.c \
 		$(USER_DIR)/pg/arming.c \
@@ -348,8 +348,7 @@ printf_unittest_SRC := \
 		$(USER_DIR)/common/printf.c
 
 
-rc_controls_unittest_SRC := \
-		$(USER_DIR)/fc/rc_controls.c \
+modes_unittest_SRC := \
 		$(USER_DIR)/pg/pg.c \
 		$(USER_DIR)/common/bitarray.c \
 		$(USER_DIR)/common/crc.c \

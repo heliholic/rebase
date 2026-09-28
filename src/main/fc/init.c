@@ -81,7 +81,6 @@
 #include "fc/board_info.h"
 #include "fc/dispatch.h"
 #include "fc/init.h"
-#include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
 #include "fc/stats.h"
 #include "fc/tasks.h"

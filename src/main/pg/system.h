@@ -43,7 +43,6 @@ typedef struct systemConfig_s {
     char boardIdentifier[MAX_BOARD_IDENTIFIER_LENGTH + 1];
     uint8_t hseMhz;                 // Only used for F4 and G4 targets
     configurationState_e configurationState; // The state of the configuration (defaults / configured)
-    bool enableStickArming; // boolean that determines whether stick arming can be used
     uint8_t activeBatteryProfile;
 } systemConfig_t;
 

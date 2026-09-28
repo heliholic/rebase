@@ -28,8 +28,8 @@
 
 typedef struct {
     bool gyro_cal_on_first_arm;             // calibrate the gyro right before the first arm
-    uint8_t auto_disarm_delay;              // allow automatically disarming multicopters after auto_disarm_delay seconds of zero throttle. Disabled when 0
     bool prearm_allow_rearm;
+    bool enable_stick_commands;             // boolean that determines whether stick commands can be used
     channelRange_t arm_range;               // the arm channel range that means armed; unusable means no arm switch
 } armingConfig_t;
 

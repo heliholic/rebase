@@ -319,7 +319,8 @@ void loadRateProfile(void) { }
 void loadBatteryProfile(void) { }
 void initRcProcessing(void) { }
 void adjustmentRangeInit(void) { }
-void rcControlsInit(void) { }
+void rcModeInit(void) { }
+void stickCommandsInit(void) { }
 void pidInit(const pidProfile_t *) { }
 void failsafeReset(void) { }
 void setAccelerationTrims(flightDynamicsTrims_t *) { }
