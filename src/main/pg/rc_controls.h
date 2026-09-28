@@ -26,8 +26,14 @@
 #include "pg/pg.h"
 
 typedef struct {
-    uint8_t deadband;                       // introduce a deadband around the stick center for pitch and roll axis. Must be greater than zero.
-    uint8_t yaw_deadband;                   // introduce a deadband around the stick center for yaw axis. Must be greater than zero.
+    uint16_t rc_center;                 // Stick center. Usually 1500 or 1520, depending on the RC system
+    uint16_t rc_deflection;             // Max stick deflection in us, applies to RPYC
+    uint16_t rc_min_throttle;           // Throttle channel value for 0%
+    uint16_t rc_max_throttle;           // Throttle channel value for 100%
+    uint8_t  rc_deadband;               // A deadband around the stick center for pitch and roll axis
+    uint8_t  rc_yaw_deadband;           // A deadband around the stick center for yaw axis
+    uint8_t  rc_smoothness;             // Minimum RPYC smoothing level
+    uint8_t  rc_threshold[4];           // Threshold for stick activity
 } rcControlsConfig_t;
 
 PG_DECLARE(rcControlsConfig_t, rcControlsConfig);

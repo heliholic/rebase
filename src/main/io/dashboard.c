@@ -233,9 +233,9 @@ static void handlePageChange(void)
 
 static void drawRxChannel(uint8_t channelIndex, uint8_t width)
 {
-    LCDprint(rcChannelLetters[channelIndex]);
+    LCDprint('0' + (channelIndex + 1) % 10);
 
-    const uint32_t percentage = (constrain(rcData[channelIndex], PWM_RANGE_MIN, PWM_RANGE_MAX) - PWM_RANGE_MIN) * 100 / PWM_RANGE;
+    const uint32_t percentage = (constrain(rcInput[channelIndex], PWM_RANGE_MIN, PWM_RANGE_MAX) - PWM_RANGE_MIN) * 100 / PWM_RANGE;
     drawHorizonalPercentageBar(width - 1, percentage);
 }
 

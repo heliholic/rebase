@@ -83,11 +83,11 @@ TEST_F(RcControlsModesTest, updateActivatedModesWithAllInputsAtMidde)
 
     // and
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
-    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT - NON_AUX_CHANNEL_COUNT;
+    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     // when
@@ -107,27 +107,27 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
 {
     // given
     modeActivationConditionsMutable(0)->modeId = (boxId_e)0;
-    modeActivationConditionsMutable(0)->auxChannelIndex = AUX1 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     modeActivationConditionsMutable(1)->modeId = (boxId_e)1;
-    modeActivationConditionsMutable(1)->auxChannelIndex = AUX2 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(1)->rcChannel = 6;
     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(1700);
 
     modeActivationConditionsMutable(2)->modeId = (boxId_e)2;
-    modeActivationConditionsMutable(2)->auxChannelIndex = AUX3 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(2)->rcChannel = 7;
     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1200);
 
     modeActivationConditionsMutable(3)->modeId = (boxId_e)3;
-    modeActivationConditionsMutable(3)->auxChannelIndex = AUX4 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(3)->rcChannel = 8;
     modeActivationConditionsMutable(3)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(3)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
     modeActivationConditionsMutable(4)->modeId = (boxId_e)4;
-    modeActivationConditionsMutable(4)->auxChannelIndex = AUX5 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(4)->rcChannel = 9;
     modeActivationConditionsMutable(4)->range.startStep = CHANNEL_VALUE_TO_STEP(900);
     modeActivationConditionsMutable(4)->range.endStep = CHANNEL_VALUE_TO_STEP(925);
 
@@ -135,7 +135,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
     EXPECT_EQ(1, modeActivationConditions(4)->range.endStep);
 
     modeActivationConditionsMutable(5)->modeId = (boxId_e)5;
-    modeActivationConditionsMutable(5)->auxChannelIndex = AUX6 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(5)->rcChannel = 10;
     modeActivationConditionsMutable(5)->range.startStep = CHANNEL_VALUE_TO_STEP(2075);
     modeActivationConditionsMutable(5)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
@@ -143,7 +143,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
     EXPECT_EQ(48, modeActivationConditions(5)->range.endStep);
 
     modeActivationConditionsMutable(6)->modeId = (boxId_e)6;
-    modeActivationConditionsMutable(6)->auxChannelIndex = AUX7 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(6)->rcChannel = 11;
     modeActivationConditionsMutable(6)->range.startStep = CHANNEL_VALUE_TO_STEP(925);
     modeActivationConditionsMutable(6)->range.endStep = CHANNEL_VALUE_TO_STEP(950);
 
@@ -157,20 +157,20 @@ TEST_F(RcControlsModesTest, updateActivatedModesUsingValidAuxConfigurationAndRXV
 
     // and
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
-    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT - NON_AUX_CHANNEL_COUNT;
+    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
-    rcData[AUX1] = PWM_RANGE_MAX;
-    rcData[AUX2] = PWM_RANGE_MIDDLE;
-    rcData[AUX3] = PWM_RANGE_MIN;
-    rcData[AUX4] = PWM_RANGE_MAX;
-    rcData[AUX5] = 899; // value lower that range minimum should be treated the same as the lowest range value
-    rcData[AUX6] = 2101; // value higher than the range maximum should be treated the same as the highest range value
-    rcData[AUX7] = 950; // value equal to range step upper boundary should not activate the mode
+    rcInput[5] = PWM_RANGE_MAX;
+    rcInput[6] = PWM_RANGE_MIDDLE;
+    rcInput[7] = PWM_RANGE_MIN;
+    rcInput[8] = PWM_RANGE_MAX;
+    rcInput[9] = 899; // value lower that range minimum should be treated the same as the lowest range value
+    rcInput[10] = 2101; // value higher than the range maximum should be treated the same as the highest range value
+    rcInput[11] = 950; // value equal to range step upper boundary should not activate the mode
 
     // and
     boxBitmask_t activeBoxIds;
@@ -251,7 +251,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
 {
     // given
     modeActivationConditionsMutable(7)->modeId = BOXPARALYZE;
-    modeActivationConditionsMutable(7)->auxChannelIndex = AUX1 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(7)->rcChannel = 5;
     modeActivationConditionsMutable(7)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(7)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
@@ -260,24 +260,24 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
     rcModeUpdate(&mask);
 
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
-    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT - NON_AUX_CHANNEL_COUNT;
+    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
 
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     analyzeModeActivationConditions();
 
     // when: switch is in-range before the boot guard has ever seen it off
     resetMillis();
-    rcData[AUX1] = PWM_RANGE_MAX;
+    rcInput[5] = PWM_RANGE_MAX;
     updateActivatedModes();
 
     // then: activation is withheld until the switch has been observed off
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
 
     // when: switch goes off and the boot delay elapses
-    rcData[AUX1] = PWM_RANGE_MIDDLE;
+    rcInput[5] = PWM_RANGE_MIDDLE;
     fixedMillis = STICKY_MODE_BOOT_DELAY_US / 1000 + 1;
     updateActivatedModes();
 
@@ -285,14 +285,14 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxParalyzeLatchesForeverOnceAct
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
 
     // when: switch is moved into range
-    rcData[AUX1] = PWM_RANGE_MAX;
+    rcInput[5] = PWM_RANGE_MAX;
     updateActivatedModes();
 
     // then: mode activates normally
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXPARALYZE));
 
     // when: switch is moved back out of range
-    rcData[AUX1] = PWM_RANGE_MIDDLE;
+    rcInput[5] = PWM_RANGE_MIDDLE;
     updateActivatedModes();
 
     // then: BOXPARALYZE is a kill switch and must stay active until reboot
@@ -303,7 +303,7 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
 {
     // given
     modeActivationConditionsMutable(8)->modeId = BOXBLACKBOXERASE;
-    modeActivationConditionsMutable(8)->auxChannelIndex = AUX2 - NON_AUX_CHANNEL_COUNT;
+    modeActivationConditionsMutable(8)->rcChannel = 6;
     modeActivationConditionsMutable(8)->range.startStep = CHANNEL_VALUE_TO_STEP(1700);
     modeActivationConditionsMutable(8)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
@@ -312,24 +312,24 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
     rcModeUpdate(&mask);
 
     memset(&rxRuntimeState, 0, sizeof(rxRuntimeState_t));
-    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT - NON_AUX_CHANNEL_COUNT;
+    rxRuntimeState.channelCount = MAX_SUPPORTED_RC_CHANNEL_COUNT;
 
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     analyzeModeActivationConditions();
 
-    // when: switch is in-range before RX has ever been seen off (rcData defaults, e.g. before RX link)
+    // when: switch is in-range before RX has ever been seen off (rcInput defaults, e.g. before RX link)
     resetMillis();
-    rcData[AUX2] = PWM_RANGE_MAX;
+    rcInput[6] = PWM_RANGE_MAX;
     updateActivatedModes();
 
     // then: erase is withheld (this is the #15173 boot-time spurious-erase bug)
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXBLACKBOXERASE));
 
     // when: switch goes off and the boot delay elapses
-    rcData[AUX2] = PWM_RANGE_MIDDLE;
+    rcInput[6] = PWM_RANGE_MIDDLE;
     fixedMillis = STICKY_MODE_BOOT_DELAY_US / 1000 + 1;
     updateActivatedModes();
 
@@ -337,14 +337,14 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXBLACKBOXERASE));
 
     // when: switch is moved into range
-    rcData[AUX2] = PWM_RANGE_MAX;
+    rcInput[6] = PWM_RANGE_MAX;
     updateActivatedModes();
 
     // then: mode activates normally
     EXPECT_TRUE(IS_RC_MODE_ACTIVE(BOXBLACKBOXERASE));
 
     // when: switch is moved back out of range
-    rcData[AUX2] = PWM_RANGE_MIDDLE;
+    rcInput[6] = PWM_RANGE_MIDDLE;
     updateActivatedModes();
 
     // then: unlike BOXPARALYZE, this must turn off again so blackboxUpdate() can
@@ -352,8 +352,6 @@ TEST_F(RcControlsModesTest, updateActivatedModesBoxBlackboxEraseDoesNotLatchFore
     EXPECT_FALSE(IS_RC_MODE_ACTIVE(BOXBLACKBOXERASE));
 }
 
-#define DEFAULT_MIN_CHECK 1100
-#define DEFAULT_MAX_CHECK 1900
 
 extern "C" {
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
@@ -386,9 +384,7 @@ protected:
 
     virtual void SetUp() {
         PG_RESET(rxConfig);
-        rxConfigMutable()->mincheck = DEFAULT_MIN_CHECK;
-        rxConfigMutable()->maxcheck = DEFAULT_MAX_CHECK;
-        rxConfigMutable()->midrc = 1500;
+        PG_RESET(rcControlsConfig);
 
         controlRateConfig.rcRates[FD_ROLL] = 90;
         controlRateConfig.rcRates[FD_PITCH] = 90;
@@ -406,19 +402,19 @@ protected:
         continuosAdjustmentCount = 0;
     }
 
-    int configureAdjustmentRange(uint8_t switchChannelIndex, uint8_t adjustmentConfigIndex) {
+    int configureAdjustmentRange(uint8_t adjustmentChannel, uint8_t adjustmentConfigIndex) {
         adjustmentRange_t *adjustmentRange = adjustmentRangesMutable(adjustmentRangesIndex);
-        adjustmentRange->auxChannelIndex = AUX1 - NON_AUX_CHANNEL_COUNT;
+        adjustmentRange->rcChannel = 5;
         adjustmentRange->range = fullRange;
 
         adjustmentRange->adjustmentConfig = adjustmentConfigIndex;
-        adjustmentRange->auxSwitchChannelIndex = switchChannelIndex;
+        adjustmentRange->adjChannel = adjustmentChannel;
 
         return adjustmentRangesIndex++;
     }
 
-    timedAdjustmentState_t *configureStepwiseAdjustment(uint8_t switchChannelIndex, uint8_t adjustmentConfigIndex) {
-        int adjustmentRangeIndex = configureAdjustmentRange(switchChannelIndex, adjustmentConfigIndex);
+    timedAdjustmentState_t *configureStepwiseAdjustment(uint8_t adjustmentChannel, uint8_t adjustmentConfigIndex) {
+        int adjustmentRangeIndex = configureAdjustmentRange(adjustmentChannel, adjustmentConfigIndex);
 
         timedAdjustmentState_t *adjustmentState = &stepwiseAdjustments[stepwiseAdjustmentCount++];
         adjustmentState->adjustmentRangeIndex = adjustmentRangeIndex;
@@ -428,8 +424,8 @@ protected:
         return adjustmentState;
     }
 
-    void configureContinuosAdjustment(uint8_t switchChannelIndex, uint8_t adjustmentConfigIndex) {
-        int adjustmentRangeIndex = configureAdjustmentRange(switchChannelIndex, adjustmentConfigIndex);
+    void configureContinuosAdjustment(uint8_t adjustmentChannel, uint8_t adjustmentConfigIndex) {
+        int adjustmentRangeIndex = configureAdjustmentRange(adjustmentChannel, adjustmentConfigIndex);
 
         continuosAdjustmentState_t *adjustmentState = &continuosAdjustments[continuosAdjustmentCount++];
         adjustmentState->adjustmentRangeIndex = adjustmentRangeIndex;
@@ -442,11 +438,11 @@ protected:
 TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsSticksInMiddle)
 {
     // given
-    const timedAdjustmentState_t *adjustmentState = configureStepwiseAdjustment(AUX3 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_CONFIG_RATE_INDEX);
+    const timedAdjustmentState_t *adjustmentState = configureStepwiseAdjustment(7, ADJUSTMENT_CONFIG_RATE_INDEX);
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     // and
@@ -478,16 +474,14 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
 
     // and
     PG_RESET(rxConfig);
-    rxConfigMutable()->mincheck = DEFAULT_MIN_CHECK;
-    rxConfigMutable()->maxcheck = DEFAULT_MAX_CHECK;
-    rxConfigMutable()->midrc = 1500;
+    PG_RESET(rcControlsConfig);
 
     // and
-    const timedAdjustmentState_t *adjustmentState = configureStepwiseAdjustment(AUX3 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_CONFIG_RATE_INDEX);
+    const timedAdjustmentState_t *adjustmentState = configureStepwiseAdjustment(7, ADJUSTMENT_CONFIG_RATE_INDEX);
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     // and
@@ -495,7 +489,7 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     resetMillis();
 
     // and
-    rcData[AUX3] = PWM_RANGE_MAX;
+    rcInput[7] = PWM_RANGE_MAX;
 
     // and
     fixedMillis = 496;
@@ -530,7 +524,7 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
 
 
     // given
-    rcData[AUX3] = PWM_RANGE_MIDDLE;
+    rcInput[7] = PWM_RANGE_MIDDLE;
 
     // and
     fixedMillis = 498;
@@ -547,7 +541,7 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
     // flipping the switch again, before the state reset would have occurred, allows the value to be increased again
 
     // given
-    rcData[AUX3] = PWM_RANGE_MAX;
+    rcInput[7] = PWM_RANGE_MAX;
 
     // and
     fixedMillis = 499;
@@ -616,11 +610,11 @@ TEST_F(RcControlsAdjustmentsTest, processRcAdjustmentsWithRcRateFunctionSwitchUp
 TEST_F(RcControlsAdjustmentsTest, processRcRateProfileAdjustments)
 {
     // given
-    configureContinuosAdjustment(AUX4 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_RATE_PROFILE_INDEX);
+    configureContinuosAdjustment(8, ADJUSTMENT_RATE_PROFILE_INDEX);
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     // and
@@ -628,7 +622,7 @@ TEST_F(RcControlsAdjustmentsTest, processRcRateProfileAdjustments)
     resetMillis();
 
     // and
-    rcData[AUX4] = PWM_RANGE_MAX;
+    rcInput[8] = PWM_RANGE_MAX;
 
     // when
     processRcAdjustments(&controlRateConfig);
@@ -664,16 +658,16 @@ TEST_F(RcControlsAdjustmentsTest, processPIDIncreasePidController0)
     controlRateConfig_t controlRateConfig;
     memset(&controlRateConfig, 0, sizeof(controlRateConfig));
 
-    const timedAdjustmentState_t *adjustmentState1 = configureStepwiseAdjustment(AUX1 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_PITCH_ROLL_P_INDEX);
-    const timedAdjustmentState_t *adjustmentState2 = configureStepwiseAdjustment(AUX2 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_PITCH_ROLL_I_INDEX);
-    const timedAdjustmentState_t *adjustmentState3 = configureStepwiseAdjustment(AUX3 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_PITCH_ROLL_D_INDEX);
-    const timedAdjustmentState_t *adjustmentState4 = configureStepwiseAdjustment(AUX1 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_YAW_P_INDEX);
-    const timedAdjustmentState_t *adjustmentState5 = configureStepwiseAdjustment(AUX2 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_YAW_I_INDEX);
-    const timedAdjustmentState_t *adjustmentState6 = configureStepwiseAdjustment(AUX3 - NON_AUX_CHANNEL_COUNT, ADJUSTMENT_YAW_D_INDEX);
+    const timedAdjustmentState_t *adjustmentState1 = configureStepwiseAdjustment(5, ADJUSTMENT_PITCH_ROLL_P_INDEX);
+    const timedAdjustmentState_t *adjustmentState2 = configureStepwiseAdjustment(6, ADJUSTMENT_PITCH_ROLL_I_INDEX);
+    const timedAdjustmentState_t *adjustmentState3 = configureStepwiseAdjustment(7, ADJUSTMENT_PITCH_ROLL_D_INDEX);
+    const timedAdjustmentState_t *adjustmentState4 = configureStepwiseAdjustment(5, ADJUSTMENT_YAW_P_INDEX);
+    const timedAdjustmentState_t *adjustmentState5 = configureStepwiseAdjustment(6, ADJUSTMENT_YAW_I_INDEX);
+    const timedAdjustmentState_t *adjustmentState6 = configureStepwiseAdjustment(7, ADJUSTMENT_YAW_D_INDEX);
 
     // and
-    for (int index = AUX1; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
-        rcData[index] = PWM_RANGE_MIDDLE;
+    for (int index = 0; index < MAX_SUPPORTED_RC_CHANNEL_COUNT; index++) {
+        rcInput[index] = PWM_RANGE_MIDDLE;
     }
 
     // and
@@ -681,9 +675,9 @@ TEST_F(RcControlsAdjustmentsTest, processPIDIncreasePidController0)
     resetMillis();
 
     // and
-    rcData[AUX1] = PWM_RANGE_MAX;
-    rcData[AUX2] = PWM_RANGE_MAX;
-    rcData[AUX3] = PWM_RANGE_MAX;
+    rcInput[5] = PWM_RANGE_MAX;
+    rcInput[6] = PWM_RANGE_MAX;
+    rcInput[7] = PWM_RANGE_MAX;
 
     // when
     currentPidProfile = &pidProfile;
@@ -749,7 +743,10 @@ uint8_t armingFlags = 0;
 uint16_t flightModeFlags = 0;
 int16_t heading;
 uint8_t stateFlags = 0;
-float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+float rcControls[RC_CONTROL_COUNT];
+float rcCommand[RC_CONTROL_COUNT];
+bool isThrottleOff(void) { return true; }
 pidProfile_t *currentPidProfile;
 rxRuntimeState_t rxRuntimeState;
 PG_REGISTER(blackboxConfig_t, blackboxConfig, PG_BLACKBOX_CONFIG);

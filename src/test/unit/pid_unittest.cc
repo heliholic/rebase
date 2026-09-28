@@ -54,7 +54,7 @@ extern "C" {
 
     #include "fc/controlrate_profile.h"
     #include "fc/core.h"
-    #include "fc/rc.h"
+    #include "controls/rc.h"
 
     #include "fc/rc_controls.h"
     #include "fc/runtime_config.h"
@@ -85,29 +85,16 @@ extern "C" {
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
     PG_REGISTER(positionConfig_t, positionConfig, PG_SYSTEM_CONFIG);
 
-    float getSetpointRate(int axis) { return simulatedSetpointRate[axis]; }
     bool wasThrottleRaised(void) { return simulatedThrottleRaised; }
-    float getRcDeflectionAbs(int axis) { return fabsf(simulatedRcDeflection[axis]); }
-
-    // used by auto-disarm code
-    float getMaxRcDeflectionAbs() { return fabsf(simulatedMaxRcDeflectionAbs); }
-
 
     bool isBelowLandingAltitude(void) { return false; }
 
     void systemBeep(bool) { }
     bool gyroOverflowDetected(void) { return false; }
     float getRcDeflection(int axis) { return simulatedRcDeflection[axis]; }
-    float getRcDeflectionRaw(int axis) { return simulatedRcDeflection[axis]; }
     float getRawSetpoint(int axis) { return simulatedRawSetpoint[axis]; }
     void beeperConfirmationBeeps(uint8_t) { }
     void disarm(flightLogDisarmReason_e) { }
-    float getMaxRcRate(int axis)
-    {
-        UNUSED(axis);
-        float maxRate = simulatedMaxRate[axis];
-        return maxRate;
-    }
     void initRcProcessing(void) { }
 }
 

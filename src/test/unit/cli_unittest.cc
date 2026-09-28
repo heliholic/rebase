@@ -86,7 +86,7 @@ extern "C" {
     PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG);
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
     PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);
-    PG_REGISTER_ARRAY(rxChannelRangeConfig_t, NON_AUX_CHANNEL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG);
+    PG_REGISTER_ARRAY(rxChannelRangeConfig_t, RC_CONTROL_COUNT, rxChannelRangeConfigs, PG_RX_CHANNEL_RANGE_CONFIG);
     PG_REGISTER_ARRAY(rxFailsafeChannelConfig_t, MAX_SUPPORTED_RC_CHANNEL_COUNT, rxFailsafeChannelConfigs, PG_RX_FAILSAFE_CHANNEL_CONFIG);
     PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG);
     PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG);
@@ -324,9 +324,6 @@ void dashboardShowFixedPage(pageId_e){}
 void dashboardUpdate(timeUs_t) {}
 
 bool parseLedStripConfig(int, const char *){return false; }
-const char rcChannelLetters[] = "AERT12345678abcdefgh";
-
-void parseRcChannels(const char *, rxConfig_t *){}
 bool setModeColor(ledModeIndex_e, int, int) { return false; }
 void motorShutdown(void) { }
 uint8_t getCurrentPidProfileIndex(void){ return 1; }
@@ -432,9 +429,8 @@ void analyzeModeActivationConditions(void) {}
 bool isModeActivationConditionConfigured(const modeActivationCondition_t *, const modeActivationCondition_t *) { return false; }
 
 void delay(uint32_t) {}
-float getCurrentRxRateHz(void) { return 0; }
+float getAverageRxRefreshRate(void) { return 0; }
 uint16_t getAverageSystemLoadPercent(void) { return 0; }
-bool getRxRateValid(void) { return false; }
 const uint16_t *getBuildOptions(unsigned *count) { *count = 0; return NULL; }
 }
 

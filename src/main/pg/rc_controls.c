@@ -30,6 +30,12 @@ PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONT
 
 PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig)
 {
-    .deadband = 0,
-    .yaw_deadband = 0,
+    .rc_center = 1500,
+    .rc_deflection = 510,
+    .rc_min_throttle = 0,
+    .rc_max_throttle = 0,
+    .rc_deadband = 5,
+    .rc_yaw_deadband = 5,
+    .rc_smoothness = 50,
+    .rc_threshold = { 25, 25, 25, 100 },
 };

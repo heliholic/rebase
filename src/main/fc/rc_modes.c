@@ -63,13 +63,13 @@ void rcModeUpdate(const boxBitmask_t *newState)
     rcModeActivationMask = *newState;
 }
 
-bool isRangeActive(uint8_t auxChannelIndex, const channelRange_t *range)
+bool isRangeActive(uint8_t channel, const channelRange_t *range)
 {
     if (!IS_RANGE_USABLE(range)) {
         return false;
     }
 
-    const uint16_t channelValue = constrain(rcData[auxChannelIndex + NON_AUX_CHANNEL_COUNT], CHANNEL_RANGE_MIN, CHANNEL_RANGE_MAX - 1);
+    const uint16_t channelValue = constrain(rcInput[channel], CHANNEL_RANGE_MIN, CHANNEL_RANGE_MAX - 1);
     return (channelValue >= 900 + (range->startStep * 25) &&
             channelValue < 900 + (range->endStep * 25));
 }
@@ -112,7 +112,7 @@ static void updateMasksForStickyModes(const modeActivationCondition_t *mac, boxB
         return;
     }
 
-    bool bActive = isRangeActive(mac->auxChannelIndex, &mac->range);
+    bool bActive = isRangeActive(mac->rcChannel, &mac->range);
 
     if (bitArrayGet(&stickyModesEverDisabled, mac->modeId)) {
         updateMasksForMac(mac, andMask, newMask, bActive);
@@ -141,7 +141,7 @@ void updateActivatedModes(void)
         if (bitArrayGet(&stickyModes, mac->modeId)) {
             updateMasksForStickyModes(mac, &andMask, &newMask, bitArrayGet(&latchModes, mac->modeId));
         } else if (mac->modeId < CHECKBOX_ITEM_COUNT) {
-            bool bActive = isRangeActive(mac->auxChannelIndex, &mac->range);
+            bool bActive = isRangeActive(mac->rcChannel, &mac->range);
             updateMasksForMac(mac, &andMask, &newMask, bActive);
         }
     }

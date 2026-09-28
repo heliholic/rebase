@@ -97,6 +97,7 @@ COMMON_SRC = \
             config/config_streamer.c \
             cli/cli.c \
             cli/settings.c \
+            controls/rc.c \
             drivers/dshot.c \
             drivers/dshot_command.c \
             drivers/buf_writer.c \
@@ -157,7 +158,6 @@ COMMON_SRC = \
             drivers/rx/rx_pwm.c \
             drivers/serial_softserial.c \
             fc/core.c \
-            fc/rc.c \
             fc/rc_adjustments.c \
             fc/rc_controls.c \
             fc/rc_modes.c \
@@ -370,9 +370,9 @@ SPEED_OPTIMISED_SRC += \
             drivers/bus_quadspi.c \
             drivers/io.c \
             drivers/serial.c \
+            controls/rc.c \
             fc/core.c \
             fc/tasks.c \
-            fc/rc.c \
             fc/rc_controls.c \
             fc/runtime_config.c \
             flight/imu.c \

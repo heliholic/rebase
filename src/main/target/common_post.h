@@ -44,9 +44,9 @@
 #endif
 
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-#define DEFAULT_AUX_CHANNEL_COUNT       MAX_AUX_CHANNEL_COUNT
+#define DEFAULT_RC_CHANNEL_COUNT        MAX_SUPPORTED_RC_CHANNEL_COUNT
 #else
-#define DEFAULT_AUX_CHANNEL_COUNT       6
+#define DEFAULT_RC_CHANNEL_COUNT        11
 #endif
 
 #ifndef NOINLINE

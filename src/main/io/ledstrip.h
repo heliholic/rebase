@@ -72,7 +72,7 @@ typedef enum {
     LED_MODE_ANGLE,
     LED_MODE_BARO,
     LED_SPECIAL,
-    LED_AUX_CHANNEL
+    LED_RC_CHANNEL
 } ledModeIndex_e;
 
 typedef enum {

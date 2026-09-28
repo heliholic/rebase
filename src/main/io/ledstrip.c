@@ -49,6 +49,7 @@
 
 #include "config/config.h"
 #include "fc/core.h"
+#include "controls/rc.h"
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
@@ -219,7 +220,7 @@ PG_RESET_FN(ledStripStatusModeConfig_t, ledStripStatusModeConfig)
     }
     memcpy_fn(&ledStripStatusModeConfig->modeColors, &defaultModeColors, sizeof(defaultModeColors));
     memcpy_fn(&ledStripStatusModeConfig->specialColors, &defaultSpecialColors, sizeof(defaultSpecialColors));
-    ledStripStatusModeConfig->ledstrip_aux_channel = THROTTLE;
+    ledStripStatusModeConfig->ledstrip_rc_channel = 2;  // the throttle's channel under the default control map
 }
 
 #define ROTATION_SEQUENCE_LED_COUNT 6 // 2 on, 4 off
@@ -564,17 +565,17 @@ static void applyLedFixedLayers(void)
             hsvColor_t nextColor = ledStripStatusModeConfig()->colors[(ledGetColor(ledConfig) + 1 + LED_CONFIGURABLE_COLOR_COUNT) % LED_CONFIGURABLE_COLOR_COUNT];
             hsvColor_t previousColor = ledStripStatusModeConfig()->colors[(ledGetColor(ledConfig) - 1 + LED_CONFIGURABLE_COLOR_COUNT) % LED_CONFIGURABLE_COLOR_COUNT];
 
-            if (ledGetOverlayBit(ledConfig, LED_OVERLAY_THROTTLE)) {   //smooth fade with selected Aux channel of all HSV values from previousColor through color to nextColor
-                const int auxInput = rcData[ledStripStatusModeConfig()->ledstrip_aux_channel];
+            if (ledGetOverlayBit(ledConfig, LED_OVERLAY_THROTTLE)) {   //smooth fade with the selected input channel of all HSV values from previousColor through color to nextColor
+                const int channelValue = rcInput[ledStripStatusModeConfig()->ledstrip_rc_channel];
                 int centerPWM = (PWM_RANGE_MIN + PWM_RANGE_MAX) / 2;
-                if (auxInput < centerPWM) {
-                    color.h = scaleRange(auxInput, PWM_RANGE_MIN, centerPWM, previousColor.h, color.h);
-                    color.s = scaleRange(auxInput, PWM_RANGE_MIN, centerPWM, previousColor.s, color.s);
-                    color.v = scaleRange(auxInput, PWM_RANGE_MIN, centerPWM, previousColor.v, color.v);
+                if (channelValue < centerPWM) {
+                    color.h = scaleRange(channelValue, PWM_RANGE_MIN, centerPWM, previousColor.h, color.h);
+                    color.s = scaleRange(channelValue, PWM_RANGE_MIN, centerPWM, previousColor.s, color.s);
+                    color.v = scaleRange(channelValue, PWM_RANGE_MIN, centerPWM, previousColor.v, color.v);
                 } else {
-                    color.h = scaleRange(auxInput, centerPWM, PWM_RANGE_MAX, color.h, nextColor.h);
-                    color.s = scaleRange(auxInput, centerPWM, PWM_RANGE_MAX, color.s, nextColor.s);
-                    color.v = scaleRange(auxInput, centerPWM, PWM_RANGE_MAX, color.v, nextColor.v);
+                    color.h = scaleRange(channelValue, centerPWM, PWM_RANGE_MAX, color.h, nextColor.h);
+                    color.s = scaleRange(channelValue, centerPWM, PWM_RANGE_MAX, color.s, nextColor.s);
+                    color.v = scaleRange(channelValue, centerPWM, PWM_RANGE_MAX, color.v, nextColor.v);
                 }
             }
 
@@ -637,8 +638,8 @@ static void applyLedFixedLayers(void)
         }
 
         if ((fn != LED_FUNCTION_COLOR) && ledGetOverlayBit(ledConfig, LED_OVERLAY_THROTTLE)) {
-            const int auxInput = rcData[ledStripStatusModeConfig()->ledstrip_aux_channel];
-            hOffset += scaleRange(auxInput, PWM_RANGE_MIN, PWM_RANGE_MAX, 0, HSV_HUE_MAX + 1);
+            const int channelValue = rcInput[ledStripStatusModeConfig()->ledstrip_rc_channel];
+            hOffset += scaleRange(channelValue, PWM_RANGE_MIN, PWM_RANGE_MAX, 0, HSV_HUE_MAX + 1);
         }
         color.h = (color.h + hOffset) % (HSV_HUE_MAX + 1);
 
@@ -849,7 +850,7 @@ static void applyLedIndicatorLayer(bool updateNow, timeUs_t *timer)
     if (updateNow) {
         if (isRxReceivingSignal()) {
             // calculate update frequency
-            int scale = MAX(fabsf(rcCommand[ROLL]), fabsf(rcCommand[PITCH]));  // 0 - 500
+            int scale = MAX(fabsf(rcCommand[RC_ROLL]), fabsf(rcCommand[RC_PITCH]));  // 0 - 500
             scale = scale - INDICATOR_DEADBAND;  // start increasing frequency right after deadband
             *timer += HZ_TO_US(5 + (45 * scale) / (500 - INDICATOR_DEADBAND));   // 5 - 50Hz update, 2.5 - 25Hz blink
 
@@ -865,14 +866,14 @@ static void applyLedIndicatorLayer(bool updateNow, timeUs_t *timer)
     const hsvColor_t *flashColor = &HSV(ORANGE); // TODO - use user color?
 
     quadrant_e quadrants = 0;
-    if (rcCommand[ROLL] > INDICATOR_DEADBAND) {
+    if (rcCommand[RC_ROLL] > INDICATOR_DEADBAND) {
         quadrants |= QUADRANT_EAST;
-    } else if (rcCommand[ROLL] < -INDICATOR_DEADBAND) {
+    } else if (rcCommand[RC_ROLL] < -INDICATOR_DEADBAND) {
         quadrants |= QUADRANT_WEST;
     }
-    if (rcCommand[PITCH] > INDICATOR_DEADBAND) {
+    if (rcCommand[RC_PITCH] > INDICATOR_DEADBAND) {
         quadrants |= QUADRANT_NORTH;
-    } else if (rcCommand[PITCH] < -INDICATOR_DEADBAND) {
+    } else if (rcCommand[RC_PITCH] < -INDICATOR_DEADBAND) {
         quadrants |= QUADRANT_SOUTH;
     }
 
@@ -893,7 +894,7 @@ static void applyLedThrustRingLayer(bool updateNow, timeUs_t *timer)
     if (updateNow) {
         rotationPhase = rotationPhase > 0 ? rotationPhase - 1 : ledCounts.ringSeqLen - 1;
 
-        const int scaledThrottle = ARMING_FLAG(ARMED) ? scaleRange(rcData[THROTTLE], PWM_RANGE_MIN, PWM_RANGE_MAX, 0, 100) : 0;
+        const int scaledThrottle = ARMING_FLAG(ARMED) ? scaleRange(rcControls[RC_THROTTLE], PWM_RANGE_MIN, PWM_RANGE_MAX, 0, 100) : 0;
         *timer += HZ_TO_US(5 + (45 * scaledThrottle) / 100);  // 5 - 50Hz update rate
     }
 
@@ -1210,10 +1211,10 @@ bool setModeColor(ledModeIndex_e modeIndex, int modeColorIndex, int colorIndex)
         if (modeColorIndex < 0 || modeColorIndex >= LED_SPECIAL_COLOR_COUNT)
             return false;
         ledStripStatusModeConfigMutable()->specialColors.color[modeColorIndex] = colorIndex;
-    } else if (modeIndex == LED_AUX_CHANNEL) {
+    } else if (modeIndex == LED_RC_CHANNEL) {
         if (modeColorIndex < 0 || modeColorIndex >= 1)
             return false;
-        ledStripStatusModeConfigMutable()->ledstrip_aux_channel = colorIndex;
+        ledStripStatusModeConfigMutable()->ledstrip_rc_channel = colorIndex;
     } else {
         return false;
     }

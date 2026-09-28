@@ -88,6 +88,7 @@ const char * const debugModeNames[DEBUG_COUNT] =
     ENTRY(TASK),
     ENTRY(FLASH_TEST_PRBS),
     ENTRY(MAVLINK_TELEMETRY),
+    ENTRY(RC_COMMAND),
 };
 
 #undef ENTRY

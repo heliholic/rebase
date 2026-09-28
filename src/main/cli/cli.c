@@ -90,7 +90,7 @@ bool cliMode = false;
 #include "fc/board_info.h"
 #include "fc/controlrate_profile.h"
 #include "fc/core.h"
-#include "fc/rc.h"
+#include "controls/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/runtime_config.h"
@@ -1083,32 +1083,45 @@ static void printRxFailsafe(dumpFlags_t dumpMask, const rxFailsafeChannelConfig_
         const rxFailsafeChannelConfig_t *channelFailsafeConfig = &rxFailsafeChannelConfigs[channel];
         const rxFailsafeChannelConfig_t *defaultChannelFailsafeConfig = &defaultRxFailsafeChannelConfigs[channel];
         const bool equalsDefault = !memcmp(channelFailsafeConfig, defaultChannelFailsafeConfig, sizeof(*channelFailsafeConfig));
-        const bool requireValue = channelFailsafeConfig->mode == RX_FAILSAFE_MODE_SET;
+        const bool requireValue = channelFailsafeConfig->failsafe_mode == RX_FAILSAFE_MODE_SET;
         headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
         if (requireValue) {
             const char *format = "rxfail %u %c %d";
             cliDefaultPrintLinef(dumpMask, equalsDefault, format,
                 channel,
-                rxFailsafeModeCharacters[defaultChannelFailsafeConfig->mode],
-                RXFAIL_STEP_TO_CHANNEL_VALUE(defaultChannelFailsafeConfig->step)
+                rxFailsafeModeCharacters[defaultChannelFailsafeConfig->failsafe_mode],
+                RXFAIL_STEP_TO_CHANNEL_VALUE(defaultChannelFailsafeConfig->failsafe_step)
             );
             cliDumpPrintLinef(dumpMask, equalsDefault, format,
                 channel,
-                rxFailsafeModeCharacters[channelFailsafeConfig->mode],
-                RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->step)
+                rxFailsafeModeCharacters[channelFailsafeConfig->failsafe_mode],
+                RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->failsafe_step)
             );
         } else {
             const char *format = "rxfail %u %c";
             cliDefaultPrintLinef(dumpMask, equalsDefault, format,
                 channel,
-                rxFailsafeModeCharacters[defaultChannelFailsafeConfig->mode]
+                rxFailsafeModeCharacters[defaultChannelFailsafeConfig->failsafe_mode]
             );
             cliDumpPrintLinef(dumpMask, equalsDefault, format,
                 channel,
-                rxFailsafeModeCharacters[channelFailsafeConfig->mode]
+                rxFailsafeModeCharacters[channelFailsafeConfig->failsafe_mode]
             );
         }
     }
+}
+
+// A channel is a flight channel when it carries one of the control functions
+// whose loss makes the aircraft uncontrollable. The arm channel is not one of
+// them, as it was not when arming lived on an ordinary switch channel.
+static rxFailsafeChannelType_e rxFailsafeChannelType(uint8_t channel)
+{
+    for (int function = RC_ROLL; function <= RC_THROTTLE; function++) {
+        if (rxConfig()->rc_channel[function] == channel) {
+            return RX_FAILSAFE_TYPE_FLIGHT;
+        }
+    }
+    return RX_FAILSAFE_TYPE_NORMAL;
 }
 
 RAM_CODE static void cliRxFailsafe(const char *cmdName, char *cmdline)
@@ -1128,9 +1141,9 @@ RAM_CODE static void cliRxFailsafe(const char *cmdName, char *cmdline)
 
             rxFailsafeChannelConfig_t *channelFailsafeConfig = rxFailsafeChannelConfigsMutable(channel);
 
-            const rxFailsafeChannelType_e type = (channel < NON_AUX_CHANNEL_COUNT) ? RX_FAILSAFE_TYPE_FLIGHT : RX_FAILSAFE_TYPE_AUX;
-            rxFailsafeChannelMode_e mode = channelFailsafeConfig->mode;
-            bool requireValue = channelFailsafeConfig->mode == RX_FAILSAFE_MODE_SET;
+            const rxFailsafeChannelType_e type = rxFailsafeChannelType(channel);
+            rxFailsafeChannelMode_e mode = channelFailsafeConfig->failsafe_mode;
+            bool requireValue = channelFailsafeConfig->failsafe_mode == RX_FAILSAFE_MODE_SET;
 
             ptr = nextArg(ptr);
             if (ptr) {
@@ -1161,15 +1174,15 @@ RAM_CODE static void cliRxFailsafe(const char *cmdName, char *cmdline)
                         return;
                     }
 
-                    channelFailsafeConfig->step = value;
+                    channelFailsafeConfig->failsafe_step = value;
                 } else if (requireValue) {
                     cliShowInvalidArgumentCountError(cmdName);
                     return;
                 }
-                channelFailsafeConfig->mode = mode;
+                channelFailsafeConfig->failsafe_mode = mode;
             }
 
-            char modeCharacter = rxFailsafeModeCharacters[channelFailsafeConfig->mode];
+            char modeCharacter = rxFailsafeModeCharacters[channelFailsafeConfig->failsafe_mode];
 
             // double use of cliPrintf below
             // 1. acknowledge interpretation on command,
@@ -1179,7 +1192,7 @@ RAM_CODE static void cliRxFailsafe(const char *cmdName, char *cmdline)
                 cliPrintLinef("rxfail %u %c %d",
                     channel,
                     modeCharacter,
-                    RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->step)
+                    RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->failsafe_step)
                 );
             } else {
                 cliPrintLinef("rxfail %u %c",
@@ -1196,7 +1209,7 @@ RAM_CODE static void cliRxFailsafe(const char *cmdName, char *cmdline)
 static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *modeActivationConditions, const modeActivationCondition_t *defaultModeActivationConditions, const char *headingStr)
 {
     const char *format = "aux %u %u %u %u %u %u %u";
-    // print out aux channel settings
+    // print out the mode activation settings
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
     for (uint32_t i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         const modeActivationCondition_t *mac = &modeActivationConditions[i];
@@ -1211,7 +1224,7 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
                 cliDefaultPrintLinef(dumpMask, equalsDefault, format,
                     i,
                     box->permanentId,
-                    macDefault->auxChannelIndex,
+                    macDefault->rcChannel,
                     MODE_STEP_TO_CHANNEL_VALUE(macDefault->range.startStep),
                     MODE_STEP_TO_CHANNEL_VALUE(macDefault->range.endStep),
                     macDefault->modeLogic,
@@ -1225,7 +1238,7 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
             cliDumpPrintLinef(dumpMask, equalsDefault, format,
                 i,
                 box->permanentId,
-                mac->auxChannelIndex,
+                mac->rcChannel,
                 MODE_STEP_TO_CHANNEL_VALUE(mac->range.startStep),
                 MODE_STEP_TO_CHANNEL_VALUE(mac->range.endStep),
                 mac->modeLogic,
@@ -1260,8 +1273,8 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             ptr = nextArg(ptr);
             if (ptr) {
                 val = atoi(ptr);
-                if (val >= 0 && val < MAX_AUX_CHANNEL_COUNT) {
-                    mac->auxChannelIndex = val;
+                if (val >= 0 && val < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+                    mac->rcChannel = val;
                     validArgumentCount++;
                 }
             }
@@ -1295,7 +1308,7 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             cliPrintLinef( "aux %u %u %u %u %u %u %u",
                 i,
                 findBoxByBoxId(mac->modeId)->permanentId,
-                mac->auxChannelIndex,
+                mac->rcChannel,
                 MODE_STEP_TO_CHANNEL_VALUE(mac->range.startStep),
                 MODE_STEP_TO_CHANNEL_VALUE(mac->range.endStep),
                 mac->modeLogic,
@@ -1742,22 +1755,22 @@ static void printAdjustmentRange(dumpFlags_t dumpMask, const adjustmentRange_t *
             headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
             cliDefaultPrintLinef(dumpMask, equalsDefault, format,
                 i,
-                arDefault->auxChannelIndex,
+                arDefault->rcChannel,
                 MODE_STEP_TO_CHANNEL_VALUE(arDefault->range.startStep),
                 MODE_STEP_TO_CHANNEL_VALUE(arDefault->range.endStep),
                 arDefault->adjustmentConfig,
-                arDefault->auxSwitchChannelIndex,
+                arDefault->adjChannel,
                 arDefault->adjustmentCenter,
                 arDefault->adjustmentScale
             );
         }
         cliDumpPrintLinef(dumpMask, equalsDefault, format,
             i,
-            ar->auxChannelIndex,
+            ar->rcChannel,
             MODE_STEP_TO_CHANNEL_VALUE(ar->range.startStep),
             MODE_STEP_TO_CHANNEL_VALUE(ar->range.endStep),
             ar->adjustmentConfig,
-            ar->auxSwitchChannelIndex,
+            ar->adjChannel,
             ar->adjustmentCenter,
             ar->adjustmentScale
         );
@@ -1787,8 +1800,8 @@ RAM_CODE static void cliAdjustmentRange(const char *cmdName, char *cmdline)
             ptr = nextArg(ptr);
             if (ptr) {
                 int val = atoi(ptr);
-                if (val >= 0 && val < MAX_AUX_CHANNEL_COUNT) {
-                    ar->auxChannelIndex = val;
+                if (val >= 0 && val < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+                    ar->rcChannel = val;
                     validArgumentCount++;
                 }
             }
@@ -1806,8 +1819,8 @@ RAM_CODE static void cliAdjustmentRange(const char *cmdName, char *cmdline)
             ptr = nextArg(ptr);
             if (ptr) {
                 int val = atoi(ptr);
-                if (val >= 0 && val < MAX_AUX_CHANNEL_COUNT) {
-                    ar->auxSwitchChannelIndex = val;
+                if (val >= 0 && val < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+                    ar->adjChannel = val;
                     validArgumentCount++;
                 }
             }
@@ -1839,11 +1852,11 @@ RAM_CODE static void cliAdjustmentRange(const char *cmdName, char *cmdline)
 
             cliDumpPrintLinef(0, false, format,
                 i,
-                ar->auxChannelIndex,
+                ar->rcChannel,
                 MODE_STEP_TO_CHANNEL_VALUE(ar->range.startStep),
                 MODE_STEP_TO_CHANNEL_VALUE(ar->range.endStep),
                 ar->adjustmentConfig,
-                ar->auxSwitchChannelIndex,
+                ar->adjChannel,
                 ar->adjustmentCenter,
                 ar->adjustmentScale
             );
@@ -1858,7 +1871,7 @@ static void printRxRange(dumpFlags_t dumpMask, const rxChannelRangeConfig_t *cha
 {
     const char *format = "rxrange %u %u %u";
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
-    for (uint32_t i = 0; i < NON_AUX_CHANNEL_COUNT; i++) {
+    for (uint32_t i = 0; i < RC_CONTROL_COUNT; i++) {
         bool equalsDefault = false;
         if (defaultChannelRangeConfigs) {
             equalsDefault = !memcmp(&channelRangeConfigs[i], &defaultChannelRangeConfigs[i], sizeof(channelRangeConfigs[i]));
@@ -1890,7 +1903,7 @@ RAM_CODE static void cliRxRange(const char *cmdName, char *cmdline)
     } else {
         ptr = cmdline;
         i = atoi(ptr);
-        if (i >= 0 && i < NON_AUX_CHANNEL_COUNT) {
+        if (i >= 0 && i < RC_CONTROL_COUNT) {
             int rangeMin = PWM_PULSE_MIN, rangeMax = PWM_PULSE_MAX;
 
             ptr = nextArg(ptr);
@@ -1921,7 +1934,7 @@ RAM_CODE static void cliRxRange(const char *cmdName, char *cmdline)
 
             }
         } else {
-            cliShowArgumentRangeError(cmdName, "CHANNEL", 0, NON_AUX_CHANNEL_COUNT - 1);
+            cliShowArgumentRangeError(cmdName, "CHANNEL", 0, RC_CONTROL_COUNT - 1);
         }
     }
 }
@@ -2047,15 +2060,15 @@ static void printModeColor(dumpFlags_t dumpMask, const ledStripStatusModeConfig_
         cliDumpPrintLinef(dumpMask, equalsDefault, format, LED_SPECIAL, j, colorIndex);
     }
 
-    const int ledStripAuxChannel = ledStripStatusModeConfig->ledstrip_aux_channel;
+    const int ledStripRcChannel = ledStripStatusModeConfig->ledstrip_rc_channel;
     bool equalsDefault = false;
     if (defaultLedStripConfig) {
-        const int ledStripAuxChannelDefault = defaultLedStripConfig->ledstrip_aux_channel;
-        equalsDefault = ledStripAuxChannel == ledStripAuxChannelDefault;
+        const int ledStripRcChannelDefault = defaultLedStripConfig->ledstrip_rc_channel;
+        equalsDefault = ledStripRcChannel == ledStripRcChannelDefault;
         headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
-        cliDefaultPrintLinef(dumpMask, equalsDefault, format, LED_AUX_CHANNEL, 0, ledStripAuxChannelDefault);
+        cliDefaultPrintLinef(dumpMask, equalsDefault, format, LED_RC_CHANNEL, 0, ledStripRcChannelDefault);
     }
-    cliDumpPrintLinef(dumpMask, equalsDefault, format, LED_AUX_CHANNEL, 0, ledStripAuxChannel);
+    cliDumpPrintLinef(dumpMask, equalsDefault, format, LED_RC_CHANNEL, 0, ledStripRcChannel);
 }
 
 RAM_CODE static void cliModeColor(const char *cmdName, char *cmdline)
@@ -2919,68 +2932,6 @@ RAM_CODE static void cliRxBind(const char *cmdName, char *cmdline)
     }
 }
 #endif
-
-static void printMap(dumpFlags_t dumpMask, const rxConfig_t *rxConfig, const rxConfig_t *defaultRxConfig, const char *headingStr)
-{
-    bool equalsDefault = true;
-    char buf[16];
-    char bufDefault[16];
-    uint32_t i;
-
-    headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
-    for (i = 0; i < RX_MAPPABLE_CHANNEL_COUNT; i++) {
-        buf[rxConfig->rcmap[i]] = rcChannelLetters[i];
-        if (defaultRxConfig) {
-            bufDefault[defaultRxConfig->rcmap[i]] = rcChannelLetters[i];
-            equalsDefault = equalsDefault && (rxConfig->rcmap[i] == defaultRxConfig->rcmap[i]);
-        }
-    }
-    buf[i] = '\0';
-
-    headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
-    const char *formatMap = "map %s";
-    if (defaultRxConfig) {
-        bufDefault[i] = '\0';
-        cliDefaultPrintLinef(dumpMask, equalsDefault, formatMap, bufDefault);
-    }
-    cliDumpPrintLinef(dumpMask, equalsDefault, formatMap, buf);
-}
-
-RAM_CODE static void cliMap(const char *cmdName, char *cmdline)
-{
-    uint32_t i;
-    char buf[RX_MAPPABLE_CHANNEL_COUNT + 1];
-
-    uint32_t len = strlen(cmdline);
-    if (len == RX_MAPPABLE_CHANNEL_COUNT) {
-
-        for (i = 0; i < RX_MAPPABLE_CHANNEL_COUNT; i++) {
-            buf[i] = toupper((unsigned char)cmdline[i]);
-        }
-        buf[i] = '\0';
-
-        for (i = 0; i < RX_MAPPABLE_CHANNEL_COUNT; i++) {
-            buf[i] = toupper((unsigned char)cmdline[i]);
-
-            if (strchr(rcChannelLetters, buf[i]) && !strchr(buf + i + 1, buf[i]))
-                continue;
-
-            cliShowParseError(cmdName);
-            return;
-        }
-        parseRcChannels(buf, rxConfigMutable());
-    } else if (len > 0) {
-        cliShowInvalidArgumentCountError(cmdName);
-        return;
-    }
-
-    for (i = 0; i < RX_MAPPABLE_CHANNEL_COUNT; i++) {
-        buf[rxConfig()->rcmap[i]] = rcChannelLetters[i];
-    }
-
-    buf[i] = '\0';
-    cliPrintLinef("map %s", buf);
-}
 
 static char *checkCommand(char *cmdline, const char *command)
 {
@@ -4967,7 +4918,7 @@ RAM_CODE static void cliStatus(const char *cmdName, char *cmdline)
     int gyroDeltaTimeUs;
     const int gyroRate = getTaskAverageRateHz(TASK_GYRO, &gyroDeltaTimeUs);
 
-    const int rxRate = getRxRateValid() ? lrintf(getCurrentRxRateHz()) : 0;
+    const int rxRate = getAverageRxRefreshRate() ? lrintf(1e6f / getAverageRxRefreshRate()) : 0;
 
     const int systemRate = getTaskAverageRateHz(TASK_SYSTEM, NULL);
     cliPrintLinef("CPU:%d%%, cycle time: %d, GYRO rate: %d, RX rate: %d, System rate: %d",
@@ -5323,7 +5274,7 @@ RAM_CODE static void cliEnv(const char *cmdName, char *cmdline)
 
     int gyroDeltaTimeUs;
     const int gyroRate = getTaskAverageRateHz(TASK_GYRO, &gyroDeltaTimeUs);
-    const int rxRate = getRxRateValid() ? lrintf(getCurrentRxRateHz()) : 0;
+    const int rxRate = getAverageRxRefreshRate() ? lrintf(1e6f / getAverageRxRefreshRate()) : 0;
     const int systemRate = getTaskAverageRateHz(TASK_SYSTEM, NULL);
     cliPrintNameValuef("CPU_LOAD_PCT", "%d", constrain(getAverageSystemLoadPercent(), 0, LOAD_PERCENTAGE_ONE));
     cliPrintNameValuef("CYCLE_TIME_US", "%d", gyroDeltaTimeUs);
@@ -6695,7 +6646,6 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
 #endif
 #endif // USE_BEEPER
 
-            printMap(dumpMask, rxConfigCopy(), rxConfig(), "map");
 
 #ifdef USE_LED_STRIP_STATUS_MODE
             printLed(dumpMask, ledStripStatusModeConfigCopy()->ledConfigs, ledStripStatusModeConfig()->ledConfigs, "led");
@@ -6868,7 +6818,7 @@ RAM_CODE STATIC_UNIT_TESTED void cliHelp(const char *cmdName, char *cmdline);
 // should be sorted a..z for bsearch()
 const clicmd_t cmdTable[] = {
     CLI_COMMAND_DEF("adjrange", "configure adjustment ranges", "<index> <unused> <range channel> <start> <end> <function> <select channel> [<center> <scale>]", cliAdjustmentRange),
-    CLI_COMMAND_DEF("aux", "configure modes", "<index> <mode> <aux> <start> <end> <logic>", cliAux),
+    CLI_COMMAND_DEF("aux", "configure modes", "<index> <mode> <channel> <start> <end> <logic>", cliAux),
 #ifdef USE_CLI_BATCH
     CLI_COMMAND_DEF("batch", "start or end a batch of commands", "start | end", cliBatch),
 #endif
@@ -6965,7 +6915,6 @@ const clicmd_t cmdTable[] = {
 #if defined(USE_BOARD_INFO)
     CLI_COMMAND_DEF("manufacturer_id", "get / set the id of the board manufacturer", "[manufacturer id]", cliManufacturerId),
 #endif
-    CLI_COMMAND_DEF("map", "configure rc channel order", "[<map>]", cliMap),
     CLI_COMMAND_DEF("mcu_id", "id of the microcontroller", NULL, cliMcuId),
 #ifdef USE_LED_STRIP_STATUS_MODE
     CLI_COMMAND_DEF("mode_color", "configure mode and special colors", NULL, cliModeColor),

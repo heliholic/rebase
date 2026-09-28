@@ -36,6 +36,8 @@
 #include "config/config.h"
 #include "fc/feature.h"
 
+#include "controls/rc.h"
+
 #include "drivers/adc.h"
 #include "drivers/rx/rx_pwm.h"
 #include "drivers/time.h"
@@ -65,8 +67,6 @@
 #include "rx/jetiexbus.h"
 #include "rx/crsf.h"
 #include "rx/mavlink.h"
-
-const char rcChannelLetters[] = "AERT12345678abcdefgh";
 
 static uint16_t rssi = 0;                  // range: [0;1023]
 static uint16_t rssiRaw = 0;               // range: [0;1023]
@@ -118,7 +118,15 @@ static timeUs_t suspendRxSignalUntil = 0;
 static uint8_t  skipRxSamples = 0;
 
 static float rcRaw[MAX_SUPPORTED_RC_CHANNEL_COUNT];     // last received raw value, as it comes
-float rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];           // scaled, modified, checked and constrained values
+float rcInput[MAX_SUPPORTED_RC_CHANNEL_COUNT];           // scaled, modified, checked and constrained values
+float rcControls[RC_CONTROL_COUNT];                      // control channels, gathered from rcInput[]
+
+// Which control function each receiver channel carries, or -1 for none.
+// The reverse of rxConfig()->rc_channel[], rebuilt by rxBuildControlMap().
+static int8_t rcInputFunction[MAX_SUPPORTED_RC_CHANNEL_COUNT];
+
+// Lowest channel count that still covers every mapped control function
+static uint8_t rcControlSpan;
 uint32_t validRxSignalTimeout[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 
 #define MAX_INVALID_PULSE_TIME_MS 300                   // hold time in milliseconds after bad channel or Rx link loss
@@ -137,7 +145,7 @@ static uint8_t rcSampleIndex = 0;
 void resetAllRxChannelRangeConfigurations(rxChannelRangeConfig_t *rxChannelRangeConfig)
 {
     // set default calibration to full range and 1:1 mapping
-    for (int i = 0; i < NON_AUX_CHANNEL_COUNT; i++) {
+    for (int i = 0; i < RC_CONTROL_COUNT; i++) {
         rxChannelRangeConfig->min = PWM_RANGE_MIN;
         rxChannelRangeConfig->max = PWM_RANGE_MAX;
         rxChannelRangeConfig++;
@@ -185,7 +193,7 @@ static uint8_t frameStatusUdp(rxRuntimeState_t *state)
         // rxChannelCount snapshot (updated below) reflect the actual frame.
         const uint8_t count = udpChannelCount;
         state->channelCount = count;
-        rxChannelCount = MIN(rxConfig()->max_aux_channel + NON_AUX_CHANNEL_COUNT, count);
+        rxChannelCount = MIN(MAX(rxConfig()->max_rc_channel, rcControlSpan), count);
         udpFrameReceived = false;
         return RX_FRAME_COMPLETE;
     }
@@ -205,8 +213,8 @@ void rxUpdateUdpChannels(const uint16_t *channels, uint8_t channelCount)
 
 STATIC_UNIT_TESTED bool isPulseValid(uint16_t pulseDuration)
 {
-    return  pulseDuration >= rxConfig()->rx_min_usec &&
-            pulseDuration <= rxConfig()->rx_max_usec;
+    return  pulseDuration >= rxConfig()->rx_pulse_min &&
+            pulseDuration <= rxConfig()->rx_pulse_max;
 }
 
 #ifdef USE_SERIALRX
@@ -280,6 +288,28 @@ static bool serialRxInit(const rxConfig_t *rxConfig, rxRuntimeState_t *rxRuntime
 }
 #endif
 
+// Build the reverse of rc_channel[], so that a receiver channel can be told
+// from its index alone. Both the Rx calibration and the failsafe treatment of
+// a channel depend on which control function - if any - it carries.
+static void rxBuildControlMap(void)
+{
+    for (int channel = 0; channel < MAX_SUPPORTED_RC_CHANNEL_COUNT; channel++) {
+        rcInputFunction[channel] = -1;
+    }
+
+    rcControlSpan = RC_CONTROL_COUNT;
+
+    for (int function = 0; function < RC_CONTROL_COUNT; function++) {
+        const uint8_t channel = rxConfig()->rc_channel[function];
+        if (channel < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+            rcInputFunction[channel] = function;
+            if (channel >= rcControlSpan) {
+                rcControlSpan = channel + 1;
+            }
+        }
+    }
+}
+
 void rxInit(void)
 {
 #if ENABLE_RX_UDP
@@ -303,17 +333,27 @@ void rxInit(void)
     rxRuntimeState.lastRcFrameTimeUs = 0;              // zero when driver does not provide timing info
     rcSampleIndex = 0;
 
-    for (int i = 0; i < NON_AUX_CHANNEL_COUNT; i++) {
+    rxBuildControlMap();
+
+    for (int i = 0; i < RC_CONTROL_COUNT; i++) {
         scaleRangefInit(&rxRuntimeState.scaleRange[i], rxChannelRangeConfigs(i)->min, rxChannelRangeConfigs(i)->max, PWM_RANGE_MIN, PWM_RANGE_MAX);
     }
 
     uint32_t now = millis();
     for (int i = 0; i < MAX_SUPPORTED_RC_CHANNEL_COUNT; i++) {
-        rcData[i] = rxConfig()->midrc;
+        rcInput[i] = getFailsafeCenter();
         validRxSignalTimeout[i] = now + MAX_INVALID_PULSE_TIME_MS;
     }
 
-    rcData[THROTTLE] = rxConfig()->rx_min_usec;
+    for (int i = 0; i < RC_CONTROL_COUNT; i++) {
+        rcControls[i] = getFailsafeCenter();
+    }
+
+    const uint8_t throttleChannel = rxConfig()->rc_channel[RC_THROTTLE];
+    if (throttleChannel < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+        rcInput[throttleChannel] = getFailsafeThrottle();
+    }
+    rcControls[RC_THROTTLE] = getFailsafeThrottle();
 
     // Initialize ARM switch to OFF position when arming via switch is defined
     // TODO - move to rc_mode.c
@@ -327,8 +367,8 @@ void rxInit(void)
             } else {
                 value = MODE_STEP_TO_CHANNEL_VALUE((modeActivationCondition->range.endStep + 1));
             }
-            // Initialize ARM AUX channel to OFF value
-            rcData[modeActivationCondition->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = value;
+            // Initialize the ARM channel to its OFF value
+            rcInput[modeActivationCondition->rcChannel] = value;
         }
     }
 
@@ -400,7 +440,7 @@ void rxInit(void)
     pt1FilterInit(&rsnrFilter, k);
 #endif //USE_RX_RSNR
 
-    rxChannelCount = MIN(rxConfig()->max_aux_channel + NON_AUX_CHANNEL_COUNT, rxRuntimeState.channelCount);
+    rxChannelCount = MIN(MAX(rxConfig()->max_rc_channel, rcControlSpan), rxRuntimeState.channelCount);
 }
 
 bool isRxReceivingSignal(void)
@@ -604,15 +644,19 @@ static uint16_t getRxfailValue(uint8_t channel)
     const rxFailsafeChannelConfig_t *channelFailsafeConfig = rxFailsafeChannelConfigs(channel);
     const bool boxFailsafeSwitchIsOn = IS_RC_MODE_ACTIVE(BOXFAILSAFE);
 
-    switch (channelFailsafeConfig->mode) {
+    switch (channelFailsafeConfig->failsafe_mode) {
     case RX_FAILSAFE_MODE_AUTO:
-        switch (channel) {
-        case ROLL:
-        case PITCH:
-        case YAW:
-            return rxConfig()->midrc;
-        case THROTTLE:
-            return rxConfig()->rx_min_usec;
+        // A channel carrying no control function - and the arm channel, which
+        // must not be centred onto an unpredictable side of its range - falls
+        // through to HOLD.
+        switch (rcInputFunction[channel]) {
+        case RC_ROLL:
+        case RC_PITCH:
+        case RC_YAW:
+        case RC_COLLECTIVE:
+            return getFailsafeCenter();
+        case RC_THROTTLE:
+            return getFailsafeThrottle();
         }
 
     FALLTHROUGH;
@@ -622,10 +666,10 @@ static uint16_t getRxfailValue(uint8_t channel)
         if (boxFailsafeSwitchIsOn) {
             return rcRaw[channel]; // current values are allowed through on held channels with switch induced failsafe
         } else {
-            return rcData[channel]; // last good value
+            return rcInput[channel]; // last good value
         }
     case RX_FAILSAFE_MODE_SET:
-        return RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->step);
+        return RXFAIL_STEP_TO_CHANNEL_VALUE(channelFailsafeConfig->failsafe_step);
     }
 }
 
@@ -645,18 +689,25 @@ static void readRxChannelsApplyRanges(void)
 {
     for (int channel = 0; channel < rxChannelCount; channel++) {
 
-        const uint8_t rawChannel = channel < RX_MAPPABLE_CHANNEL_COUNT ? rxConfig()->rcmap[channel] : channel;
+        // sample the channel, as the receiver numbers it
+        float sample = rxRuntimeState.rcReadRawFn(&rxRuntimeState, channel);
 
-        // sample the channel
-        float sample = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
-
-        // apply the rx calibration
-        if (channel < NON_AUX_CHANNEL_COUNT) {
-            sample = applyRxChannelRangeConfiguraton(sample, &rxRuntimeState.scaleRange[channel]);
+        // apply the rx calibration, which is held per control function
+        const int8_t function = rcInputFunction[channel];
+        if (function >= 0) {
+            sample = applyRxChannelRangeConfiguraton(sample, &rxRuntimeState.scaleRange[function]);
         }
 
         rcRaw[channel] = sample;
     }
+}
+
+// The channels whose loss means the aircraft is no longer controllable. The arm
+// channel is excluded, as it was when arming was on an ordinary switch channel.
+static bool isFlightChannel(uint8_t channel)
+{
+    const int8_t function = rcInputFunction[channel];
+    return function >= RC_ROLL && function <= RC_THROTTLE;
 }
 
 static void detectAndApplySignalLossBehaviour(void)
@@ -669,7 +720,7 @@ static void detectAndApplySignalLossBehaviour(void)
     // can also go false with good packets but where one flight channel is bad > 300ms (PPM type receiver error)
 
     for (int channel = 0; channel < rxChannelCount; channel++) {
-        float sample = rcRaw[channel]; // sample has latest RC value, rcData has last 'accepted valid' value
+        float sample = rcRaw[channel]; // sample has latest RC value, rcInput has last 'accepted valid' value
         const bool thisChannelValid = rxFlightChannelsValid && isPulseValid(sample);
         // if the whole packet is bad, or BOXFAILSAFE switch is actioned, consider all channels bad
         if (thisChannelValid) {
@@ -680,17 +731,17 @@ static void detectAndApplySignalLossBehaviour(void)
         if (failsafeIsActive()) {
             // we are in failsafe Stage 2, whether Rx loss or BOXFAILSAFE induced
             // pass valid incoming flight channel values to FC
-            if (channel < NON_AUX_CHANNEL_COUNT) {
+            if (isFlightChannel(channel)) {
                 if (!thisChannelValid) {
-                    if (channel == THROTTLE ) {
+                    if (rcInputFunction[channel] == RC_THROTTLE) {
                         sample = failsafeConfig()->failsafe_throttle;
                         // stage 2 failsafe throttle value
                     } else {
-                        sample = rxConfig()->midrc;
+                        sample = getFailsafeCenter();
                     }
                 }
             } else {
-                // set aux channels as per Stage 1 failsafe hold/set values
+                // channels carrying no control function follow the Stage 1 hold/set values
                 sample = getRxfailValue(channel);
             }
         } else {
@@ -703,11 +754,11 @@ static void detectAndApplySignalLossBehaviour(void)
                 // everything is normal but this channel was invalid
                 if (cmp32(currentTimeMs, validRxSignalTimeout[channel]) < 0) {
                     // first 300ms of Stage 1 failsafe
-                    sample = rcData[channel];
+                    sample = rcInput[channel];
                     //  HOLD last valid value on bad channel/s for MAX_INVALID_PULSE_TIME_MS (300ms)
                 } else {
                     // remaining Stage 1 failsafe period after 300ms
-                    if (channel < NON_AUX_CHANNEL_COUNT) {
+                    if (isFlightChannel(channel)) {
                         rxFlightChannelsValid = false;
                         //  declare signal lost after 300ms of any one bad flight channel
                     }
@@ -715,7 +766,7 @@ static void detectAndApplySignalLossBehaviour(void)
                     // set channels that are invalid for more than 300ms to Stage 1 values
                 }
             }
-            // everything is normal, ie rcData[channel] will be set to rcRaw(channel) via 'sample'
+            // everything is normal, ie rcInput[channel] will be set to rcRaw(channel) via 'sample'
         }
 
         sample = constrainf(sample, PWM_PULSE_MIN, PWM_PULSE_MAX);
@@ -723,13 +774,21 @@ static void detectAndApplySignalLossBehaviour(void)
 #ifdef USE_RX_PPM
         if (rxRuntimeState.rxProvider == RX_PROVIDER_PPM) {
             //  smooth output for PPM using moving average
-            rcData[channel] = calculateChannelMovingAverage(channel, sample);
+            rcInput[channel] = calculateChannelMovingAverage(channel, sample);
         } else
 #endif
 
         {
-            //  set rcData to either validated incoming values, or failsafe-modified values
-            rcData[channel] = sample;
+            //  set rcInput to either validated incoming values, or failsafe-modified values
+            rcInput[channel] = sample;
+        }
+    }
+
+    for (int function = RC_ROLL; function <= RC_THROTTLE; function++) {
+        if (rxConfig()->rc_channel[function] >= rxChannelCount) {
+            rxFlightChannelsValid = false;
+            //  a control channel the receiver does not deliver is never sampled
+            break;
         }
     }
 
@@ -741,7 +800,22 @@ static void detectAndApplySignalLossBehaviour(void)
         //  -> start stage 1 timer to enter stage2 failsafe the instant we get a good packet or the BOXFAILSAFE switch is reverted
     }
 
-    DEBUG_SET(DEBUG_RX_SIGNAL_LOSS, 3, rcData[THROTTLE]);
+}
+
+// Gather the control channels out of the receiver channels. A function mapped
+// past the end of what the receiver delivers keeps its seeded failsafe value;
+// detectAndApplySignalLossBehaviour() has already cleared rxFlightChannelsValid
+// for that case.
+static void updateRcControls(void)
+{
+    for (int function = 0; function < RC_CONTROL_COUNT; function++) {
+        const uint8_t channel = rxConfig()->rc_channel[function];
+        if (channel < rxChannelCount) {
+            rcControls[function] = rcInput[channel];
+        }
+    }
+
+    DEBUG_SET(DEBUG_RX_SIGNAL_LOSS, 3, rcControls[RC_THROTTLE]);
 }
 
 bool calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs)
@@ -767,21 +841,12 @@ bool calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs)
     }
 
     readRxChannelsApplyRanges();            // returns rcRaw
-    detectAndApplySignalLossBehaviour();    // returns rcData
+    detectAndApplySignalLossBehaviour();    // returns rcInput
+    updateRcControls();                     // returns rcControls
 
     rcSampleIndex++;
 
     return true;
-}
-
-void parseRcChannels(const char *input, rxConfig_t *rxConfig)
-{
-    for (const char *c = input; *c; c++) {
-        const char *s = strchr(rcChannelLetters, *c);
-        if (s && (s < rcChannelLetters + RX_MAPPABLE_CHANNEL_COUNT)) {
-            rxConfig->rcmap[s - rcChannelLetters] = c - input;
-        }
-    }
 }
 
 void setRssiDirect(uint16_t newRssi, rssiSource_e source)
@@ -824,8 +889,8 @@ DEFINE_SCALE_FN(scaleRangePwmRssi, PWM_RANGE_MIN, PWM_RANGE_MAX, 0, RSSI_MAX_VAL
 
 static void updateRSSIPWM(void)
 {
-    // Read value of AUX channel as rssi
-    int16_t pwmRssi = rcData[rxConfig()->rssi_channel - 1];
+    // Read the value of the configured input channel as rssi
+    int16_t pwmRssi = rcInput[rxConfig()->rssi_channel - 1];
 
     // Range of rawPwmRssi is [1000;2000]. rssi should be in [0;1023];
     setRssiDirect(scaleRangePwmRssi(constrain(pwmRssi, PWM_RANGE_MIN, PWM_RANGE_MAX)), RSSI_SOURCE_RX_CHANNEL);
@@ -1005,3 +1070,29 @@ bool isRssiConfigured(void)
     return rssiSource != RSSI_SOURCE_NONE;
 }
 
+
+/*
+ * The interval between the last two Rx frames, measured with the frame
+ * timestamps the driver provides. Returns zero while the driver has not
+ * timestamped a frame, in which case the caller must fall back on its own
+ * arrival times. Also reports how long ago the last frame was timestamped.
+ */
+timeDelta_t rxGetFrameDelta(timeDelta_t *frameAgeUs)
+{
+    static timeUs_t previousFrameTimeUs = 0;
+    static timeDelta_t frameTimeDeltaUs = 0;
+
+    const timeUs_t frameTimeUs = rxRuntimeState.lastRcFrameTimeUs;
+
+    if (frameTimeUs) {
+        *frameAgeUs = cmpTimeUs(micros(), frameTimeUs);
+
+        const timeDelta_t deltaUs = cmpTimeUs(frameTimeUs, previousFrameTimeUs);
+        if (deltaUs) {
+            frameTimeDeltaUs = deltaUs;
+            previousFrameTimeUs = frameTimeUs;
+        }
+    }
+
+    return frameTimeDeltaUs;
+}

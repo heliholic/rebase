@@ -72,11 +72,11 @@ TEST(RxTest, TestValidFlightChannels)
     memset(&rcModeActivationMask, 0, sizeof(rcModeActivationMask)); // BOXFAILSAFE must be OFF
 
     // and
-    rxConfigMutable()->rx_min_usec = 1000;
-    rxConfigMutable()->rx_max_usec = 2000;
+    rxConfigMutable()->rx_pulse_min = 1000;
+    rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
@@ -87,7 +87,7 @@ TEST(RxTest, TestValidFlightChannels)
     rxInit();
 
     // then (ARM channel should be positioned just 1 step above active range to init to OFF)
-    EXPECT_EQ(1625, rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT]);
+    EXPECT_EQ(1625, rcInput[modeActivationConditions(0)->rcChannel]);
 
     // given
     rxResetFlightChannelStatus();
@@ -109,11 +109,11 @@ TEST(RxTest, TestValidFlightChannelsHighArm)
     memset(&rcModeActivationMask, 0, sizeof(rcModeActivationMask)); // BOXFAILSAFE must be OFF
 
     // and
-    rxConfigMutable()->rx_min_usec = 1000;
-    rxConfigMutable()->rx_max_usec = 2000;
+    rxConfigMutable()->rx_pulse_min = 1000;
+    rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
@@ -124,7 +124,7 @@ TEST(RxTest, TestValidFlightChannelsHighArm)
     rxInit();
 
     // then (ARM channel should be positioned just 1 step below active range to init to OFF)
-    EXPECT_EQ(1375, rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT]);
+    EXPECT_EQ(1375, rcInput[modeActivationConditions(0)->rcChannel]);
 
     // given
     rxResetFlightChannelStatus();
@@ -145,11 +145,11 @@ TEST(RxTest, TestInvalidFlightChannels)
     memset(&testData, 0, sizeof(testData));
 
     // and
-    rxConfigMutable()->rx_min_usec = 1000;
-    rxConfigMutable()->rx_max_usec = 2000;
+    rxConfigMutable()->rx_pulse_min = 1000;
+    rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+    modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
@@ -164,7 +164,7 @@ TEST(RxTest, TestInvalidFlightChannels)
     rxInit();
 
     // then (ARM channel should be positioned just 1 step below active range to init to OFF)
-    EXPECT_EQ(1375, rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT]);
+    EXPECT_EQ(1375, rcInput[modeActivationConditions(0)->rcChannel]);
 
     // and
     for (uint8_t stickChannelIndex = 0; stickChannelIndex < STICK_CHANNEL_COUNT; stickChannelIndex++) {
@@ -172,9 +172,9 @@ TEST(RxTest, TestInvalidFlightChannels)
         rxResetFlightChannelStatus();
 
         for (uint8_t otherStickChannelIndex = 0; otherStickChannelIndex < STICK_CHANNEL_COUNT; otherStickChannelIndex++) {
-            channelPulses[otherStickChannelIndex] = rxConfig()->rx_min_usec;
+            channelPulses[otherStickChannelIndex] = rxConfig()->rx_pulse_min;
         }
-        channelPulses[stickChannelIndex] = rxConfig()->rx_min_usec - 1;
+        channelPulses[stickChannelIndex] = rxConfig()->rx_pulse_min - 1;
 
         // when
         for (uint8_t channelIndex = 0; channelIndex < MAX_SUPPORTED_RC_CHANNEL_COUNT; channelIndex++) {
@@ -189,9 +189,9 @@ TEST(RxTest, TestInvalidFlightChannels)
         rxResetFlightChannelStatus();
 
         for (uint8_t otherStickChannelIndex = 0; otherStickChannelIndex < STICK_CHANNEL_COUNT; otherStickChannelIndex++) {
-            channelPulses[otherStickChannelIndex] = rxConfig()->rx_max_usec;
+            channelPulses[otherStickChannelIndex] = rxConfig()->rx_pulse_max;
         }
-        channelPulses[stickChannelIndex] = rxConfig()->rx_max_usec + 1;
+        channelPulses[stickChannelIndex] = rxConfig()->rx_pulse_max + 1;
 
         // when
         for (uint8_t channelIndex = 0; channelIndex < MAX_SUPPORTED_RC_CHANNEL_COUNT; channelIndex++) {
@@ -210,6 +210,8 @@ TEST(RxTest, TestInvalidFlightChannels)
 extern "C" {
     void failsafeOnValidDataFailed() {}
     void failsafeOnValidDataReceived() {}
+    uint16_t getFailsafeCenter(void) { return 1500; }
+    uint16_t getFailsafeThrottle(void) { return 1036; }
 
     void failsafeOnRxSuspend(uint32_t ) {}
     void failsafeOnRxResume(void) {}

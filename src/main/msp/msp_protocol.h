@@ -134,8 +134,8 @@
 #define MSP_SET_ARMING_CONFIG           62   // in message:  Set arming configuration
 
 // Baseflight MSP commands (64-89)
-#define MSP_RX_MAP                      64   // out message: Get RX map (also returns number of channels total)
-#define MSP_SET_RX_MAP                  65   // in message:  Set RX map, numchannels to set comes from MSP_RX_MAP
+// 64 was MSP_RX_MAP, 65 was MSP_SET_RX_MAP. The control channel map is carried
+// in MSP_RX_CONFIG / MSP_SET_RX_CONFIG instead.
 #define MSP_REBOOT                      68   // in message:  Reboot settings
 #define MSP_DATAFLASH_SUMMARY           70   // out message: Get description of dataflash chip
 #define MSP_DATAFLASH_READ              71   // out message: Get content of dataflash chip

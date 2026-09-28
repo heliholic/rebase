@@ -29,13 +29,13 @@
 #define MAX_ADJUSTMENT_RANGE_COUNT 30
 
 typedef struct {
-    // when aux channel is in range...
-    uint8_t auxChannelIndex;
+    // when the enable channel is in range...
+    uint8_t rcChannel;
     channelRange_t range;
 
-    // ..then apply the adjustment function to the auxSwitchChannel ...
+    // ..then apply the adjustment function to the adjustment channel ...
     uint8_t adjustmentConfig;
-    uint8_t auxSwitchChannelIndex;
+    uint8_t adjChannel;
 
     uint16_t adjustmentCenter;
     uint16_t adjustmentScale;
