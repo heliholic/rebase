@@ -32,10 +32,11 @@
 #define CPU_LOAD_LATE_LIMIT 10
 #endif
 
-PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG, 3);
+PG_REGISTER_WITH_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig, PG_SCHEDULER_CONFIG);
 
-PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig,
+PG_RESET_TEMPLATE(schedulerConfig_t, schedulerConfig)
+{
     .rxRelaxDeterminism = SCHEDULER_RELAX_RX,
     .cpuLatePercentageLimit = CPU_LOAD_LATE_LIMIT,
     .debugTask = 0
-);
+};

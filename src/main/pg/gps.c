@@ -29,9 +29,10 @@
 
 #include "gps.h"
 
-PG_REGISTER_WITH_RESET_TEMPLATE(gpsConfig_t, gpsConfig, PG_GPS_CONFIG, 4);
+PG_REGISTER_WITH_RESET_TEMPLATE(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
 
-PG_RESET_TEMPLATE(gpsConfig_t, gpsConfig,
+PG_RESET_TEMPLATE(gpsConfig_t, gpsConfig)
+{
 #if defined(USE_VIRTUAL_GPS)
     .provider = GPS_VIRTUAL,
 #else
@@ -50,6 +51,6 @@ PG_RESET_TEMPLATE(gpsConfig_t, gpsConfig,
     .gps_ublox_utc_standard = UBLOX_UTC_STANDARD_AUTO,
     .gps_ublox_enable_ana = false,
     .nmeaCustomCommands = "",
-);
+};
 
 #endif // USE_GPS

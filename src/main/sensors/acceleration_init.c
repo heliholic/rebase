@@ -31,8 +31,6 @@
 
 #include "common/utils.h"
 
-#include "config/config_reset.h"
-
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/accgyro/accgyro_mpu.h"
 #include "drivers/accgyro/accgyro_virtual.h"
@@ -78,10 +76,8 @@ FAST_DATA_ZERO_INIT accelerationRuntime_t accelerationRuntime;
 
 void resetRollAndPitchTrims(rollAndPitchTrims_t *rollAndPitchTrims)
 {
-    RESET_CONFIG_2(rollAndPitchTrims_t, rollAndPitchTrims,
-        .values.roll = 0,
-        .values.pitch = 0,
-    );
+    rollAndPitchTrims->values.roll = 0;
+    rollAndPitchTrims->values.pitch = 0;
 }
 
 static void setConfigCalibrationCompleted(void)
@@ -102,27 +98,6 @@ LOCAL_UNUSED_FUNCTION static void accResetRollAndPitchTrims(void)
 {
     resetRollAndPitchTrims(&accelerometerConfigMutable()->accelerometerTrims);
 }
-
-static void resetFlightDynamicsTrims(flightDynamicsTrims_t *accZero)
-{
-    accZero->values.roll = 0;
-    accZero->values.pitch = 0;
-    accZero->values.yaw = 0;
-    accZero->values.calibrationCompleted = 0;
-}
-
-static void pgResetFn_accelerometerConfig(accelerometerConfig_t *instance)
-{
-    RESET_CONFIG_2(accelerometerConfig_t, instance,
-        .acc_lpf_hz = 25, // ATTITUDE/IMU runs at 100Hz (acro) or 500Hz (level modes) so we need to set 50 Hz (or lower) to avoid aliasing
-        .acc_hardware = ACC_DEFAULT,
-        .acc_high_fsr = false,
-    );
-    resetRollAndPitchTrims(&instance->accelerometerTrims);
-    resetFlightDynamicsTrims(&instance->accZero);
-}
-
-PG_REGISTER_WITH_RESET_FN(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 2);
 
 static bool accDetect(accDev_t *dev, accelerationSensor_e accHardwareToUse)
 {
@@ -377,7 +352,7 @@ bool accInit(uint16_t accSampleRateHz)
     // Exception is STM32F411DISCOVERY, and (may be) handled in future enhancement.
 
     sensor_align_e alignment = gyroDeviceConfig(firstEnabledGyro())->alignment;
-    const sensorAlignment_t* customAlignment = &gyroDeviceConfig(firstEnabledGyro())->customAlignment;
+    const alignment_t *customAlignment = &gyroDeviceConfig(firstEnabledGyro())->customAlignment;
 
     acc.dev.accAlign = alignment;
     buildRotationMatrixFromAngles(&acc.dev.rotationMatrix, customAlignment);

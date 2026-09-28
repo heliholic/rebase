@@ -48,7 +48,6 @@ extern "C" {
     #include "common/filter.h"
 
     #include "config/config.h"
-    #include "config/config_reset.h"
 
     #include "drivers/sound_beeper.h"
     #include "drivers/time.h"
@@ -82,9 +81,9 @@ extern "C" {
 
     rxRuntimeState_t rxRuntimeState = {};
 
-    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG, 0);
-    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 2);
-    PG_REGISTER(positionConfig_t, positionConfig, PG_SYSTEM_CONFIG, 4);
+    PG_REGISTER(accelerometerConfig_t, accelerometerConfig, PG_ACCELEROMETER_CONFIG);
+    PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
+    PG_REGISTER(positionConfig_t, positionConfig, PG_SYSTEM_CONFIG);
 
     float getSetpointRate(int axis) { return simulatedSetpointRate[axis]; }
     bool wasThrottleRaised(void) { return simulatedThrottleRaised; }

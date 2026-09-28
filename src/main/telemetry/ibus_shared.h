@@ -32,7 +32,6 @@
 #include "drivers/serial.h"
 
 #define IBUS_CHECKSUM_SIZE (2)
-#define IBUS_SENSOR_COUNT 15
 
 typedef enum {
     IBUS_SENSOR_TYPE_NONE             = 0x00,

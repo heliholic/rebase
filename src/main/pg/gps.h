@@ -30,8 +30,8 @@
 typedef struct gpsConfig_s {
     uint8_t provider;
     uint8_t sbasMode;
-    uint8_t autoConfig;
-    uint8_t autoBaud;
+    bool autoConfig;
+    bool autoBaud;
     uint8_t gps_ublox_acquire_model;
     uint8_t gps_ublox_flight_model;
     uint8_t gps_update_rate_hz;

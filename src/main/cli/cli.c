@@ -730,13 +730,13 @@ static const char *cliPrintSectionHeading(dumpFlags_t dumpMask, bool outputFlag,
 
 static void backupPgConfig(const pgRegistry_t *pg)
 {
-    memcpy(pg->copy, pg->address, pg->size);
+    memcpy(pgCopy(pg), pgData(pg), pgSize(pg));
 }
 
 static void restorePgConfig(const pgRegistry_t *pg, uint16_t notToRestoreGroupId)
 {
     if (!notToRestoreGroupId || pgN(pg) != notToRestoreGroupId) {
-        memcpy(pg->address, pg->copy, pg->size);
+        memcpy(pgData(pg), pgCopy(pg), pgSize(pg));
     }
 }
 
@@ -820,9 +820,9 @@ STATIC_UNIT_TESTED void *cliGetValuePointer(const clivalue_t *value)
 {
     const pgRegistry_t* rec = pgFind(value->pgn);
     if (isWritingConfigToCopy()) {
-        return CONST_CAST(void *, rec->copy + getValueOffset(value));
+        return CONST_CAST(void *, pgCopy(rec) + getValueOffset(value));
     } else {
-        return CONST_CAST(void *, rec->address + getValueOffset(value));
+        return CONST_CAST(void *, pgData(rec) + getValueOffset(value));
     }
 }
 
@@ -839,17 +839,17 @@ static const char *dumpPgValue(const char *cmdName, const clivalue_t *value, dum
     const char *format = "set %s = ";
     const char *defaultFormat = "#set %s = ";
     const int valueOffset = getValueOffset(value);
-    const bool equalsDefault = valuePtrEqualsDefault(value, pg->copy + valueOffset, pg->address + valueOffset);
+    const bool equalsDefault = valuePtrEqualsDefault(value, pgCopy(pg) + valueOffset, pgData(pg) + valueOffset);
 
     headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
     if (((dumpMask & DO_DIFF) == 0) || !equalsDefault) {
         if (dumpMask & SHOW_DEFAULTS && !equalsDefault) {
             cliPrintf(defaultFormat, value->name);
-            printValuePointer(cmdName, value, (uint8_t*)pg->address + valueOffset, false);
+            printValuePointer(cmdName, value, pgData(pg) + valueOffset, false);
             cliPrintLinefeed();
         }
         cliPrintf(format, value->name);
-        printValuePointer(cmdName, value, pg->copy + valueOffset, false);
+        printValuePointer(cmdName, value, pgCopy(pg) + valueOffset, false);
         cliPrintLinefeed();
     }
     return headingStr;
@@ -1329,7 +1329,7 @@ static void printSerial(dumpFlags_t dumpMask, const serialConfig_t *serialConfig
 {
     const char *format = "serial %s %d %ld %ld %ld %ld";
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
-    for (unsigned i = 0; i < ARRAYLEN(serialConfig->portConfigs); i++) {
+    for (unsigned i = 0; i < SERIAL_PORT_COUNT; i++) {
         if (!serialIsPortAvailable(serialConfig->portConfigs[i].identifier)) {
             continue;
         };
@@ -3621,10 +3621,10 @@ static void cliPrintVarDefault(const char *cmdName, const clivalue_t *value)
     if (pg) {
         const char *defaultFormat = "Default value: ";
         const int valueOffset = getValueOffset(value);
-        const bool equalsDefault = valuePtrEqualsDefault(value, pg->copy + valueOffset, pg->address + valueOffset);
+        const bool equalsDefault = valuePtrEqualsDefault(value, pgCopy(pg) + valueOffset, pgData(pg) + valueOffset);
         if (!equalsDefault) {
             cliPrintf(defaultFormat, value->name);
-            printValuePointer(cmdName, value, (uint8_t*)pg->address + valueOffset, false);
+            printValuePointer(cmdName, value, pgData(pg) + valueOffset, false);
             cliPrintLinefeed();
         }
     }
@@ -4052,7 +4052,7 @@ int cliGetSettingByName(const char *name, char *buf, int bufLen)
         return -1;
     }
 
-    const void *ptr = rec->address + getValueOffset(val);
+    const void *ptr = pgData(rec) + getValueOffset(val);
 
     // write prefix "name = " bounded by bufLen
     const int nameLen = strlen(val->name);
@@ -4251,7 +4251,7 @@ int cliGetSettingInfoByName(const char *name, int offset, char *buf, int bufLen,
     const uint16_t pgSizeBytes = pgSize(pg);
     uint32_t defaultBufAligned[(pgSizeBytes + sizeof(uint32_t) - 1) / sizeof(uint32_t)];
     uint8_t *defaultBuf = (uint8_t *)defaultBufAligned;
-    pgResetCopy(defaultBuf, val->pgn);
+    pgResetBuf(defaultBuf, val->pgn);
 
     infoWriteString(&w, "default=");
     char defBuf[256];
@@ -4320,7 +4320,7 @@ bool cliSetSettingByName(const char *cmdline)
         return false;
     }
 
-    void *ptr = CONST_CAST(void *, rec->address + getValueOffset(val));
+    void *ptr = CONST_CAST(void *, pgData(rec) + getValueOffset(val));
 
     switch (val->type & VALUE_MODE_MASK) {
     case MODE_DIRECT: {
@@ -5283,7 +5283,7 @@ const cliResourceValue_t resourceTable[] = {
 static ioTag_t* getIoTag(const cliResourceValue_t value, uint8_t index)
 {
     const pgRegistry_t* rec = pgFind(value.pgn);
-    return (ioTag_t *)(rec->address + value.stride * index + value.offset);
+    return (ioTag_t *)(pgData(rec) + value.stride * index + value.offset);
 }
 
 static void printResource(dumpFlags_t dumpMask, const char *headingStr)
@@ -5295,10 +5295,10 @@ static void printResource(dumpFlags_t dumpMask, const char *headingStr)
         const void *currentConfig;
         const void *defaultConfig;
         if (isReadingConfigFromCopy()) {
-            currentConfig = pg->copy;
-            defaultConfig = pg->address;
+            currentConfig = pgCopy(pg);
+            defaultConfig = pgData(pg);
         } else {
-            currentConfig = pg->address;
+            currentConfig = pgData(pg);
             defaultConfig = NULL;
         }
 
@@ -5585,10 +5585,10 @@ static const char *printPeripheralDmaopt(dmaoptEntry_t *entry, int index, dumpFl
     const void *defaultConfig;
 
     if (isReadingConfigFromCopy()) {
-        currentConfig = pg->copy;
-        defaultConfig = pg->address;
+        currentConfig = pgCopy(pg);
+        defaultConfig = pgData(pg);
     } else {
-        currentConfig = pg->address;
+        currentConfig = pgData(pg);
         defaultConfig = NULL;
     }
 
@@ -5697,10 +5697,10 @@ static void printDmaopt(dumpFlags_t dumpMask, const char *headingStr)
     const timerIOConfig_t *defaultConfig;
 
     if (isReadingConfigFromCopy()) {
-        currentConfig = (timerIOConfig_t *)pg->copy;
-        defaultConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgCopy(pg);
+        defaultConfig = (timerIOConfig_t *)pgData(pg);
     } else {
-        currentConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgData(pg);
         defaultConfig = NULL;
     }
 
@@ -5774,9 +5774,9 @@ RAM_CODE static void cliDmaopt(const char *cmdName, char *cmdline)
         const pgRegistry_t* pg = pgFind(entry->pgn);
         const void *currentConfig;
         if (isWritingConfigToCopy()) {
-            currentConfig = pg->copy;
+            currentConfig = pgCopy(pg);
         } else {
-            currentConfig = pg->address;
+            currentConfig = pgData(pg);
         }
         optaddr = (dmaoptValue_t *)((uint8_t *)currentConfig + entry->stride * index + entry->offset);
         orgval = *optaddr;
@@ -5933,10 +5933,10 @@ static void printTimer(dumpFlags_t dumpMask, const char *headingStr)
 
     headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
     if (isReadingConfigFromCopy()) {
-        currentConfig = (timerIOConfig_t *)pg->copy;
-        defaultConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgCopy(pg);
+        defaultConfig = (timerIOConfig_t *)pgData(pg);
     } else {
-        currentConfig = (timerIOConfig_t *)pg->address;
+        currentConfig = (timerIOConfig_t *)pgData(pg);
         defaultConfig = NULL;
     }
 
@@ -6443,7 +6443,7 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
         }
 
         if (!(dumpMask & HARDWARE_ONLY)) {
-            printCraftName(dumpMask, &pilotConfig_Copy);
+            printCraftName(dumpMask, pilotConfigCopy());
         }
 
 #ifdef USE_RESOURCE_MGMT
@@ -6456,36 +6456,36 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
 #endif
 #endif
 
-        printFeature(dumpMask, featureConfig_Copy.enabledFeatures, featureConfig()->enabledFeatures, "feature");
+        printFeature(dumpMask, featureConfigCopy()->enabledFeatures, featureConfig()->enabledFeatures, "feature");
 
-        printSerial(dumpMask, &serialConfig_Copy, serialConfig(), "serial");
+        printSerial(dumpMask, serialConfigCopy(), serialConfig(), "serial");
 
         if (!(dumpMask & HARDWARE_ONLY)) {
 #if defined(USE_BEEPER)
-            printBeeper(dumpMask, beeperConfig_Copy.beeper_off_flags, beeperConfig()->beeper_off_flags, "beeper", BEEPER_ALLOWED_MODES, "beeper");
+            printBeeper(dumpMask, beeperConfigCopy()->beeper_off_flags, beeperConfig()->beeper_off_flags, "beeper", BEEPER_ALLOWED_MODES, "beeper");
 
 #if defined(USE_DSHOT)
-            printBeeper(dumpMask, beeperConfig_Copy.dshotBeaconOffFlags, beeperConfig()->dshotBeaconOffFlags, "beacon", DSHOT_BEACON_ALLOWED_MODES, "beacon");
+            printBeeper(dumpMask, beeperConfigCopy()->dshotBeaconOffFlags, beeperConfig()->dshotBeaconOffFlags, "beacon", DSHOT_BEACON_ALLOWED_MODES, "beacon");
 #endif
 #endif // USE_BEEPER
 
-            printMap(dumpMask, &rxConfig_Copy, rxConfig(), "map");
+            printMap(dumpMask, rxConfigCopy(), rxConfig(), "map");
 
 #ifdef USE_LED_STRIP_STATUS_MODE
-            printLed(dumpMask, ledStripStatusModeConfig_Copy.ledConfigs, ledStripStatusModeConfig()->ledConfigs, "led");
+            printLed(dumpMask, ledStripStatusModeConfigCopy()->ledConfigs, ledStripStatusModeConfig()->ledConfigs, "led");
 
-            printColor(dumpMask, ledStripStatusModeConfig_Copy.colors, ledStripStatusModeConfig()->colors, "color");
+            printColor(dumpMask, ledStripStatusModeConfigCopy()->colors, ledStripStatusModeConfig()->colors, "color");
 
-            printModeColor(dumpMask, &ledStripStatusModeConfig_Copy, ledStripStatusModeConfig(), "mode_color");
+            printModeColor(dumpMask, ledStripStatusModeConfigCopy(), ledStripStatusModeConfig(), "mode_color");
 #endif
 
-            printAux(dumpMask, modeActivationConditions_CopyArray, modeActivationConditions(0), "aux");
+            printAux(dumpMask, modeActivationConditionsCopy(0), modeActivationConditions(0), "aux");
 
-            printAdjustmentRange(dumpMask, adjustmentRanges_CopyArray, adjustmentRanges(0), "adjrange");
+            printAdjustmentRange(dumpMask, adjustmentRangesCopy(0), adjustmentRanges(0), "adjrange");
 
-            printRxRange(dumpMask, rxChannelRangeConfigs_CopyArray, rxChannelRangeConfigs(0), "rxrange");
+            printRxRange(dumpMask, rxChannelRangeConfigsCopy(0), rxChannelRangeConfigs(0), "rxrange");
 
-            printRxFailsafe(dumpMask, rxFailsafeChannelConfigs_CopyArray, rxFailsafeChannelConfigs(0), "rxfail");
+            printRxFailsafe(dumpMask, rxFailsafeChannelConfigsCopy(0), rxFailsafeChannelConfigs(0), "rxfail");
 
         }
 
@@ -6499,7 +6499,7 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
                     cliDumpPidProfile(cmdName, pidProfileIndex, dumpMask);
                 }
 
-                pidProfileIndexToUse = systemConfig_Copy.pidProfileIndex;
+                pidProfileIndexToUse = systemConfigCopy()->pidProfileIndex;
 
                 if (!(dumpMask & BARE)) {
                     cliPrintHashLine("restore original profile selection");
@@ -6513,13 +6513,13 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
                     cliDumpRateProfile(cmdName, rateIndex, dumpMask);
                 }
 
-                rateProfileIndexToUse = systemConfig_Copy.activeRateProfile;
+                rateProfileIndexToUse = systemConfigCopy()->activeRateProfile;
 
                 for (uint32_t battIndex = 0; battIndex < BATTERY_PROFILE_COUNT; battIndex++) {
                     cliDumpBatteryProfile(cmdName, battIndex, dumpMask);
                 }
 
-                batteryProfileIndexToUse = systemConfig_Copy.activeBatteryProfile;
+                batteryProfileIndexToUse = systemConfigCopy()->activeBatteryProfile;
 
                 if (!(dumpMask & BARE)) {
                     cliPrintHashLine("restore original rateprofile selection");
@@ -6540,17 +6540,17 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
                 rateProfileIndexToUse = CURRENT_PROFILE_INDEX;
                 batteryProfileIndexToUse = CURRENT_PROFILE_INDEX;
             } else {
-                cliDumpPidProfile(cmdName, systemConfig_Copy.pidProfileIndex, dumpMask);
+                cliDumpPidProfile(cmdName, systemConfigCopy()->pidProfileIndex, dumpMask);
 
-                cliDumpRateProfile(cmdName, systemConfig_Copy.activeRateProfile, dumpMask);
+                cliDumpRateProfile(cmdName, systemConfigCopy()->activeRateProfile, dumpMask);
 
-                cliDumpBatteryProfile(cmdName, systemConfig_Copy.activeBatteryProfile, dumpMask);
+                cliDumpBatteryProfile(cmdName, systemConfigCopy()->activeBatteryProfile, dumpMask);
             }
         }
     } else if (dumpMask & DUMP_PROFILE) {
-        cliDumpPidProfile(cmdName, systemConfig_Copy.pidProfileIndex, dumpMask);
+        cliDumpPidProfile(cmdName, systemConfigCopy()->pidProfileIndex, dumpMask);
     } else if (dumpMask & DUMP_RATES) {
-        cliDumpRateProfile(cmdName, systemConfig_Copy.activeRateProfile, dumpMask);
+        cliDumpRateProfile(cmdName, systemConfigCopy()->activeRateProfile, dumpMask);
     }
 
 #ifdef USE_CLI_BATCH

@@ -51,7 +51,6 @@
 #include "io/gps.h"
 
 #include "pg/pg.h"
-#include "pg/pg_ids.h"
 #include "pg/rx.h"
 
 #include "rx/rx.h"
@@ -71,21 +70,6 @@ static bool isUsingSticksToArm = true;
 static bool disarmUserRequested = false; // has the user requested a disarm, using either sticks or switches, whether armed or disarmed
 
 float rcCommand[4];           // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW
-
-PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 1);
-
-PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig,
-    .deadband = 0,
-    .yaw_deadband = 0,
-);
-
-PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG, 2);
-
-PG_RESET_TEMPLATE(armingConfig_t, armingConfig,
-    .gyro_cal_on_first_arm = 0,
-    .auto_disarm_delay = 5,
-    .prearm_allow_rearm = 0,
-);
 
 bool isUsingSticksForArming(void)
 {

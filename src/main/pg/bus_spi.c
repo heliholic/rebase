@@ -117,22 +117,22 @@ const spiDefaultConfig_t spiDefaultConfig[] = {
 #endif
 };
 
-PG_REGISTER_ARRAY_WITH_RESET_FN(spiPinConfig_t, SPIDEV_COUNT, spiPinConfig, PG_SPI_PIN_CONFIG, 1);
+PG_REGISTER_ARRAY_WITH_RESET_FN(spiPinConfig_t, SPIDEV_COUNT, spiPinConfig, PG_SPI_PIN_CONFIG);
 
-void pgResetFn_spiPinConfig(spiPinConfig_t *spiPinConfig)
+PG_RESET_FN(spiPinConfig_t, spiPinConfig)
 {
-    for (size_t i = 0; i < SPIDEV_COUNT; i++) {
-        spiPinConfig[i].txDmaopt = -1;
-        spiPinConfig[i].rxDmaopt = -1;
-    }
+    spiPinConfig->txDmaopt = -1;
+    spiPinConfig->rxDmaopt = -1;
 
     for (size_t i = 0 ; i < ARRAYLEN(spiDefaultConfig) ; i++) {
         const spiDefaultConfig_t *defconf = &spiDefaultConfig[i];
-        spiPinConfig[defconf->device].ioTagSck = defconf->sck;
-        spiPinConfig[defconf->device].ioTagMiso = defconf->miso;
-        spiPinConfig[defconf->device].ioTagMosi = defconf->mosi;
-        spiPinConfig[defconf->device].txDmaopt = defconf->txDmaopt;
-        spiPinConfig[defconf->device].rxDmaopt = defconf->rxDmaopt;
+        if (defconf->device == index) {
+            spiPinConfig->ioTagSck = defconf->sck;
+            spiPinConfig->ioTagMiso = defconf->miso;
+            spiPinConfig->ioTagMosi = defconf->mosi;
+            spiPinConfig->txDmaopt = defconf->txDmaopt;
+            spiPinConfig->rxDmaopt = defconf->rxDmaopt;
+        }
     }
 }
 #endif

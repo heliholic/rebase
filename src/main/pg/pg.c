@@ -1,19 +1,20 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,10 +25,28 @@
 
 #include "platform.h"
 
-#include "common/crc.h"
 #include "common/maths.h"
+#include "common/utils.h"
 
 #include "pg.h"
+
+// PG_FOREACH walks .pg_registry by sizeof(pgRegistry_t), so the entries every
+// object file contributes must abut with no padding and land on the struct's
+// own alignment. The MCU scripts pack on the natural section alignment, which
+// satisfies both by construction and needs no assert.
+//
+// The host scripts cannot ask the linker for sizeof, so they hardcode
+// SUBALIGN(8) and rely on these two instead. The size one is automatic on a
+// 64-bit host (five pointers force an alignment of 8) and guards the 32-bit
+// hosts, where a struct that is a multiple of 4 but not of 8 would be padded
+// apart between object files. Both are host-only on purpose: neither property
+// is forced by an attribute -- they follow from the members -- and the firmware
+// must stay free to grow the struct to any multiple of its own alignment.
+
+#if defined(UNIT_TEST) || defined(SIMULATOR_BUILD)
+STATIC_ASSERT(sizeof(pgRegistry_t) % 8 == 0, pg_registry_size_leaves_padding_between_objects);
+STATIC_ASSERT(_Alignof(pgRegistry_t) <= 8, pg_registry_alignment_exceeds_linker_packing);
+#endif
 
 const pgRegistry_t* pgFind(pgn_t pgn)
 {
@@ -39,61 +58,32 @@ const pgRegistry_t* pgFind(pgn_t pgn)
     return NULL;
 }
 
-static uint8_t *pgOffset(const pgRegistry_t* reg)
+static void pgResetElement(const pgRegistry_t *reg, uint8_t *base, int index)
 {
-    return reg->address;
-}
+    memset(base, 0, pgElementSize(reg));
 
-void pgResetInstance(const pgRegistry_t *reg, uint8_t *base)
-{
-    const uint16_t regSize = pgSize(reg);
-
-    memset(base, 0, regSize);
-    if (reg->reset.ptr >= (void*)__pg_resetdata_start && reg->reset.ptr < (void*)__pg_resetdata_end) {
-        // pointer points to resetdata section, to it is data template
-        memcpy(base, reg->reset.ptr, regSize);
-    } else if (reg->reset.fn) {
-        // reset function, call it
-        reg->reset.fn(base);
+    if (reg->reset.data) {
+        if (reg->reset.data >= __pg_resetdata_start && reg->reset.data < __pg_resetdata_end) {
+            // pointer points into .pg_resetdata, so it is one element's defaults,
+            // shared by every element of the group
+            memcpy(base, reg->reset.data, pgElementSize(reg));
+        }
+        else if (reg->reset.data >= __pg_resetarray_start && reg->reset.data < __pg_resetarray_end) {
+            // pointer points into .pg_resetarray, so it is a template per element
+            memcpy(base, pgElementPtr(reg, reg->reset.data, index), pgElementSize(reg));
+        }
+        else if (reg->reset.data >= __pg_resetfunc_start && reg->reset.data < __pg_resetfunc_end) {
+            // pointer points into .pg_resetfunc (or is otherwise a reset function)
+            reg->reset.func(base, index);
+        }
     }
 }
 
 void pgReset(const pgRegistry_t* reg)
 {
-    pgResetInstance(reg, pgOffset(reg));
-}
-
-bool pgResetCopy(void *copy, pgn_t pgn)
-{
-    const pgRegistry_t *reg = pgFind(pgn);
-    if (reg) {
-        pgResetInstance(reg, copy);
-        return true;
+    for (int index = 0; index < reg->length; index++) {
+        pgResetElement(reg, pgElement(reg, index), index);
     }
-    return false;
-}
-
-bool pgLoad(const pgRegistry_t* reg, const void *from, int size, int version)
-{
-    pgResetInstance(reg, pgOffset(reg));
-    // restore only matching version, keep defaults otherwise
-    if (version == pgVersion(reg)) {
-        const int take = MIN(size, pgSize(reg));
-        memcpy(pgOffset(reg), from, take);
-
-        *reg->fnv_hash = fnv_update(FNV_OFFSET_BASIS, from, take);
-
-        return true;
-    }
-
-    return false;
-}
-
-int pgStore(const pgRegistry_t* reg, void *to, int size)
-{
-    const int take = MIN(size, pgSize(reg));
-    memcpy(to, pgOffset(reg), take);
-    return take;
 }
 
 void pgResetAll(void)
@@ -102,3 +92,33 @@ void pgResetAll(void)
         pgReset(reg);
     }
 }
+
+bool pgResetBuf(void *buf, pgn_t pgn)
+{
+    const pgRegistry_t *reg = pgFind(pgn);
+    if (reg) {
+        for (int index = 0; index < reg->length; index++) {
+            pgResetElement(reg, pgElementPtr(reg, (uint8_t *)buf, index), index);
+        }
+        return true;
+    }
+    return false;
+}
+
+void pgLoad(const pgRegistry_t* reg, const void *from, pgSize_t size)
+{
+    pgReset(reg);
+
+    // A record may be shorter or longer than the group: the layout is
+    // fixed but PG_DECLARE_ARRAY element counts are target-derived, so
+    // take what fits and leave the rest at the defaults reset above.
+    memcpy(pgData(reg), from, MIN(size, pgSize(reg)));
+}
+
+int pgStore(const pgRegistry_t* reg, void *to, pgSize_t size)
+{
+    const size_t take = MIN(size, pgSize(reg));
+    memcpy(to, pgData(reg), take);
+    return take;
+}
+

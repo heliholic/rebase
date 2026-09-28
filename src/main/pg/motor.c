@@ -27,6 +27,8 @@
 
 #include "drivers/motor_types.h"
 
+#include "common/utils.h"
+
 #include "pg/pg.h"
 #include "pg/pg_ids.h"
 #include "pg/motor.h"
@@ -51,9 +53,11 @@
 #define DEFAULT_DSHOT_EDT DSHOT_EDT_OFF
 #endif
 
-PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 4);
+STATIC_ASSERT(MAX_SUPPORTED_MOTORS <= PG_MAX_MOTORS, motor_count_exceeds_stored_bound);
 
-void pgResetFn_motorConfig(motorConfig_t *motorConfig)
+PG_REGISTER_WITH_RESET_FN(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+
+PG_RESET_FN(motorConfig_t, motorConfig)
 {
     // Default motor protocol: a target/config may force one via DEFAULT_MOTOR_PROTOCOL
     // (e.g. BRUSHED, or PWM on a DShot-capable build); otherwise pick by capability.
@@ -92,28 +96,28 @@ void pgResetFn_motorConfig(motorConfig_t *motorConfig)
     motorConfig->mincommand = 1000;
     motorConfig->kv = 1960;
 
-#ifdef MOTOR1_PIN
+#if defined(MOTOR1_PIN) && MAX_SUPPORTED_MOTORS > 0
     motorConfig->dev.ioTags[0] = IO_TAG(MOTOR1_PIN);
 #endif
-#ifdef MOTOR2_PIN
+#if defined(MOTOR2_PIN) && MAX_SUPPORTED_MOTORS > 1
     motorConfig->dev.ioTags[1] = IO_TAG(MOTOR2_PIN);
 #endif
-#ifdef MOTOR3_PIN
+#if defined(MOTOR3_PIN) && MAX_SUPPORTED_MOTORS > 2
     motorConfig->dev.ioTags[2] = IO_TAG(MOTOR3_PIN);
 #endif
-#ifdef MOTOR4_PIN
+#if defined(MOTOR4_PIN) && MAX_SUPPORTED_MOTORS > 3
     motorConfig->dev.ioTags[3] = IO_TAG(MOTOR4_PIN);
 #endif
-#ifdef MOTOR5_PIN
+#if defined(MOTOR5_PIN) && MAX_SUPPORTED_MOTORS > 4
     motorConfig->dev.ioTags[4] = IO_TAG(MOTOR5_PIN);
 #endif
-#ifdef MOTOR6_PIN
+#if defined(MOTOR6_PIN) && MAX_SUPPORTED_MOTORS > 5
     motorConfig->dev.ioTags[5] = IO_TAG(MOTOR6_PIN);
 #endif
-#ifdef MOTOR7_PIN
+#if defined(MOTOR7_PIN) && MAX_SUPPORTED_MOTORS > 6
     motorConfig->dev.ioTags[6] = IO_TAG(MOTOR7_PIN);
 #endif
-#ifdef MOTOR8_PIN
+#if defined(MOTOR8_PIN) && MAX_SUPPORTED_MOTORS > 7
     motorConfig->dev.ioTags[7] = IO_TAG(MOTOR8_PIN);
 #endif
 

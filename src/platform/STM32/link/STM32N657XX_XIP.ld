@@ -147,17 +147,40 @@ SECTIONS
 
   .pg_registry :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_registry_start = .);
     KEEP (*(.pg_registry))
     KEEP (*(SORT(.pg_registry.*)))
     PROVIDE_HIDDEN (__pg_registry_end = .);
+    . = ALIGN(4);
   } >FLASH
 
   .pg_resetdata :
   {
+    . = ALIGN(4);
     PROVIDE_HIDDEN (__pg_resetdata_start = .);
     KEEP (*(.pg_resetdata))
     PROVIDE_HIDDEN (__pg_resetdata_end = .);
+    . = ALIGN(4);
+  } >FLASH
+
+  .pg_resetarray :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetarray_start = .);
+    KEEP (*(.pg_resetarray))
+    PROVIDE_HIDDEN (__pg_resetarray_end = .);
+    . = ALIGN(4);
+  } >FLASH
+
+  .pg_resetfunc :
+  {
+    . = ALIGN(4);
+    PROVIDE_HIDDEN (__pg_resetfunc_start = .);
+    KEEP (*(.pg_resetfunc))
+    KEEP (*(SORT(.pg_resetfunc.*)))
+    PROVIDE_HIDDEN (__pg_resetfunc_end = .);
+    . = ALIGN(4);
   } >FLASH
 
   /* Erase the stored config, when built with FLASH_CONFIG_ERASE=yes */
@@ -169,7 +192,7 @@ SECTIONS
   } >FLASH_CONFIG
 
   /* ==========================================================
-   * Copied sections: LMA in XSPI (immediately after .pg_resetdata in
+   * Copied sections: LMA in XSPI (immediately after .pg_resetfunc in
    * the FLASH cursor), VMA in AXISRAM. Reset_Handler blits the whole
    * range _sitext..(_sitext + _etext - _stext) at boot. The four
    * sections below MUST stay contiguous in BOTH VMA and LMA — no

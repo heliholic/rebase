@@ -33,7 +33,7 @@
 typedef struct boardConfig_s {
     char manufacturerId[MAX_MANUFACTURER_ID_LENGTH + 1];
     char boardName[MAX_BOARD_NAME_LENGTH + 1];
-    uint8_t boardInformationSet;
+    bool boardInformationSet;
 } boardConfig_t;
 
 PG_DECLARE(boardConfig_t, boardConfig);
