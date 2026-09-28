@@ -23,6 +23,8 @@
 extern "C" {
     #include "platform.h"
     #include "build/debug.h"
+    #include "controls/modes.h"
+
     #include "drivers/io.h"
     #include "common/maths.h"
     #include "flight/failsafe.h"
@@ -30,7 +32,6 @@ extern "C" {
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
     #include "fc/rc_controls.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
     #include "rx/rx.h"
 }
@@ -42,7 +43,7 @@ extern "C" {
 
 PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG);
 
-extern boxBitmask_t rcModeActivationMask;
+extern boxBitmap_t rcModeActivationMap;
 int32_t debug[DEBUG_VALUE_COUNT];
 uint8_t debugMode = 0;
 uint8_t armingFlags = 0;
@@ -56,7 +57,7 @@ static inline void scaleRangefInitHelper(scaleRangef_t *range, int min, int max)
 }
 TEST(RxChannelRangeTest, TestRxChannelRanges)
 {
-    memset(&rcModeActivationMask, 0, sizeof(rcModeActivationMask)); // BOXFAILSAFE must be OFF
+    memset(&rcModeActivationMap, 0, sizeof(rcModeActivationMap)); // BOXFAILSAFE must be OFF
 
     scaleRangef_t range;
 

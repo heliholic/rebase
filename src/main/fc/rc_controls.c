@@ -39,7 +39,7 @@
 #include "config/config.h"
 #include "fc/core.h"
 #include "controls/rc.h"
-#include "fc/rc_modes.h"
+#include "controls/modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/pid.h"
@@ -333,6 +333,6 @@ void processRcStickPositions(void)
 
 void rcControlsInit(void)
 {
-    analyzeModeActivationConditions();
-    isUsingSticksToArm = !isModeActivationConditionPresent(BOXARM) && systemConfig()->enableStickArming;
+    rcModeInit();
+    isUsingSticksToArm = !isArmSwitchConfigured() && systemConfig()->enableStickArming;
 }

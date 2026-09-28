@@ -23,8 +23,9 @@
 
 #include <stdint.h>
 
+#include "controls/modes.h"
+
 #include "pg/pg.h"
-#include "pg/modes.h"
 
 #define MAX_ADJUSTMENT_RANGE_COUNT 30
 

@@ -44,7 +44,7 @@
 #include "controls/rc.h"
 
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
+#include "controls/modes.h"
 
 #include "flight/pid.h"
 

@@ -53,7 +53,7 @@
 #include "controls/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
+#include "controls/modes.h"
 #include "fc/runtime_config.h"
 #include "fc/stats.h"
 

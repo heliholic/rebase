@@ -36,6 +36,7 @@
 #include "config/config.h"
 #include "fc/feature.h"
 
+#include "controls/modes.h"
 #include "controls/rc.h"
 
 #include "drivers/adc.h"
@@ -43,7 +44,6 @@
 #include "drivers/time.h"
 
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 #include "fc/tasks.h"
 
@@ -51,6 +51,7 @@
 
 #include "io/serial.h"
 
+#include "pg/arming.h"
 #include "pg/rx.h"
 
 #include "rx/rx.h"
@@ -355,21 +356,21 @@ void rxInit(void)
     }
     rcControls[RC_THROTTLE] = getFailsafeThrottle();
 
-    // Initialize ARM switch to OFF position when arming via switch is defined
-    // TODO - move to rc_mode.c
-    for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
-        const modeActivationCondition_t *modeActivationCondition = modeActivationConditions(i);
-        if (modeActivationCondition->modeId == BOXARM && IS_RANGE_USABLE(&modeActivationCondition->range)) {
-            // ARM switch is defined, determine an OFF value
-            float value;
-            if (modeActivationCondition->range.startStep > 0) {
-                value = MODE_STEP_TO_CHANNEL_VALUE((modeActivationCondition->range.startStep - 1));
-            } else {
-                value = MODE_STEP_TO_CHANNEL_VALUE((modeActivationCondition->range.endStep + 1));
-            }
-            // Initialize the ARM channel to its OFF value
-            rcInput[modeActivationCondition->rcChannel] = value;
+    // Start the arm channel outside its armed range, so that a receiver which
+    // has not yet delivered a frame cannot read as armed.
+    if (isArmSwitchConfigured()) {
+        const channelRange_t *armRange = &armingConfig()->arm_range;
+        float value;
+        if (armRange->startStep > MIN_MODE_RANGE_STEP) {
+            value = STEP_TO_CHANNEL_VALUE(armRange->startStep - 1);
+        } else {
+            value = STEP_TO_CHANNEL_VALUE(armRange->endStep + 1);
         }
+        const uint8_t armChannel = rxConfig()->rc_channel[RC_ARM];
+        if (armChannel < MAX_SUPPORTED_RC_CHANNEL_COUNT) {
+            rcInput[armChannel] = value;
+        }
+        rcControls[RC_ARM] = value;
     }
 
     switch (rxRuntimeState.rxProvider) {

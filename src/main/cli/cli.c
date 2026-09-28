@@ -1225,8 +1225,8 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
                     i,
                     box->permanentId,
                     macDefault->rcChannel,
-                    MODE_STEP_TO_CHANNEL_VALUE(macDefault->range.startStep),
-                    MODE_STEP_TO_CHANNEL_VALUE(macDefault->range.endStep),
+                    STEP_TO_CHANNEL_VALUE(macDefault->range.startStep),
+                    STEP_TO_CHANNEL_VALUE(macDefault->range.endStep),
                     macDefault->modeLogic,
                     linkedTo ? linkedTo->permanentId : 0
                 );
@@ -1239,8 +1239,8 @@ static void printAux(dumpFlags_t dumpMask, const modeActivationCondition_t *mode
                 i,
                 box->permanentId,
                 mac->rcChannel,
-                MODE_STEP_TO_CHANNEL_VALUE(mac->range.startStep),
-                MODE_STEP_TO_CHANNEL_VALUE(mac->range.endStep),
+                STEP_TO_CHANNEL_VALUE(mac->range.startStep),
+                STEP_TO_CHANNEL_VALUE(mac->range.endStep),
                 mac->modeLogic,
                 linkedTo ? linkedTo->permanentId : 0
             );
@@ -1265,6 +1265,11 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             if (ptr) {
                 val = atoi(ptr);
                 const box_t *box = findBoxByPermanentId(val);
+                if (box && box->boxId == BOXARM) {
+                    // arming has its own control channel and arm_range
+                    cliShowParseError(cmdName);
+                    return;
+                }
                 if (box) {
                     mac->modeId = box->boxId;
                     validArgumentCount++;
@@ -1304,13 +1309,13 @@ RAM_CODE static void cliAux(const char *cmdName, char *cmdline)
             } else if (validArgumentCount != 6) {
                 memset(mac, 0, sizeof(modeActivationCondition_t));
             }
-            analyzeModeActivationConditions();
+            rcModeInit();
             cliPrintLinef( "aux %u %u %u %u %u %u %u",
                 i,
                 findBoxByBoxId(mac->modeId)->permanentId,
                 mac->rcChannel,
-                MODE_STEP_TO_CHANNEL_VALUE(mac->range.startStep),
-                MODE_STEP_TO_CHANNEL_VALUE(mac->range.endStep),
+                STEP_TO_CHANNEL_VALUE(mac->range.startStep),
+                STEP_TO_CHANNEL_VALUE(mac->range.endStep),
                 mac->modeLogic,
                 findBoxByBoxId(mac->linkedTo)->permanentId
             );
@@ -1756,8 +1761,8 @@ static void printAdjustmentRange(dumpFlags_t dumpMask, const adjustmentRange_t *
             cliDefaultPrintLinef(dumpMask, equalsDefault, format,
                 i,
                 arDefault->rcChannel,
-                MODE_STEP_TO_CHANNEL_VALUE(arDefault->range.startStep),
-                MODE_STEP_TO_CHANNEL_VALUE(arDefault->range.endStep),
+                STEP_TO_CHANNEL_VALUE(arDefault->range.startStep),
+                STEP_TO_CHANNEL_VALUE(arDefault->range.endStep),
                 arDefault->adjustmentConfig,
                 arDefault->adjChannel,
                 arDefault->adjustmentCenter,
@@ -1767,8 +1772,8 @@ static void printAdjustmentRange(dumpFlags_t dumpMask, const adjustmentRange_t *
         cliDumpPrintLinef(dumpMask, equalsDefault, format,
             i,
             ar->rcChannel,
-            MODE_STEP_TO_CHANNEL_VALUE(ar->range.startStep),
-            MODE_STEP_TO_CHANNEL_VALUE(ar->range.endStep),
+            STEP_TO_CHANNEL_VALUE(ar->range.startStep),
+            STEP_TO_CHANNEL_VALUE(ar->range.endStep),
             ar->adjustmentConfig,
             ar->adjChannel,
             ar->adjustmentCenter,
@@ -1853,8 +1858,8 @@ RAM_CODE static void cliAdjustmentRange(const char *cmdName, char *cmdline)
             cliDumpPrintLinef(0, false, format,
                 i,
                 ar->rcChannel,
-                MODE_STEP_TO_CHANNEL_VALUE(ar->range.startStep),
-                MODE_STEP_TO_CHANNEL_VALUE(ar->range.endStep),
+                STEP_TO_CHANNEL_VALUE(ar->range.startStep),
+                STEP_TO_CHANNEL_VALUE(ar->range.endStep),
                 ar->adjustmentConfig,
                 ar->adjChannel,
                 ar->adjustmentCenter,

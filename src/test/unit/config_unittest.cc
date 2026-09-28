@@ -30,7 +30,7 @@ extern "C" {
     #include "fc/feature.h"
     #include "fc/runtime_config.h"
 
-    #include "fc/rc_modes.h"
+    #include "controls/modes.h"
 
     #include "io/serial.h"
 

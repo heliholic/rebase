@@ -29,6 +29,8 @@
 #include "common/utils.h"
 #include "common/unit.h"
 
+#include "controls/modes.h"
+
 #include "pg/rx.h"
 
 #include "drivers/timer.h"
@@ -38,7 +40,6 @@
 #include "io/serial.h"
 
 #include "config/config.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "msp/msp_serial.h"

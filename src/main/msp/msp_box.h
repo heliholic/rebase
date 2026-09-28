@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "fc/rc_modes.h"
+#include "controls/modes.h"
 
 typedef struct box_s {
     const char *boxName;            // GUI-readable box name
@@ -33,8 +33,7 @@ typedef struct box_s {
 const box_t *findBoxByBoxId(boxId_e boxId);
 const box_t *findBoxByPermanentId(uint8_t permanentId);
 
-struct boxBitmask_s;
-int packFlightModeFlags(struct boxBitmask_s *mspFlightModeFlags);
+int packFlightModeFlags(boxBitmap_t *mspFlightModeFlags);
 struct sbuf_s;
 int serializeBoxNameFn(struct sbuf_s *dst, const box_t *box);
 int serializeBoxPermanentIdFn(struct sbuf_s *dst, const box_t *box);

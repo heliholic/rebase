@@ -25,22 +25,22 @@
 
 #include "pg/pg.h"
 
-// steps are 25 apart
-// a value of 0 corresponds to a channel value of 900 or less
-// a value of 48 corresponds to a channel value of 2100 or more
-// 48 steps between 900 and 2100
+// steps are 5 apart
+// a value of 0 corresponds to a channel value of 1500
+// a value of 100 corresponds to a channel value of 2000
+// a value of -100 corresponds to a channel value of 1000
 
 typedef struct {
-    uint8_t         startStep;
-    uint8_t         endStep;
+    int8_t          startStep;
+    int8_t          endStep;
 } channelRange_t;
 
 typedef struct {
     uint8_t         modeId;
+    uint8_t         linkedTo;
+    uint8_t         modeLogic;
     uint8_t         rcChannel;
     channelRange_t  range;
-    uint8_t         modeLogic;
-    uint8_t         linkedTo;
 } modeActivationCondition_t;
 
 

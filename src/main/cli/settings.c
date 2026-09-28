@@ -685,6 +685,8 @@ const clivalue_t valueTable[] = {
 #endif
 
 // PG_ARMING_CONFIG
+    { "arm_range_start",            VAR_INT8   | MASTER_VALUE, .config.minmax = { MIN_MODE_RANGE_STEP, MAX_MODE_RANGE_STEP }, PG_ARMING_CONFIG, offsetof(armingConfig_t, arm_range.startStep) },
+    { "arm_range_end",              VAR_INT8   | MASTER_VALUE, .config.minmax = { MIN_MODE_RANGE_STEP, MAX_MODE_RANGE_STEP }, PG_ARMING_CONFIG, offsetof(armingConfig_t, arm_range.endStep) },
     { "auto_disarm_delay",          VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 60 }, PG_ARMING_CONFIG, offsetof(armingConfig_t, auto_disarm_delay) },
     { PARAM_NAME_GYRO_CAL_ON_FIRST_ARM, VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_ARMING_CONFIG, offsetof(armingConfig_t, gyro_cal_on_first_arm) },
     { PARAM_NAME_PREARM_ALLOW_REARM, VAR_UINT8 | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_ARMING_CONFIG, offsetof(armingConfig_t, prearm_allow_rearm) },

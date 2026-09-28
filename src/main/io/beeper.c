@@ -39,8 +39,8 @@
 #include "flight/mixer.h"
 
 #include "config/config.h"
+#include "controls/modes.h"
 #include "fc/core.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "io/statusindicator.h"

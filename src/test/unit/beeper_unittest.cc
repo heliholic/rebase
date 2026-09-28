@@ -27,6 +27,8 @@ extern "C" {
 
     #include "fc/feature.h"
 
+    #include "controls/modes.h"
+
     #include "drivers/io.h"
     #include "drivers/dshot_command.h"
     #include "drivers/pwm_output.h"
@@ -40,7 +42,6 @@ extern "C" {
 
     #include "config/config.h"
     #include "fc/core.h"
-    #include "fc/rc_modes.h"
     #include "fc/runtime_config.h"
 
     #include "io/statusindicator.h"
@@ -482,7 +483,7 @@ bool usbCableIsInserted(void) {
 }
 
 // -- RC modes --
-bool IS_RC_MODE_ACTIVE(boxId_e boxId) {
+bool isModeActive(boxId_e boxId) {
     switch (boxId) {
         case BOXBEEPERON:   return simulatorBoxBeeperOn;
         case BOXBEEPERMUTE: return simulatorBoxBeeperMute;

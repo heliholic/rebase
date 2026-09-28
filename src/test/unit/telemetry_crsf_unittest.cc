@@ -34,6 +34,8 @@ extern "C" {
     #include "common/printf.h"
     #include "common/typeconversion.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -43,7 +45,6 @@ extern "C" {
 
     #include "config/config.h"
     #include "fc/runtime_config.h"
-    #include "fc/rc_modes.h"
 
     #include "flight/pid.h"
     #include "flight/imu.h"
@@ -389,5 +390,5 @@ bool handleMspFrame(uint8_t *, uint8_t, uint8_t *)  { return false; }
 bool isBatteryVoltageConfigured(void) { return true; }
 bool isAmperageConfigured(void) { return true; }
 timeUs_t rxFrameTimeUs(void) { return 0; }
-bool IS_RC_MODE_ACTIVE(boxId_e) { return false; }
+bool isModeActive(boxId_e) { return false; }
 }

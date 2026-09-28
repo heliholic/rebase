@@ -48,6 +48,8 @@
 #include "config/config_eeprom.h"
 #include "fc/feature.h"
 
+#include "controls/modes.h"
+
 #include "drivers/accgyro/accgyro.h"
 #include "drivers/bus_i2c.h"
 #include "drivers/bus_spi.h"
@@ -71,7 +73,6 @@
 #include "controls/rc.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/failsafe.h"
@@ -846,7 +847,7 @@ RAM_CODE static bool mspProcessOutCommand(mspDescriptor_t srcDesc, int16_t cmdMS
     switch (cmdMSP) {
     case MSP_STATUS_EX:
     case MSP_STATUS: {
-        boxBitmask_t flightModeFlags;
+        boxBitmap_t flightModeFlags;
         const int flagBits = packFlightModeFlags(&flightModeFlags);
 
         sbufWriteU16(dst, getTaskDeltaTimeUs(TASK_PID));
@@ -2072,6 +2073,10 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             modeActivationCondition_t *mac = modeActivationConditionsMutable(i);
             i = sbufReadU8(src);
             const box_t *box = findBoxByPermanentId(i);
+            if (box && box->boxId == BOXARM) {
+                // arming has its own control channel and arm_range
+                return MSP_RESULT_ERROR;
+            }
             if (box) {
                 mac->modeId = box->boxId;
                 mac->rcChannel = sbufReadU8(src);

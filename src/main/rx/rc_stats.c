@@ -28,8 +28,9 @@
 #ifdef USE_RC_STATS
 
 #include "build/debug.h"
+#include "controls/modes.h"
+
 #include "fc/core.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "rx/rc_stats.h"

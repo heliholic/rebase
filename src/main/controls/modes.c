@@ -1,19 +1,20 @@
 /*
- * This file is part of Cleanflight and Betaflight.
+ * This file is part of Rotorflight.
  *
- * Cleanflight and Betaflight are free software. You can redistribute
- * this software and/or modify this software under the terms of the
- * GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.
+ * Rotorflight is free software. You can redistribute this software
+ * and/or modify this software under the terms of the GNU General
+ * Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Cleanflight and Betaflight are distributed in the hope that they
- * will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Rotorflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this software.
+ * You should have received a copy of the GNU General Public
+ * License along with this software.
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,15 +27,13 @@
 
 #include "build/build_config.h"
 
-#include "common/bitarray.h"
 #include "common/maths.h"
 
 #include "drivers/time.h"
 
 #include "config/config.h"
+#include "pg/arming.h"
 #include "fc/feature.h"
-
-#include "fc/rc_controls.h"
 
 #include "io/piniobox.h"
 
@@ -43,39 +42,68 @@
 
 #include "rx/rx.h"
 
-#include "rc_modes.h"
+#include "modes.h"
 
-boxBitmask_t rcModeActivationMask; // one bit per mode defined in boxId_e
-STATIC_UNIT_TESTED boxBitmask_t stickyModesEverDisabled;
+boxBitmap_t rcModeActivationMap;
+STATIC_UNIT_TESTED boxBitmap_t stickyModesEverDisabled;
 
 static int activeMacCount = 0;
 static uint8_t activeMacArray[MAX_MODE_ACTIVATION_CONDITION_COUNT];
 static int activeLinkedMacCount = 0;
 static uint8_t activeLinkedMacArray[MAX_MODE_ACTIVATION_CONDITION_COUNT];
 
-bool IS_RC_MODE_ACTIVE(boxId_e boxId)
+bool isModeActive(boxId_e boxId)
 {
-    return bitArrayGet(&rcModeActivationMask, boxId);
+    return BOXMAP_TEST_ID(&rcModeActivationMap, boxId);
 }
 
-void rcModeUpdate(const boxBitmask_t *newState)
+void rcModeUpdate(boxBitmap_t newState)
 {
-    rcModeActivationMask = *newState;
+    rcModeActivationMap = newState;
+}
+
+bool isRangeUsable(const channelRange_t *range)
+{
+    return
+        range->startStep >= MIN_MODE_RANGE_STEP &&
+        range->endStep <= MAX_MODE_RANGE_STEP &&
+        range->startStep < range->endStep;
+}
+
+// The arm switch is a control channel of its own, so BOXARM is not driven by a
+// mode activation condition. isArmSwitchConfigured() is what "an arm switch is
+// defined" means now.
+bool isArmSwitchConfigured(void)
+{
+    return isRangeUsable(&armingConfig()->arm_range);
+}
+
+bool isArmSwitchActive(void)
+{
+    const channelRange_t *range = &armingConfig()->arm_range;
+
+    if (isArmSwitchConfigured()) {
+        const uint16_t channelValue = rcControls[RC_ARM];
+        return (channelValue >= STEP_TO_CHANNEL_VALUE(range->startStep) &&
+                channelValue < STEP_TO_CHANNEL_VALUE(range->endStep));
+    }
+
+    return false;
 }
 
 bool isRangeActive(uint8_t channel, const channelRange_t *range)
 {
-    if (!IS_RANGE_USABLE(range)) {
-        return false;
+    if (isRangeUsable(range)) {
+        const uint16_t channelValue = rcInput[channel];
+        return (channelValue >= STEP_TO_CHANNEL_VALUE(range->startStep) &&
+                channelValue < STEP_TO_CHANNEL_VALUE(range->endStep));
     }
 
-    const uint16_t channelValue = constrain(rcInput[channel], CHANNEL_RANGE_MIN, CHANNEL_RANGE_MAX - 1);
-    return (channelValue >= 900 + (range->startStep * 25) &&
-            channelValue < 900 + (range->endStep * 25));
+    return false;
 }
 
 /*
- *  updateMasksForMac:
+ *  updateMapsForMac:
  *
  *  The following are the possible logic states at each MAC update:
  *      AND     NEW
@@ -85,78 +113,88 @@ bool isRangeActive(uint8_t channel, const channelRange_t *range)
  *       T       F      - all previous AND macs active, no previous active OR macs
  *       T       T      - at least 1 previous inactive AND mac, no previous active OR macs
  */
-static void updateMasksForMac(const modeActivationCondition_t *mac, boxBitmask_t *andMask, boxBitmask_t *newMask, bool bActive)
+static void updateMapsForMac(const modeActivationCondition_t *mac, boxBitmap_t *andMap, boxBitmap_t *newMap, bool bActive)
 {
-    if (bitArrayGet(andMask, mac->modeId) || !bitArrayGet(newMask, mac->modeId)) {
+    const boxBitmap_t mask = BOXMASK(mac->modeId);
+
+    if (BOXMAP_TEST(andMap, mask) || !BOXMAP_TEST(newMap, mask)) {
         bool bAnd = mac->modeLogic == MODELOGIC_AND;
 
         if (!bAnd) {    // OR mac
             if (bActive) {
-                bitArrayClr(andMask, mac->modeId);
-                bitArraySet(newMask, mac->modeId);
+                BOXMAP_CLR(andMap, mask);
+                BOXMAP_SET(newMap, mask);
             }
         } else {        // AND mac
-            bitArraySet(andMask, mac->modeId);
+            BOXMAP_SET(andMap, mask);
             if (!bActive) {
-                bitArraySet(newMask, mac->modeId);
+                BOXMAP_SET(newMap, mask);
             }
         }
     }
 }
 
-static void updateMasksForStickyModes(const modeActivationCondition_t *mac, boxBitmask_t *andMask, boxBitmask_t *newMask, bool latchForever)
+static void updateMapsForStickyModes(const modeActivationCondition_t *mac, boxBitmap_t *andMap, boxBitmap_t *newMap, bool latchForever)
 {
-    if (latchForever && IS_RC_MODE_ACTIVE(mac->modeId)) {
-        bitArrayClr(andMask, mac->modeId);
-        bitArraySet(newMask, mac->modeId);
+    const boxBitmap_t mask = BOXMASK(mac->modeId);
+
+    if (latchForever && isModeActive(mac->modeId)) {
+        BOXMAP_CLR(andMap, mask);
+        BOXMAP_SET(newMap, mask);
         return;
     }
 
     bool bActive = isRangeActive(mac->rcChannel, &mac->range);
 
-    if (bitArrayGet(&stickyModesEverDisabled, mac->modeId)) {
-        updateMasksForMac(mac, andMask, newMask, bActive);
+    if (BOXMAP_TEST(&stickyModesEverDisabled, mask)) {
+        updateMapsForMac(mac, andMap, newMap, bActive);
     } else {
         if (micros() >= STICKY_MODE_BOOT_DELAY_US && !bActive) {
-            bitArraySet(&stickyModesEverDisabled, mac->modeId);
+            BOXMAP_SET(&stickyModesEverDisabled, mask);
         }
     }
 }
 
 void updateActivatedModes(void)
 {
-    boxBitmask_t newMask, andMask, stickyModes, latchModes;
-    memset(&andMask, 0, sizeof(andMask));
-    memset(&newMask, 0, sizeof(newMask));
-    memset(&stickyModes, 0, sizeof(stickyModes));
-    memset(&latchModes, 0, sizeof(latchModes));
-    bitArraySet(&stickyModes, BOXPARALYZE);
-    bitArraySet(&stickyModes, BOXBLACKBOXERASE);
-    bitArraySet(&latchModes, BOXPARALYZE);
+    const boxBitmap_t stickyModes = BOXMASK(BOXPARALYZE) | BOXMASK(BOXBLACKBOXERASE);
+    const boxBitmap_t latchModes = BOXMASK(BOXPARALYZE);
+
+    boxBitmap_t newMap = 0;
+    boxBitmap_t andMap = 0;
 
     // determine which conditions set/clear the mode
     for (int i = 0; i < activeMacCount; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(activeMacArray[i]);
+        const boxBitmap_t mask = BOXMASK(mac->modeId);
 
-        if (bitArrayGet(&stickyModes, mac->modeId)) {
-            updateMasksForStickyModes(mac, &andMask, &newMask, bitArrayGet(&latchModes, mac->modeId));
+        if (BOXMAP_TEST(&stickyModes, mask)) {
+            updateMapsForStickyModes(mac, &andMap, &newMap, BOXMAP_TEST(&latchModes, mask));
         } else if (mac->modeId < CHECKBOX_ITEM_COUNT) {
             bool bActive = isRangeActive(mac->rcChannel, &mac->range);
-            updateMasksForMac(mac, &andMask, &newMask, bActive);
+            updateMapsForMac(mac, &andMap, &newMap, bActive);
         }
     }
 
     // Update linked modes
     for (int i = 0; i < activeLinkedMacCount; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(activeLinkedMacArray[i]);
-        bool bActive = bitArrayGet(&andMask, mac->linkedTo) != bitArrayGet(&newMask, mac->linkedTo);
+        const boxBitmap_t linkedMask = BOXMASK(mac->linkedTo);
+        bool bActive = BOXMAP_TEST(&andMap, linkedMask) != BOXMAP_TEST(&newMap, linkedMask);
 
-        updateMasksForMac(mac, &andMask, &newMask, bActive);
+        updateMapsForMac(mac, &andMap, &newMap, bActive);
     }
 
-    bitArrayXor(&newMask, sizeof(newMask), &newMask, &andMask);
+    boxBitmap_t modes = newMap ^ andMap;
 
-    rcModeUpdate(&newMask);
+    // The arm switch is not a mode activation condition
+    if (isArmSwitchActive()) {
+        BOXMAP_SET_ID(&modes, BOXARM);
+    } else {
+        BOXMAP_CLR_ID(&modes, BOXARM);
+    }
+
+    rcModeUpdate(modes);
 }
 
 bool isModeActivationConditionPresent(boxId_e modeId)
@@ -164,7 +202,7 @@ bool isModeActivationConditionPresent(boxId_e modeId)
     for (int i = 0; i < MAX_MODE_ACTIVATION_CONDITION_COUNT; i++) {
         const modeActivationCondition_t *mac = modeActivationConditions(i);
 
-        if (mac->modeId == modeId && (IS_RANGE_USABLE(&mac->range) || mac->linkedTo)) {
+        if (mac->modeId == modeId && (isRangeUsable(&mac->range) || mac->linkedTo)) {
             return true;
         }
     }
@@ -220,7 +258,7 @@ bool isModeActivationConditionConfigured(const modeActivationCondition_t *mac, c
 
 // Build the list of used modeActivationConditions indices
 // We can then use this to speed up processing by only evaluating used conditions
-void analyzeModeActivationConditions(void)
+static void analyzeModeActivationConditions(void)
 {
     modeActivationCondition_t emptyMac;
     memset(&emptyMac, 0, sizeof(emptyMac));
@@ -236,6 +274,12 @@ void analyzeModeActivationConditions(void)
             activeMacArray[activeMacCount++] = i;
         }
     }
+}
+
+void rcModeInit(void)
+{
+    analyzeModeActivationConditions();
+
 #if defined(USE_PINIOBOX) && !ENABLE_SIMULATOR_MULTITHREAD
     pinioBoxTaskControl();
 #endif

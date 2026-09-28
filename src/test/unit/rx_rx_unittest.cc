@@ -23,6 +23,8 @@
 extern "C" {
     #include "platform.h"
 
+    #include "controls/modes.h"
+
     #include "pg/rx.h"
     #include "build/debug.h"
     #include "drivers/io.h"
@@ -30,7 +32,6 @@ extern "C" {
     #include "fc/runtime_config.h"
     #include "flight/failsafe.h"
     #include "rx/rx.h"
-    #include "fc/rc_modes.h"
     #include "common/maths.h"
     #include "common/utils.h"
     #include "fc/feature.h"
@@ -38,7 +39,7 @@ extern "C" {
     #include "pg/pg_ids.h"
     #include "io/beeper.h"
 
-    extern boxBitmask_t rcModeActivationMask;
+    extern boxBitmap_t rcModeActivationMap;
     int32_t debug[DEBUG_VALUE_COUNT];
     uint8_t debugMode = 0;
     uint8_t armingFlags = 0;
@@ -69,7 +70,7 @@ TEST(RxTest, TestValidFlightChannels)
 {
     // given
     memset(&testData, 0, sizeof(testData));
-    memset(&rcModeActivationMask, 0, sizeof(rcModeActivationMask)); // BOXFAILSAFE must be OFF
+    memset(&rcModeActivationMap, 0, sizeof(rcModeActivationMap)); // BOXFAILSAFE must be OFF
 
     // and
     rxConfigMutable()->rx_pulse_min = 1000;
@@ -78,10 +79,10 @@ TEST(RxTest, TestValidFlightChannels)
     // and
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+    modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // when
     rxInit();
@@ -106,7 +107,7 @@ TEST(RxTest, TestValidFlightChannelsHighArm)
 {
     // given
     memset(&testData, 0, sizeof(testData));
-    memset(&rcModeActivationMask, 0, sizeof(rcModeActivationMask)); // BOXFAILSAFE must be OFF
+    memset(&rcModeActivationMap, 0, sizeof(rcModeActivationMap)); // BOXFAILSAFE must be OFF
 
     // and
     rxConfigMutable()->rx_pulse_min = 1000;
@@ -116,9 +117,9 @@ TEST(RxTest, TestValidFlightChannelsHighArm)
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // when
     rxInit();
@@ -152,9 +153,9 @@ TEST(RxTest, TestInvalidFlightChannels)
     modeActivationConditionsMutable(0)->rcChannel = 5;
     modeActivationConditionsMutable(0)->modeId = BOXARM;
     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MAX);
+    modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
 
-    analyzeModeActivationConditions();
+    rcModeInit();
 
     // and
     uint16_t channelPulses[MAX_SUPPORTED_RC_CHANNEL_COUNT];

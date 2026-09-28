@@ -42,10 +42,11 @@
 #include "common/rtc.h"
 #include "common/utils.h"
 
+#include "controls/modes.h"
+
 #include "drivers/nvic.h"
 #include "drivers/persistent.h"
 
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 
 #include "flight/imu.h"

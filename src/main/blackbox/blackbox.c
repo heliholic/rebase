@@ -46,6 +46,8 @@
 #include "config/config.h"
 #include "fc/feature.h"
 
+#include "controls/modes.h"
+
 #include "drivers/compass/compass.h"
 #include "drivers/sensor.h"
 #include "drivers/time.h"
@@ -55,7 +57,6 @@
 #include "fc/parameter_names.h"
 #include "controls/rc.h"
 #include "fc/rc_controls.h"
-#include "fc/rc_modes.h"
 #include "fc/runtime_config.h"
 #include "fc/servos.h"
 
@@ -396,8 +397,8 @@ typedef struct blackboxSlowState_s {
     bool rxFlightChannelsValid;
 } __attribute__((__packed__)) blackboxSlowState_t; // We pack this struct so that padding doesn't interfere with memcmp()
 
-//From rc_controls.c
-extern boxBitmask_t rcModeActivationMask;
+//From controls/modes.c
+extern boxBitmap_t rcModeActivationMap;
 
 static BlackboxState blackboxState = BLACKBOX_STATE_DISABLED;
 
@@ -906,7 +907,7 @@ static void writeSlowFrame(void)
  */
 static void loadSlowState(blackboxSlowState_t *slow)
 {
-    memcpy(&slow->flightModeFlags, &rcModeActivationMask, sizeof(slow->flightModeFlags)); //was flightModeFlags;
+    memcpy(&slow->flightModeFlags, &rcModeActivationMap, sizeof(slow->flightModeFlags)); //was flightModeFlags;
     slow->stateFlags = stateFlags;
     slow->failsafePhase = failsafePhase();
     slow->rxSignalReceived = isRxReceivingSignal();
@@ -1004,7 +1005,7 @@ static void blackboxStart(void)
      * it finally plays the beep for this arming event.
      */
     blackboxLastArmingBeep = getArmingBeepTimeMicros();
-    memcpy(&blackboxLastFlightModeFlags, &rcModeActivationMask, sizeof(blackboxLastFlightModeFlags)); // record startup status
+    memcpy(&blackboxLastFlightModeFlags, &rcModeActivationMap, sizeof(blackboxLastFlightModeFlags)); // record startup status
 
     blackboxSetState(BLACKBOX_STATE_WAIT_FOR_READY);
 }
@@ -1581,11 +1582,11 @@ static void blackboxCheckAndLogArmingBeep(void)
 /* monitor the flight mode event status and trigger an event record if the state changes */
 static void blackboxCheckAndLogFlightMode(void)
 {
-    if (memcmp(&rcModeActivationMask, &blackboxLastFlightModeFlags, sizeof(blackboxLastFlightModeFlags))) {
+    if (memcmp(&rcModeActivationMap, &blackboxLastFlightModeFlags, sizeof(blackboxLastFlightModeFlags))) {
         flightLogEvent_flightMode_t eventData; // Add new data for current flight mode flags
         eventData.lastFlags = blackboxLastFlightModeFlags;
-        memcpy(&blackboxLastFlightModeFlags, &rcModeActivationMask, sizeof(blackboxLastFlightModeFlags));
-        memcpy(&eventData.flags, &rcModeActivationMask, sizeof(eventData.flags));
+        memcpy(&blackboxLastFlightModeFlags, &rcModeActivationMap, sizeof(blackboxLastFlightModeFlags));
+        memcpy(&eventData.flags, &rcModeActivationMap, sizeof(eventData.flags));
         blackboxLogEvent(FLIGHT_LOG_EVENT_FLIGHTMODE, (flightLogEventData_t *)&eventData);
     }
 }

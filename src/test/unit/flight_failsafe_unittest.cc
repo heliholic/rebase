@@ -24,6 +24,8 @@ extern "C" {
     #include "platform.h"
     #include "build/debug.h"
 
+    #include "controls/modes.h"
+
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
     #include "pg/rx.h"
@@ -33,7 +35,6 @@ extern "C" {
     #include "common/bitarray.h"
 
     #include "fc/runtime_config.h"
-    #include "fc/rc_modes.h"
     #include "fc/rc_controls.h"
     #include "fc/core.h"
 
@@ -45,7 +46,7 @@ extern "C" {
     #include "rx/rx.h"
 
 
-    extern boxBitmask_t rcModeActivationMask;
+    extern boxBitmap_t rcModeActivationMap;
     extern uint16_t flightModeFlags;
 }
 
@@ -88,16 +89,12 @@ void configureFailsafe(void)
 
 void activateBoxFailsafe()
 {
-    boxBitmask_t newMask;
-    bitArraySet(&newMask, BOXFAILSAFE);
-    rcModeUpdate(&newMask);
+    rcModeUpdate(BOXMASK(BOXFAILSAFE));
 }
 
 void deactivateBoxFailsafe()
 {
-    boxBitmask_t newMask;
-    memset(&newMask, 0, sizeof(newMask));
-    rcModeUpdate(&newMask);
+    rcModeUpdate(0);
 }
 
 //
