@@ -77,18 +77,14 @@ TEST(RxTest, TestValidFlightChannels)
     rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = MIN_MODE_RANGE_STEP;
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
-
-    rcModeInit();
+    armingConfigMutable()->arm_range.startStep = MIN_MODE_RANGE_STEP;
+    armingConfigMutable()->arm_range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
     // when
     rxInit();
 
     // then (ARM channel should be positioned just 1 step above active range to init to OFF)
-    EXPECT_EQ(1625, rcInput[modeActivationConditions(0)->rcChannel]);
+    EXPECT_EQ(1625, rcControls[RC_ARM]);
 
     // given
     rxResetFlightChannelStatus();
@@ -114,18 +110,14 @@ TEST(RxTest, TestValidFlightChannelsHighArm)
     rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
-    modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
-
-    rcModeInit();
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1400);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
 
     // when
     rxInit();
 
     // then (ARM channel should be positioned just 1 step below active range to init to OFF)
-    EXPECT_EQ(1375, rcInput[modeActivationConditions(0)->rcChannel]);
+    EXPECT_EQ(1375, rcControls[RC_ARM]);
 
     // given
     rxResetFlightChannelStatus();
@@ -150,12 +142,8 @@ TEST(RxTest, TestInvalidFlightChannels)
     rxConfigMutable()->rx_pulse_max = 2000;
 
     // and
-    modeActivationConditionsMutable(0)->rcChannel = 5;
-    modeActivationConditionsMutable(0)->modeId = BOXARM;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(1400);
-    modeActivationConditionsMutable(0)->range.endStep = MAX_MODE_RANGE_STEP;
-
-    rcModeInit();
+    armingConfigMutable()->arm_range.startStep = CHANNEL_VALUE_TO_STEP(1400);
+    armingConfigMutable()->arm_range.endStep = MAX_MODE_RANGE_STEP;
 
     // and
     uint16_t channelPulses[MAX_SUPPORTED_RC_CHANNEL_COUNT];
@@ -165,7 +153,7 @@ TEST(RxTest, TestInvalidFlightChannels)
     rxInit();
 
     // then (ARM channel should be positioned just 1 step below active range to init to OFF)
-    EXPECT_EQ(1375, rcInput[modeActivationConditions(0)->rcChannel]);
+    EXPECT_EQ(1375, rcControls[RC_ARM]);
 
     // and
     for (uint8_t stickChannelIndex = 0; stickChannelIndex < STICK_CHANNEL_COUNT; stickChannelIndex++) {
@@ -271,4 +259,5 @@ extern "C" {
     }
 
     void pinioBoxTaskControl(void) {}
+
 }

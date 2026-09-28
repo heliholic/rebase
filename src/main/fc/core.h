@@ -23,32 +23,10 @@
 #include "common/rtc.h"
 #include "pg/pg.h"
 
-typedef enum {
-    DISARM_REASON_ARMING_DISABLED   = 0,
-    DISARM_REASON_FAILSAFE          = 1,
-    DISARM_REASON_THROTTLE_TIMEOUT  = 2,
-    DISARM_REASON_STICKS            = 3,
-    DISARM_REASON_SWITCH            = 4,
-    DISARM_REASON_UNUSED_5          = 5,
-    DISARM_REASON_UNUSED_6          = 6,
-    DISARM_REASON_UNUSED_7          = 7,
-    DISARM_REASON_SERIAL_COMMAND    = 8,
-    DISARM_REASON_LANDING           = 9,
-#ifdef UNIT_TEST
-    DISARM_REASON_SYSTEM            = 255,
-#endif
-} flightLogDisarmReason_e;
-
 union rollAndPitchTrims_u;
-
-void resetArmingDisabled(void);
-
-void disarm(flightLogDisarmReason_e reason);
-void tryArm(void);
 
 bool processRx(timeUs_t currentTimeUs);
 void processRxModes(timeUs_t currentTimeUs);
-void updateArmingStatus(void);
 
 void taskGyroSample(timeUs_t currentTimeUs);
 bool gyroFilterReady(void);
@@ -59,9 +37,6 @@ void taskMainPidLoop(timeUs_t currentTimeUs);
 int8_t calculateThrottlePercent(void);
 uint8_t calculateThrottlePercentAbs(void);
 bool wasThrottleRaised(void);
-timeUs_t getLastDisarmTimeUs(void);
-bool isTryingToArm(void);
-void resetTryingToArm(void);
 
 void subTaskTelemetryPollSensors(timeUs_t currentTimeUs);
 

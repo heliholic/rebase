@@ -739,6 +739,23 @@ bool featureIsEnabled(uint32_t mask)
     return (mask & testFeatureMask);
 }
 
+static armingDisableFlags_e stubArmingDisableFlags = (armingDisableFlags_e)0;
+
+void setArmingDisabled(armingDisableFlags_e flag)
+{
+    stubArmingDisableFlags = (armingDisableFlags_e)(stubArmingDisableFlags | flag);
+}
+
+void unsetArmingDisabled(armingDisableFlags_e flag)
+{
+    stubArmingDisableFlags = (armingDisableFlags_e)(stubArmingDisableFlags & ~flag);
+}
+
+bool isArmingDisabled(void)
+{
+    return stubArmingDisableFlags;
+}
+
 void disarm(flightLogDisarmReason_e)
 {
     callCounts[COUNTER_MW_DISARM]++;

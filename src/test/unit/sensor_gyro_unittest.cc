@@ -41,6 +41,7 @@ extern "C" {
     #include "sensors/gyro_init.h"
     #include "sensors/acceleration.h"
     #include "sensors/sensors.h"
+    #include "fc/arming.h"
 
     STATIC_UNIT_TESTED gyroHardware_e gyroDetect(gyroDev_t *dev);
     struct gyroSensor_s;
@@ -165,6 +166,6 @@ timeDelta_t getGyroUpdateRate(void) {return gyro.targetLooptime;}
 void sensorsSet(uint32_t) {}
 void schedulerResetTaskStatistics(taskId_e) {}
 uint16_t getAverageSystemLoadPercent(void) {return 0;}
-int getArmingDisableFlags(void) {return 0;}
+armingDisableFlags_e getArmingDisableFlags(void) { return (armingDisableFlags_e)0; }
 void writeEEPROM(void) {}
 }

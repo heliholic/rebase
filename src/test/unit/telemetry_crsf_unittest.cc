@@ -391,4 +391,5 @@ bool isBatteryVoltageConfigured(void) { return true; }
 bool isAmperageConfigured(void) { return true; }
 timeUs_t rxFrameTimeUs(void) { return 0; }
 bool isModeActive(boxId_e) { return false; }
+bool isArmingDisabled(void) { return false; }
 }

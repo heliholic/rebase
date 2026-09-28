@@ -135,7 +135,7 @@ void processRcStickPositions(void)
 
     // perform actions
     if (!isUsingSticksToArm) {
-        if (IS_RC_MODE_ACTIVE(BOXARM)) {
+        if (isArmSwitchActive()) {
             rcDisarmTicks = 0;
             // Arming via ARM BOX
             tryArm();

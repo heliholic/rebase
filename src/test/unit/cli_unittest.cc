@@ -376,7 +376,9 @@ const char * const shortGitRevision = "MASTER";
 void bufWriterAppend(bufWriter_t *, uint8_t ch){ printf("%c", ch); }
 //void serialWriteBufShim(void *, const uint8_t *, int) {}
 void bufWriterInit(bufWriter_t *, uint8_t *, int, bufWrite_t, void *) { }
-//void setArmingDisabled(armingDisableFlags_e) {}
+void setArmingDisabled(armingDisableFlags_e) {}
+armingDisableFlags_e getArmingDisableFlags(void) { return (armingDisableFlags_e)0; }
+const char *getArmingDisableFlagName(armingDisableFlags_e) { return "NONE"; }
 
 void waitForSerialPortToFinishTransmitting(serialPort_t *) {}
 void systemResetToBootloader(void) {}

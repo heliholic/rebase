@@ -158,6 +158,7 @@ COMMON_SRC = \
             drivers/accgyro/gyro_sync.c \
             drivers/rx/rx_pwm.c \
             drivers/serial_softserial.c \
+            fc/arming.c \
             fc/core.c \
             fc/rc_adjustments.c \
             fc/rc_controls.c \
@@ -371,6 +372,7 @@ SPEED_OPTIMISED_SRC += \
             drivers/io.c \
             drivers/serial.c \
             controls/rc.c \
+            fc/arming.c \
             fc/core.c \
             fc/tasks.c \
             fc/rc_controls.c \
