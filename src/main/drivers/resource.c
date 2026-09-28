@@ -75,7 +75,6 @@ static const char * const ownerNames[] = {
     "COMPASS_CS",
     "RX_BIND_PLUG",
     "ESCSERIAL",
-    "CAMERA_CONTROL",
     "TIMUP",
     "RANGEFINDER",
     "RX_SPI",

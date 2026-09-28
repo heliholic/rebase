@@ -34,7 +34,6 @@
 #include "config/feature.h"
 
 #include "drivers/accgyro/accgyro.h"
-#include "drivers/camera_control.h"
 #include "drivers/compass/compass.h"
 #include "drivers/sensor.h"
 #include "drivers/serial.h"
@@ -311,17 +310,6 @@ static void taskTelemetry(timeUs_t currentTimeUs)
 }
 #endif
 
-#ifdef USE_CAMERA_CONTROL
-static void taskCameraControl(timeUs_t currentTimeUs)
-{
-    if (ARMING_FLAG(ARMED)) {
-        return;
-    }
-
-    cameraControlProcess(currentTimeUs);
-}
-#endif
-
 #define DEFINE_TASK(taskNameParam, subTaskNameParam, checkFuncParam, taskFuncParam, desiredPeriodParam, staticPriorityParam) {  \
     .taskName = taskNameParam, \
     .subTaskName = subTaskNameParam, \
@@ -399,10 +387,6 @@ task_attribute_t task_attributes[TASK_COUNT] = {
 
 #ifdef USE_ESC_SENSOR
     [TASK_ESC_SENSOR] = DEFINE_TASK("ESC_SENSOR", NULL, NULL, escSensorProcess, TASK_PERIOD_HZ(100), TASK_PRIORITY_LOW),
-#endif
-
-#ifdef USE_CAMERA_CONTROL
-    [TASK_CAMCTRL] = DEFINE_TASK("CAMCTRL", NULL, NULL, taskCameraControl, TASK_PERIOD_HZ(5), TASK_PRIORITY_LOW),
 #endif
 
 #ifdef USE_ADC_INTERNAL
@@ -556,10 +540,6 @@ void tasksInit(void)
 
 #ifdef USE_PINIOBOX
     pinioBoxTaskControl();
-#endif
-
-#ifdef USE_CAMERA_CONTROL
-    setTaskEnabled(TASK_CAMCTRL, true);
 #endif
 
 #ifdef USE_CRSF_V3

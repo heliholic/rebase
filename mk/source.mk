@@ -75,7 +75,6 @@ COMMON_SRC = \
             drivers/bus_octospi.c \
             drivers/bus_quadspi.c \
             drivers/buttons.c \
-            drivers/camera_control.c \
             drivers/dma.c \
             drivers/io.c \
             drivers/io_preinit.c \

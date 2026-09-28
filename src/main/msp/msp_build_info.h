@@ -54,7 +54,6 @@
 #define BUILD_OPTION_TELEMETRY_SRXL             12307
 // General Options
 #define BUILD_OPTION_BATTERY_CONTINUE           16406
-#define BUILD_OPTION_CAMERA_CONTROL             16407
 #define BUILD_OPTION_DASHBOARD                  16408
 #define BUILD_OPTION_EMFAT_TOOLS                16409
 #define BUILD_OPTION_ESCSERIAL_SIMONK           16410

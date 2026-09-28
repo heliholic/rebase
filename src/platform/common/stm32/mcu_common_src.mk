@@ -7,8 +7,7 @@
 # every family that includes this file picks them up automatically.
 #
 # Files that are NOT universal (e.g. can_hw.c, mco.c, bus_spi_hw.c,
-# camera_control.c, rx_pwm_hw.c) stay in the per-family .mk that actually needs
-# them. SPEED/SIZE optimisation lists also stay per-family because those sets
+# rx_pwm_hw.c) stay in the per-family .mk that actually needs them. SPEED/SIZE optimisation lists also stay per-family because those sets
 # legitimately differ between MCUs.
 
 ifndef MCU_COMMON_STM32_SRC_INCLUDED

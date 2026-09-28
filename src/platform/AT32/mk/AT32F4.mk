@@ -89,14 +89,12 @@ include $(PLATFORM_DIR)/common/stm32/mcu_common_src.mk
 MCU_COMMON_SRC += \
             common/stm32/mco.c \
             common/stm32/bus_spi_hw.c \
-            common/stm32/camera_control.c \
             AT32/startup/at32f435_437_clock.c \
             AT32/startup/system_at32f435_437.c \
             AT32/adc_at32f43x.c \
             AT32/bus_i2c_atbsp.c \
             AT32/bus_i2c_atbsp_init.c \
             AT32/bus_spi_at32bsp.c \
-            AT32/camera_control_at32.c \
             AT32/debug.c \
             AT32/dma_at32f43x.c \
             AT32/dma_reqmap_mcu.c \

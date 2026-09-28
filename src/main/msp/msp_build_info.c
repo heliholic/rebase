@@ -96,9 +96,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_BATTERY_CONTINUE
         BUILD_OPTION_BATTERY_CONTINUE,
 #endif
-#ifdef USE_CAMERA_CONTROL
-        BUILD_OPTION_CAMERA_CONTROL,
-#endif
 #ifdef USE_DASHBOARD
         BUILD_OPTION_DASHBOARD,
 #endif

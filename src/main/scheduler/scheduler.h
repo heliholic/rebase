@@ -157,9 +157,6 @@ typedef enum {
 #ifdef USE_ESC_SENSOR
     TASK_ESC_SENSOR,
 #endif
-#ifdef USE_CAMERA_CONTROL
-    TASK_CAMCTRL,
-#endif
 #ifdef USE_ADC_INTERNAL
     TASK_ADC_INTERNAL,
 #endif

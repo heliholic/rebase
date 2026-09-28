@@ -263,10 +263,6 @@
 
 #endif // USE_OPTICALFLOW
 
-#if defined(CAMERA_CONTROL_PIN) && !defined(USE_CAMERA_CONTROL)
-#define USE_CAMERA_CONTROL
-#endif
-
 /* END HARDWARE INCLUSIONS */
 
 #ifndef USE_DSHOT

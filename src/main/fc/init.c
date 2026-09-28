@@ -50,7 +50,6 @@
 #include "drivers/buttons.h"
 #include "drivers/can/can.h"
 #include "drivers/can/can_impl.h"
-#include "drivers/camera_control.h"
 #include "drivers/compass/compass.h"
 #include "drivers/dma.h"
 #include "drivers/dshot.h"
@@ -648,10 +647,6 @@ void initPhase3(void)
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
     updateHardwareRevision();
-#endif
-
-#ifdef USE_CAMERA_CONTROL
-    cameraControlInit();
 #endif
 
 #ifdef USE_ADC

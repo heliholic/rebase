@@ -169,7 +169,6 @@ include $(PLATFORM_DIR)/common/stm32/mcu_common_src.mk
 MCU_COMMON_SRC += \
         common/stm32/mco.c \
         common/stm32/bus_spi_hw.c \
-        common/stm32/camera_control.c \
         common/stm32/rx_pwm_hw.c \
         APM32/startup/system_apm32f4xx.c \
         drivers/inverter.c \
@@ -177,7 +176,6 @@ MCU_COMMON_SRC += \
         APM32/bus_spi_apm32.c \
         APM32/bus_i2c_apm32.c \
         APM32/bus_i2c_apm32_init.c \
-        APM32/camera_control_apm32.c \
         APM32/debug.c \
         APM32/dma_reqmap_mcu.c \
         APM32/dshot_bitbang.c \
