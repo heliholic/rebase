@@ -29,13 +29,14 @@
 typedef enum {
     // ARM flag
     BOXARM = 0,
-    // FLIGHT_MODE
+
+    // Flight modes
     BOXANGLE,
     BOXHORIZON,
     BOXFAILSAFE,
     BOXID_FLIGHTMODE_LAST = BOXFAILSAFE,
 
-    // RCMODE flags
+    // RC modes
     BOXBEEPERON,
     BOXLEDLOW,
     BOXTELEMETRY,
