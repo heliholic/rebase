@@ -71,7 +71,6 @@ extern "C" {
     bool handleMspFrame(uint8_t *frameStart, uint8_t frameLength, uint8_t *skipsBeforeResponse);
     bool sendMspReply(uint8_t payloadSize, mspResponseFnPtr responseFn);
     uint8_t sbufReadU8(sbuf_t *src);
-    int sbufBytesRemaining(sbuf_t *buf);
     void initSharedMsp();
     uint16_t testBatteryVoltage = 0;
 
