@@ -164,4 +164,5 @@ enum {
     PG_RESERVED_FOR_TESTING_2          = 0xff02,
     PG_RESERVED_FOR_TESTING_3          = 0xff03,
     PG_RESERVED_FOR_TESTING_4          = 0xff04,
+    PG_RESERVED_FOR_TESTING_5          = 0xff05,
 };

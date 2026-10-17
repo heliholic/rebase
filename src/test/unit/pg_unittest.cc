@@ -26,33 +26,39 @@ extern "C" {
     #include "build/debug.h"
     #include "pg/pg.h"
     #include "pg/pg_ids.h"
-    #include "pg/motor.h"
 
     #include "flight/mixer.h"
 
-//PG_DECLARE(motorConfig_t, motorConfig);
+// A scalar PG reset from a template, nesting a struct the way most
+// configuration groups do.
+typedef struct pgTestInner_s {
+    uint16_t rate;
+    uint8_t  mode;
+    bool     flag;
+} pgTestInner_t;
 
-PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+typedef struct pgTestScalar_s {
+    pgTestInner_t inner;
+    uint16_t max;
+    uint16_t min;
+    uint16_t kv;
+    uint8_t  count;
+} pgTestScalar_t;
 
-PG_RESET_TEMPLATE(motorConfig_t, motorConfig)
+PG_DECLARE(pgTestScalar_t, pgTestScalar);
+PG_REGISTER_WITH_RESET_TEMPLATE(pgTestScalar_t, pgTestScalar, PG_RESERVED_FOR_TESTING_5);
+
+PG_RESET_TEMPLATE(pgTestScalar_t, pgTestScalar)
 {
-    .dev = {
-        .motorPwmRate = 400,
-        .motorProtocol = 0,
-        .motorInversion = 0,
-        .useContinuousUpdate = 0,
-        .useBurstDshot = DSHOT_DMAR_OFF,
-        .useDshotTelemetry = DSHOT_TELEMETRY_OFF,
-        .useDshotEdt = DSHOT_EDT_OFF,
-        .ioTags = {IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE, IO_TAG_NONE},
-        .motorTransportProtocol = 0,
-        .useDshotBitbang = DSHOT_BITBANG_OFF,
-        .useDshotBitbangedTimer = DSHOT_BITBANGED_TIMER_AUTO,
+    .inner = {
+        .rate = 400,
+        .mode = 0,
+        .flag = false,
     },
-    .maxthrottle = 1850,
-    .mincommand = 1000,
+    .max = 1850,
+    .min = 1000,
     .kv = 1000,
-    .motorPoleCount = 14,
+    .count = 14,
 };
 
 // A scalar PG with no reset at all: pgReset() must still zero it.
@@ -108,36 +114,36 @@ PG_RESET_TEMPLATE_ARRAY(pgTestElem_t, PG_TEST_TEMPLATE_LEN, pgTestTemplateArray)
 
 TEST(ParameterGroupsfTest, Test_pgResetAll)
 {
-    memset(motorConfigMutable(), 0, sizeof(motorConfig_t));
+    memset(pgTestScalarMutable(), 0, sizeof(pgTestScalar_t));
     pgResetAll();
-    EXPECT_EQ(1850, motorConfig()->maxthrottle);
-    EXPECT_EQ(1000, motorConfig()->mincommand);
-    EXPECT_EQ(400, motorConfig()->dev.motorPwmRate);
+    EXPECT_EQ(1850, pgTestScalar()->max);
+    EXPECT_EQ(1000, pgTestScalar()->min);
+    EXPECT_EQ(400, pgTestScalar()->inner.rate);
 }
 
 TEST(ParameterGroupsfTest, Test_pgFind)
 {
-    memset(motorConfigMutable(), 0, sizeof(motorConfig_t));
-    const pgRegistry_t *pgRegistry = pgFind(PG_MOTOR_CONFIG);
+    memset(pgTestScalarMutable(), 0, sizeof(pgTestScalar_t));
+    const pgRegistry_t *pgRegistry = pgFind(PG_RESERVED_FOR_TESTING_5);
     pgReset(pgRegistry);
-    EXPECT_EQ(1850, motorConfig()->maxthrottle);
-    EXPECT_EQ(1000, motorConfig()->mincommand);
-    EXPECT_EQ(400, motorConfig()->dev.motorPwmRate);
+    EXPECT_EQ(1850, pgTestScalar()->max);
+    EXPECT_EQ(1000, pgTestScalar()->min);
+    EXPECT_EQ(400, pgTestScalar()->inner.rate);
 
-    motorConfig_t motorConfig2;
-    memset(&motorConfig2, 0, sizeof(motorConfig_t));
-    motorConfigMutable()->dev.motorPwmRate = 500;
-    pgStore(pgRegistry, &motorConfig2, sizeof(motorConfig_t));
-    EXPECT_EQ(1850, motorConfig2.maxthrottle);
-    EXPECT_EQ(1000, motorConfig2.mincommand);
-    EXPECT_EQ(500, motorConfig2.dev.motorPwmRate);
+    pgTestScalar_t scalar2;
+    memset(&scalar2, 0, sizeof(pgTestScalar_t));
+    pgTestScalarMutable()->inner.rate = 500;
+    pgStore(pgRegistry, &scalar2, sizeof(pgTestScalar_t));
+    EXPECT_EQ(1850, scalar2.max);
+    EXPECT_EQ(1000, scalar2.min);
+    EXPECT_EQ(500, scalar2.inner.rate);
 
-    motorConfig_t motorConfig3;
-    memset(&motorConfig3, 0, sizeof(motorConfig_t));
-    pgResetBuf(&motorConfig3, PG_MOTOR_CONFIG);
-    EXPECT_EQ(1850, motorConfig3.maxthrottle);
-    EXPECT_EQ(1000, motorConfig3.mincommand);
-    EXPECT_EQ(400, motorConfig3.dev.motorPwmRate);
+    pgTestScalar_t scalar3;
+    memset(&scalar3, 0, sizeof(pgTestScalar_t));
+    pgResetBuf(&scalar3, PG_RESERVED_FOR_TESTING_5);
+    EXPECT_EQ(1850, scalar3.max);
+    EXPECT_EQ(1000, scalar3.min);
+    EXPECT_EQ(400, scalar3.inner.rate);
 }
 
 // An array PG must register the size of the whole array, not of one element.
