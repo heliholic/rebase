@@ -29,6 +29,8 @@
 
 #ifdef USE_DSHOT
 
+#include "common/utils.h"
+
 #include "drivers/pwm_output.h"
 #include "pwm_output_dshot_shared.h"
 #include "drivers/dshot.h"
@@ -111,10 +113,12 @@ static void dshotPwmDisableMotors(void)
 
 static bool dshotPwmEnableMotors(void)
 {
-    for (int i = 0; i < dshotMotorCount; i++) {
-        motorDmaOutput_t *motor = getMotorDmaOutput(i);
-        const IO_t motorIO = IOGetByTag(motor->timerHardware->tag);
-        IOConfigGPIOAF(motorIO, motor->iocfg, motor->timerHardware->alternateFunction);
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        const motorDmaOutput_t *motor = getMotorDmaOutput(i);
+        if (motor->configured) {
+            const IO_t motorIO = IOGetByTag(motor->timerHardware->tag);
+            IOConfigGPIOAF(motorIO, motor->iocfg, motor->timerHardware->alternateFunction);
+        }
     }
 
     // No special processing required
@@ -123,15 +127,16 @@ static bool dshotPwmEnableMotors(void)
 
 static bool dshotPwmIsMotorEnabled(unsigned index)
 {
-    return pwmMotors[index].enabled;
+    const motorDmaOutput_t *motor = getMotorDmaOutput(index);
+    return motor && motor->configured;
 }
 
 static IO_t pwmDshotGetMotorIO(unsigned index)
 {
-    if (index >= dshotMotorCount) {
+    if (!dshotPwmIsMotorEnabled(index)) {
         return IO_NONE;
     }
-    return pwmMotors[index].io;
+    return IOGetByTag(getMotorDmaOutput(index)->timerHardware->tag);
 }
 
 static FAST_CODE void dshotWriteInt(uint8_t index, uint16_t value)
@@ -159,15 +164,17 @@ static const motorVTable_t dshotPwmVTable = {
     .getMotorIO = pwmDshotGetMotorIO,
 };
 
-bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
+uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    device->vTable = &dshotPwmVTable;
-    dshotMotorCount = device->count;
+    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
+
+    *vTable = &dshotPwmVTable;
+    dshotMotorMask = 0;
 #ifdef USE_DSHOT_TELEMETRY
-    useDshotTelemetry = motorConfig->useDshotTelemetry;
+    useDshotTelemetry = motorDevConfig->useDshotTelemetry;
 #endif
 
-    switch (motorConfig->motorProtocol) {
+    switch (motorDevConfig->motorProtocol) {
     case MOTOR_PROTOCOL_PROSHOT1000:
         loadDmaBuffer = loadDmaBufferProshot;
         break;
@@ -176,37 +183,32 @@ bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
     case MOTOR_PROTOCOL_DSHOT150:
         loadDmaBuffer = loadDmaBufferDshot;
 #ifdef USE_DSHOT_DMAR
-        useBurstDshot = motorConfig->useBurstDshot == DSHOT_DMAR_ON ||
-            (motorConfig->useBurstDshot == DSHOT_DMAR_AUTO && !motorConfig->useDshotTelemetry);
+        useBurstDshot = motorDevConfig->useBurstDshot == DSHOT_DMAR_ON ||
+            (motorDevConfig->useBurstDshot == DSHOT_DMAR_AUTO && !motorDevConfig->useDshotTelemetry);
 #endif
         break;
     }
 
-    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
-        const ioTag_t tag = motorConfig->ioTags[motorIndex];
-        const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if (motorMask & BIT(motorIndex)) {
+            const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
+            const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
-        if (timerHardware != NULL) {
-            pwmMotors[motorIndex].io = IOGetByTag(tag);
-            IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
+            // A motor whose pin has no free timer or DMA stays down; the others carry on
+            if (timerHardware) {
+                IOInit(IOGetByTag(tag), OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
-            if (pwmDshotMotorHardwareConfig(timerHardware,
-                motorIndex,
-                motorConfig->motorProtocol,
-                motorConfig->motorInversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
-                pwmMotors[motorIndex].enabled = true;
-
-                continue;
+                if (pwmDshotMotorHardwareConfig(timerHardware,
+                    motorIndex,
+                    motorDevConfig->motorProtocol,
+                    motorDevConfig->motorInversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
+                    dshotMotorMask |= BIT(motorIndex);
+                }
             }
         }
-
-        /* not enough motors initialised for the mixer or a break in the motors */
-        dshotMotorCount = 0;
-        /* TODO: block arming and add reason system cannot arm */
-        return false;
     }
 
-    return true;
+    return dshotMotorMask;
 }
 
 #endif // USE_DSHOT

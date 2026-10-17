@@ -26,6 +26,7 @@
 #ifdef USE_DSHOT
 
 #include "common/rtc.h"
+#include "common/utils.h"
 
 #include "drivers/io.h"
 #include "drivers/motor.h"
@@ -138,8 +139,10 @@ static dshotCommandControl_t* addCommand(void)
 
 static bool allMotorsAreIdle(void)
 {
-    for (unsigned i = 0; i < motorDeviceCount(); i++) {
-        if (!motorIsMotorIdle(i)) {
+    const uint32_t motorMask = motorDeviceMask();
+
+    for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if ((motorMask & BIT(i)) && !motorIsMotorIdle(i)) {
             return false;
         }
     }
@@ -223,7 +226,7 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
 #endif
 #endif
         // Fake command in queue. Blocking commands are launched from cli, and no inline commands are running
-        for (uint8_t i = 0; i < motorDeviceCount(); i++) {
+        for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
             commandQueue[commandQueueTail].command[i] = (i == index || index == ALL_MOTORS) ? command : DSHOT_CMD_MOTOR_STOP;
         }
 
@@ -241,9 +244,11 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
                 vTable->updateInit();
             }
 
-            for (uint8_t i = 0; i < motorDeviceCount(); i++) {
-                vTable->requestTelemetry(i);
-                vTable->writeInt(i, (i == index || index == ALL_MOTORS) ? command : DSHOT_CMD_MOTOR_STOP);
+            for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (motorDeviceMask() & BIT(i)) {
+                    vTable->requestTelemetry(i);
+                    vTable->writeInt(i, (i == index || index == ALL_MOTORS) ? command : DSHOT_CMD_MOTOR_STOP);
+                }
             }
 
             // Don't attempt to write commands to the motors if telemetry is still being received
@@ -262,7 +267,7 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
         delayMicroseconds(delayAfterCommandUs);
 
         // Clean fake command in queue. When running blocking commands are launched from cli, and no inline commands are running
-        for (uint8_t i = 0; i < motorDeviceCount(); i++) {
+        for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
             commandQueue[commandQueueTail].command[i] = DSHOT_CMD_MOTOR_STOP;
         }
     } else if (commandType == DSHOT_CMD_TYPE_INLINE) {
@@ -299,10 +304,8 @@ uint8_t dshotCommandGetCurrent(unsigned index)
 // allows the motor output to be sent, "false" means delay until next loop. So take
 // the example of a dshot command that needs to repeat 10 times at 1ms intervals.
 // If we have a 8KHz PID loop we'll end up sending the dshot command every 8th motor output.
-FAST_CODE_NOINLINE bool dshotCommandOutputIsEnabled(unsigned motorCount)
+FAST_CODE_NOINLINE bool dshotCommandOutputIsEnabled(void)
 {
-    UNUSED(motorCount);
-
     dshotCommandControl_t* command = &commandQueue[commandQueueTail];
     switch (command->state) {
     case DSHOT_COMMAND_STATE_IDLEWAIT:

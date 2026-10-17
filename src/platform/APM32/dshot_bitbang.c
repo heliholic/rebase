@@ -513,7 +513,10 @@ static bool bbDecodeTelemetry(void)
             SCB_InvalidateDCache_by_Addr((uint32_t *)bbPort->portInputBuffer, DSHOT_BB_PORT_IP_BUF_CACHE_ALIGN_BYTES);
         }
 #endif
-        for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
+        for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+            if (!(dshotMotorMask & BIT(motorIndex))) {
+                continue;
+            }
             if (bbMotors[motorIndex].bbPort->telemetryAborted) {
                 // Aborted reception; already counted in debug[2] by bbTelemetryWait().
                 // Don't bump debug[1] (missing-edge) - an abort is not a missing edge.
@@ -601,7 +604,7 @@ static void bbUpdateComplete(void)
     // If there is a dshot command loaded up, time it correctly with motor update
 
     if (!dshotCommandQueueEmpty()) {
-        if (!dshotCommandOutputIsEnabled(dshotMotorCount)) {
+        if (!dshotCommandOutputIsEnabled()) {
             return;
         }
     }
@@ -633,7 +636,7 @@ static void bbUpdateComplete(void)
 
 static bool bbEnableMotors(void)
 {
-    for (int i = 0; i < dshotMotorCount; i++) {
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if (bbMotors[i].configured) {
             IOConfigGPIO(bbMotors[i].io, bbMotors[i].iocfg);
         }
@@ -660,13 +663,14 @@ static void bbPostInit(void)
 {
     bbFindPacerTimer();
 
-    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
-
-        if (!bbMotorConfig(bbMotors[motorIndex].io, motorIndex, motorProtocol, bbMotors[motorIndex].output)) {
-            return;
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if (dshotMotorMask & BIT(motorIndex)) {
+            if (bbMotorConfig(bbMotors[motorIndex].io, motorIndex, motorProtocol, bbMotors[motorIndex].output)) {
+                bbMotors[motorIndex].enabled = true;
+            } else {
+                dshotMotorMask &= ~BIT(motorIndex);
+            }
         }
-
-        bbMotors[motorIndex].enabled = true;
     }
 }
 
@@ -692,31 +696,39 @@ dshotBitbangStatus_e dshotBitbangGetStatus(void)
     return bbStatus;
 }
 
-bool dshotBitbangDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig)
+uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
+    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
+
     dbgPinLo(0);
     dbgPinLo(1);
 
-    if (!device || !motorConfig) {
-        return false;
-    }
-
-    motorProtocol = motorConfig->motorProtocol;
-    device->vTable = &bbVTable;
-    dshotMotorCount = device->count;
+    motorProtocol = motorDevConfig->motorProtocol;
+    *vTable = &bbVTable;
+    dshotMotorMask = 0;
     bbStatus = DSHOT_BITBANG_STATUS_OK;
 
 #ifdef USE_DSHOT_TELEMETRY
-    useDshotTelemetry = motorConfig->useDshotTelemetry;
+    useDshotTelemetry = motorDevConfig->useDshotTelemetry;
 #endif
 
     memset(bbOutputBuffer, 0, sizeof(bbOutputBuffer));
 
-    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < dshotMotorCount; motorIndex++) {
-        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorConfig->ioTags[motorIndex]);
-        const IO_t io = IOGetByTag(motorConfig->ioTags[motorIndex]);
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if (!(motorMask & BIT(motorIndex))) {
+            continue;
+        }
 
-        uint8_t output = motorConfig->motorInversion ?  timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output;
+        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorDevConfig->ioTags[motorIndex]);
+        const IO_t io = IOGetByTag(motorDevConfig->ioTags[motorIndex]);
+
+        // A motor whose pin cannot be used stays down; the others carry on
+        if (!timerHardware || !IOIsFreeOrPreinit(io)) {
+            bbStatus = DSHOT_BITBANG_STATUS_MOTOR_PIN_CONFLICT;
+            continue;
+        }
+
+        uint8_t output = motorDevConfig->motorInversion ?  timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output;
         bbPuPdMode = (output & TIMER_OUTPUT_INVERTED) ? BB_GPIO_PULLDOWN : BB_GPIO_PULLUP;
 
 #ifdef USE_DSHOT_TELEMETRY
@@ -724,14 +736,6 @@ bool dshotBitbangDevInit(motorDevice_t *device, const motorDevConfig_t *motorCon
             output ^= TIMER_OUTPUT_INVERTED;
         }
 #endif
-
-        if (!IOIsFreeOrPreinit(io)) {
-            /* not enough motors initialised for the mixer or a break in the motors */
-            device->vTable = NULL;
-            dshotMotorCount = 0;
-            bbStatus = DSHOT_BITBANG_STATUS_MOTOR_PIN_CONFLICT;
-            return false;
-        }
 
         int pinIndex = IO_GPIOPinIdx(io);
 
@@ -749,8 +753,10 @@ bool dshotBitbangDevInit(motorDevice_t *device, const motorDevConfig_t *motorCon
         } else {
             IOHi(io);
         }
+
+        dshotMotorMask |= BIT(motorIndex);
     }
-    return true;
+    return dshotMotorMask;
 }
 
 #endif // USE_DSHOT_BITBANG

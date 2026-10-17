@@ -50,13 +50,15 @@
 
 #ifdef USE_DSHOT_TELEMETRY
 
-void dshotEnableChannels(unsigned motorCount)
+void dshotEnableChannels(uint32_t motorMask)
 {
-    for (unsigned i = 0; i < motorCount; i++) {
-        if (dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL) {
-            DDL_TMR_CC_EnableChannel((TMR_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].llChannel << 4);
-        } else {
-            DDL_TMR_CC_EnableChannel((TMR_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].llChannel);
+    for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            if (dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL) {
+                DDL_TMR_CC_EnableChannel((TMR_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].llChannel << 4);
+            } else {
+                DDL_TMR_CC_EnableChannel((TMR_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].llChannel);
+            }
         }
     }
 }
@@ -130,7 +132,7 @@ FAST_CODE static void pwmDshotSetDirectionInput(
 FAST_CODE void pwmCompleteDshotMotorUpdate(void)
 {
     /* If there is a dshot command loaded up, time it correctly with motor update*/
-    if (!dshotCommandQueueEmpty() && !dshotCommandOutputIsEnabled(dshotMotorCount)) {
+    if (!dshotCommandQueueEmpty() && !dshotCommandOutputIsEnabled()) {
         return;
     }
 

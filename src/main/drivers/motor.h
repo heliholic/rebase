@@ -33,7 +33,7 @@ void motorWriteAll(float *values);
 void motorRequestTelemetry(unsigned index);
 
 void motorDevInit(void);
-unsigned motorDeviceCount(void);
+uint32_t motorDeviceMask(void);
 
 const motorVTable_t *motorGetVTable(void);
 bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig);

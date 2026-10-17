@@ -56,7 +56,7 @@ bool bbDshotIsMotorIdle(unsigned motorIndex)
 
 IO_t bbGetMotorIO(unsigned index)
 {
-    if (index >= dshotMotorCount) {
+    if (index >= MAX_SUPPORTED_MOTORS || !(dshotMotorMask & BIT(index))) {
         return IO_NONE;
     }
     return bbMotors[index].io;

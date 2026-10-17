@@ -117,13 +117,15 @@ static tmr_channel_select_type toCHSelectType(const uint8_t bfChannel, const boo
  *   Called once for every dshot update if telemetry is being used (not just enabled by #def)
  *   Called from pwm_output_dshot_shared.c pwmTelemetryDecode
 */
-void dshotEnableChannels(unsigned motorCount)
+void dshotEnableChannels(uint32_t motorMask)
 {
-    for (unsigned i = 0; i < motorCount; i++) {
-        tmr_primary_mode_select((tmr_type *)dmaMotors[i].timerHardware->tim, TMR_PRIMARY_SEL_COMPARE);
+    for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            tmr_primary_mode_select((tmr_type *)dmaMotors[i].timerHardware->tim, TMR_PRIMARY_SEL_COMPARE);
 
-        tmr_channel_select_type atCh = toCHSelectType(dmaMotors[i].timerHardware->channel, dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL);
-        tmr_channel_enable((tmr_type *)dmaMotors[i].timerHardware->tim, atCh, TRUE);
+            tmr_channel_select_type atCh = toCHSelectType(dmaMotors[i].timerHardware->channel, dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL);
+            tmr_channel_enable((tmr_type *)dmaMotors[i].timerHardware->tim, atCh, TRUE);
+        }
     }
 }
 
@@ -252,7 +254,7 @@ void pwmCompleteDshotMotorUpdate(void)
 {
     // If there is a dshot command loaded up, time it correctly with motor update
     if (!dshotCommandQueueEmpty()) {
-        if (!dshotCommandOutputIsEnabled(dshotMotorCount)) {
+        if (!dshotCommandOutputIsEnabled()) {
             return;
         }
     }

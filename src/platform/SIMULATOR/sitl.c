@@ -868,7 +868,7 @@ void servoWrite(uint8_t index, float value)
     }
 }
 
-static const motorVTable_t vTable = {
+static const motorVTable_t pwmVTable = {
     .postInit = motorPostInitNull,
     .enable = pwmEnableMotors,
     .disable = pwmDisableMotors,
@@ -883,27 +883,25 @@ static const motorVTable_t vTable = {
     .getMotorIO = NULL,
 };
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig)
+uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    UNUSED(motorDevConfig);
+    *vTable = &pwmVTable;
 
-    if (!device) {
-        return false;
+    pwmMotorMask = 0;
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if (motorMask & BIT(motorIndex)) {
+            pwmMotors[motorIndex].enabled = true;
+            pwmMotorMask |= BIT(motorIndex);
+        }
     }
 
-    pwmMotorCount = device->count;
-    device->vTable = &vTable;
-
-    printf("Initialized motor count %d\n", pwmMotorCount);
-    pwmRawPkt.motorCount = pwmMotorCount;
+    // The raw packet carries every motor slot, then the servos
+    printf("Initialized motor mask 0x%x\n", (unsigned)pwmMotorMask);
+    pwmRawPkt.motorCount = MAX_SUPPORTED_MOTORS;
 
     idlePulse = motorConfig()->mincommand;
 
-    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < pwmMotorCount; motorIndex++) {
-        pwmMotors[motorIndex].enabled = true;
-    }
-
-    return true;
+    return pwmMotorMask;
 }
 
 // stack part

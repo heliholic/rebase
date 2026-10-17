@@ -51,13 +51,15 @@
 
 #ifdef USE_DSHOT_TELEMETRY
 
-void dshotEnableChannels(unsigned motorCount)
+void dshotEnableChannels(uint32_t motorMask)
 {
-    for (unsigned i = 0; i < motorCount; i++) {
-        if (dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL) {
-            TIM_CCxNCmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerHardware->channel, TIM_CCxN_Enable);
-        } else {
-            TIM_CCxCmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerHardware->channel, TIM_CCx_Enable);
+    for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            if (dmaMotors[i].output & TIMER_OUTPUT_N_CHANNEL) {
+                TIM_CCxNCmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerHardware->channel, TIM_CCxN_Enable);
+            } else {
+                TIM_CCxCmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerHardware->channel, TIM_CCx_Enable);
+            }
         }
     }
 }
@@ -154,7 +156,7 @@ void pwmCompleteDshotMotorUpdate(void)
 {
     /* If there is a dshot command loaded up, time it correctly with motor update*/
     if (!dshotCommandQueueEmpty()) {
-        if (!dshotCommandOutputIsEnabled(pwmMotorCount)) {
+        if (!dshotCommandOutputIsEnabled()) {
             return;
         }
     }

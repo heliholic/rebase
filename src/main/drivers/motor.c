@@ -29,6 +29,7 @@
 #ifdef USE_MOTOR
 
 #include "common/maths.h"
+#include "common/utils.h"
 
 #include "fc/feature.h"
 
@@ -87,8 +88,10 @@ void motorWriteAll(float *values)
             }
 
             // Update the motor data
-            for (int i = 0; i < motorDevice.count; i++) {
-                motorDevice.vTable->write(i, values[i]);
+            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (motorDevice.motorMask & BIT(i)) {
+                    motorDevice.vTable->write(i, values[i]);
+                }
             }
 
             // Don't attempt to write commands to the motors if telemetry is still being received
@@ -118,8 +121,10 @@ void motorWriteAll(float *values)
 #endif
 
             // Update the motor data
-            for (int i = 0; i < motorDevice.count; i++) {
-                motorDevice.vTable->write(i, values[i]);
+            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (motorDevice.motorMask & BIT(i)) {
+                    motorDevice.vTable->write(i, values[i]);
+                }
             }
 
             // Trigger the transmission of the motor data
@@ -131,18 +136,21 @@ void motorWriteAll(float *values)
 #endif
 }
 
+static bool motorIsPresent(unsigned index)
+{
+    return index < MAX_SUPPORTED_MOTORS && (motorDevice.motorMask & BIT(index));
+}
+
 void motorRequestTelemetry(unsigned index)
 {
-    if (index < motorDevice.count) {
-        if (motorDevice.vTable->requestTelemetry) {
-            motorDevice.vTable->requestTelemetry(index);
-        }
+    if (motorIsPresent(index) && motorDevice.vTable->requestTelemetry) {
+        motorDevice.vTable->requestTelemetry(index);
     }
 }
 
-unsigned motorDeviceCount(void)
+uint32_t motorDeviceMask(void)
 {
-    return motorDevice.count;
+    return motorDevice.motorMask;
 }
 
 const motorVTable_t *motorGetVTable(void)
@@ -234,11 +242,19 @@ void motorPostInit(void)
     if (motorDevice.vTable->postInit) {
         motorDevice.vTable->postInit();
     }
+
+    // Some drivers only set the hardware up here, and a motor can still fail
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if ((motorDevice.motorMask & BIT(i)) && !motorDevice.vTable->isMotorEnabled(i)) {
+            motorDevice.motorMask &= ~BIT(i);
+        }
+    }
 }
 
+// The protocol is usable, and every motor the configuration asks for is set up
 bool isMotorProtocolEnabled(void)
 {
-    return motorProtocolEnabled;
+    return motorProtocolEnabled && motorDevice.motorMask == motorDevice.configuredMask;
 }
 
 bool isMotorProtocolDshot(void)
@@ -253,46 +269,70 @@ bool isMotorProtocolBidirDshot(void)
 
 void motorNullDevInit(motorDevice_t *device);
 
+// A motor is configured when it has a pin. DroneCAN and the simulator
+// address motors by number instead, so there every motor is configured.
+static uint32_t motorConfiguredMask(void)
+{
+#ifdef SIMULATOR_BUILD
+    const bool pinless = true;
+#else
+    const bool pinless = isMotorProtocolDronecan();
+#endif
+    uint32_t mask = 0;
+
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (pinless || motorConfig()->dev.ioTags[i]) {
+            mask |= BIT(i);
+        }
+    }
+
+    return mask;
+}
+
 void motorDevInit(void)
 {
-#if defined(USE_PWM_OUTPUT) || defined(USE_DSHOT)
-    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
-#endif
-
     motorProtocolEnabled = checkMotorProtocolEnabled(&motorConfig()->dev);
     motorProtocolDshot = checkMotorProtocolDshot(&motorConfig()->dev);
 
-    bool success = false;
-    motorDevice.count = MAX_SUPPORTED_MOTORS;
+    const motorVTable_t *vTable = NULL;
+    uint32_t motorMask = 0;
 
-    if (isMotorProtocolEnabled()) {
+    motorDevice.configuredMask = 0;
+
+    if (motorProtocolEnabled) {
+        const uint32_t configuredMask = motorConfiguredMask();
+
+        motorDevice.configuredMask = configuredMask;
+
         do {
 #if ENABLE_DRONECAN_ESC
             if (isMotorProtocolDronecan()) {
-                success = dronecanMotorDevInit(&motorDevice, motorDevice.count);
+                motorMask = dronecanMotorDevInit(configuredMask, &vTable);
                 break;
             }
 #endif
             if (!isMotorProtocolDshot()) {
 #ifdef USE_PWM_OUTPUT
-                success = motorPwmDevInit(&motorDevice, motorDevConfig);
+                motorMask = motorPwmDevInit(configuredMask, &vTable);
 #endif
                 break;
             }
 #ifdef USE_DSHOT
 #ifdef USE_DSHOT_BITBANG
-            if (isDshotBitbangActive(motorDevConfig)) {
-                success = dshotBitbangDevInit(&motorDevice, motorDevConfig);
+            if (isDshotBitbangActive(&motorConfig()->dev)) {
+                motorMask = dshotBitbangDevInit(configuredMask, &vTable);
                 break;
             }
 #endif
-            success = dshotPwmDevInit(&motorDevice, motorDevConfig);
+            motorMask = dshotPwmDevInit(configuredMask, &vTable);
 #endif
         } while (0);
     }
 
     // if the VTable has been populated, the device is initialized.
-    if (success) {
+    if (vTable) {
+        motorDevice.vTable = vTable;
+        motorDevice.motorMask = motorMask;
         motorDevice.initialized = true;
         motorDevice.motorEnableTimeMs = 0;
         motorDevice.enabled = false;
@@ -333,12 +373,12 @@ bool motorIsEnabled(void)
 
 bool motorIsMotorEnabled(unsigned index)
 {
-    return motorDevice.vTable->isMotorEnabled(index);
+    return motorIsPresent(index) && motorDevice.vTable->isMotorEnabled(index);
 }
 
 bool motorIsMotorIdle(unsigned index)
 {
-    return motorDevice.vTable->isMotorIdle ? motorDevice.vTable->isMotorIdle(index) : false;
+    return (motorIsPresent(index) && motorDevice.vTable->isMotorIdle) ? motorDevice.vTable->isMotorIdle(index) : false;
 }
 
 #ifdef USE_DSHOT
@@ -350,10 +390,10 @@ timeMs_t motorGetMotorEnableTimeMs(void)
 
 IO_t motorGetIo(unsigned index)
 {
-    if (index >= motorDevice.count) {
-        return IO_NONE;
+    if (motorIsPresent(index) && motorDevice.vTable->getMotorIO) {
+        return motorDevice.vTable->getMotorIO(index);
     }
-    return motorDevice.vTable->getMotorIO ? motorDevice.vTable->getMotorIO(index) : IO_NONE;
+    return IO_NONE;
 }
 
 /* functions below for empty methods and no active motors */
@@ -419,7 +459,7 @@ static const motorVTable_t motorNullVTable = {
 void motorNullDevInit(motorDevice_t *device)
 {
     device->vTable = &motorNullVTable;
-    device->count = 0;
+    device->motorMask = 0;
 }
 
 

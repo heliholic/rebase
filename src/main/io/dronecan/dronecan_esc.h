@@ -50,7 +50,7 @@ void dronecanEscUpdateComplete(void);
 
 // Motor-driver entry points (called from drivers/motor.c). Populate the motor
 // vtable and define the output endpoints for the DRONECAN protocol family.
-bool dronecanMotorDevInit(motorDevice_t *device, uint8_t motorCount);
+uint32_t dronecanMotorDevInit(uint32_t motorMask, const motorVTable_t **vTable);
 void dronecanMotorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit,
                                 float *outputLow, float *outputHigh, float *disarm);
 

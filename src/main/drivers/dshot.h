@@ -91,9 +91,9 @@ uint16_t dshotConvertToInternal(uint8_t index, float throttle);
 
 uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb);
 extern bool useDshotTelemetry;
-extern uint8_t dshotMotorCount;
+extern uint32_t dshotMotorMask;
 
-bool dshotPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorConfig);
+uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable);
 
 #ifdef USE_DSHOT_TELEMETRY
 

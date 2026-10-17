@@ -72,5 +72,5 @@ void dshotSetPidLoopTime(uint32_t pidLoopTime);
 bool dshotCommandQueueEmpty(void);
 bool dshotCommandIsProcessing(void);
 uint8_t dshotCommandGetCurrent(unsigned index);
-bool dshotCommandOutputIsEnabled(unsigned motorCount);
+bool dshotCommandOutputIsEnabled(void);
 bool dshotStreamingCommandsAreEnabled(void);

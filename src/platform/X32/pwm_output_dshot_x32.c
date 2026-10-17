@@ -53,10 +53,12 @@ static void x32TimerCaptureBothEdges(TIM_TypeDef *timer, uint16_t channel)
     timer->CCEN |= polarityMask;
 }
 
-void dshotEnableChannels(unsigned motorCount)
+void dshotEnableChannels(uint32_t motorMask)
 {
-    for (unsigned i = 0; i < motorCount; i++) {
-        timerChannelEnable(dmaMotors[i].timerHardware);
+    for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            timerChannelEnable(dmaMotors[i].timerHardware);
+        }
     }
 }
 
@@ -181,7 +183,7 @@ FAST_CODE static void pwmDshotSetDirectionInput(motorDmaOutput_t * const motor)
 
 void pwmCompleteDshotMotorUpdate(void)
 {
-    if (!dshotCommandQueueEmpty() && !dshotCommandOutputIsEnabled(dshotMotorCount)) {
+    if (!dshotCommandQueueEmpty() && !dshotCommandOutputIsEnabled()) {
         return;
     }
 

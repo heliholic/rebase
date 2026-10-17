@@ -316,11 +316,10 @@ static const motorVTable_t dronecanMotorVTable = {
     .getMotorIO             = NULL,
 };
 
-bool dronecanMotorDevInit(motorDevice_t *device, uint8_t motorCount)
+uint32_t dronecanMotorDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    device->vTable = &dronecanMotorVTable;
-    device->count = motorCount;
-    return true;
+    *vTable = &dronecanMotorVTable;
+    return motorMask;
 }
 
 void dronecanMotorInitEndpoints(const motorConfig_t *motorConfig, float outputLimit,

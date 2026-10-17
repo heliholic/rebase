@@ -83,7 +83,8 @@ typedef struct motorVTable_s {
 
 typedef struct motorDevice_s {
     const motorVTable_t *vTable;
-    uint8_t       count;
+    uint32_t      configuredMask;   // motors the configuration asks for
+    uint32_t      motorMask;        // motors the driver set up
     bool          initialized;
     bool          enabled;
     timeMs_t      motorEnableTimeMs;

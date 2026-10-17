@@ -28,6 +28,7 @@
 #ifdef USE_DSHOT
 
 #include "build/debug.h"
+#include "common/utils.h"
 
 #include "drivers/dma.h"
 #include "drivers/dma_reqmap.h"
@@ -189,7 +190,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
 
 #ifdef USE_DSHOT_TELEMETRY
 
-void dshotEnableChannels(unsigned motorCount);
+void dshotEnableChannels(uint32_t motorMask);
 
 static uint32_t decodeTelemetryPacket(const uint32_t buffer[], uint32_t count)
 {
@@ -271,7 +272,10 @@ FAST_CODE_NOINLINE bool pwmTelemetryDecode(void)
 #endif
     const timeUs_t currentUs = micros();
 
-    for (int i = 0; i < dshotMotorCount; i++) {
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (!(dshotMotorMask & BIT(i))) {
+            continue;
+        }
         timeDelta_t usSinceInput = cmpTimeUs(currentUs, inputStampUs);
         if (usSinceInput >= 0 && usSinceInput < dmaMotors[i].dshotTelemetryDeadtimeUs) {
             return false;
@@ -323,7 +327,7 @@ FAST_CODE_NOINLINE bool pwmTelemetryDecode(void)
 
     dshotTelemetryState.rawValueState = DSHOT_RAW_VALUE_STATE_NOT_PROCESSED;
     inputStampUs = 0;
-    dshotEnableChannels(dshotMotorCount);
+    dshotEnableChannels(dshotMotorMask);
     return true;
 #endif // USE_DSHOT_TELEMETRY
 }

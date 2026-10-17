@@ -25,6 +25,7 @@
 #include "platform.h"
 
 #include "common/maths.h"
+#include "common/utils.h"
 
 #include "drivers/io.h"
 #include "drivers/timer.h"
@@ -43,11 +44,11 @@
 #ifdef USE_MOTOR
 
 FAST_DATA_ZERO_INIT pwmOutputPort_t pwmMotors[MAX_SUPPORTED_MOTORS];
-FAST_DATA_ZERO_INIT uint8_t pwmMotorCount;
+FAST_DATA_ZERO_INIT uint32_t pwmMotorMask;
 
 IO_t pwmGetMotorIO(unsigned index)
 {
-    if (index >= pwmMotorCount) {
+    if (index >= MAX_SUPPORTED_MOTORS) {
         return IO_NONE;
     }
     return pwmMotors[index].io;
@@ -61,7 +62,7 @@ bool pwmIsMotorEnabled(unsigned index)
 bool pwmEnableMotors(void)
 {
     /* check motors can be enabled */
-    return pwmMotorCount > 0;
+    return pwmMotorMask != 0;
 }
 
 #ifdef USE_TIMER_AF
@@ -91,9 +92,9 @@ static void pwmWriteStandard(uint8_t index, float throttle)
 
 static void pwmShutdownPulsesForAllMotors(void)
 {
-    for (int index = 0; index < pwmMotorCount; index++) {
+    for (int index = 0; index < MAX_SUPPORTED_MOTORS; index++) {
         // Set the compare register to 0, which stops the output pulsing if the timer overflows
-        if (pwmMotors[index].channel.ccr) {
+        if (pwmMotors[index].enabled) {
             *pwmMotors[index].channel.ccr = 0;
         }
     }
@@ -110,13 +111,15 @@ static void pwmCompleteMotorUpdate(void)
         return;
     }
 
-    for (int index = 0; index < pwmMotorCount; index++) {
-        if (pwmMotors[index].forceOverflow) {
-            timerForceOverflow(pwmMotors[index].channel.tim);
+    for (int index = 0; index < MAX_SUPPORTED_MOTORS; index++) {
+        if (pwmMotors[index].enabled) {
+            if (pwmMotors[index].forceOverflow) {
+                timerForceOverflow(pwmMotors[index].channel.tim);
+            }
+            // Set the compare register to 0, which stops the output pulsing if the timer overflows before the main loop completes again.
+            // This compare register will be set to the output value on the next main loop.
+            *pwmMotors[index].channel.ccr = 0;
         }
-        // Set the compare register to 0, which stops the output pulsing if the timer overflows before the main loop completes again.
-        // This compare register will be set to the output value on the next main loop.
-        *pwmMotors[index].channel.ccr = 0;
     }
 }
 
@@ -134,17 +137,19 @@ static const motorVTable_t motorPwmVTable = {
     .getMotorIO = pwmGetMotorIO,
 };
 
-bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConfig)
+uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
+    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
+
     memset(pwmMotors, 0, sizeof(pwmMotors));
+    pwmMotorMask = 0;
 
     uint16_t idlePulse = motorConfig()->mincommand;
     if (motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) {
         idlePulse = 0;
     }
 
-    pwmMotorCount = device->count;
-    device->vTable = &motorPwmVTable;
+    *vTable = &motorPwmVTable;
     useContinuousUpdate = motorDevConfig->useContinuousUpdate;
 
     float sMin = 0;
@@ -176,55 +181,53 @@ bool motorPwmDevInit(motorDevice_t *device, const motorDevConfig_t *motorDevConf
         break;
     }
 
-    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS && motorIndex < pwmMotorCount; motorIndex++) {
-        const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
-        const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if (motorMask & BIT(motorIndex)) {
+            const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
+            const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
-        if (timerHardware == NULL) {
-            /* not enough motors initialised for the mixer or a break in the motors */
-            device->vTable = NULL;
-            pwmMotorCount = 0;
-            /* TODO: block arming and add reason system cannot arm */
-            return false;
-        }
+            // A motor whose pin has no free timer stays down; the others carry on
+            if (timerHardware) {
+                pwmMotors[motorIndex].io = IOGetByTag(tag);
+                IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
-        pwmMotors[motorIndex].io = IOGetByTag(tag);
-        IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
+                IOConfigGPIOAF(pwmMotors[motorIndex].io, IOCFG_AF_PP, timerHardware->alternateFunction);
 
-        IOConfigGPIOAF(pwmMotors[motorIndex].io, IOCFG_AF_PP, timerHardware->alternateFunction);
+                /* standard PWM outputs */
+                // margin of safety is 4 periods when unsynced
+                const unsigned pwmRateHz = useContinuousUpdate ? motorDevConfig->motorPwmRate : ceilf(1 / ((sMin + sLen) * 4));
 
-        /* standard PWM outputs */
-        // margin of safety is 4 periods when unsynced
-        const unsigned pwmRateHz = useContinuousUpdate ? motorDevConfig->motorPwmRate : ceilf(1 / ((sMin + sLen) * 4));
+                const uint32_t clock = timerClock(timerHardware);
+                /* used to find the desired timer frequency for max resolution */
+                const unsigned prescaler = ((clock / pwmRateHz) + 0xffff) / 0x10000; /* rounding up */
+                const uint32_t hz = clock / prescaler;
+                const unsigned period = useContinuousUpdate ? hz / pwmRateHz : 0xffff;
 
-        const uint32_t clock = timerClock(timerHardware);
-        /* used to find the desired timer frequency for max resolution */
-        const unsigned prescaler = ((clock / pwmRateHz) + 0xffff) / 0x10000; /* rounding up */
-        const uint32_t hz = clock / prescaler;
-        const unsigned period = useContinuousUpdate ? hz / pwmRateHz : 0xffff;
+                /*
+                    if brushed then it is the entire length of the period.
+                    TODO: this can be moved back to periodMin and periodLen
+                    once mixer outputs a 0..1 float value.
+                */
+                pwmMotors[motorIndex].pulseScale = ((motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
+                pwmMotors[motorIndex].pulseOffset = (sMin * hz) - (pwmMotors[motorIndex].pulseScale * 1000);
 
-        /*
-            if brushed then it is the entire length of the period.
-            TODO: this can be moved back to periodMin and periodLen
-            once mixer outputs a 0..1 float value.
-        */
-        pwmMotors[motorIndex].pulseScale = ((motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
-        pwmMotors[motorIndex].pulseOffset = (sMin * hz) - (pwmMotors[motorIndex].pulseScale * 1000);
+                pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, motorDevConfig->motorInversion);
 
-        pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, motorDevConfig->motorInversion);
-
-        bool timerAlreadyUsed = false;
-        for (int i = 0; i < motorIndex; i++) {
-            if (pwmMotors[i].channel.tim == pwmMotors[motorIndex].channel.tim) {
-                timerAlreadyUsed = true;
-                break;
+                bool timerAlreadyUsed = false;
+                for (int i = 0; i < motorIndex; i++) {
+                    if (pwmMotors[i].channel.tim == pwmMotors[motorIndex].channel.tim) {
+                        timerAlreadyUsed = true;
+                        break;
+                    }
+                }
+                pwmMotors[motorIndex].forceOverflow = !timerAlreadyUsed;
+                pwmMotors[motorIndex].enabled = true;
+                pwmMotorMask |= BIT(motorIndex);
             }
         }
-        pwmMotors[motorIndex].forceOverflow = !timerAlreadyUsed;
-        pwmMotors[motorIndex].enabled = true;
     }
 
-    return true;
+    return pwmMotorMask;
 }
 
 pwmOutputPort_t *pwmGetMotors(void)

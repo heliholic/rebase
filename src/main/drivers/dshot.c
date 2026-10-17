@@ -53,7 +53,7 @@
 
 #define ERPM_PER_LSB            100.0f
 
-FAST_DATA_ZERO_INIT uint8_t dshotMotorCount = 0;
+FAST_DATA_ZERO_INIT uint32_t dshotMotorMask = 0;
 
 uint16_t dshotConvertToInternal(uint8_t index, float throttle)
 {
@@ -174,7 +174,7 @@ static void dshot_decode_telemetry_value(uint8_t motorIndex, uint32_t *pDecoded,
         *pType = DSHOT_TELEMETRY_TYPE_eRPM;
 
         // Update debug buffer
-        if (motorIndex < dshotMotorCount && motorIndex < DEBUG_VALUE_COUNT) {
+        if ((dshotMotorMask & BIT(motorIndex)) && motorIndex < DEBUG_VALUE_COUNT) {
             DEBUG_SET(DEBUG_DSHOT_RPM_TELEMETRY, motorIndex, *pDecoded);
         }
     } else {
@@ -211,24 +211,25 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
         return;
     }
 
-    const unsigned motorCount = MIN(MAX_SUPPORTED_MOTORS, dshotMotorCount);
     uint32_t erpmTotal = 0;
     uint32_t rpmSamples = 0;
 
     // Decode all telemetry data now to discharge interrupt from this task
-    for (uint8_t k = 0; k < motorCount; k++) {
-        dshotTelemetryType_t type;
-        uint32_t value;
+    for (uint8_t k = 0; k < MAX_SUPPORTED_MOTORS; k++) {
+        if (dshotMotorMask & BIT(k)) {
+            dshotTelemetryType_t type;
+            uint32_t value;
 
-        dshot_decode_telemetry_value(k, &value, &type);
+            dshot_decode_telemetry_value(k, &value, &type);
 
-        if (value != DSHOT_TELEMETRY_INVALID) {
-            dshotUpdateTelemetryData(k, type, value);
+            if (value != DSHOT_TELEMETRY_INVALID) {
+                dshotUpdateTelemetryData(k, type, value);
 
-            if (type == DSHOT_TELEMETRY_TYPE_eRPM) {
-                dshotRpm[k] = erpmToRpm(value);
-                erpmTotal += value;
-                rpmSamples++;
+                if (type == DSHOT_TELEMETRY_TYPE_eRPM) {
+                    dshotRpm[k] = erpmToRpm(value);
+                    erpmTotal += value;
+                    rpmSamples++;
+                }
             }
         }
     }
@@ -240,9 +241,11 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
 
     // update filtered rotation speed of motors for features (e.g. "RPM filter")
     minMotorFrequencyHz = FLT_MAX;
-    for (unsigned motor = 0; motor < dshotMotorCount; motor++) {
-        motorFrequencyHz[motor] = pt1FilterApply(&motorFreqLpf[motor], erpmToHz * getDshotErpm(motor));
-        minMotorFrequencyHz = MIN(minMotorFrequencyHz, motorFrequencyHz[motor]);
+    for (unsigned motor = 0; motor < MAX_SUPPORTED_MOTORS; motor++) {
+        if (dshotMotorMask & BIT(motor)) {
+            motorFrequencyHz[motor] = pt1FilterApply(&motorFreqLpf[motor], erpmToHz * getDshotErpm(motor));
+            minMotorFrequencyHz = MIN(minMotorFrequencyHz, motorFrequencyHz[motor]);
+        }
     }
 
     // Set state to processed
@@ -281,10 +284,9 @@ bool isDshotMotorTelemetryActive(uint8_t motorIndex)
 
 bool isDshotTelemetryActive(void)
 {
-    const unsigned motorCount = dshotMotorCount;
-    if (motorCount) {
-        for (unsigned i = 0; i < motorCount; i++) {
-            if (!isDshotMotorTelemetryActive(i)) {
+    if (dshotMotorMask) {
+        for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if ((dshotMotorMask & BIT(i)) && !isDshotMotorTelemetryActive(i)) {
                 return false;
             }
         }
