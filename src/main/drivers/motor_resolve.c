@@ -391,17 +391,13 @@ void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
         }
     }
 
-    // Until the motor device can run several drivers at once, every motor
-    // uses the driver of the lowest one, and all DShot motors share one
-    // protocol and telemetry setting.
+    // Until the DShot drivers take settings per motor, all DShot motors share
+    // one protocol and telemetry setting.
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if (out->state[i] == MOTOR_STATE_OK) {
+        if (out->state[i] == MOTOR_STATE_OK && out->family[i] == MOTOR_PROTOCOL_FAMILY_DSHOT) {
             for (int j = 0; j < i; j++) {
-                if (out->state[j] == MOTOR_STATE_OK) {
-                    const bool sameDriver = out->family[i] == out->family[j];
-                    const bool sameDshot = out->family[i] != MOTOR_PROTOCOL_FAMILY_DSHOT ||
-                        (in->motor[i].protocol == in->motor[j].protocol && motorIsBidir(&in->motor[i]) == motorIsBidir(&in->motor[j]));
-                    if (!sameDriver || !sameDshot) {
+                if (out->state[j] == MOTOR_STATE_OK && out->family[j] == MOTOR_PROTOCOL_FAMILY_DSHOT) {
+                    if (in->motor[i].protocol != in->motor[j].protocol || motorIsBidir(&in->motor[i]) != motorIsBidir(&in->motor[j])) {
                         out->state[i] = MOTOR_STATE_GROUP_CLASH;
                     }
                     break;

@@ -143,6 +143,7 @@ float getMotorFrequencyHz(uint8_t motorIndex);
 float getMinMotorFrequencyHz(void);
 
 bool isDshotMotorTelemetryActive(uint8_t motorIndex);
+bool isDshotMotorBidir(uint8_t motorIndex);
 bool isDshotTelemetryActive(void);
 void dshotCleanTelemetryData(void);
 

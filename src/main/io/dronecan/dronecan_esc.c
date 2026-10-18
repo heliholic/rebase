@@ -71,6 +71,11 @@ static int16_t escStaging[MAX_SUPPORTED_MOTORS];
 
 static uint8_t escRawCommandTransferId;
 
+// The motors on the bus. A motor's ESC index is its motor number - 1, and the
+// RawCommand carries every index up to the highest one; the others stay at 0.
+static uint32_t escMotorMask;
+static uint8_t escMotorCount;
+
 // Rate gate for PID-loop emission. Period is derived from esc_rate_hz at init.
 static uint32_t escBroadcastPeriodUs;
 static timeUs_t escLastBroadcastUs;
@@ -90,7 +95,7 @@ void dronecanEscWrite(uint8_t motorIndex, float throttle)
 
 static void broadcastRawCommand(void)
 {
-    const uint8_t motorCount = getMotorCount();
+    const uint8_t motorCount = escMotorCount;
     if (motorCount == 0) {
         return;
     }
@@ -136,8 +141,8 @@ static void emitRawCommand(void)
 
 void dronecanEscUpdateComplete(void)
 {
-    // Only command ESCs when DRONECAN is the active motor protocol; otherwise
-    // another protocol owns the motors and we must stay off the bus.
+    // Only command ESCs when some motor uses DRONECAN; otherwise other
+    // protocols own the motors and we must stay off the bus.
     if (!isMotorProtocolDronecan()) {
         return;
     }
@@ -295,8 +300,7 @@ static void dronecanMotorDisable(void)
 
 static bool dronecanMotorIsEnabled(unsigned index)
 {
-    UNUSED(index);
-    return true;
+    return index < MAX_SUPPORTED_MOTORS && (escMotorMask & BIT(index));
 }
 
 static void dronecanMotorShutdown(void)
@@ -319,6 +323,15 @@ static const motorVTable_t dronecanMotorVTable = {
 uint32_t dronecanMotorDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
     *vTable = &dronecanMotorVTable;
+
+    escMotorMask = motorMask;
+    escMotorCount = 0;
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            escMotorCount = i + 1;
+        }
+    }
+
     return motorMask;
 }
 

@@ -294,6 +294,12 @@ void dshotCleanTelemetryData(void)
     memset(&dshotTelemetryState, 0, sizeof(dshotTelemetryState));
 }
 
+// The motor runs bidirectional DShot, so its RPM comes from the DShot reply
+bool isDshotMotorBidir(uint8_t motorIndex)
+{
+    return motorIndex < MAX_SUPPORTED_MOTORS && useDshotTelemetry && (dshotMotorMask & BIT(motorIndex));
+}
+
 bool getDshotSensorData(escSensorData_t *dest, int motorIndex) {
     // Check if DShot telemetry is active for this motor
     if (!isDshotMotorTelemetryActive(motorIndex)) {

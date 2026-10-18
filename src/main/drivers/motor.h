@@ -36,7 +36,8 @@ void motorRequestTelemetry(unsigned index);
 void motorDevInit(void);
 uint32_t motorDeviceMask(void);
 
-const motorVTable_t *motorGetVTable(void);
+uint32_t motorGetDriverMask(motorProtocolFamily_e family);
+const motorVTable_t *motorGetDriverVTable(motorProtocolFamily_e family);
 
 motorProtocolFamily_e motorGetProtocolFamily(unsigned index);
 motorState_e motorGetState(unsigned index);

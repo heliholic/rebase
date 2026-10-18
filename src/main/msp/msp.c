@@ -964,7 +964,7 @@ case MSP_NAME:
             bool rpmDataAvailable = false;
 
 #ifdef USE_DSHOT_TELEMETRY
-            if (useDshotTelemetry) {
+            if (isDshotMotorBidir(i)) {
                 rpm = lrintf(getDshotRpm(i));
                 rpmDataAvailable = true;
                 invalidPct = 10000; // 100.00%
@@ -1168,8 +1168,9 @@ case MSP_NAME:
         if (useDshotTelemetry) {
             sbufWriteU8(dst, getMotorCount());
             for (int i = 0; i < getMotorCount(); i++) {
-                sbufWriteU8(dst, dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE]);
-                sbufWriteU16(dst, lrintf(getDshotRpm(i)));
+                const bool bidir = isDshotMotorBidir(i);
+                sbufWriteU8(dst, bidir ? dshotTelemetryState.motorState[i].telemetryData[DSHOT_TELEMETRY_TYPE_TEMPERATURE] : 0);
+                sbufWriteU16(dst, bidir ? lrintf(getDshotRpm(i)) : 0);
             }
         }
         else

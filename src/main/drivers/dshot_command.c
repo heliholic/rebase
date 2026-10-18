@@ -137,9 +137,10 @@ static dshotCommandControl_t* addCommand(void)
     return control;
 }
 
+// Only the DShot motors take commands
 static bool allMotorsAreIdle(void)
 {
-    const uint32_t motorMask = motorDeviceMask();
+    const uint32_t motorMask = motorGetDriverMask(MOTOR_PROTOCOL_FAMILY_DSHOT);
 
     for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if ((motorMask & BIT(i)) && !motorIsMotorIdle(i)) {
@@ -188,13 +189,15 @@ static bool dshotCommandsAreEnabled(dshotCommandType_e commandType)
 // Send a command to the motors in motorMask; the others get MOTOR_STOP
 void dshotCommandWriteMask(uint32_t motorMask, uint8_t command, dshotCommandType_e commandType)
 {
-    if (!isMotorProtocolDshot() || !dshotCommandsAreEnabled(commandType) || (command > DSHOT_MAX_COMMAND) || dshotCommandQueueFull()) {
+    const motorVTable_t *vTable = motorGetDriverVTable(MOTOR_PROTOCOL_FAMILY_DSHOT);
+    const uint32_t dshotMotors = motorGetDriverMask(MOTOR_PROTOCOL_FAMILY_DSHOT);
+
+    if (!vTable || !isMotorProtocolDshot() || !dshotCommandsAreEnabled(commandType) || (command > DSHOT_MAX_COMMAND) || dshotCommandQueueFull()) {
         return;
     }
 
     uint8_t repeats = 1;
     timeUs_t delayAfterCommandUs = DSHOT_COMMAND_DELAY_US;
-    const motorVTable_t *vTable = motorGetVTable();
 
     switch (command) {
     case DSHOT_CMD_SPIN_DIRECTION_1:
@@ -246,7 +249,7 @@ void dshotCommandWriteMask(uint32_t motorMask, uint8_t command, dshotCommandType
             }
 
             for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-                if (motorDeviceMask() & BIT(i)) {
+                if (dshotMotors & BIT(i)) {
                     vTable->requestTelemetry(i);
                     vTable->writeInt(i, (motorMask & BIT(i)) ? command : DSHOT_CMD_MOTOR_STOP);
                 }

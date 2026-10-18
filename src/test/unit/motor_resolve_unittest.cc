@@ -294,17 +294,36 @@ TEST_F(MotorResolveTest, BidirNeedsCapture)
     EXPECT_EQ(MOTOR_STATE_OK, out.state[0]);
 }
 
-// Until the motor device runs several drivers at once
-TEST_F(MotorResolveTest, OneDriverAtATime)
+TEST_F(MotorResolveTest, DriversMix)
 {
-    motor(0, MOTOR_PROTOCOL_PWM, 1);
-    motor(1, MOTOR_PROTOCOL_DSHOT300, 2);
+    motor(0, MOTOR_PROTOCOL_PWM, 1, 50);
+    motor(1, MOTOR_PROTOCOL_DSHOT300, 2, 2000, MOTOR_FLAG_BIDIR);
     motor(2, MOTOR_PROTOCOL_ONESHOT125, 3);
     motorResolve(&in, &out);
 
     EXPECT_EQ(MOTOR_STATE_OK, out.state[0]);
-    EXPECT_EQ(MOTOR_STATE_GROUP_CLASH, out.state[1]);
+    EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_PWM, out.family[0]);
+    EXPECT_EQ(50, out.rate[0]);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[1]);
+    EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_DSHOT, out.family[1]);
+    EXPECT_EQ(2000, out.rate[1]);
     EXPECT_EQ(MOTOR_STATE_OK, out.state[2]);
+    EXPECT_EQ(2000, out.rate[2]);
+}
+
+TEST_F(MotorResolveTest, DriversShareNoTimer)
+{
+    motor(0, MOTOR_PROTOCOL_DSHOT600, 3);
+    motor(1, MOTOR_PROTOCOL_PWM, 3);
+    motorResolve(&in, &out);
+
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[0]);
+    EXPECT_EQ(MOTOR_STATE_TIMER_CLASH, out.state[1]);
+
+    // A bitbang motor leaves its pin's timer free
+    in.bitbangMode = DSHOT_BITBANG_ON;
+    motorResolve(&in, &out);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[1]);
 }
 
 // Until the DShot drivers take settings per motor

@@ -70,12 +70,25 @@ static bool motorProtocolIsAnalog(uint8_t protocol)
     }
 }
 
+// The order the drivers are updated in. DShot goes first: its frame timing
+// matters most.
+static const motorProtocolFamily_e motorDriverOrder[] = {
+    MOTOR_PROTOCOL_FAMILY_DSHOT,
+    MOTOR_PROTOCOL_FAMILY_PWM,
+    MOTOR_PROTOCOL_FAMILY_CAN,
+};
+
 void motorShutdown(void)
 {
     uint32_t shutdownDelayUs = 1500;
     bool analog = false;
 
-    motorDevice.vTable->shutdown();
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorVTable_t *vTable = motorDevice.vTable[motorDriverOrder[d]];
+        if (vTable) {
+            vTable->shutdown();
+        }
+    }
     motorDevice.enabled = false;
     motorDevice.motorEnableTimeMs = 0;
     motorDevice.initialized = false;
@@ -94,75 +107,91 @@ void motorShutdown(void)
     delayMicroseconds(shutdownDelayUs);
 }
 
-void motorWriteAll(float *values)
+static void motorDriverWrite(const motorVTable_t *vTable, uint32_t motorMask, float *values, bool bitbang)
 {
-#ifdef USE_PWM_OUTPUT
-    if (motorDevice.enabled) {
-#ifdef USE_DSHOT_BITBANG
-        if (isDshotBitbangActive()) {
-            // Initialise the output buffers
-            if (motorDevice.vTable->updateInit) {
-                motorDevice.vTable->updateInit();
-            }
-
-            // Update the motor data
-            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-                if (motorDevice.motorMask & BIT(i)) {
-                    motorDevice.vTable->write(i, values[i]);
-                }
-            }
-
-            // Don't attempt to write commands to the motors if telemetry is still being received
-            if (motorDevice.vTable->telemetryWait) {
-                (void)motorDevice.vTable->telemetryWait();
-            }
-
-            // Trigger the transmission of the motor data
-            motorDevice.vTable->updateComplete();
-
-            // Perform the decode of the last data received
-            // New data will be received once the send of motor data, triggered above, completes
-#if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
-            if (motorDevice.vTable->decodeTelemetry) {
-                motorDevice.vTable->decodeTelemetry();
-            }
-#endif
-        } else
-#endif
-        {
-            // Perform the decode of the last data received
-            // New data will be received once the send of motor data, triggered above, completes
-#if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
-            if (motorDevice.vTable->decodeTelemetry) {
-                motorDevice.vTable->decodeTelemetry();
-            }
-#endif
-
-            // Update the motor data
-            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-                if (motorDevice.motorMask & BIT(i)) {
-                    motorDevice.vTable->write(i, values[i]);
-                }
-            }
-
-            // Trigger the transmission of the motor data
-            motorDevice.vTable->updateComplete();
+    if (bitbang) {
+        // Initialise the output buffers
+        if (vTable->updateInit) {
+            vTable->updateInit();
         }
-    }
-#else
-    UNUSED(values);
+
+        // Update the motor data
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if (motorMask & BIT(i)) {
+                vTable->write(i, values[i]);
+            }
+        }
+
+        // Don't attempt to write commands to the motors if telemetry is still being received
+        if (vTable->telemetryWait) {
+            (void)vTable->telemetryWait();
+        }
+
+        // Trigger the transmission of the motor data
+        vTable->updateComplete();
+
+        // Perform the decode of the last data received
+        // New data will be received once the send of motor data, triggered above, completes
+#if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
+        if (vTable->decodeTelemetry) {
+            vTable->decodeTelemetry();
+        }
 #endif
+    }
+    else {
+        // Perform the decode of the last data received
+        // New data will be received once the send of motor data, triggered above, completes
+#if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
+        if (vTable->decodeTelemetry) {
+            vTable->decodeTelemetry();
+        }
+#endif
+
+        // Update the motor data
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if (motorMask & BIT(i)) {
+                vTable->write(i, values[i]);
+            }
+        }
+
+        // Trigger the transmission of the motor data
+        vTable->updateComplete();
+    }
 }
 
-static bool motorIsPresent(unsigned index)
+void motorWriteAll(float *values)
 {
-    return index < MAX_SUPPORTED_MOTORS && (motorDevice.motorMask & BIT(index));
+    if (motorDevice.enabled) {
+        for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+            const motorProtocolFamily_e family = motorDriverOrder[d];
+            const motorVTable_t *vTable = motorDevice.vTable[family];
+            if (vTable) {
+#ifdef USE_DSHOT_BITBANG
+                const bool bitbang = (family == MOTOR_PROTOCOL_FAMILY_DSHOT) && isDshotBitbangActive();
+#else
+                const bool bitbang = false;
+#endif
+                motorDriverWrite(vTable, motorDevice.driverMask[family], values, bitbang);
+            }
+        }
+    }
+}
+
+// The driver of a motor that is set up, or NULL
+static const motorVTable_t *motorDriverOf(unsigned index)
+{
+    if (index < MAX_SUPPORTED_MOTORS && (motorDevice.motorMask & BIT(index))) {
+        return motorDevice.vTable[motorResolved.family[index]];
+    }
+    return NULL;
 }
 
 void motorRequestTelemetry(unsigned index)
 {
-    if (motorIsPresent(index) && motorDevice.vTable->requestTelemetry) {
-        motorDevice.vTable->requestTelemetry(index);
+    const motorVTable_t *vTable = motorDriverOf(index);
+
+    if (vTable && vTable->requestTelemetry) {
+        vTable->requestTelemetry(index);
     }
 }
 
@@ -171,9 +200,14 @@ uint32_t motorDeviceMask(void)
     return motorDevice.motorMask;
 }
 
-const motorVTable_t *motorGetVTable(void)
+uint32_t motorGetDriverMask(motorProtocolFamily_e family)
 {
-    return motorDevice.vTable;
+    return family < MOTOR_PROTOCOL_FAMILY_COUNT ? motorDevice.driverMask[family] : 0;
+}
+
+const motorVTable_t *motorGetDriverVTable(motorProtocolFamily_e family)
+{
+    return family < MOTOR_PROTOCOL_FAMILY_COUNT ? motorDevice.vTable[family] : NULL;
 }
 
 motorProtocolFamily_e motorGetProtocolFamily(unsigned index)
@@ -224,14 +258,19 @@ bool isDshotBitbangActive(void)
 
 void motorPostInit(void)
 {
-    if (motorDevice.vTable->postInit) {
-        motorDevice.vTable->postInit();
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorVTable_t *vTable = motorDevice.vTable[motorDriverOrder[d]];
+        if (vTable && vTable->postInit) {
+            vTable->postInit();
+        }
     }
 
     // Some drivers only set the hardware up here, and a motor can still fail
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if ((motorDevice.motorMask & BIT(i)) && !motorDevice.vTable->isMotorEnabled(i)) {
+        const motorVTable_t *vTable = motorDriverOf(i);
+        if (vTable && !vTable->isMotorEnabled(i)) {
             motorDevice.motorMask &= ~BIT(i);
+            motorDevice.driverMask[motorResolved.family[i]] &= ~BIT(i);
             motorResolved.state[i] = MOTOR_STATE_FAILED;
         }
     }
@@ -252,8 +291,6 @@ bool isMotorProtocolBidirDshot(void)
 {
     return isMotorProtocolDshot() && useDshotTelemetry;
 }
-
-void motorNullDevInit(motorDevice_t *device);
 
 static void motorResolveInputInit(motorResolveInput_t *in)
 {
@@ -300,8 +337,7 @@ void motorDevInit(void)
     motorResolve(&resolveInput, &motorResolved);
 
     uint32_t configuredMask = 0;
-    uint32_t resolvedMask = 0;
-    motorProtocolFamily_e family = MOTOR_PROTOCOL_FAMILY_UNKNOWN;
+    uint32_t resolvedMask[MOTOR_PROTOCOL_FAMILY_COUNT] = { 0 };
 
     motorProtocolEnabled = false;
 
@@ -313,8 +349,7 @@ void motorDevInit(void)
             configuredMask |= BIT(i);
         }
         if (motorResolved.state[i] == MOTOR_STATE_OK) {
-            resolvedMask |= BIT(i);
-            family = motorResolved.family[i];
+            resolvedMask[motorResolved.family[i]] |= BIT(i);
 
             // Keep a rate the hardware forced down, as the servos do
             if (motorConfig(i)->rate && motorResolved.rate[i] < motorConfig(i)->rate) {
@@ -323,67 +358,90 @@ void motorDevInit(void)
         }
     }
 
-    motorProtocolDshot = (family == MOTOR_PROTOCOL_FAMILY_DSHOT);
+    motorProtocolDshot = (resolvedMask[MOTOR_PROTOCOL_FAMILY_DSHOT] != 0);
 
-    const motorVTable_t *vTable = NULL;
-    uint32_t motorMask = 0;
+    memset(&motorDevice, 0, sizeof(motorDevice));
 
-    switch (family) {
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorProtocolFamily_e family = motorDriverOrder[d];
+        const uint32_t motorMask = resolvedMask[family];
+        const motorVTable_t *vTable = NULL;
+        uint32_t driverMask = 0;
+
+        if (motorMask) {
+            switch (family) {
 #if ENABLE_DRONECAN_ESC
-        case MOTOR_PROTOCOL_FAMILY_CAN:
-            motorMask = dronecanMotorDevInit(resolvedMask, &vTable);
-            break;
+                case MOTOR_PROTOCOL_FAMILY_CAN:
+                    driverMask = dronecanMotorDevInit(motorMask, &vTable);
+                    break;
 #endif
 #ifdef USE_PWM_OUTPUT
-        case MOTOR_PROTOCOL_FAMILY_PWM:
-            motorMask = motorPwmDevInit(resolvedMask, &vTable);
-            break;
+                case MOTOR_PROTOCOL_FAMILY_PWM:
+                    driverMask = motorPwmDevInit(motorMask, &vTable);
+                    break;
 #endif
 #ifdef USE_DSHOT
-        case MOTOR_PROTOCOL_FAMILY_DSHOT:
+                case MOTOR_PROTOCOL_FAMILY_DSHOT:
 #ifdef USE_DSHOT_BITBANG
-            if (motorResolved.bitbang) {
-                motorMask = dshotBitbangDevInit(resolvedMask, &vTable);
-                break;
+                    if (motorResolved.bitbang) {
+                        driverMask = dshotBitbangDevInit(motorMask, &vTable);
+                        break;
+                    }
+#endif
+                    driverMask = dshotPwmDevInit(motorMask, &vTable);
+                    break;
+#endif
+                default:
+                    break;
             }
-#endif
-            motorMask = dshotPwmDevInit(resolvedMask, &vTable);
-            break;
-#endif
-        default:
-            break;
-    }
+        }
 
-    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if ((resolvedMask & BIT(i)) && !(motorMask & BIT(i))) {
-            motorResolved.state[i] = MOTOR_STATE_FAILED;
+        if (vTable) {
+            motorDevice.vTable[family] = vTable;
+            motorDevice.driverMask[family] = driverMask;
+            motorDevice.motorMask |= driverMask;
+        }
+        else {
+            driverMask = 0;
+        }
+
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if ((motorMask & BIT(i)) && !(driverMask & BIT(i))) {
+                motorResolved.state[i] = MOTOR_STATE_FAILED;
+            }
         }
     }
 
     motorDevice.configuredMask = configuredMask;
-
-    // if the VTable has been populated, the device is initialized.
-    if (vTable) {
-        motorDevice.vTable = vTable;
-        motorDevice.motorMask = motorMask;
-        motorDevice.initialized = true;
-        motorDevice.motorEnableTimeMs = 0;
-        motorDevice.enabled = false;
-    } else {
-        motorNullDevInit(&motorDevice);
-    }
+    motorDevice.initialized = true;
+    motorDevice.motorEnableTimeMs = 0;
+    motorDevice.enabled = false;
 }
 
 void motorDisable(void)
 {
-    motorDevice.vTable->disable();
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorVTable_t *vTable = motorDevice.vTable[motorDriverOrder[d]];
+        if (vTable) {
+            vTable->disable();
+        }
+    }
     motorDevice.enabled = false;
     motorDevice.motorEnableTimeMs = 0;
 }
 
 void motorEnable(void)
 {
-    if (motorDevice.initialized && motorDevice.vTable->enable()) {
+    bool enabled = motorDevice.initialized && motorDevice.motorMask;
+
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorVTable_t *vTable = motorDevice.vTable[motorDriverOrder[d]];
+        if (vTable && !vTable->enable()) {
+            enabled = false;
+        }
+    }
+
+    if (enabled) {
         motorDevice.enabled = true;
         motorDevice.motorEnableTimeMs = millis();
     }
@@ -407,12 +465,16 @@ bool motorIsEnabled(void)
 
 bool motorIsMotorEnabled(unsigned index)
 {
-    return motorIsPresent(index) && motorDevice.vTable->isMotorEnabled(index);
+    const motorVTable_t *vTable = motorDriverOf(index);
+
+    return vTable && vTable->isMotorEnabled(index);
 }
 
 bool motorIsMotorIdle(unsigned index)
 {
-    return (motorIsPresent(index) && motorDevice.vTable->isMotorIdle) ? motorDevice.vTable->isMotorIdle(index) : false;
+    const motorVTable_t *vTable = motorDriverOf(index);
+
+    return (vTable && vTable->isMotorIdle) ? vTable->isMotorIdle(index) : false;
 }
 
 #ifdef USE_DSHOT
@@ -424,30 +486,17 @@ timeMs_t motorGetMotorEnableTimeMs(void)
 
 IO_t motorGetIo(unsigned index)
 {
-    if (motorIsPresent(index) && motorDevice.vTable->getMotorIO) {
-        return motorDevice.vTable->getMotorIO(index);
+    const motorVTable_t *vTable = motorDriverOf(index);
+
+    if (vTable && vTable->getMotorIO) {
+        return vTable->getMotorIO(index);
     }
     return IO_NONE;
 }
 
-/* functions below for empty methods and no active motors */
+/* empty methods for the drivers to use */
 void motorPostInitNull(void)
 {
-}
-
-static bool motorEnableNull(void)
-{
-    return false;
-}
-
-static void motorDisableNull(void)
-{
-}
-
-static bool motorIsEnabledNull(unsigned index)
-{
-    UNUSED(index);
-    return false;
 }
 
 bool motorDecodeTelemetryNull(void)
@@ -459,41 +508,6 @@ void motorWriteNull(uint8_t index, float throttle)
 {
     UNUSED(index);
     UNUSED(throttle);
-}
-
-static void motorWriteIntNull(uint8_t index, uint16_t value)
-{
-    UNUSED(index);
-    UNUSED(value);
-}
-
-static void motorUpdateCompleteNull(void)
-{
-}
-
-static void motorShutdownNull(void)
-{
-}
-
-static const motorVTable_t motorNullVTable = {
-    .postInit = motorPostInitNull,
-    .enable = motorEnableNull,
-    .disable = motorDisableNull,
-    .isMotorEnabled = motorIsEnabledNull,
-    .decodeTelemetry = motorDecodeTelemetryNull,
-    .write = motorWriteNull,
-    .writeInt = motorWriteIntNull,
-    .updateComplete = motorUpdateCompleteNull,
-    .shutdown = motorShutdownNull,
-    .requestTelemetry = NULL,
-    .isMotorIdle = NULL,
-    .getMotorIO = NULL,
-};
-
-void motorNullDevInit(motorDevice_t *device)
-{
-    device->vTable = &motorNullVTable;
-    device->motorMask = 0;
 }
 
 

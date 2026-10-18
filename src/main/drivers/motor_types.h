@@ -57,9 +57,10 @@ typedef struct motorVTable_s {
 } motorVTable_t;
 
 typedef struct motorDevice_s {
-    const motorVTable_t *vTable;
+    const motorVTable_t *vTable[MOTOR_PROTOCOL_FAMILY_COUNT];   // the driver of each protocol family, if any
+    uint32_t      driverMask[MOTOR_PROTOCOL_FAMILY_COUNT];      // motors each driver set up
     uint32_t      configuredMask;   // motors the configuration asks for
-    uint32_t      motorMask;        // motors the driver set up
+    uint32_t      motorMask;        // motors the drivers set up
     bool          initialized;
     bool          enabled;
     timeMs_t      motorEnableTimeMs;
