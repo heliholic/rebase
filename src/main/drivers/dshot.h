@@ -138,7 +138,6 @@ bool isDshotBitbangActive(void);
 
 uint16_t getDshotErpm(uint8_t motorIndex);
 float getDshotRpm(uint8_t motorIndex);
-float getDshotRpmAverage(void);
 float getMotorFrequencyHz(uint8_t motorIndex);
 float getMinMotorFrequencyHz(void);
 

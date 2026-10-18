@@ -37,18 +37,14 @@
 #include "config/config.h"
 #include "fc/feature.h"
 
-#include "drivers/dshot.h"
-
 #include "fc/runtime_config.h"
 
 #include "flight/imu.h"
-#include "flight/mixer.h"
 
 #include "io/gps.h"
 #include "io/serial.h"
 
 #include "pg/rx.h"
-#include "pg/motor.h"
 
 #include "rx/rx.h"
 #include "rx/spektrum.h"
@@ -56,7 +52,6 @@
 
 #include "sensors/adcinternal.h"
 #include "sensors/battery.h"
-#include "sensors/esc_sensor.h"
 
 #include "telemetry/telemetry.h"
 
@@ -167,44 +162,6 @@ typedef struct
 
 #define SPEKTRUM_RPM_UNUSED 0xffff
 #define SPEKTRUM_TEMP_UNUSED 0x7fff
-#define MICROSEC_PER_MINUTE 60000000
-
-//Original range of 1 - 65534 uSec gives an RPM range of 915 - 60000000rpm, 60MegaRPM
-#define SPEKTRUM_MIN_RPM 999      // Min RPM to show the user, indicating RPM is really below 999
-#define SPEKTRUM_MAX_RPM 60000000
-
-static uint16_t getMotorAveragePeriod(void)
-{
-
-#if defined( USE_ESC_SENSOR_TELEMETRY) || defined( USE_DSHOT_TELEMETRY)
-    uint32_t rpm = 0;
-    uint16_t period_us = SPEKTRUM_RPM_UNUSED;
-
-#if defined( USE_ESC_SENSOR_TELEMETRY)
-    escSensorData_t *escData = getEscSensorData(ESC_SENSOR_COMBINED);
-    if (escData != NULL) {
-        rpm = escData->rpm;
-    }
-#endif
-
-#if defined(USE_DSHOT_TELEMETRY)
-    // Calculate this way when no rpm from esc data
-    if (useDshotTelemetry && rpm == 0) {
-        rpm = lrintf(getDshotRpmAverage());
-    }
-#endif
-
-    if (rpm > SPEKTRUM_MIN_RPM && rpm < SPEKTRUM_MAX_RPM) {
-        period_us = MICROSEC_PER_MINUTE / rpm; // revs/minute -> microSeconds
-    } else {
-        period_us = MICROSEC_PER_MINUTE / SPEKTRUM_MIN_RPM;
-    }
-
-    return period_us;
-#else
-    return SPEKTRUM_RPM_UNUSED;
-#endif
-}
 
 static bool srxlFrameRpm(sbuf_t *dst, timeUs_t currentTimeUs)
 {
@@ -218,7 +175,7 @@ static bool srxlFrameRpm(sbuf_t *dst, timeUs_t currentTimeUs)
 
     sbufWriteU8(dst, SRXL_FRAMETYPE_TELE_RPM);
     sbufWriteU8(dst, SRXL_FRAMETYPE_SID);
-    sbufWriteU16BigEndian(dst, getMotorAveragePeriod());    // pulse leading edges
+    sbufWriteU16BigEndian(dst, SPEKTRUM_RPM_UNUSED);        // pulse leading edges
     if (telemetryConfig()->report_cell_voltage) {
         sbufWriteU16BigEndian(dst, getBatteryAverageCellVoltage()); // Cell voltage is in units of 0.01V
     } else {

@@ -104,7 +104,6 @@ FAST_DATA_ZERO_INIT dshotTelemetryState_t dshotTelemetryState;
 FAST_DATA_ZERO_INIT static pt1Filter_t motorFreqLpf[MAX_SUPPORTED_MOTORS];
 FAST_DATA_ZERO_INIT static float motorFrequencyHz[MAX_SUPPORTED_MOTORS];
 FAST_DATA_ZERO_INIT static float minMotorFrequencyHz;
-FAST_DATA_ZERO_INIT static float dshotRpmAverage;
 FAST_DATA_ZERO_INIT static float dshotRpm[MAX_SUPPORTED_MOTORS];
 FAST_DATA_ZERO_INIT static bool edtAlwaysDecode[MAX_SUPPORTED_MOTORS];
 
@@ -206,9 +205,6 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
         return;
     }
 
-    float rpmTotal = 0;
-    uint32_t rpmSamples = 0;
-
     // Decode all telemetry data now to discharge interrupt from this task
     for (uint8_t k = 0; k < MAX_SUPPORTED_MOTORS; k++) {
         if (dshotBidirMask & BIT(k)) {
@@ -222,16 +218,9 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
 
                 if (type == DSHOT_TELEMETRY_TYPE_eRPM) {
                     dshotRpm[k] = erpmToRpm(k, value);
-                    rpmTotal += dshotRpm[k];
-                    rpmSamples++;
                 }
             }
         }
-    }
-
-    // Update average
-    if (rpmSamples > 0) {
-        dshotRpmAverage = rpmTotal / (float)rpmSamples;
     }
 
     // update filtered rotation speed of motors for features (e.g. "RPM filter")
@@ -255,11 +244,6 @@ uint16_t getDshotErpm(uint8_t motorIndex)
 float getDshotRpm(uint8_t motorIndex)
 {
     return dshotRpm[motorIndex];
-}
-
-float getDshotRpmAverage(void)
-{
-    return dshotRpmAverage;
 }
 
 float getMotorFrequencyHz(uint8_t motorIndex)

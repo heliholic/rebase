@@ -32,7 +32,6 @@
 #include "build/debug.h"
 #include "fc/runtime_config.h"
 #include "fc/feature.h"
-#include "fc/motors.h"
 
 #include "common/utils.h"
 #include "common/bitarray.h"
@@ -40,11 +39,9 @@
 #include "drivers/serial.h"
 #include "drivers/serial_uart.h"
 #include "drivers/time.h"
-#include "drivers/dshot.h"
 
 #include "flight/position.h"
 #include "flight/imu.h"
-#include "flight/mixer.h"
 
 #include "io/serial.h"
 #include "io/gps.h"
@@ -55,7 +52,6 @@
 #include "sensors/battery.h"
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
-#include "sensors/esc_sensor.h"
 
 #include "telemetry/jetiexbus.h"
 #include "telemetry/telemetry.h"
@@ -148,7 +144,6 @@ const exBusSensor_t jetiExSensors[] = {
     {"G-Force X",       "",         EX_TYPE_22b,   DECIMAL_MASK(3)},
     {"G-Force Y",       "",         EX_TYPE_22b,   DECIMAL_MASK(3)},
     {"G-Force Z",       "",         EX_TYPE_22b,   DECIMAL_MASK(3)},
-    {"RPM",             "",         EX_TYPE_22b,   DECIMAL_MASK(0)},
     {"Trip Distance",   "m",        EX_TYPE_22b,   DECIMAL_MASK(1)},
     {"DEBUG0",          "",         EX_TYPE_22b,   DECIMAL_MASK(0)},
     {"DEBUG1",          "",         EX_TYPE_22b,   DECIMAL_MASK(0)},
@@ -182,7 +177,6 @@ enum exSensors_e {
     EX_GFORCE_X,
     EX_GFORCE_Y,
     EX_GFORCE_Z,
-    EX_RPM,
     EX_TRIP_DISTANCE,
     EX_DEBUG0,
     EX_DEBUG1,
@@ -294,13 +288,6 @@ void initJetiExBusTelemetry(void)
     }
 
     enableGpsTelemetry(featureIsEnabled(FEATURE_GPS));
-
-        // Enable RPM telemetry when ESC telemetry is available
-    #if defined(USE_DSHOT) || defined(USE_ESC_SENSOR)
-        if (featureIsEnabled(FEATURE_ESC_SENSOR)) {
-            bitArraySet(&exSensorEnabled, EX_RPM);
-        }
-    #endif
 
     if (debugMode != DEBUG_NONE) {
         bitArraySet(&exSensorEnabled, EX_DEBUG0);
@@ -442,27 +429,6 @@ static int32_t getSensorValue(uint8_t sensor)
         // Placeholder until a proper trip distance source exists
         return 0;
     break;
-
-#if defined(USE_DSHOT) || defined(USE_ESC_SENSOR)
-    case EX_RPM: {
-        // Average RPM across all motors with valid ESC telemetry; units: rpm/10 to fit in 22b range
-        float rpmSum = 0;
-        uint8_t validCount = 0;
-        uint8_t count = getMotorCount();
-        for (uint8_t i = 0; i < count; i++) {
-            const escSensorData_t *esc = getEscSensorData(i);
-            if (esc && esc->dataAge < ESC_DATA_INVALID) {
-                rpmSum += erpmToRpm(i, esc->rpm);
-                validCount++;
-            }
-        }
-        if (validCount == 0) {
-            return 0;
-        }
-
-        return lrintf(rpmSum / 10.0f / validCount);
-    }
-#endif // end of USE_DSHOT || USE_ESC_SENSOR
 
     case EX_DEBUG0: return debug[0];
     case EX_DEBUG1: return debug[1];

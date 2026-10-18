@@ -189,12 +189,6 @@ static void sendAccel(void)
 static void sendThrottleOrBatterySizeAsRpm(void)
 {
     int16_t data = 0;
-#if defined(USE_ESC_SENSOR_TELEMETRY)
-    escSensorData_t *escData = getEscSensorData(ESC_SENSOR_COMBINED);
-    if (escData) {
-        data = escData->dataAge < ESC_DATA_INVALID ? lrintf(erpmToRpm(0, escData->rpm) / 10.0f) : 0;
-    }
-#else
     if (ARMING_FLAG(ARMED)) {
         uint16_t throttleForRPM = getThrottleCommand() / BLADE_NUMBER_DIVIDER;
         if (isThrottleOff()) {
@@ -204,7 +198,6 @@ static void sendThrottleOrBatterySizeAsRpm(void)
     } else {
         data = (currentBatteryProfile->batteryCapacity / BLADE_NUMBER_DIVIDER);
     }
-#endif
 
     frSkyHubWriteFrame(ID_RPM, data);
 }
