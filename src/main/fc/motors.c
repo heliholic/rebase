@@ -123,8 +123,6 @@ bool areMotorsRunning(void)
 
 void INIT_CODE validateAndFixMotorConfig(void)
 {
-    bool proshot = false;
-
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         motorConfig_t *motor = motorConfigMutable(i);
 
@@ -170,20 +168,7 @@ void INIT_CODE validateAndFixMotorConfig(void)
         motor->poles &= ~1;
 
         motor->kv = MIN(motor->kv, MOTOR_KV_MAX);
-
-        if (motor->protocol == MOTOR_PROTOCOL_PROSHOT1000) {
-            proshot = true;
-        }
     }
-
-#ifdef USE_DSHOT_BITBANG
-    // Bitbang has no ProShot timing
-    if (proshot && motorDriverConfig()->useDshotBitbang == DSHOT_BITBANG_ON) {
-        motorDriverConfigMutable()->useDshotBitbang = DSHOT_BITBANG_AUTO;
-    }
-#else
-    UNUSED(proshot);
-#endif
 }
 
 void INIT_CODE motorInit(void)

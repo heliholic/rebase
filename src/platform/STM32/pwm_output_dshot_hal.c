@@ -320,7 +320,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
         LL_TIM_DisableCounter(timer);
 
         init.Prescaler = (uint16_t)(lrintf((float) timerClockFromInstance(timerHardware->tim) / getDshotHz(pwmProtocolType) + 0.01f) - 1);
-        init.Autoreload = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? MOTOR_NIBBLE_LENGTH_PROSHOT : MOTOR_BITLENGTH) - 1;
+        init.Autoreload = MOTOR_BITLENGTH - 1;
         init.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
         init.RepetitionCounter = 0;
         init.CounterMode = LL_TIM_COUNTERMODE_UP;
@@ -391,7 +391,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
 
     LL_DMA_StructInit(&DMAINIT);
 #if defined(STM32H5) || defined(STM32C5) || defined(STM32N6)
-    const uint32_t dshotBufferSize = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? PROSHOT_DMA_BUFFER_SIZE : DSHOT_DMA_BUFFER_SIZE);
+    const uint32_t dshotBufferSize = DSHOT_DMA_BUFFER_SIZE;
 #ifdef USE_DSHOT_DMAR
     if (useBurstDshot) {
         motor->timer->dmaBurstBuffer = &dshotBurstDmaBuffer[timerIndex][0];
@@ -489,7 +489,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
     DMAINIT.MemBurst = LL_DMA_MBURST_SINGLE;
     DMAINIT.PeriphBurst = LL_DMA_PBURST_SINGLE;
 #endif
-    DMAINIT.NbData = pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? PROSHOT_DMA_BUFFER_SIZE : DSHOT_DMA_BUFFER_SIZE;
+    DMAINIT.NbData = DSHOT_DMA_BUFFER_SIZE;
     DMAINIT.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
     DMAINIT.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
     DMAINIT.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_WORD;
@@ -508,7 +508,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
 #ifdef USE_DSHOT_TELEMETRY
     motor->dshotTelemetryDeadtimeUs = DSHOT_TELEMETRY_DEADTIME_US + 1000000 *
         ( 16 * MOTOR_BITLENGTH) / getDshotHz(pwmProtocolType);
-    motor->timer->outputPeriod = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? (MOTOR_NIBBLE_LENGTH_PROSHOT) : MOTOR_BITLENGTH) - 1;
+    motor->timer->outputPeriod = MOTOR_BITLENGTH - 1;
     pwmDshotSetDirectionOutput(motor);
 #else
     pwmDshotSetDirectionOutput(motor, &OCINIT, &DMAINIT);

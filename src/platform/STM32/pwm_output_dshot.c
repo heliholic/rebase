@@ -328,7 +328,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
         TIM_Cmd(timer, DISABLE);
 
         TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)(lrintf((float) timerClock(timerHardware) / getDshotHz(pwmProtocolType) + 0.01f) - 1);
-        TIM_TimeBaseStructure.TIM_Period = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? (MOTOR_NIBBLE_LENGTH_PROSHOT) : MOTOR_BITLENGTH) - 1;
+        TIM_TimeBaseStructure.TIM_Period = MOTOR_BITLENGTH - 1;
         TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
         TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
         TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -388,7 +388,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
         DMAINIT.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
         DMAINIT.DMA_PeripheralBaseAddr = (uint32_t)&((TIM_TypeDef *)timerHardware->tim)->DMAR;
-        DMAINIT.DMA_BufferSize = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000) ? PROSHOT_DMA_BUFFER_SIZE : DSHOT_DMA_BUFFER_SIZE; // XXX
+        DMAINIT.DMA_BufferSize = DSHOT_DMA_BUFFER_SIZE; // XXX
         DMAINIT.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
         DMAINIT.DMA_MemoryInc = DMA_MemoryInc_Enable;
         DMAINIT.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
@@ -425,7 +425,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
 #ifdef USE_DSHOT_TELEMETRY
     motor->dshotTelemetryDeadtimeUs = DSHOT_TELEMETRY_DEADTIME_US + 1000000 *
         (16 * MOTOR_BITLENGTH) / getDshotHz(pwmProtocolType);
-    motor->timer->outputPeriod = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? (MOTOR_NIBBLE_LENGTH_PROSHOT) : MOTOR_BITLENGTH) - 1;
+    motor->timer->outputPeriod = MOTOR_BITLENGTH - 1;
     pwmDshotSetDirectionOutput(motor);
 #else
     pwmDshotSetDirectionOutput(motor, &OCINIT, &DMAINIT);

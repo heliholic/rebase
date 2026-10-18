@@ -68,24 +68,9 @@ FAST_CODE_NOINLINE uint8_t loadDmaBufferDshot(uint32_t *dmaBuffer, int stride, u
     return DSHOT_DMA_BUFFER_SIZE;
 }
 
-FAST_CODE_NOINLINE uint8_t loadDmaBufferProshot(uint32_t *dmaBuffer, int stride, uint16_t packet)
-{
-    int i;
-    for (i = 0; i < 4; i++) {
-        dmaBuffer[i * stride] = PROSHOT_BASE_SYMBOL + ((packet & 0xF000) >> 12) * PROSHOT_BIT_WIDTH;  // Most significant nibble first
-        packet <<= 4;   // Shift 4 bits
-    }
-    dmaBuffer[i++ * stride] = 0;
-    dmaBuffer[i++ * stride] = 0;
-
-    return PROSHOT_DMA_BUFFER_SIZE;
-}
-
 uint32_t getDshotHz(motorProtocol_e pwmProtocolType)
 {
     switch (pwmProtocolType) {
-    case(MOTOR_PROTOCOL_PROSHOT1000):
-        return MOTOR_PROSHOT1000_HZ;
     case(MOTOR_PROTOCOL_DSHOT600):
         return MOTOR_DSHOT600_HZ;
     case(MOTOR_PROTOCOL_DSHOT300):
@@ -194,7 +179,6 @@ uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
                 const bool inverted = (param->flags & MOTOR_FLAG_INVERTED);
                 const bool bidir = (bidirMask & BIT(motorIndex));
 
-                motor->loadDmaBuffer = (param->protocol == MOTOR_PROTOCOL_PROSHOT1000) ? loadDmaBufferProshot : loadDmaBufferDshot;
                 motor->protocolControl.bidir = bidir;
 #ifdef USE_DSHOT_TELEMETRY
                 motor->bidir = bidir;

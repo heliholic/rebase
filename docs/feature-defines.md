@@ -402,7 +402,6 @@ flash or SD is present. USB MSC is dropped without blackbox + a storage backend.
 | `USE_BRUSHED` | Brushed-motor PWM protocol |
 | `USE_ONESHOT` | Oneshot125 / Oneshot42 |
 | `USE_MULTISHOT` | Multishot |
-| `USE_PROSHOT` | Proshot1000 |
 | `USE_DSHOT` | DShot motor protocol |
 | `USE_DSHOT_BITBANG` | Bit-banged DShot (DMA GPIO) |
 | `USE_DSHOT_BITBAND` | Cortex bit-band DShot path (F4) |

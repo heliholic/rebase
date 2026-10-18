@@ -349,7 +349,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
         pupMode);
     IOConfigGPIOAF(motorIO, motor->iocfg, timerHardware->alternateFunction);
 
-    const uint16_t outputPeriod = (pwmProtocolType == MOTOR_PROTOCOL_PROSHOT1000 ? MOTOR_NIBBLE_LENGTH_PROSHOT : MOTOR_BITLENGTH) - 1U;
+    const uint16_t outputPeriod = MOTOR_BITLENGTH - 1U;
     motor->timer->outputPeriod = outputPeriod;
 
     if (configureTimer) {

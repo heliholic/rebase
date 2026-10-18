@@ -35,16 +35,9 @@
 #define MOTOR_BIT_1           14
 #define MOTOR_BITLENGTH       20
 
-#define MOTOR_PROSHOT1000_HZ         MHZ_TO_HZ(24)
-#define PROSHOT_BASE_SYMBOL          24 // 1uS
-#define PROSHOT_BIT_WIDTH            3
-#define MOTOR_NIBBLE_LENGTH_PROSHOT  (PROSHOT_BASE_SYMBOL * 4) // 4uS
-
 #define DSHOT_TELEMETRY_DEADTIME_US   (30 + 5) // 30 to switch lines and 5 to switch lines back
 
-typedef uint8_t loadDmaBufferFn(uint32_t *dmaBuffer, int stride, uint16_t packet);  // function pointer used to encode a digital motor value into the DMA buffer representation
 uint8_t loadDmaBufferDshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
-uint8_t loadDmaBufferProshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
 
 uint32_t getDshotHz(motorProtocol_e pwmProtocolType);
 
@@ -53,7 +46,6 @@ uint32_t getDshotHz(motorProtocol_e pwmProtocolType);
 #define MAX_DMA_TIMERS        8
 
 #define DSHOT_DMA_BUFFER_SIZE   18 /* resolution + frame reset (2us) */
-#define PROSHOT_DMA_BUFFER_SIZE 6  /* resolution + frame reset (2us) */
 
 #define GCR_TELEMETRY_INPUT_LEN MAX_GCR_EDGES
 
@@ -112,7 +104,6 @@ typedef struct {
 
 typedef struct motorDmaOutput_s {
     dshotProtocolControl_t protocolControl;
-    loadDmaBufferFn *loadDmaBuffer;     // DShot or ProShot encoding of this motor's protocol
     ioTag_t ioTag;
     const timerHardware_t *timerHardware;
 #ifdef USE_DSHOT

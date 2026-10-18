@@ -98,7 +98,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `mixerInputs` | 15 | `0x7838A8CF` | [`mixerInput_t`](#mixerinput_t) | 6 &times; `MIXER_INPUT_COUNT` | `pg/mixer.h` |
 | `mixerRules` | 21 | `0x2C09DFA2` | [`mixerRule_t`](#mixerrule_t) | 8 &times; `MIXER_RULE_COUNT` | `pg/mixer.h` |
 | `modeActivationConditions` | 41 | `0x55454DC6` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
-| `motorConfig` | 572 | `0x147BD35D` | [`motorConfig_t`](#motorconfig_t) | 14 &times; `MAX_SUPPORTED_MOTORS` | `pg/motor.h` |
+| `motorConfig` | 572 | `0x0D388E27` | [`motorConfig_t`](#motorconfig_t) | 14 &times; `MAX_SUPPORTED_MOTORS` | `pg/motor.h` |
 | `motorDevConfig` | 573 | `0xBCE3B674` | [`motorDevConfig_t`](#motordevconfig_t) | 1 &times; `MAX_SUPPORTED_MOTORS` | `pg/motor.h` |
 | `motorDriverConfig` | 574 | `0xB62FA5B8` | [`motorDriverConfig_t`](#motordriverconfig_t) | 3 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
@@ -706,7 +706,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### motorConfig_t
 
-- `motorConfig` &mdash; PGN 572 (`PG_MOTOR_CONFIG`), hash `0x147BD35D` &mdash; array of `MAX_SUPPORTED_MOTORS` elements
+- `motorConfig` &mdash; PGN 572 (`PG_MOTOR_CONFIG`), hash `0x0D388E27` &mdash; array of `MAX_SUPPORTED_MOTORS` elements
 
 `sizeof` = 14 bytes.
 
@@ -1554,9 +1554,8 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `MOTOR_PROTOCOL_DSHOT150` | 6 |
 | `MOTOR_PROTOCOL_DSHOT300` | 7 |
 | `MOTOR_PROTOCOL_DSHOT600` | 8 |
-| `MOTOR_PROTOCOL_PROSHOT1000` | 9 |
-| `MOTOR_PROTOCOL_DRONECAN` | 10 |
-| `MOTOR_PROTOCOL_COUNT` | 11 |
+| `MOTOR_PROTOCOL_DRONECAN` | 9 |
+| `MOTOR_PROTOCOL_COUNT` | 10 |
 
 ### opticalflowType_e
 

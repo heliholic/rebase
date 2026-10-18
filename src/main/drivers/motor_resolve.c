@@ -68,7 +68,6 @@ static const char * const motorProtocolNames[MOTOR_PROTOCOL_COUNT] = {
     [MOTOR_PROTOCOL_DSHOT150]       = "DSHOT150",
     [MOTOR_PROTOCOL_DSHOT300]       = "DSHOT300",
     [MOTOR_PROTOCOL_DSHOT600]       = "DSHOT600",
-    [MOTOR_PROTOCOL_PROSHOT1000]    = "PROSHOT1000",
     [MOTOR_PROTOCOL_DRONECAN]       = "DRONECAN",
 };
 
@@ -100,7 +99,6 @@ bool motorProtocolIsEnabled(uint8_t protocol)
         case MOTOR_PROTOCOL_DSHOT150:
         case MOTOR_PROTOCOL_DSHOT300:
         case MOTOR_PROTOCOL_DSHOT600:
-        case MOTOR_PROTOCOL_PROSHOT1000:
 #endif
 #if ENABLE_DRONECAN_ESC
         case MOTOR_PROTOCOL_DRONECAN:
@@ -119,7 +117,6 @@ bool motorProtocolIsDshot(uint8_t protocol)
         case MOTOR_PROTOCOL_DSHOT150:
         case MOTOR_PROTOCOL_DSHOT300:
         case MOTOR_PROTOCOL_DSHOT600:
-        case MOTOR_PROTOCOL_PROSHOT1000:
             return true;
         default:
             break;
@@ -246,8 +243,7 @@ static bool motorBitbangCompatible(const motorResolveMotor_t *a, const motorReso
 }
 
 // Bitbang drives every DShot motor or none of them. AUTO picks it only when
-// all of them can use it: alike, none on ProShot, which bitbang has no timing
-// for, and on some MCUs all bidirectional.
+// all of them can use it: alike, and on some MCUs all bidirectional.
 bool motorResolveBitbang(const motorResolveInput_t *in)
 {
     bool bitbang = false;
@@ -260,8 +256,7 @@ bool motorResolveBitbang(const motorResolveInput_t *in)
         for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
             const motorResolveMotor_t *motor = &in->motor[i];
             if (motorIsConfigured(in, motor) && motorProtocolIsEnabled(motor->protocol) && motorProtocolIsDshot(motor->protocol)) {
-                if (motor->protocol == MOTOR_PROTOCOL_PROSHOT1000 || (in->bitbangNeedsBidir && !motorIsBidir(motor)) ||
-                    (first && !motorBitbangCompatible(motor, first))) {
+                if ((in->bitbangNeedsBidir && !motorIsBidir(motor)) || (first && !motorBitbangCompatible(motor, first))) {
                     return false;
                 }
                 if (!first) {
@@ -377,10 +372,7 @@ void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
         else {
             out->family[i] = motorProtocolFamily(motor->protocol);
 
-            if (out->family[i] == MOTOR_PROTOCOL_FAMILY_DSHOT && out->bitbang && motor->protocol == MOTOR_PROTOCOL_PROSHOT1000) {
-                out->state[i] = MOTOR_STATE_UNSUPPORTED;
-            }
-            else if (out->family[i] != MOTOR_PROTOCOL_FAMILY_CAN && !in->pinless && motor->timer == MOTOR_TIMER_NONE) {
+            if (out->family[i] != MOTOR_PROTOCOL_FAMILY_CAN && !in->pinless && motor->timer == MOTOR_TIMER_NONE) {
                 out->state[i] = MOTOR_STATE_NO_TIMER;
             }
             else {

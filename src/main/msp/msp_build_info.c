@@ -144,9 +144,6 @@ static const uint16_t buildOptions[] = {
 #ifdef USE_ONESHOT
         BUILD_OPTION_ONESHOT,
 #endif
-#ifdef USE_PROSHOT
-        BUILD_OPTION_PROSHOT,
-#endif
 #ifdef USE_PWM_OUTPUT
         BUILD_OPTION_PWM_OUTPUT,
 #endif

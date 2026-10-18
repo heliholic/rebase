@@ -110,7 +110,7 @@ TEST_F(MotorResolveTest, ProtocolPulses)
 TEST_F(MotorResolveTest, ProtocolFamilies)
 {
     EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_PWM, motorProtocolFamily(MOTOR_PROTOCOL_ONESHOT42));
-    EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_DSHOT, motorProtocolFamily(MOTOR_PROTOCOL_PROSHOT1000));
+    EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_DSHOT, motorProtocolFamily(MOTOR_PROTOCOL_DSHOT150));
     EXPECT_EQ(MOTOR_PROTOCOL_FAMILY_UNKNOWN, motorProtocolFamily(MOTOR_PROTOCOL_DISABLED));
     EXPECT_TRUE(motorProtocolIsContinuous(MOTOR_PROTOCOL_BRUSHED));
     EXPECT_FALSE(motorProtocolIsContinuous(MOTOR_PROTOCOL_ONESHOT125));
@@ -222,13 +222,8 @@ TEST_F(MotorResolveTest, BitbangAuto)
     in.motor[1].flags = MOTOR_FLAG_BIDIR;
     EXPECT_TRUE(motorResolveBitbang(&in));
 
-    // Bitbang has no ProShot
-    in.motor[1].protocol = MOTOR_PROTOCOL_PROSHOT1000;
-    EXPECT_FALSE(motorResolveBitbang(&in));
-
     // Motors that differ fall back to DMA rather than being refused
     in.bitbangNeedsBidir = false;
-    in.motor[1].protocol = MOTOR_PROTOCOL_DSHOT600;
     in.motor[1].flags = 0;
     EXPECT_FALSE(motorResolveBitbang(&in));
     in.motor[1].flags = MOTOR_FLAG_BIDIR | MOTOR_FLAG_INVERTED;
@@ -244,16 +239,6 @@ TEST_F(MotorResolveTest, BitbangAuto)
     in.bitbangMode = DSHOT_BITBANG_AUTO;
     motor(0, MOTOR_PROTOCOL_PWM, 1);
     EXPECT_FALSE(motorResolveBitbang(&in));
-}
-
-TEST_F(MotorResolveTest, BitbangOnRefusesProshot)
-{
-    in.bitbangMode = DSHOT_BITBANG_ON;
-    motor(0, MOTOR_PROTOCOL_PROSHOT1000, 1);
-    motorResolve(&in, &out);
-
-    EXPECT_TRUE(out.bitbang);
-    EXPECT_EQ(MOTOR_STATE_UNSUPPORTED, out.state[0]);
 }
 
 TEST_F(MotorResolveTest, BitbangIsOneGroup)
@@ -340,7 +325,7 @@ TEST_F(MotorResolveTest, DshotMotorsDiffer)
 {
     motor(0, MOTOR_PROTOCOL_DSHOT300, 1, 0, MOTOR_FLAG_BIDIR);
     motor(1, MOTOR_PROTOCOL_DSHOT600, 2);
-    motor(2, MOTOR_PROTOCOL_PROSHOT1000, 3, 0, MOTOR_FLAG_INVERTED);
+    motor(2, MOTOR_PROTOCOL_DSHOT150, 3, 0, MOTOR_FLAG_INVERTED);
     // Telemetry may differ on one timer, the protocol may not
     motor(3, MOTOR_PROTOCOL_DSHOT300, 1);
     motor(4, MOTOR_PROTOCOL_DSHOT150, 1);

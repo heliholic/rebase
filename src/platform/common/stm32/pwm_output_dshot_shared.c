@@ -139,7 +139,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
 
 #ifdef USE_DSHOT_DMAR
     if (useBurstDshot) {
-        bufferSize = motor->loadDmaBuffer(&motor->timer->dmaBurstBuffer[timerLookupChannelIndex(motor->timerHardware->channel)], 4, packet);
+        bufferSize = loadDmaBufferDshot(&motor->timer->dmaBurstBuffer[timerLookupChannelIndex(motor->timerHardware->channel)], 4, packet);
 #if defined(STM32N6) || defined(STM32H5) || defined(STM32C5)
         /* TIM burst-DMA: TIM internally generates DBL+1=4 DMA requests
          * per update event, each consumes one word. BNDT (in source bytes
@@ -153,7 +153,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
     } else
 #endif
     {
-        bufferSize = motor->loadDmaBuffer(motor->dmaBuffer, 1, packet);
+        bufferSize = loadDmaBufferDshot(motor->dmaBuffer, 1, packet);
 
         motor->timer->timerDmaSources |= motor->timerDmaSource;
 
