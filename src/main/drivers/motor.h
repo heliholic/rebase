@@ -31,6 +31,8 @@
 
 void motorPostInit(void);
 void motorWriteAll(float *values);
+void motorWriteAllNow(float *values);
+void motorSetLoopTime(timeUs_t looptimeUs);
 void motorRequestTelemetry(unsigned index);
 
 void motorDevInit(void);

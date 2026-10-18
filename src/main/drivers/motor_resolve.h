@@ -94,5 +94,7 @@ uint16_t motorProtocolDefaultRate(uint8_t protocol, bool bidir);
 uint16_t motorProtocolMinPulse(uint8_t protocol);
 uint16_t motorProtocolMaxPulse(uint8_t protocol);
 
+uint16_t motorFrameDivider(uint16_t rate, uint32_t looptimeUs);
+
 bool motorResolveBitbang(const motorResolveInput_t *in);
 void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out);

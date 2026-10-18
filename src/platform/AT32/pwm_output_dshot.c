@@ -227,8 +227,8 @@ static void pwmDshotSetDirectionInput(motorDmaOutput_t * const motor)
     xDMA_DeInit(dmaRef);
 
     motor->isInput = true;
-    if (!inputStampUs) {
-        inputStampUs = micros();
+    if (!motor->timer->inputStampUs) {
+        motor->timer->inputStampUs = micros();
     }
 
     tmr_period_buffer_enable(timer, FALSE);
@@ -260,6 +260,13 @@ void pwmCompleteDshotMotorUpdate(void)
     }
 
     for (int i = 0; i < dmaMotorTimerCount; i++) { // dmaMotorTimerCount is a global declared in pwm_output_dshot_shared.c
+        // A timer with nothing written this frame is left alone: a motor on
+        // it may still be capturing its telemetry reply
+        if (!dmaMotorTimers[i].pending) {
+            continue;
+        }
+        dmaMotorTimers[i].pending = false;
+
         #ifdef USE_DSHOT_DMAR
         // NB burst mode not tested
         if (useBurstDshot) {

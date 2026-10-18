@@ -104,6 +104,10 @@ typedef struct {
 #endif
 #endif
     uint16_t timerDmaSources;
+    bool pending;                   // a motor on it was written this frame
+#ifdef USE_DSHOT_TELEMETRY
+    timeUs_t inputStampUs;          // when its first motor turned round to capture a reply
+#endif
 } motorDmaTimer_t;
 
 typedef struct motorDmaOutput_s {

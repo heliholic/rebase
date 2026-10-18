@@ -34,6 +34,7 @@
 #include "fc/feature.h"
 
 #include "drivers/dshot.h"
+#include "drivers/dshot_command.h"
 #include "drivers/dshot_bitbang.h" // TODO: bitbang should be behind the veil of dshot (it is an implementation)
 #include "drivers/pwm_output.h"
 #include "drivers/timer.h"
@@ -58,6 +59,18 @@ static motorResolveOutput_t motorResolved;
 
 static bool motorProtocolEnabled = false;
 static bool motorProtocolDshot = false;
+
+// Frame scheduling. The motors of a timebase group send together, once every
+// `divider` motor updates, indexed by the group's lowest motor.
+static FAST_DATA_ZERO_INIT uint32_t motorGroupLeaders;
+static FAST_DATA_ZERO_INIT uint32_t motorGroupMask[MAX_SUPPORTED_MOTORS];
+static FAST_DATA_ZERO_INIT uint16_t motorGroupDivider[MAX_SUPPORTED_MOTORS];
+static FAST_DATA_ZERO_INIT uint16_t motorGroupCountdown[MAX_SUPPORTED_MOTORS];
+
+// While DShot commands run, all DShot motors send together, as often as the
+// slowest of them may: the commands count frames
+static FAST_DATA_ZERO_INIT uint16_t motorCommandDivider;
+static FAST_DATA_ZERO_INIT uint16_t motorCommandCountdown;
 
 static bool motorProtocolIsAnalog(uint8_t protocol)
 {
@@ -161,22 +174,110 @@ static void motorDriverWrite(const motorVTable_t *vTable, uint32_t motorMask, fl
     }
 }
 
+static void motorWriteMask(float *values, uint32_t motorMask)
+{
+    for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
+        const motorProtocolFamily_e family = motorDriverOrder[d];
+        const motorVTable_t *vTable = motorDevice.vTable[family];
+        const uint32_t driverMask = motorDevice.driverMask[family] & motorMask;
+        if (vTable && driverMask) {
+#ifdef USE_DSHOT_BITBANG
+            const bool bitbang = (family == MOTOR_PROTOCOL_FAMILY_DSHOT) && isDshotBitbangActive();
+#else
+            const bool bitbang = false;
+#endif
+            motorDriverWrite(vTable, driverMask, values, bitbang);
+        }
+    }
+}
+
+// Write the motors whose group is due this update
 void motorWriteAll(float *values)
 {
     if (motorDevice.enabled) {
-        for (unsigned d = 0; d < ARRAYLEN(motorDriverOrder); d++) {
-            const motorProtocolFamily_e family = motorDriverOrder[d];
-            const motorVTable_t *vTable = motorDevice.vTable[family];
-            if (vTable) {
-#ifdef USE_DSHOT_BITBANG
-                const bool bitbang = (family == MOTOR_PROTOCOL_FAMILY_DSHOT) && isDshotBitbangActive();
-#else
-                const bool bitbang = false;
+        uint32_t dueMask = 0;
+
+        for (int g = 0; g < MAX_SUPPORTED_MOTORS; g++) {
+            if (motorGroupLeaders & BIT(g)) {
+                if (--motorGroupCountdown[g] == 0) {
+                    motorGroupCountdown[g] = motorGroupDivider[g];
+                    dueMask |= motorGroupMask[g];
+                }
+            }
+        }
+
+#ifdef USE_DSHOT
+        if (!dshotCommandQueueEmpty()) {
+            const uint32_t dshotMask = motorDevice.driverMask[MOTOR_PROTOCOL_FAMILY_DSHOT];
+            dueMask &= ~dshotMask;
+            if (--motorCommandCountdown == 0) {
+                motorCommandCountdown = motorCommandDivider;
+                dueMask |= dshotMask;
+            }
+        }
 #endif
-                motorDriverWrite(vTable, motorDevice.driverMask[family], values, bitbang);
+
+        motorWriteMask(values, dueMask);
+    }
+}
+
+// Write every motor at once, whatever its schedule: for stopping them
+void motorWriteAllNow(float *values)
+{
+    if (motorDevice.enabled) {
+        motorWriteMask(values, motorDevice.motorMask);
+    }
+}
+
+// Set how often each group sends, from the motor update period. A group
+// sending one frame per update is held to its rate by skipping updates;
+// free-running PWM and DroneCAN keep their own pace and take every update.
+void motorSetLoopTime(timeUs_t looptimeUs)
+{
+    motorGroupLeaders = 0;
+    motorCommandDivider = 1;
+    motorCommandCountdown = 1;
+    memset(motorGroupMask, 0, sizeof(motorGroupMask));
+
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorDevice.motorMask & BIT(i)) {
+            const int group = motorResolved.group[i];
+            motorGroupMask[group] |= BIT(i);
+            motorGroupLeaders |= BIT(group);
+        }
+    }
+
+    for (int g = 0; g < MAX_SUPPORTED_MOTORS; g++) {
+        if (motorGroupLeaders & BIT(g)) {
+            const uint32_t rate = motorResolved.rate[g];
+            const bool paced = !motorProtocolIsContinuous(motorConfig(g)->protocol) &&
+                motorResolved.family[g] != MOTOR_PROTOCOL_FAMILY_CAN;
+            uint32_t divider = 1;
+
+            if (paced && rate && looptimeUs) {
+                divider = motorFrameDivider(rate, looptimeUs);
+
+                // Report the rate actually reached
+                for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                    if (motorGroupMask[g] & BIT(i)) {
+                        motorResolved.rate[i] = 1000000 / (looptimeUs * divider);
+                    }
+                }
+            }
+
+            motorGroupDivider[g] = divider;
+            motorGroupCountdown[g] = 1;
+
+            if (motorResolved.family[g] == MOTOR_PROTOCOL_FAMILY_DSHOT) {
+                motorCommandDivider = MAX(motorCommandDivider, divider);
             }
         }
     }
+
+#ifdef USE_DSHOT
+    // Command delays count command frames
+    dshotSetCommandFrameDivider(motorCommandDivider);
+#endif
 }
 
 // The driver of a motor that is set up, or NULL
@@ -447,6 +548,9 @@ void motorDevInit(void)
     motorDevice.initialized = true;
     motorDevice.motorEnableTimeMs = 0;
     motorDevice.enabled = false;
+
+    // Every update until the loop time is known
+    motorSetLoopTime(0);
 }
 
 void motorDisable(void)

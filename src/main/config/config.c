@@ -418,14 +418,10 @@ void validateAndFixGyroConfig(void)
     }
 
     if (gyro.sampleRateHz > 0) {
-        float samplingTime = 1.0f / gyro.sampleRateHz;
-
-        // check for looptime restrictions based on motor protocol. Motor times have safety margin
-        float motorUpdateRestriction = 0;
-
 #if defined(USE_DSHOT) && defined(USE_PID_DENOM_CHECK)
-        /* If bidirectional DSHOT is being used on an F4 or G4 then force DSHOT300. The motor update restrictions then applied
-         * will automatically consider the loop time and adjust pid_process_denom appropriately
+        /* Bidirectional DSHOT costs too much CPU on an F4 or G4 at high loop rates: use DSHOT300
+         * and keep the PID loop to 4 kHz. The motors themselves are paced to their protocol's
+         * frame rate by the motor driver, so they no longer slow the loop.
          */
         if (true
 #ifdef USE_PID_DENOM_OVERCLOCK_LEVEL
@@ -446,28 +442,6 @@ void validateAndFixGyroConfig(void)
             }
         }
 #endif // USE_DSHOT && USE_PID_DENOM_CHECK
-
-        // Motors sent one frame per update hold the loop to their fastest frame rate
-        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-            const motorConfig_t *motor = motorConfig(i);
-            if (motorDevConfig(i)->ioTag && !motorProtocolIsContinuous(motor->protocol)) {
-                const uint16_t maxRate = motorProtocolMaxRate(motor->protocol, motor->flags & MOTOR_FLAG_BIDIR);
-                if (maxRate) {
-                    motorUpdateRestriction = MAX(motorUpdateRestriction, 1.0f / maxRate);
-                }
-            }
-        }
-
-        const float pidLooptime = samplingTime * pidConfig()->pid_process_denom;
-        if (pidLooptime < motorUpdateRestriction) {
-            uint8_t minPidProcessDenom = motorUpdateRestriction / samplingTime;
-            if (motorUpdateRestriction / samplingTime > minPidProcessDenom) {
-                // if any fractional part then round up
-                minPidProcessDenom++;
-            }
-            minPidProcessDenom = constrain(minPidProcessDenom, 1, MAX_PID_PROCESS_DENOM);
-            pidConfigMutable()->pid_process_denom = MAX(pidConfigMutable()->pid_process_denom, minPidProcessDenom);
-        }
     }
 
     uint32_t pidDenom = pidConfigMutable()->pid_process_denom;

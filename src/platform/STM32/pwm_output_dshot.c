@@ -138,8 +138,8 @@ static void pwmDshotSetDirectionInput(
 #endif
 
     motor->isInput = true;
-    if (!inputStampUs) {
-        inputStampUs = micros();
+    if (!motor->timer->inputStampUs) {
+        motor->timer->inputStampUs = micros();
     }
     TIM_ARRPreloadConfig(timer, ENABLE);
     ((TIM_TypeDef *)timer)->ARR = 0xffffffff;
@@ -162,6 +162,13 @@ void pwmCompleteDshotMotorUpdate(void)
     }
 
     for (int i = 0; i < dmaMotorTimerCount; i++) {
+        // A timer with nothing written this frame is left alone: a motor on
+        // it may still be capturing its telemetry reply
+        if (!dmaMotorTimers[i].pending) {
+            continue;
+        }
+        dmaMotorTimers[i].pending = false;
+
 #ifdef USE_DSHOT_DMAR
         if (useBurstDshot) {
             xDMA_SetCurrDataCounter(dmaMotorTimers[i].dmaBurstRef, dmaMotorTimers[i].dmaBurstLength);

@@ -684,6 +684,11 @@ void initPhase3(void)
     initDshotTelemetry(gyro.targetLooptime);
 #endif
 
+#ifdef USE_MOTOR
+    // Pace the motors that send one frame per update to their rates
+    motorSetLoopTime(gyro.targetLooptime);
+#endif
+
     // Finally initialize the gyro filtering
     gyroInitFilters();
 

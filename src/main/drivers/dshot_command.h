@@ -70,6 +70,7 @@ typedef enum {
 void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshotCommandType_e commandType);
 void dshotCommandWriteMask(uint32_t motorMask, uint8_t command, dshotCommandType_e commandType);
 void dshotSetPidLoopTime(uint32_t pidLoopTime);
+void dshotSetCommandFrameDivider(uint16_t divider);
 bool dshotCommandQueueEmpty(void);
 bool dshotCommandIsProcessing(void);
 uint8_t dshotCommandGetCurrent(unsigned index);

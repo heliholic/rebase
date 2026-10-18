@@ -202,7 +202,7 @@ void motorStop(void)
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++)
         motorOutput[i] = MOTOR_STOP;
 
-    motorWriteAll(motorOutput);
+    motorWriteAllNow(motorOutput);
 
     delay(50);
 }

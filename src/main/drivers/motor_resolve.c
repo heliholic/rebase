@@ -338,6 +338,20 @@ static uint16_t motorRequestedRate(const motorResolveMotor_t *motor)
     return rate;
 }
 
+// How many motor updates a group sending at most `rate` frames a second must
+// take per frame: never faster than asked, and at least every update
+uint16_t motorFrameDivider(uint16_t rate, uint32_t looptimeUs)
+{
+    if (rate == 0 || looptimeUs == 0) {
+        return 1;
+    }
+
+    const uint32_t ratePeriods = rate * looptimeUs;
+    const uint32_t divider = (1000000U + ratePeriods - 1) / ratePeriods;
+
+    return constrain(divider, 1U, UINT16_MAX);
+}
+
 static uint16_t servoRequestedRate(const motorResolveServo_t *servo)
 {
     return servo->maxPulse ? MIN(servo->rate, SERVO_PERIOD_MARGIN_US / servo->maxPulse) : servo->rate;

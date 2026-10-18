@@ -62,8 +62,6 @@ motorDmaOutput_t dmaMotors[MAX_SUPPORTED_MOTORS];
 #endif
 
 #ifdef USE_DSHOT_TELEMETRY
-FAST_DATA_ZERO_INIT uint32_t inputStampUs;
-
 FAST_DATA_ZERO_INIT dshotTelemetryCycleCounters_t dshotDMAHandlerCycleCounters;
 #endif
 
@@ -118,6 +116,13 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
         return;
     }
 
+#ifdef USE_DSHOT_TELEMETRY
+    // Still capturing the reply to its last frame
+    if (motor->isInput) {
+        return;
+    }
+#endif
+
     /*If there is a command ready to go overwrite the value and send that instead*/
     if (dshotCommandIsProcessing()) {
         value = dshotCommandGetCurrent(index);
@@ -127,6 +132,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
     }
 
     motor->protocolControl.value = value;
+    motor->timer->pending = true;
 
     uint16_t packet = prepareDshotPacket(&motor->protocolControl);
     uint8_t bufferSize;
@@ -271,64 +277,72 @@ FAST_CODE_NOINLINE bool pwmTelemetryDecode(void)
     const timeMs_t currentTimeMs = millis();
 #endif
     const timeUs_t currentUs = micros();
+    uint32_t decodedMask = 0;
 
-    // Only bidirectional motors turn round to capture a reply
+    // Only bidirectional motors turn round to capture a reply. Each is read
+    // once its own timer's reply window has passed; a timer still inside it
+    // is not due to send this frame, so the others need not wait for it.
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if (!(dshotBidirMask & BIT(i))) {
+        if (!(dshotBidirMask & BIT(i)) || !dmaMotors[i].isInput) {
             continue;
         }
-        timeDelta_t usSinceInput = cmpTimeUs(currentUs, inputStampUs);
+        timeDelta_t usSinceInput = cmpTimeUs(currentUs, dmaMotors[i].timer->inputStampUs);
         if (usSinceInput >= 0 && usSinceInput < dmaMotors[i].dshotTelemetryDeadtimeUs) {
-            return false;
+            continue;
         }
-        if (dmaMotors[i].isInput) {
 #ifdef USE_FULL_LL_DRIVER
-            uint32_t edges = GCR_TELEMETRY_INPUT_LEN - xLL_EX_DMA_GetDataLength(dmaMotors[i].dmaRef);
+        uint32_t edges = GCR_TELEMETRY_INPUT_LEN - xLL_EX_DMA_GetDataLength(dmaMotors[i].dmaRef);
 #else
-            uint32_t edges = GCR_TELEMETRY_INPUT_LEN - xDMA_GetCurrDataCounter(dmaMotors[i].dmaRef);
+        uint32_t edges = GCR_TELEMETRY_INPUT_LEN - xDMA_GetCurrDataCounter(dmaMotors[i].dmaRef);
 #endif
 
 #ifdef USE_FULL_LL_DRIVER
-            LL_EX_TIM_DisableIT((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource);
+        LL_EX_TIM_DisableIT((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource);
 #elif defined(AT32F435)
-            tmr_dma_request_enable((tmr_type *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, FALSE);
+        tmr_dma_request_enable((tmr_type *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, FALSE);
 #elif defined(X32M7)
-            TIM_EnableDma((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, DISABLE);
+        TIM_EnableDma((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, DISABLE);
 #else
-            TIM_DMACmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, DISABLE);
+        TIM_DMACmd((TIM_TypeDef *)dmaMotors[i].timerHardware->tim, dmaMotors[i].timerDmaSource, DISABLE);
 #endif
 
-            uint16_t rawValue;
+        uint16_t rawValue;
 
-            if (edges > MIN_GCR_EDGES) {
-                dshotTelemetryState.readCount++;
+        if (edges > MIN_GCR_EDGES) {
+            dshotTelemetryState.readCount++;
 
-                rawValue = decodeTelemetryPacket(dmaMotors[i].dmaBuffer, edges);
+            rawValue = decodeTelemetryPacket(dmaMotors[i].dmaBuffer, edges);
 
-                if (rawValue != DSHOT_TELEMETRY_INVALID) {
-                    // Check EDT enable or store raw value
-                    if ((rawValue == 0x0E00) && (dshotCommandGetCurrent(i) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)) {
-                        dshotTelemetryState.motorState[i].telemetryTypes = 1 << DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
-                    } else {
-                        dshotTelemetryState.motorState[i].rawValue = rawValue;
-                    }
+            if (rawValue != DSHOT_TELEMETRY_INVALID) {
+                // Check EDT enable or store raw value
+                if ((rawValue == 0x0E00) && (dshotCommandGetCurrent(i) == DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE)) {
+                    dshotTelemetryState.motorState[i].telemetryTypes = 1 << DSHOT_TELEMETRY_TYPE_STATE_EVENTS;
                 } else {
-                    dshotTelemetryState.invalidPacketCount++;
-                    if (i == 0) {
-                        memcpy(dshotTelemetryState.inputBuffer, dmaMotors[i].dmaBuffer, sizeof(dshotTelemetryState.inputBuffer));
-                    }
+                    dshotTelemetryState.motorState[i].rawValue = rawValue;
                 }
-#ifdef USE_DSHOT_TELEMETRY_STATS
-                updateDshotTelemetryQuality(&dshotTelemetryQuality[i], rawValue != DSHOT_TELEMETRY_INVALID, currentTimeMs);
-#endif
+            } else {
+                dshotTelemetryState.invalidPacketCount++;
+                if (i == 0) {
+                    memcpy(dshotTelemetryState.inputBuffer, dmaMotors[i].dmaBuffer, sizeof(dshotTelemetryState.inputBuffer));
+                }
             }
+#ifdef USE_DSHOT_TELEMETRY_STATS
+            updateDshotTelemetryQuality(&dshotTelemetryQuality[i], rawValue != DSHOT_TELEMETRY_INVALID, currentTimeMs);
+#endif
         }
         pwmDshotSetDirectionOutput(&dmaMotors[i]);
+        decodedMask |= BIT(i);
     }
 
-    dshotTelemetryState.rawValueState = DSHOT_RAW_VALUE_STATE_NOT_PROCESSED;
-    inputStampUs = 0;
-    dshotEnableChannels(dshotBidirMask);
+    if (decodedMask) {
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if (decodedMask & BIT(i)) {
+                dmaMotors[i].timer->inputStampUs = 0;
+            }
+        }
+        dshotTelemetryState.rawValueState = DSHOT_RAW_VALUE_STATE_NOT_PROCESSED;
+        dshotEnableChannels(decodedMask);
+    }
     return true;
 #endif // USE_DSHOT_TELEMETRY
 }

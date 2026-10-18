@@ -154,8 +154,8 @@ FAST_CODE static void pwmDshotSetDirectionInput(motorDmaOutput_t * const motor)
     xDMA_DeInit(motor->dmaRef);
 
     motor->isInput = true;
-    if (!inputStampUs) {
-        inputStampUs = micros();
+    if (!motor->timer->inputStampUs) {
+        motor->timer->inputStampUs = micros();
     }
 
     TIM_ConfigArPreload(timer, ENABLE);
@@ -188,6 +188,13 @@ void pwmCompleteDshotMotorUpdate(void)
     }
 
     for (unsigned i = 0; i < dmaMotorTimerCount; i++) {
+        // A timer with nothing written this frame is left alone: a motor on
+        // it may still be capturing its telemetry reply
+        if (!dmaMotorTimers[i].pending) {
+            continue;
+        }
+        dmaMotorTimers[i].pending = false;
+
         TIM_TypeDef *timer = (TIM_TypeDef *)dmaMotorTimers[i].timer;
 
 #ifdef USE_DSHOT_DMAR

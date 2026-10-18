@@ -60,6 +60,9 @@ typedef struct dshotCommandControl_s {
 static timeUs_t dshotCommandPidLoopTimeUs = 125; // default to 8KHz (125us) loop to prevent possible div/0
                                                  // gets set to the actual value when the PID loop is initialized
 
+// While commands run, the DShot motors send once every this many PID loops
+static uint16_t dshotCommandFrameDivider = 1;
+
 // XXX Optimization opportunity here.
 // https://github.com/betaflight/betaflight/pull/8534#pullrequestreview-258947278
 // @ledvinap: queue entry is quite large - it may be better to handle empty/full queue using different mechanism (magic value for Head or Tail / explicit element count)
@@ -72,6 +75,11 @@ static uint8_t commandQueueTail;
 void dshotSetPidLoopTime(uint32_t pidLoopTime)
 {
     dshotCommandPidLoopTimeUs = pidLoopTime;
+}
+
+void dshotSetCommandFrameDivider(uint16_t divider)
+{
+    dshotCommandFrameDivider = divider ? divider : 1;
 }
 
 static FAST_CODE bool dshotCommandQueueFull(void)
@@ -120,10 +128,12 @@ static FAST_CODE bool dshotCommandQueueUpdate(void)
 
 static FAST_CODE uint32_t dshotCommandCyclesFromTime(timeUs_t delayUs)
 {
-    // Find the minimum number of motor output cycles needed to
+    // Find the minimum number of command frames needed to
     // provide at least delayUs time delay
 
-    return (delayUs + dshotCommandPidLoopTimeUs - 1) / dshotCommandPidLoopTimeUs;
+    const timeUs_t framePeriodUs = dshotCommandPidLoopTimeUs * dshotCommandFrameDivider;
+
+    return (delayUs + framePeriodUs - 1) / framePeriodUs;
 }
 
 static dshotCommandControl_t* addCommand(void)

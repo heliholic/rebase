@@ -497,11 +497,15 @@ static bool bbTelemetryWait(void)
     return telemetryWait;
 }
 
+// The motors written since the output buffers were cleared
+static uint32_t bbWrittenMask;
+
 static void bbUpdateInit(void)
 {
     for (int i = 0; i < usedMotorPorts; i++) {
         bbOutputDataClear(bbPorts[i].portOutputBuffer);
     }
+    bbWrittenMask = 0;
 }
 
 static bool bbDecodeTelemetry(void)
@@ -571,6 +575,8 @@ static void bbWriteInt(uint8_t motorIndex, uint16_t value)
         return;
     }
 
+    bbWrittenMask |= BIT(motorIndex);
+
     // If there is a command ready to go overwrite the value and send that instead
     if (dshotCommandIsProcessing()) {
         value = dshotCommandGetCurrent(motorIndex);
@@ -607,6 +613,14 @@ static void bbUpdateComplete(void)
     if (!dshotCommandQueueEmpty()) {
         if (!dshotCommandOutputIsEnabled()) {
             return;
+        }
+    }
+
+    // A cleared pin sends all ones, which reads as a valid full-throttle
+    // frame, so a motor left out of this frame is sent a stop instead
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if ((dshotMotorMask & BIT(i)) && !(bbWrittenMask & BIT(i))) {
+            bbWriteInt(i, DSHOT_CMD_MOTOR_STOP);
         }
     }
 

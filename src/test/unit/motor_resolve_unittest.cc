@@ -417,3 +417,20 @@ TEST_F(MotorResolveTest, ServoRefusedBySyncedMotor)
     motorResolve(&in, &out);
     EXPECT_EQ(BIT(1), out.refusedServos);
 }
+
+TEST_F(MotorResolveTest, FrameDivider)
+{
+    // 8 kHz loop
+    EXPECT_EQ(1, motorFrameDivider(MOTOR_RATE_MAX, 125));
+    EXPECT_EQ(1, motorFrameDivider(8000, 125));
+    EXPECT_EQ(2, motorFrameDivider(5000, 125));
+    EXPECT_EQ(4, motorFrameDivider(2000, 125));
+    EXPECT_EQ(160, motorFrameDivider(50, 125));
+    // Rounds up so a group never sends faster than asked
+    EXPECT_EQ(3, motorFrameDivider(3000, 125));
+    // 2 kHz loop, and a loop slower than asked
+    EXPECT_EQ(1, motorFrameDivider(4000, 500));
+    // Not yet known
+    EXPECT_EQ(1, motorFrameDivider(0, 125));
+    EXPECT_EQ(1, motorFrameDivider(2000, 0));
+}

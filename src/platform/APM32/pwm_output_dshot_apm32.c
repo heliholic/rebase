@@ -116,8 +116,8 @@ FAST_CODE static void pwmDshotSetDirectionInput(
     xDDL_EX_DMA_DeInit(motor->dmaRef);
 
     motor->isInput = true;
-    if (!inputStampUs) {
-        inputStampUs = micros();
+    if (!motor->timer->inputStampUs) {
+        motor->timer->inputStampUs = micros();
     }
     DDL_TMR_EnableARRPreload(timer); // Only update the period once all channels are done
     timer->AUTORLD = 0xffffffff;
@@ -137,6 +137,13 @@ FAST_CODE void pwmCompleteDshotMotorUpdate(void)
     }
 
     for (int i = 0; i < dmaMotorTimerCount; i++) {
+        // A timer with nothing written this frame is left alone: a motor on
+        // it may still be capturing its telemetry reply
+        if (!dmaMotorTimers[i].pending) {
+            continue;
+        }
+        dmaMotorTimers[i].pending = false;
+
         do {
 #ifdef USE_DSHOT_DMAR
             if (useBurstDshot) {

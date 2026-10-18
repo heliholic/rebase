@@ -106,6 +106,9 @@ bool pwmEnableMotors(void)
 
 #ifdef USE_TIMER_AF
 
+// The motors written since the last update completed
+static FAST_DATA_ZERO_INIT uint32_t pwmWrittenMask;
+
 static float pwmConvertToInternal(uint8_t index, float throttle)
 {
     const motorConfig_t *param = motorConfig(index);
@@ -125,6 +128,7 @@ static void pwmWriteStandard(uint8_t index, float throttle)
     float pulse = value * pwmMotors[index].pulseScale + pwmMotors[index].pulseOffset;
 
     *pwmMotors[index].channel.ccr = lrintf(pulse);
+    pwmWrittenMask |= BIT(index);
 }
 
 static void pwmShutdownPulsesForAllMotors(void)
@@ -142,10 +146,12 @@ static void pwmDisableMotors(void)
     pwmShutdownPulsesForAllMotors();
 }
 
+// Send the pulses of the synced motors written this frame. Those not due
+// are left alone: restarting their timer would cut a pulse still in flight.
 static void pwmCompleteMotorUpdate(void)
 {
     for (int index = 0; index < MAX_SUPPORTED_MOTORS; index++) {
-        if (pwmMotors[index].enabled && pwmMotors[index].synced) {
+        if ((pwmWrittenMask & BIT(index)) && pwmMotors[index].synced) {
             if (pwmMotors[index].forceOverflow) {
                 timerForceOverflow(pwmMotors[index].channel.tim);
             }
@@ -154,6 +160,8 @@ static void pwmCompleteMotorUpdate(void)
             *pwmMotors[index].channel.ccr = 0;
         }
     }
+
+    pwmWrittenMask = 0;
 }
 
 static const motorVTable_t motorPwmVTable = {

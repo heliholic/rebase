@@ -117,8 +117,6 @@ typedef struct dshotTelemetryState_s {
 
 extern uint32_t readDoneCount;
 
-FAST_DATA_ZERO_INIT extern uint32_t inputStampUs;
-
 typedef struct dshotTelemetryCycleCounters_s {
     uint32_t irqAt;
     uint32_t changeDirectionCompletedAt;
