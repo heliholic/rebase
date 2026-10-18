@@ -52,16 +52,12 @@
 #define DEFAULT_DSHOT_EDT DSHOT_EDT_OFF
 #endif
 
-// Default motor protocol: a target/config may force one via DEFAULT_MOTOR_PROTOCOL
-// (e.g. BRUSHED, or PWM on a DShot-capable build); otherwise pick by capability.
+// Default motor protocol: the target's DEFAULT_MOTOR_PROTOCOL, else PWM where
+// the build drives PWM motors, else disabled.
 #if defined(DEFAULT_MOTOR_PROTOCOL)
 #define MOTOR_PROTOCOL_DEFAULT      DEFAULT_MOTOR_PROTOCOL
-#elif !defined(USE_DSHOT) && defined(USE_PWM_OUTPUT)
+#elif defined(USE_PWM_OUTPUT)
 #define MOTOR_PROTOCOL_DEFAULT      MOTOR_PROTOCOL_PWM
-#elif defined(USE_DSHOT) && defined(DEFAULT_MOTOR_DSHOT_SPEED)
-#define MOTOR_PROTOCOL_DEFAULT      DEFAULT_MOTOR_DSHOT_SPEED
-#elif defined(USE_DSHOT)
-#define MOTOR_PROTOCOL_DEFAULT      MOTOR_PROTOCOL_DSHOT600
 #else
 #define MOTOR_PROTOCOL_DEFAULT      MOTOR_PROTOCOL_DISABLED
 #endif
