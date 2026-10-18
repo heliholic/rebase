@@ -666,6 +666,7 @@ static void bbPostInit(void)
                 bbMotors[motorIndex].enabled = true;
             } else {
                 dshotMotorMask &= ~BIT(motorIndex);
+                dshotBidirMask &= ~BIT(motorIndex);
             }
         }
     }
@@ -704,6 +705,7 @@ uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
     motorProtocol = lead->protocol;
     *vTable = &bbVTable;
     dshotMotorMask = 0;
+    dshotBidirMask = 0;
 
     bbStatus = DSHOT_BITBANG_STATUS_OK;
 
@@ -751,7 +753,11 @@ uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
             IOHi(io);
         }
 
+        bbMotors[motorIndex].protocolControl.bidir = (lead->flags & MOTOR_FLAG_BIDIR);
         dshotMotorMask |= BIT(motorIndex);
+        if (lead->flags & MOTOR_FLAG_BIDIR) {
+            dshotBidirMask |= BIT(motorIndex);
+        }
     }
     return dshotMotorMask;
 }

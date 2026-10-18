@@ -133,7 +133,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
 
 #ifdef USE_DSHOT_DMAR
     if (useBurstDshot) {
-        bufferSize = loadDmaBuffer(&motor->timer->dmaBurstBuffer[timerLookupChannelIndex(motor->timerHardware->channel)], 4, packet);
+        bufferSize = motor->loadDmaBuffer(&motor->timer->dmaBurstBuffer[timerLookupChannelIndex(motor->timerHardware->channel)], 4, packet);
 #if defined(STM32N6) || defined(STM32H5) || defined(STM32C5)
         /* TIM burst-DMA: TIM internally generates DBL+1=4 DMA requests
          * per update event, each consumes one word. BNDT (in source bytes
@@ -147,7 +147,7 @@ FAST_CODE void pwmWriteDshotInt(uint8_t index, uint16_t value)
     } else
 #endif
     {
-        bufferSize = loadDmaBuffer(motor->dmaBuffer, 1, packet);
+        bufferSize = motor->loadDmaBuffer(motor->dmaBuffer, 1, packet);
 
         motor->timer->timerDmaSources |= motor->timerDmaSource;
 
@@ -272,8 +272,9 @@ FAST_CODE_NOINLINE bool pwmTelemetryDecode(void)
 #endif
     const timeUs_t currentUs = micros();
 
+    // Only bidirectional motors turn round to capture a reply
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if (!(dshotMotorMask & BIT(i))) {
+        if (!(dshotBidirMask & BIT(i))) {
             continue;
         }
         timeDelta_t usSinceInput = cmpTimeUs(currentUs, inputStampUs);
@@ -327,7 +328,7 @@ FAST_CODE_NOINLINE bool pwmTelemetryDecode(void)
 
     dshotTelemetryState.rawValueState = DSHOT_RAW_VALUE_STATE_NOT_PROCESSED;
     inputStampUs = 0;
-    dshotEnableChannels(dshotMotorMask);
+    dshotEnableChannels(dshotBidirMask);
     return true;
 #endif // USE_DSHOT_TELEMETRY
 }

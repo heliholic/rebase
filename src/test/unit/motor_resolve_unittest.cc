@@ -336,19 +336,38 @@ TEST_F(MotorResolveTest, DriversShareNoTimer)
     EXPECT_EQ(MOTOR_STATE_OK, out.state[1]);
 }
 
-// Until the DShot drivers take settings per motor
-TEST_F(MotorResolveTest, DshotMotorsAlike)
+TEST_F(MotorResolveTest, DshotMotorsDiffer)
 {
     motor(0, MOTOR_PROTOCOL_DSHOT300, 1, 0, MOTOR_FLAG_BIDIR);
-    motor(1, MOTOR_PROTOCOL_DSHOT600, 2, 0, MOTOR_FLAG_BIDIR);
-    motor(2, MOTOR_PROTOCOL_DSHOT300, 3);
-    motor(3, MOTOR_PROTOCOL_DSHOT300, 4, 0, MOTOR_FLAG_BIDIR | MOTOR_FLAG_INVERTED);
+    motor(1, MOTOR_PROTOCOL_DSHOT600, 2);
+    motor(2, MOTOR_PROTOCOL_PROSHOT1000, 3, 0, MOTOR_FLAG_INVERTED);
+    // Telemetry may differ on one timer, the protocol may not
+    motor(3, MOTOR_PROTOCOL_DSHOT300, 1);
+    motor(4, MOTOR_PROTOCOL_DSHOT150, 1);
     motorResolve(&in, &out);
 
     EXPECT_EQ(MOTOR_STATE_OK, out.state[0]);
-    EXPECT_EQ(MOTOR_STATE_GROUP_CLASH, out.state[1]);
-    EXPECT_EQ(MOTOR_STATE_GROUP_CLASH, out.state[2]);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[1]);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[2]);
     EXPECT_EQ(MOTOR_STATE_OK, out.state[3]);
+    EXPECT_EQ(0, out.group[3]);
+    EXPECT_EQ(MOTOR_STATE_TIMER_CLASH, out.state[4]);
+    // The bidirectional motor holds its timer to half the frame rate
+    EXPECT_EQ(5000, out.rate[0]);
+    EXPECT_EQ(5000, out.rate[3]);
+    EXPECT_EQ(MOTOR_RATE_MAX, out.rate[1]);
+}
+
+TEST_F(MotorResolveTest, BitbangAutoMixedTelemetryUsesDma)
+{
+    in.bitbangMode = DSHOT_BITBANG_AUTO;
+    motor(0, MOTOR_PROTOCOL_DSHOT600, 1, 0, MOTOR_FLAG_BIDIR);
+    motor(1, MOTOR_PROTOCOL_DSHOT600, 2);
+    motorResolve(&in, &out);
+
+    EXPECT_FALSE(out.bitbang);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[0]);
+    EXPECT_EQ(MOTOR_STATE_OK, out.state[1]);
 }
 
 TEST_F(MotorResolveTest, ServoJoinsFreeRunningMotor)

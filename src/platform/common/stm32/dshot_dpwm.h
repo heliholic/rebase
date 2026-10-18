@@ -43,7 +43,6 @@
 #define DSHOT_TELEMETRY_DEADTIME_US   (30 + 5) // 30 to switch lines and 5 to switch lines back
 
 typedef uint8_t loadDmaBufferFn(uint32_t *dmaBuffer, int stride, uint16_t packet);  // function pointer used to encode a digital motor value into the DMA buffer representation
-extern FAST_DATA_ZERO_INIT loadDmaBufferFn *loadDmaBuffer;
 uint8_t loadDmaBufferDshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
 uint8_t loadDmaBufferProshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
 
@@ -109,6 +108,7 @@ typedef struct {
 
 typedef struct motorDmaOutput_s {
     dshotProtocolControl_t protocolControl;
+    loadDmaBufferFn *loadDmaBuffer;     // DShot or ProShot encoding of this motor's protocol
     ioTag_t ioTag;
     const timerHardware_t *timerHardware;
 #ifdef USE_DSHOT
@@ -132,6 +132,7 @@ typedef struct motorDmaOutput_s {
 #endif
 
 #ifdef USE_DSHOT_TELEMETRY
+    bool bidir;                         // this motor uses bidirectional DShot
     volatile bool isInput;
     timeDelta_t dshotTelemetryDeadtimeUs;
     uint8_t dmaInputLen;

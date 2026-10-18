@@ -85,6 +85,7 @@ typedef enum dshotRawValueState_e {
 typedef struct dshotProtocolControl_s {
     uint16_t value;
     bool requestTelemetry;
+    bool bidir;             // bidirectional DShot inverts the checksum
 } dshotProtocolControl_t;
 
 uint16_t dshotConvertToInternal(uint8_t index, float throttle);
@@ -92,6 +93,7 @@ uint16_t dshotConvertToInternal(uint8_t index, float throttle);
 uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb);
 extern bool useDshotTelemetry;
 extern uint32_t dshotMotorMask;
+extern uint32_t dshotBidirMask;
 
 uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable);
 

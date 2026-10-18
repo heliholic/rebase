@@ -55,8 +55,6 @@ FAST_DATA_ZERO_INIT bool useBurstDshot = false;
 FAST_DATA_ZERO_INIT bool useDshotTelemetry = false;
 #endif
 
-FAST_DATA_ZERO_INIT loadDmaBufferFn *loadDmaBuffer;
-
 FAST_CODE_NOINLINE uint8_t loadDmaBufferDshot(uint32_t *dmaBuffer, int stride, uint16_t packet)
 {
     int i;
@@ -167,52 +165,59 @@ static const motorVTable_t dshotPwmVTable = {
 
 uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    // All DShot motors share the protocol and telemetry of the lowest one
-    const motorConfig_t *lead = motorLeadConfig(motorMask);
-    const uint8_t protocol = lead->protocol;
-    const bool bidir = (lead->flags & MOTOR_FLAG_BIDIR);
+    // Burst DMA cannot turn round to capture telemetry, so only motors with
+    // no bidirectional DShot on any of them may use it
+    uint32_t bidirMask = 0;
+    for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
+        if ((motorMask & BIT(motorIndex)) && (motorConfig(motorIndex)->flags & MOTOR_FLAG_BIDIR)) {
+            bidirMask |= BIT(motorIndex);
+        }
+    }
 
     *vTable = &dshotPwmVTable;
     dshotMotorMask = 0;
-#ifdef USE_DSHOT_TELEMETRY
-    useDshotTelemetry = bidir;
-#endif
-
-    switch (protocol) {
-    case MOTOR_PROTOCOL_PROSHOT1000:
-        loadDmaBuffer = loadDmaBufferProshot;
-        break;
-    case MOTOR_PROTOCOL_DSHOT600:
-    case MOTOR_PROTOCOL_DSHOT300:
-    case MOTOR_PROTOCOL_DSHOT150:
-        loadDmaBuffer = loadDmaBufferDshot;
+    dshotBidirMask = 0;
 #ifdef USE_DSHOT_DMAR
-        useBurstDshot = motorDriverConfig()->useBurstDshot == DSHOT_DMAR_ON ||
-            (motorDriverConfig()->useBurstDshot == DSHOT_DMAR_AUTO && !bidir);
+    useBurstDshot = motorDriverConfig()->useBurstDshot == DSHOT_DMAR_ON ||
+        (motorDriverConfig()->useBurstDshot == DSHOT_DMAR_AUTO && !bidirMask);
 #endif
-        break;
-    }
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
         if (motorMask & BIT(motorIndex)) {
+            const motorConfig_t *param = motorConfig(motorIndex);
             const ioTag_t tag = motorDevConfig(motorIndex)->ioTag;
             const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
             // A motor whose pin has no free timer or DMA stays down; the others carry on
             if (timerHardware) {
-                const bool inverted = (motorConfig(motorIndex)->flags & MOTOR_FLAG_INVERTED);
+                motorDmaOutput_t *motor = getMotorDmaOutput(motorIndex);
+                const bool inverted = (param->flags & MOTOR_FLAG_INVERTED);
+                const bool bidir = (bidirMask & BIT(motorIndex));
+
+                motor->loadDmaBuffer = (param->protocol == MOTOR_PROTOCOL_PROSHOT1000) ? loadDmaBufferProshot : loadDmaBufferDshot;
+                motor->protocolControl.bidir = bidir;
+#ifdef USE_DSHOT_TELEMETRY
+                motor->bidir = bidir;
+#endif
 
                 IOInit(IOGetByTag(tag), OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
                 if (pwmDshotMotorHardwareConfig(timerHardware,
                     motorIndex,
-                    protocol,
+                    param->protocol,
                     inverted ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
                     dshotMotorMask |= BIT(motorIndex);
+                    if (bidir) {
+                        dshotBidirMask |= BIT(motorIndex);
+                    }
                 }
             }
         }
     }
+
+#ifdef USE_DSHOT_TELEMETRY
+    useDshotTelemetry = (dshotBidirMask != 0);
+#endif
 
     return dshotMotorMask;
 }

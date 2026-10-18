@@ -182,7 +182,7 @@ FAST_CODE static void motor_DMA_IRQHandler(dmaChannelDescriptor_t* descriptor)
         } while (false);
 
 #ifdef USE_DSHOT_TELEMETRY
-        if (useDshotTelemetry) {
+        if (motor->bidir) {
             pwmDshotSetDirectionInput(motor);
             xDDL_EX_DMA_SetDataLength(motor->dmaRef, GCR_TELEMETRY_INPUT_LEN);
             xDDL_EX_DMA_EnableResource(motor->dmaRef);
@@ -265,7 +265,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
     const IO_t motorIO = IOGetByTag(timerHardware->tag);
     uint8_t pupMode = (output & TIMER_OUTPUT_INVERTED) ? GPIO_PULLDOWN : GPIO_PULLUP;
 #ifdef USE_DSHOT_TELEMETRY
-    if (useDshotTelemetry) {
+    if (motor->bidir) {
         output ^= TIMER_OUTPUT_INVERTED;
     }
 #endif
@@ -418,7 +418,7 @@ bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t m
         DDL_TMR_EnableCounter(timer);
     }
 #ifdef USE_DSHOT_TELEMETRY
-    if (useDshotTelemetry) {
+    if (motor->bidir) {
         // avoid high line during startup to prevent bootloader activation
         *timerChCCR(timerHardware) = 0xffff;
     }

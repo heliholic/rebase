@@ -400,21 +400,6 @@ void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
         }
     }
 
-    // Until the DShot drivers take settings per motor, all DShot motors share
-    // one protocol and telemetry setting.
-    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if (out->state[i] == MOTOR_STATE_OK && out->family[i] == MOTOR_PROTOCOL_FAMILY_DSHOT) {
-            for (int j = 0; j < i; j++) {
-                if (out->state[j] == MOTOR_STATE_OK && out->family[j] == MOTOR_PROTOCOL_FAMILY_DSHOT) {
-                    if (in->motor[i].protocol != in->motor[j].protocol || motorIsBidir(&in->motor[i]) != motorIsBidir(&in->motor[j])) {
-                        out->state[i] = MOTOR_STATE_GROUP_CLASH;
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
     // Join each motor to the first earlier one it shares a timebase with
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if (out->state[i] == MOTOR_STATE_OK) {

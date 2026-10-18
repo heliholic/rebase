@@ -319,7 +319,8 @@ motor_output_unittest_SRC := \
 		$(USER_DIR)/drivers/dshot.c
 
 motor_output_unittest_DEFINES := \
-		USE_DSHOT=
+		USE_DSHOT= \
+		USE_DSHOT_TELEMETRY=
 
 msp_serial_unittest_SRC := \
 		$(USER_DIR)/msp/msp_serial.c \

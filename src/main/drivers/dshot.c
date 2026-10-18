@@ -54,6 +54,7 @@
 #define ERPM_PER_LSB            100.0f
 
 FAST_DATA_ZERO_INIT uint32_t dshotMotorMask = 0;
+FAST_DATA_ZERO_INIT uint32_t dshotBidirMask = 0;    // the DShot motors with bidirectional telemetry
 
 uint16_t dshotConvertToInternal(uint8_t index, float throttle)
 {
@@ -86,7 +87,7 @@ FAST_CODE uint16_t prepareDshotPacket(dshotProtocolControl_t *pcb)
     }
     // append checksum
 #ifdef USE_DSHOT_TELEMETRY
-    if (useDshotTelemetry) {
+    if (pcb->bidir) {
         csum = ~csum;
     }
 #endif
@@ -210,7 +211,7 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
 
     // Decode all telemetry data now to discharge interrupt from this task
     for (uint8_t k = 0; k < MAX_SUPPORTED_MOTORS; k++) {
-        if (dshotMotorMask & BIT(k)) {
+        if (dshotBidirMask & BIT(k)) {
             dshotTelemetryType_t type;
             uint32_t value;
 
@@ -236,7 +237,7 @@ FAST_CODE_NOINLINE void updateDshotTelemetry(void)
     // update filtered rotation speed of motors for features (e.g. "RPM filter")
     minMotorFrequencyHz = FLT_MAX;
     for (unsigned motor = 0; motor < MAX_SUPPORTED_MOTORS; motor++) {
-        if (dshotMotorMask & BIT(motor)) {
+        if (dshotBidirMask & BIT(motor)) {
             motorFrequencyHz[motor] = pt1FilterApply(&motorFreqLpf[motor], erpmToRpm(motor, getDshotErpm(motor)) / SECONDS_PER_MINUTE);
             minMotorFrequencyHz = MIN(minMotorFrequencyHz, motorFrequencyHz[motor]);
         }
@@ -276,11 +277,12 @@ bool isDshotMotorTelemetryActive(uint8_t motorIndex)
     return (dshotTelemetryState.motorState[motorIndex].telemetryTypes & (1 << DSHOT_TELEMETRY_TYPE_eRPM)) != 0;
 }
 
+// Every motor with bidirectional DShot reports
 bool isDshotTelemetryActive(void)
 {
-    if (dshotMotorMask) {
+    if (dshotBidirMask) {
         for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-            if ((dshotMotorMask & BIT(i)) && !isDshotMotorTelemetryActive(i)) {
+            if ((dshotBidirMask & BIT(i)) && !isDshotMotorTelemetryActive(i)) {
                 return false;
             }
         }
@@ -297,7 +299,7 @@ void dshotCleanTelemetryData(void)
 // The motor runs bidirectional DShot, so its RPM comes from the DShot reply
 bool isDshotMotorBidir(uint8_t motorIndex)
 {
-    return motorIndex < MAX_SUPPORTED_MOTORS && useDshotTelemetry && (dshotMotorMask & BIT(motorIndex));
+    return motorIndex < MAX_SUPPORTED_MOTORS && (dshotBidirMask & BIT(motorIndex));
 }
 
 bool getDshotSensorData(escSensorData_t *dest, int motorIndex) {
