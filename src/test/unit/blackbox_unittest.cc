@@ -167,7 +167,7 @@ TEST(BlackboxTest, TestGetRateDenom)
 // STUBS
 extern "C" {
 
-PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+PG_REGISTER_ARRAY(motorConfig_t, MAX_SUPPORTED_MOTORS, motorConfig, PG_MOTOR_CONFIG);
 PG_REGISTER(batteryConfig_t, batteryConfig, PG_BATTERY_CONFIG);
 PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
 PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE);

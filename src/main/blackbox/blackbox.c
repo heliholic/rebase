@@ -1334,6 +1334,18 @@ static char header_buffer[128];
         break; \
     }
 
+// One value per motor, from an expression of the motor index
+#define BLACKBOX_PRINT_HEADER_MOTORS(name, format, expr) \
+    case __COUNTER__: { \
+        char *ptr = header_buffer; \
+        for (int motor = 0; motor < getMotorCount(); motor++) { \
+            if (motor > 0) *ptr++ = ','; \
+            ptr += tfp_sprintf(ptr, format, expr); \
+        } \
+        blackboxPrintHeaderLine(name, header_buffer); \
+        break; \
+    }
+
 #define BLACKBOX_PRINT_HEADER_CUSTOM(...) \
     case __COUNTER__: { \
         { __VA_ARGS__ } \
@@ -1431,8 +1443,8 @@ static bool blackboxWriteSysinfo(void)
                                                                             gyroConfig()->gyro_soft_notch_cutoff_2);
 
 #ifdef USE_DSHOT_TELEMETRY
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_DSHOT_BIDIR, "%d",            motorConfig()->dev.useDshotTelemetry);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_MOTOR_POLES, "%d",            motorConfig()->motorPoleCount);
+        BLACKBOX_PRINT_HEADER_MOTORS(PARAM_NAME_DSHOT_BIDIR, "%d",          (motorConfig(motor)->flags & MOTOR_FLAG_BIDIR) ? 1 : 0);
+        BLACKBOX_PRINT_HEADER_MOTORS(PARAM_NAME_MOTOR_POLES, "%d",          motorConfig(motor)->poles);
 #endif
 #if defined(USE_ACC)
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_ACC_LPF_HZ, "%d",             (int)(accelerometerConfig()->acc_lpf_hz * 100.0f));
@@ -1451,11 +1463,13 @@ static bool blackboxWriteSysinfo(void)
 
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GYRO_CAL_ON_FIRST_ARM, "%d",  armingConfig()->gyro_cal_on_first_arm);
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_SERIAL_RX_PROVIDER, "%d",     rxConfig()->serialrx_provider);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_USE_UNSYNCED_PWM, "%d",       motorConfig()->dev.useContinuousUpdate);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_MOTOR_PWM_PROTOCOL, "%d",     motorConfig()->dev.motorProtocol);
-        BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_MOTOR_PWM_RATE, "%d",         motorConfig()->dev.motorPwmRate);
-        BLACKBOX_PRINT_HEADER_LINE("maxthrottle", "%d",                     motorConfig()->maxthrottle);
-        BLACKBOX_PRINT_HEADER_LINE("motor_kv", "%d",                        motorConfig()->kv);
+        BLACKBOX_PRINT_HEADER_MOTORS(PARAM_NAME_USE_UNSYNCED_PWM, "%d",     motorProtocolIsContinuous(motorConfig(motor)->protocol) ? 1 : 0);
+        BLACKBOX_PRINT_HEADER_MOTORS(PARAM_NAME_MOTOR_PWM_PROTOCOL, "%d",   motorConfig(motor)->protocol);
+        BLACKBOX_PRINT_HEADER_MOTORS(PARAM_NAME_MOTOR_PWM_RATE, "%d",       motorGetUpdateRate(motor));
+        BLACKBOX_PRINT_HEADER_MOTORS("motor_stop_pulse", "%d",              motorConfig(motor)->stopPwmPulse);
+        BLACKBOX_PRINT_HEADER_MOTORS("mincommand", "%d",                    motorConfig(motor)->zeroPwmPulse);
+        BLACKBOX_PRINT_HEADER_MOTORS("maxthrottle", "%d",                   motorConfig(motor)->fullPwmPulse);
+        BLACKBOX_PRINT_HEADER_MOTORS("motor_kv", "%d",                      motorConfig(motor)->kv);
 
 #ifdef USE_GPS
         BLACKBOX_PRINT_HEADER_LINE(PARAM_NAME_GPS_PROVIDER, "%d",               gpsConfig()->provider);

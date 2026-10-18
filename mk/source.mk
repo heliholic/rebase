@@ -123,6 +123,7 @@ COMMON_SRC = \
             drivers/lcd_panel/ssd1306_i2c.c \
             drivers/light_led.c \
             drivers/motor.c \
+            drivers/motor_resolve.c \
             drivers/pinio.c \
             drivers/pin_pull_up_down.c \
             drivers/pwm_output.c \
@@ -406,6 +407,7 @@ SIZE_OPTIMISED_SRC += \
             cli/cli.c \
             cli/settings.c \
             drivers/light_ws2811strip.c \
+            drivers/motor_resolve.c \
             fc/init.c \
             fc/board_info.c \
             fc/feature.c \

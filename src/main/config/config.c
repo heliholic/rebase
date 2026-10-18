@@ -197,15 +197,9 @@ STATIC_UNIT_TESTED void validateAndFixConfig(void)
     }
 #endif
 
-    if (motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_BRUSHED) {
-        if (motorConfig()->mincommand < 1000) {
-            motorConfigMutable()->mincommand = 1000;
-        }
-    }
-
-    if ((motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_PWM ) && (motorConfig()->dev.motorPwmRate > BRUSHLESS_MOTORS_PWM_RATE)) {
-        motorConfigMutable()->dev.motorPwmRate = BRUSHLESS_MOTORS_PWM_RATE;
-    }
+#ifdef USE_MOTOR
+    validateAndFixMotorConfig();
+#endif
 
     validateAndFixGyroConfig();
 
@@ -317,13 +311,6 @@ STATIC_UNIT_TESTED void validateAndFixConfig(void)
         }
     }
 
-#if defined(USE_DSHOT_TELEMETRY) && defined(USE_DSHOT_BITBANG)
-    if (motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_PROSHOT1000 && motorConfig()->dev.useDshotTelemetry &&
-        motorConfig()->dev.useDshotBitbang == DSHOT_BITBANG_ON) {
-        motorConfigMutable()->dev.useDshotBitbang = DSHOT_BITBANG_AUTO;
-    }
-#endif
-
 #ifdef USE_ADC
     adcConfigMutable()->vbat.enabled = (batteryConfig()->voltageMeterSource == VOLTAGE_METER_ADC);
     adcConfigMutable()->current.enabled = (batteryConfig()->currentMeterSource == CURRENT_METER_ADC);
@@ -377,34 +364,6 @@ STATIC_UNIT_TESTED void validateAndFixConfig(void)
     }
 #endif
 #endif
-
-#if defined(USE_DSHOT)
-    bool configuredMotorProtocolDshot = checkMotorProtocolDshot(&motorConfig()->dev);
-
-    // If using DSHOT protocol disable unsynched PWM as it's meaningless
-    if (configuredMotorProtocolDshot) {
-        motorConfigMutable()->dev.useContinuousUpdate = false;
-    }
-
-#if defined(USE_DSHOT_TELEMETRY) && defined(USE_TIMER)
-    bool nChannelTimerUsed = false;
-    for (unsigned i = 0; i < getMotorCount(); i++) {
-        const ioTag_t tag = motorConfig()->dev.ioTags[i];
-        if (tag) {
-            const timerHardware_t *timer = timerGetConfiguredByTag(tag);
-            if (timer && timer->output & TIMER_OUTPUT_N_CHANNEL) {
-                nChannelTimerUsed = true;
-
-                break;
-            }
-        }
-    }
-
-    if ((!configuredMotorProtocolDshot || (motorConfig()->dev.useDshotBitbang == DSHOT_BITBANG_OFF && (motorConfig()->dev.useBurstDshot == DSHOT_DMAR_ON || nChannelTimerUsed))) && motorConfig()->dev.useDshotTelemetry) {
-        motorConfigMutable()->dev.useDshotTelemetry = false;
-    }
-#endif // USE_DSHOT_TELEMETRY
-#endif // USE_DSHOT
 
     validateAndFixRatesSettings();  // constrain the various rates settings to limits imposed by the rates type
 
@@ -462,7 +421,7 @@ void validateAndFixGyroConfig(void)
         float samplingTime = 1.0f / gyro.sampleRateHz;
 
         // check for looptime restrictions based on motor protocol. Motor times have safety margin
-        float motorUpdateRestriction;
+        float motorUpdateRestriction = 0;
 
 #if defined(USE_DSHOT) && defined(USE_PID_DENOM_CHECK)
         /* If bidirectional DSHOT is being used on an F4 or G4 then force DSHOT300. The motor update restrictions then applied
@@ -472,60 +431,42 @@ void validateAndFixGyroConfig(void)
 #ifdef USE_PID_DENOM_OVERCLOCK_LEVEL
         && (systemConfig()->cpu_overclock < USE_PID_DENOM_OVERCLOCK_LEVEL)
 #endif
-        && motorConfig()->dev.useDshotTelemetry
         ) {
-            if (motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_DSHOT600) {
-                motorConfigMutable()->dev.motorProtocol = MOTOR_PROTOCOL_DSHOT300;
+            bool bidir = false;
+            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (motorConfig(i)->flags & MOTOR_FLAG_BIDIR) {
+                    if (motorConfig(i)->protocol == MOTOR_PROTOCOL_DSHOT600) {
+                        motorConfigMutable(i)->protocol = MOTOR_PROTOCOL_DSHOT300;
+                    }
+                    bidir = true;
+                }
             }
-            if (gyro.sampleRateHz > 4000) {
+            if (bidir && gyro.sampleRateHz > 4000) {
                 pidConfigMutable()->pid_process_denom = MAX(2, pidConfig()->pid_process_denom);
             }
         }
 #endif // USE_DSHOT && USE_PID_DENOM_CHECK
-        switch (motorConfig()->dev.motorProtocol) {
-        case MOTOR_PROTOCOL_PWM :
-                motorUpdateRestriction = 1.0f / BRUSHLESS_MOTORS_PWM_RATE;
-                break;
-        case MOTOR_PROTOCOL_ONESHOT125:
-                motorUpdateRestriction = 0.0005f;
-                break;
-        case MOTOR_PROTOCOL_ONESHOT42:
-                motorUpdateRestriction = 0.0001f;
-                break;
-#ifdef USE_DSHOT
-        case MOTOR_PROTOCOL_DSHOT150:
-                motorUpdateRestriction = 0.000250f;
-                break;
-        case MOTOR_PROTOCOL_DSHOT300:
-                motorUpdateRestriction = 0.0001f;
-                break;
-#endif
-        default:
-            motorUpdateRestriction = 0.00003125f;
-            break;
+
+        // Motors sent one frame per update hold the loop to their fastest frame rate
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            const motorConfig_t *motor = motorConfig(i);
+            if (motorDevConfig(i)->ioTag && !motorProtocolIsContinuous(motor->protocol)) {
+                const uint16_t maxRate = motorProtocolMaxRate(motor->protocol, motor->flags & MOTOR_FLAG_BIDIR);
+                if (maxRate) {
+                    motorUpdateRestriction = MAX(motorUpdateRestriction, 1.0f / maxRate);
+                }
+            }
         }
 
-        if (motorConfig()->dev.useContinuousUpdate) {
-            bool configuredMotorProtocolDshot = checkMotorProtocolDshot(&motorConfig()->dev);
-            // Prevent overriding the max rate of motors
-            if (!configuredMotorProtocolDshot && motorConfig()->dev.motorProtocol != MOTOR_PROTOCOL_PWM ) {
-                const uint32_t maxEscRate = lrintf(1.0f / motorUpdateRestriction);
-                motorConfigMutable()->dev.motorPwmRate = MIN(motorConfig()->dev.motorPwmRate, maxEscRate);
+        const float pidLooptime = samplingTime * pidConfig()->pid_process_denom;
+        if (pidLooptime < motorUpdateRestriction) {
+            uint8_t minPidProcessDenom = motorUpdateRestriction / samplingTime;
+            if (motorUpdateRestriction / samplingTime > minPidProcessDenom) {
+                // if any fractional part then round up
+                minPidProcessDenom++;
             }
-        } else {
-            const float pidLooptime = samplingTime * pidConfig()->pid_process_denom;
-            if (motorConfig()->dev.useDshotTelemetry) {
-                motorUpdateRestriction *= 2;
-            }
-            if (pidLooptime < motorUpdateRestriction) {
-                uint8_t minPidProcessDenom = motorUpdateRestriction / samplingTime;
-                if (motorUpdateRestriction / samplingTime > minPidProcessDenom) {
-                    // if any fractional part then round up
-                    minPidProcessDenom++;
-                }
-                minPidProcessDenom = constrain(minPidProcessDenom, 1, MAX_PID_PROCESS_DENOM);
-                pidConfigMutable()->pid_process_denom = MAX(pidConfigMutable()->pid_process_denom, minPidProcessDenom);
-            }
+            minPidProcessDenom = constrain(minPidProcessDenom, 1, MAX_PID_PROCESS_DENOM);
+            pidConfigMutable()->pid_process_denom = MAX(pidConfigMutable()->pid_process_denom, minPidProcessDenom);
         }
     }
 

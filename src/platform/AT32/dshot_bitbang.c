@@ -81,7 +81,7 @@ const timerHardware_t bbTimerHardware[] = {
 
 static FAST_DATA_ZERO_INIT timeUs_t lastSendUs;
 
-static motorProtocolTypes_e motorProtocol;
+static motorProtocol_e motorProtocol;
 
 // DMA GPIO output buffer formatting
 
@@ -231,7 +231,7 @@ const resourceOwner_t *dshotBitbangTimerGetOwner(const timerHardware_t *timer)
 
 // Return frequency of smallest change [state/sec]
 
-static uint32_t getDshotBaseFrequency(motorProtocolTypes_e pwmProtocolType)
+static uint32_t getDshotBaseFrequency(motorProtocol_e pwmProtocolType)
 {
     switch (pwmProtocolType) {
     case(MOTOR_PROTOCOL_DSHOT600):
@@ -311,8 +311,8 @@ static void bbFindPacerTimer(void)
         for (unsigned timerIndex = 0; timerIndex < ARRAYLEN(bbTimerHardware); timerIndex++) {
             const timerHardware_t *timer = &bbTimerHardware[timerIndex];
             int timNumber = timerGetTIMNumber(timer);
-            if ((motorConfig()->dev.useDshotBitbangedTimer == DSHOT_BITBANGED_TIMER_TIM1 && timNumber != 1)
-                || (motorConfig()->dev.useDshotBitbangedTimer == DSHOT_BITBANGED_TIMER_TIM8 && timNumber != 8)) {
+            const uint8_t pacerTimer = motorDriverConfig()->useDshotBitbangTimer;
+            if (pacerTimer != DSHOT_BITBANGED_TIMER_AUTO && timNumber != pacerTimer) {
                 continue;
             }
             bool timerConflict = false;
@@ -354,7 +354,7 @@ static void bbFindPacerTimer(void)
     }
 }
 
-static void bbTimebaseSetup(bbPort_t *bbPort, motorProtocolTypes_e dshotProtocolType)
+static void bbTimebaseSetup(bbPort_t *bbPort, motorProtocol_e dshotProtocolType)
 {
     uint32_t timerclock = timerClock(bbPort->timhw);
 
@@ -372,7 +372,7 @@ static void bbTimebaseSetup(bbPort_t *bbPort, motorProtocolTypes_e dshotProtocol
 // it does not use the timer channel associated with the pin.
 //
 
-static bool bbMotorConfig(IO_t io, uint8_t motorIndex, motorProtocolTypes_e pwmProtocolType, uint8_t output)
+static bool bbMotorConfig(IO_t io, uint8_t motorIndex, motorProtocol_e pwmProtocolType, uint8_t output)
 {
     int pinIndex = IO_GPIOPinIdx(io);
     int portIndex = IO_GPIOPortIdx(io);
@@ -695,19 +695,20 @@ dshotBitbangStatus_e dshotBitbangGetStatus(void)
 
 uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
+    // Bitbang motors share protocol, telemetry and polarity, those of the lowest one
+    const motorConfig_t *lead = motorLeadConfig(motorMask);
 
     dbgPinLo(0);
     dbgPinLo(1);
 
-    motorProtocol = motorDevConfig->motorProtocol;
+    motorProtocol = lead->protocol;
     *vTable = &bbVTable;
     dshotMotorMask = 0;
 
     bbStatus = DSHOT_BITBANG_STATUS_OK;
 
 #ifdef USE_DSHOT_TELEMETRY
-    useDshotTelemetry = motorDevConfig->useDshotTelemetry;
+    useDshotTelemetry = (lead->flags & MOTOR_FLAG_BIDIR);
 #endif
 
     memset(bbOutputBuffer, 0, sizeof(bbOutputBuffer));
@@ -717,8 +718,8 @@ uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
             continue;
         }
 
-        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorDevConfig->ioTags[motorIndex]);
-        const IO_t io = IOGetByTag(motorDevConfig->ioTags[motorIndex]);
+        const timerHardware_t *timerHardware = timerGetConfiguredByTag(motorDevConfig(motorIndex)->ioTag);
+        const IO_t io = IOGetByTag(motorDevConfig(motorIndex)->ioTag);
 
         // A motor whose pin cannot be used stays down; the others carry on
         if (!timerHardware || !IOIsFreeOrPreinit(io)) {
@@ -726,7 +727,7 @@ uint32_t dshotBitbangDevInit(uint32_t motorMask, const motorVTable_t **vTable)
             continue;
         }
 
-        uint8_t output = motorDevConfig->motorInversion ?  timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output;
+        uint8_t output = (motorConfig(motorIndex)->flags & MOTOR_FLAG_INVERTED) ?  timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output;
         bbPuPdMode = (output & TIMER_OUTPUT_INVERTED) ? BB_GPIO_PULLDOWN : BB_GPIO_PULLUP;
 
 #ifdef USE_DSHOT_TELEMETRY

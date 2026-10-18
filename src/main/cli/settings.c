@@ -113,12 +113,6 @@ const char * const lookupTableOffOn[] = {
     "OFF", "ON"
 };
 
-#ifdef USE_DSHOT_TELEMETRY
-static const char * const lookupTableDshotEdt[] = {
-    "OFF", "ON", "FORCE"
-};
-#endif
-
 static const char * const lookupTableUnit[] = {
     "IMPERIAL", "METRIC", "BRITISH"
 };
@@ -205,13 +199,6 @@ static const char * const lookupTableGyroHardwareLpf[] = {
 #ifdef USE_GYRO_DLPF_EXPERIMENTAL
     "EXPERIMENTAL",
 #endif
-};
-
-static const char * const lookupTablePwmProtocol[] = {
-    "DISABLED",
-    "PWM", "ONESHOT125", "ONESHOT42", "MULTISHOT", "BRUSHED",
-    "DSHOT150", "DSHOT300", "DSHOT600", "PROSHOT1000",
-    "DRONECAN"
 };
 
 static const char * const lookupTableLowpassType[] = {
@@ -321,10 +308,6 @@ static const char * const lookupTableOffOnAuto[] = {
     "OFF", "ON", "AUTO"
 };
 
-static const char* const lookupTableDshotBitbangedTimer[] = {
-    "AUTO", "TIM1", "TIM8"
-};
-
 static const char * const lookupTableRotationDir[] = {
     "CW", "CCW",
 };
@@ -367,10 +350,6 @@ const lookupTableEntry_t lookupTables[] = {
     { lookupTableMagHardware, MAG_HARDWARE_COUNT },
 #endif
     LOOKUP_TABLE_ENTRY(debugModeNames),
-    LOOKUP_TABLE_ENTRY(lookupTablePwmProtocol),
-#ifdef USE_DSHOT_TELEMETRY
-    LOOKUP_TABLE_ENTRY(lookupTableDshotEdt),
-#endif
     LOOKUP_TABLE_ENTRY(lookupTableLowpassType),
     LOOKUP_TABLE_ENTRY(lookupTableDtermLowpassType),
     LOOKUP_TABLE_ENTRY(lookupTableFailsafe),
@@ -401,7 +380,6 @@ const lookupTableEntry_t lookupTables[] = {
 
     LOOKUP_TABLE_ENTRY(lookupTablePositionAltitudeSource),
     LOOKUP_TABLE_ENTRY(lookupTableOffOnAuto),
-    LOOKUP_TABLE_ENTRY(lookupTableDshotBitbangedTimer),
 
     LOOKUP_TABLE_ENTRY(lookupTableRotationDir),
     LOOKUP_TABLE_ENTRY(lookupTableTailMode),
@@ -580,28 +558,16 @@ const clivalue_t valueTable[] = {
     { "blackbox_grace_period",      VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 0, 60 }, PG_BLACKBOX_CONFIG, offsetof(blackboxConfig_t, gracePeriod) },
 #endif
 
-// PG_MOTOR_CONFIG
-    { "max_throttle",               VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { PWM_PULSE_MIN, PWM_PULSE_MAX }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, maxthrottle) },
-    { "min_command",                VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { PWM_PULSE_MIN, PWM_PULSE_MAX }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, mincommand) },
-    { "motor_kv",                   VAR_UINT16 | HARDWARE_VALUE, .config.minmaxUnsigned = { 1, 40000 },                   PG_MOTOR_CONFIG, offsetof(motorConfig_t, kv) },
+// PG_MOTOR_DRIVER_CONFIG
 #ifdef USE_DSHOT
 #ifdef USE_DSHOT_DMAR
-    { "dshot_burst",                VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON_AUTO }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useBurstDshot) },
-#endif
-#ifdef USE_DSHOT_TELEMETRY
-    { PARAM_NAME_DSHOT_BIDIR,       VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useDshotTelemetry) },
-    { "dshot_edt",                  VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_DSHOT_EDT }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useDshotEdt) },
+    { "dshot_burst",                VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON_AUTO }, PG_MOTOR_DRIVER_CONFIG, offsetof(motorDriverConfig_t, useBurstDshot) },
 #endif
 #ifdef USE_DSHOT_BITBANG
-    { "dshot_bitbang",               VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON_AUTO }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useDshotBitbang) },
-    { "dshot_bitbang_timer",         VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_DSHOT_BITBANGED_TIMER }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useDshotBitbangedTimer) },
+    { "dshot_bitbang",               VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON_AUTO }, PG_MOTOR_DRIVER_CONFIG, offsetof(motorDriverConfig_t, useDshotBitbang) },
+    { "dshot_bitbang_timer",         VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, UINT8_MAX }, PG_MOTOR_DRIVER_CONFIG, offsetof(motorDriverConfig_t, useDshotBitbangTimer) },
 #endif
 #endif // USE_DSHOT
-    { PARAM_NAME_USE_UNSYNCED_PWM,  VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.useContinuousUpdate) },
-    { PARAM_NAME_MOTOR_PWM_PROTOCOL, VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_MOTOR_PWM_PROTOCOL }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.motorProtocol) },
-    { PARAM_NAME_MOTOR_PWM_RATE,    VAR_UINT16 | MASTER_VALUE, .config.minmaxUnsigned = { 200, 32000 }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.motorPwmRate) },
-    { "motor_pwm_inversion",        VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, dev.motorInversion) },
-    { PARAM_NAME_MOTOR_POLES,       VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { 4, UINT8_MAX }, PG_MOTOR_CONFIG, offsetof(motorConfig_t, motorPoleCount) },
 
 // PG_FAILSAFE_CONFIG
     { "failsafe_delay",             VAR_UINT8  | MASTER_VALUE, .config.minmaxUnsigned = { PERIOD_RXDATA_RECOVERY / MILLIS_PER_TENTH_SECOND, 200 }, PG_FAILSAFE_CONFIG, offsetof(failsafeConfig_t, failsafe_delay) },

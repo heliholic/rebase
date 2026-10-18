@@ -185,7 +185,8 @@ static bool dshotCommandsAreEnabled(dshotCommandType_e commandType)
     return ret;
 }
 
-void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshotCommandType_e commandType)
+// Send a command to the motors in motorMask; the others get MOTOR_STOP
+void dshotCommandWriteMask(uint32_t motorMask, uint8_t command, dshotCommandType_e commandType)
 {
     if (!isMotorProtocolDshot() || !dshotCommandsAreEnabled(commandType) || (command > DSHOT_MAX_COMMAND) || dshotCommandQueueFull()) {
         return;
@@ -222,12 +223,12 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
 #if defined(USE_DSHOT) && defined(USE_DSHOT_TELEMETRY)
         bool isBitbangActive = false;
 #ifdef USE_DSHOT_BITBANG
-        isBitbangActive = isDshotBitbangActive(&motorConfig()->dev);
+        isBitbangActive = isDshotBitbangActive();
 #endif
 #endif
         // Fake command in queue. Blocking commands are launched from cli, and no inline commands are running
         for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-            commandQueue[commandQueueTail].command[i] = (i == index || index == ALL_MOTORS) ? command : DSHOT_CMD_MOTOR_STOP;
+            commandQueue[commandQueueTail].command[i] = (motorMask & BIT(i)) ? command : DSHOT_CMD_MOTOR_STOP;
         }
 
         delayMicroseconds(DSHOT_INITIAL_DELAY_US - DSHOT_COMMAND_DELAY_US);
@@ -247,7 +248,7 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
             for (uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
                 if (motorDeviceMask() & BIT(i)) {
                     vTable->requestTelemetry(i);
-                    vTable->writeInt(i, (i == index || index == ALL_MOTORS) ? command : DSHOT_CMD_MOTOR_STOP);
+                    vTable->writeInt(i, (motorMask & BIT(i)) ? command : DSHOT_CMD_MOTOR_STOP);
                 }
             }
 
@@ -275,8 +276,8 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
         if (commandControl) {
             commandControl->repeats = repeats;
             commandControl->delayAfterCommandUs = DSHOT_COMMAND_DELAY_US;
-            for (unsigned i = 0; i < motorCount; i++) {
-                if (index == i || index == ALL_MOTORS) {
+            for (unsigned i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (motorMask & BIT(i)) {
                     commandControl->command[i] = command;
                 } else {
                     commandControl->command[i] = DSHOT_CMD_MOTOR_STOP;
@@ -292,6 +293,19 @@ void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshot
             }
         }
     }
+}
+
+void dshotCommandWrite(uint8_t index, uint8_t motorCount, uint8_t command, dshotCommandType_e commandType)
+{
+    uint32_t motorMask = 0;
+
+    for (unsigned i = 0; i < motorCount && i < MAX_SUPPORTED_MOTORS; i++) {
+        if (i == index || index == ALL_MOTORS) {
+            motorMask |= BIT(i);
+        }
+    }
+
+    dshotCommandWriteMask(motorMask, command, commandType);
 }
 
 uint8_t dshotCommandGetCurrent(unsigned index)

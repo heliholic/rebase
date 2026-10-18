@@ -31,6 +31,7 @@
 #include "drivers/timer.h"
 #include "drivers/pwm_output.h"
 #include "drivers/pwm_output_impl.h"
+#include "drivers/motor.h"
 
 #ifdef USE_TIMER_AF
 #include "platform/timer.h"
@@ -67,16 +68,14 @@ bool pwmEnableMotors(void)
 
 #ifdef USE_TIMER_AF
 
-static bool useContinuousUpdate = true;
-
 static float pwmConvertToInternal(uint8_t index, float throttle)
 {
-    UNUSED(index);
+    const motorConfig_t *param = motorConfig(index);
 
-    float value = (float)motorConfig()->mincommand;
+    float value = (float)param->stopPwmPulse;
 
     if (throttle >= 0) {
-        value = scaleRangef(throttle, 0, 1, (float)motorConfig()->mincommand, (float)motorConfig()->maxthrottle);
+        value = scaleRangef(throttle, 0, 1, (float)param->zeroPwmPulse, (float)param->fullPwmPulse);
     }
 
     return value;
@@ -107,12 +106,8 @@ static void pwmDisableMotors(void)
 
 static void pwmCompleteMotorUpdate(void)
 {
-    if (useContinuousUpdate) {
-        return;
-    }
-
     for (int index = 0; index < MAX_SUPPORTED_MOTORS; index++) {
-        if (pwmMotors[index].enabled) {
+        if (pwmMotors[index].enabled && pwmMotors[index].synced) {
             if (pwmMotors[index].forceOverflow) {
                 timerForceOverflow(pwmMotors[index].channel.tim);
             }
@@ -137,57 +132,56 @@ static const motorVTable_t motorPwmVTable = {
     .getMotorIO = pwmGetMotorIO,
 };
 
+// Where the throttle range falls in time: from sMin, sLen long
+static void pwmMotorPulseWindow(uint8_t protocol, float *sMin, float *sLen)
+{
+    switch (protocol) {
+    default:
+    case MOTOR_PROTOCOL_ONESHOT125:
+        *sMin = 125e-6f;
+        *sLen = 125e-6f;
+        break;
+    case MOTOR_PROTOCOL_ONESHOT42:
+        *sMin = 42e-6f;
+        *sLen = 42e-6f;
+        break;
+    case MOTOR_PROTOCOL_MULTISHOT:
+        *sMin = 5e-6f;
+        *sLen = 20e-6f;
+        break;
+    case MOTOR_PROTOCOL_BRUSHED:
+        *sMin = 0;
+        *sLen = 0;
+        break;
+    case MOTOR_PROTOCOL_PWM :
+        *sMin = 1e-3f;
+        *sLen = 1e-3f;
+        break;
+    }
+}
+
 uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
-
     memset(pwmMotors, 0, sizeof(pwmMotors));
     pwmMotorMask = 0;
 
-    uint16_t idlePulse = motorConfig()->mincommand;
-    if (motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) {
-        idlePulse = 0;
-    }
-
     *vTable = &motorPwmVTable;
-    useContinuousUpdate = motorDevConfig->useContinuousUpdate;
-
-    float sMin = 0;
-    float sLen = 0;
-    switch (motorDevConfig->motorProtocol) {
-    default:
-    case MOTOR_PROTOCOL_ONESHOT125:
-        sMin = 125e-6f;
-        sLen = 125e-6f;
-        break;
-    case MOTOR_PROTOCOL_ONESHOT42:
-        sMin = 42e-6f;
-        sLen = 42e-6f;
-        break;
-    case MOTOR_PROTOCOL_MULTISHOT:
-        sMin = 5e-6f;
-        sLen = 20e-6f;
-        break;
-    case MOTOR_PROTOCOL_BRUSHED:
-        sMin = 0;
-        useContinuousUpdate = true;
-        idlePulse = 0;
-        break;
-    case MOTOR_PROTOCOL_PWM :
-        sMin = 1e-3f;
-        sLen = 1e-3f;
-        useContinuousUpdate = true;
-        idlePulse = 0;
-        break;
-    }
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
         if (motorMask & BIT(motorIndex)) {
-            const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
+            const motorConfig_t *param = motorConfig(motorIndex);
+            const ioTag_t tag = motorDevConfig(motorIndex)->ioTag;
             const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
             // A motor whose pin has no free timer stays down; the others carry on
             if (timerHardware) {
+                // PWM and brushed free-run; the others send one pulse per update
+                const bool continuous = motorProtocolIsContinuous(param->protocol);
+                const uint16_t idlePulse = continuous ? 0 : param->stopPwmPulse;
+
+                float sMin, sLen;
+                pwmMotorPulseWindow(param->protocol, &sMin, &sLen);
+
                 pwmMotors[motorIndex].io = IOGetByTag(tag);
                 IOInit(pwmMotors[motorIndex].io, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
@@ -195,24 +189,25 @@ uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 
                 /* standard PWM outputs */
                 // margin of safety is 4 periods when unsynced
-                const unsigned pwmRateHz = useContinuousUpdate ? motorDevConfig->motorPwmRate : ceilf(1 / ((sMin + sLen) * 4));
+                const unsigned pwmRateHz = continuous ? motorGetUpdateRate(motorIndex) : ceilf(1 / ((sMin + sLen) * 4));
 
                 const uint32_t clock = timerClock(timerHardware);
                 /* used to find the desired timer frequency for max resolution */
                 const unsigned prescaler = ((clock / pwmRateHz) + 0xffff) / 0x10000; /* rounding up */
                 const uint32_t hz = clock / prescaler;
-                const unsigned period = useContinuousUpdate ? hz / pwmRateHz : 0xffff;
+                const unsigned period = continuous ? hz / pwmRateHz : 0xffff;
 
                 /*
                     if brushed then it is the entire length of the period.
                     TODO: this can be moved back to periodMin and periodLen
                     once mixer outputs a 0..1 float value.
                 */
-                pwmMotors[motorIndex].pulseScale = ((motorDevConfig->motorProtocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
+                pwmMotors[motorIndex].pulseScale = ((param->protocol == MOTOR_PROTOCOL_BRUSHED) ? period : (sLen * hz)) / 1000.0f;
                 pwmMotors[motorIndex].pulseOffset = (sMin * hz) - (pwmMotors[motorIndex].pulseScale * 1000);
 
-                pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, motorDevConfig->motorInversion);
+                pwmOutputConfig(&pwmMotors[motorIndex].channel, timerHardware, hz, period, idlePulse, param->flags & MOTOR_FLAG_INVERTED);
 
+                // The first synced motor on a timer restarts it for the next pulse
                 bool timerAlreadyUsed = false;
                 for (int i = 0; i < motorIndex; i++) {
                     if (pwmMotors[i].channel.tim == pwmMotors[motorIndex].channel.tim) {
@@ -220,7 +215,8 @@ uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
                         break;
                     }
                 }
-                pwmMotors[motorIndex].forceOverflow = !timerAlreadyUsed;
+                pwmMotors[motorIndex].synced = !continuous;
+                pwmMotors[motorIndex].forceOverflow = !continuous && !timerAlreadyUsed;
                 pwmMotors[motorIndex].enabled = true;
                 pwmMotorMask |= BIT(motorIndex);
             }

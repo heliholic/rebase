@@ -773,7 +773,6 @@ static pwmOutputPort_t servos[MAX_SUPPORTED_SERVOS];
 // real value to send
 static int16_t motorsPwm[MAX_SUPPORTED_MOTORS];
 static int16_t servosPwm[MAX_SUPPORTED_SERVOS];
-static int16_t idlePulse;
 
 void servoDevInit(void)
 {
@@ -795,12 +794,12 @@ static void pwmDisableMotors(void)
 
 static float pwmConvertToInternal(uint8_t index, float throttle)
 {
-    UNUSED(index);
+    const motorConfig_t *param = motorConfig(index);
 
-    float value = (float)motorConfig()->mincommand;
+    float value = (float)param->stopPwmPulse;
 
     if (throttle >= 0) {
-        value = scaleRangef(throttle, 0, 1, (float)motorConfig()->mincommand, (float)motorConfig()->maxthrottle);
+        value = scaleRangef(throttle, 0, 1, (float)param->zeroPwmPulse, (float)param->fullPwmPulse);
     }
 
     return value;
@@ -813,7 +812,8 @@ static void pwmWriteMotor(uint8_t index, float throttle)
     float value = pwmConvertToInternal(index, throttle);
 
     if (index < MAX_SUPPORTED_MOTORS) {
-        motorsPwm[index] = value - idlePulse;
+        // Relative to zero throttle; a stopped motor reads as 0 wherever its stop pulse sits
+        motorsPwm[index] = (throttle >= 0) ? value - motorConfig(index)->zeroPwmPulse : 0;
     }
 
     if (index < pwmRawPkt.motorCount) {
@@ -828,7 +828,7 @@ static void pwmWriteMotorInt(uint8_t index, uint16_t value)
     if (pthread_mutex_trylock(&updateLock) != 0) return;
 
     if (index < MAX_SUPPORTED_MOTORS) {
-        motorsPwm[index] = (float)value - idlePulse;
+        motorsPwm[index] = fmaxf((float)value - motorConfig(index)->zeroPwmPulse, 0);
     }
 
     if (index < pwmRawPkt.motorCount) {
@@ -898,8 +898,6 @@ uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
     // The raw packet carries every motor slot, then the servos
     printf("Initialized motor mask 0x%x\n", (unsigned)pwmMotorMask);
     pwmRawPkt.motorCount = MAX_SUPPORTED_MOTORS;
-
-    idlePulse = motorConfig()->mincommand;
 
     return pwmMotorMask;
 }

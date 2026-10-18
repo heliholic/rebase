@@ -34,6 +34,7 @@ extern "C" {
     #include "common/gps_conversion.h"
     #include "fc/feature.h"
     #include "drivers/buf_writer.h"
+    #include "drivers/dshot_command.h"
     #include "config/config.h"
     #include "controls/adjustments.h"
     #include "fc/runtime_config.h"
@@ -62,6 +63,7 @@ extern "C" {
     void cliHelp(const char *cmdName, char *cmdline);
     int cliGetSettingIndex(char *name, uint8_t length);
     void *cliGetValuePointer(const clivalue_t *value);
+    bool parseMotorConfig(char **args, int count, motorConfig_t *motor);
 
     const clivalue_t valueTable[] = {
         { .name = "array_unit_test",   .type = VAR_INT8  | MODE_ARRAY  | MASTER_VALUE, .config = { .array = { .length = 3}},                     .pgn = PG_RESERVED_FOR_TESTING_1, .offset = 0 },
@@ -83,6 +85,7 @@ extern "C" {
     PG_REGISTER_ARRAY(adjustmentRange_t, MAX_ADJUSTMENT_RANGE_COUNT, adjustmentRanges, PG_ADJUSTMENT_RANGE_CONFIG);
     PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT, modeActivationConditions, PG_MODE_ACTIVATION_PROFILE);
     PG_REGISTER_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, servoParams, PG_SERVO_PARAMS);
+    PG_REGISTER_ARRAY(motorConfig_t, MAX_SUPPORTED_MOTORS, motorConfig, PG_MOTOR_CONFIG);
     PG_REGISTER(beeperConfig_t, beeperConfig, PG_BEEPER_CONFIG);
     PG_REGISTER(rxConfig_t, rxConfig, PG_RX_CONFIG);
     PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);
@@ -206,6 +209,68 @@ TEST(CLIUnittest, TestCliSetStringWriteOnce)
     EXPECT_EQ(0,   data[6]);
 }
 
+static bool parseMotorLine(const char *line, motorConfig_t *motor)
+{
+    static char buf[128];
+    char *args[11];
+    char *saveptr;
+    int count = 0;
+
+    strcpy(buf, line);
+    for (char *ptr = strtok_r(buf, " ", &saveptr); ptr && count < 11; ptr = strtok_r(NULL, " ", &saveptr)) {
+        args[count++] = ptr;
+    }
+
+    return parseMotorConfig(args, count, motor);
+}
+
+// A per-motor line sets every field, flags by name
+TEST(CLIUnittest, TestMotorParam)
+{
+    motorConfig_t motor;
+
+    EXPECT_TRUE(parseMotorLine("2 dshot300 2000 1000 1000 2000 12 1960 INVERTED BIDIR EDT_FORCE", &motor));
+    EXPECT_EQ(MOTOR_PROTOCOL_DSHOT300, motor.protocol);
+    EXPECT_EQ(2000, motor.rate);
+    EXPECT_EQ(1000, motor.stopPwmPulse);
+    EXPECT_EQ(1000, motor.zeroPwmPulse);
+    EXPECT_EQ(2000, motor.fullPwmPulse);
+    EXPECT_EQ(12, motor.poles);
+    EXPECT_EQ(1960, motor.kv);
+    EXPECT_EQ(MOTOR_FLAG_INVERTED | MOTOR_FLAG_BIDIR | MOTOR_FLAG_EDT | MOTOR_FLAG_EDT_FORCE, motor.flags);
+
+    // Rate 0 is the protocol default; poles 0 is no RPM
+    EXPECT_TRUE(parseMotorLine("1 PWM 0 1100 1100 1940 0 0", &motor));
+    EXPECT_EQ(MOTOR_PROTOCOL_PWM, motor.protocol);
+    EXPECT_EQ(0, motor.rate);
+    EXPECT_EQ(0, motor.flags);
+}
+
+TEST(CLIUnittest, TestMotorParamRanges)
+{
+    motorConfig_t motor;
+
+    EXPECT_FALSE(parseMotorLine("1 DSHOT1200 0 1000 1000 2000 14 1960", &motor));          // no such protocol
+    EXPECT_FALSE(parseMotorLine("1 PWM 600 1000 1000 2000 14 1960", &motor));              // above the PWM rate
+    EXPECT_FALSE(parseMotorLine("1 PWM 20 1000 1000 2000 14 1960", &motor));               // below any rate
+    EXPECT_FALSE(parseMotorLine("1 DSHOT150 4000 1000 1000 2000 14 1960 BIDIR", &motor));  // bidir halves it
+    EXPECT_FALSE(parseMotorLine("1 MULTISHOT 0 700 700 2000 14 1960", &motor));            // negative pulse
+    EXPECT_FALSE(parseMotorLine("1 PWM 0 2000 2000 1000 14 1960", &motor));                // zero above full
+    EXPECT_FALSE(parseMotorLine("1 PWM 0 1000 1000 2000 13 1960", &motor));                // odd poles
+    EXPECT_FALSE(parseMotorLine("1 PWM 0 1000 1000 2000 14 1960 BIDIR", &motor));          // telemetry needs DShot
+    EXPECT_FALSE(parseMotorLine("1 DSHOT300 0 1000 1000 2000 14 1960 EDT", &motor));       // EDT needs bidir
+    EXPECT_FALSE(parseMotorLine("1 DSHOT300 0 1000 1000 2000 14 1960 TURBO", &motor));     // no such flag
+    EXPECT_FALSE(parseMotorLine("1 PWM 0 1000 1000 2000 14 50001", &motor));               // Kv out of range
+    EXPECT_FALSE(parseMotorLine("1 PWM 0 5100 1000 2000 14 1960", &motor));                // stop out of range
+    EXPECT_TRUE(parseMotorLine("1 DSHOT150 2000 1000 1000 2000 14 1960 BIDIR", &motor));
+
+    // The stop pulse may sit below zero throttle
+    EXPECT_TRUE(parseMotorLine("1 PWM 50 900 1100 1900 14 1960", &motor));
+    EXPECT_EQ(900, motor.stopPwmPulse);
+    EXPECT_EQ(1100, motor.zeroPwmPulse);
+    EXPECT_EQ(1900, motor.fullPwmPulse);
+}
+
 // STUBS
 extern "C" {
 
@@ -274,6 +339,23 @@ bool hasMotorOverride(uint8_t motor)
 void resetMotorOverride(void)
 {
 }
+
+motorState_e motorGetState(unsigned index)
+{
+    UNUSED(index);
+    return MOTOR_STATE_ABSENT;
+}
+
+uint16_t motorGetUpdateRate(unsigned index)
+{
+    UNUSED(index);
+    return 0;
+}
+
+bool isMotorProtocolDshot(void) { return false; }
+void motorDisable(void) { }
+void motorEnable(void) { }
+void dshotCommandWrite(uint8_t, uint8_t, uint8_t, dshotCommandType_e) { }
 
 size_t getEEPROMStorageSize()
 {

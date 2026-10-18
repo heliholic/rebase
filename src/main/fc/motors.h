@@ -50,6 +50,8 @@ void resetMotorOverride(void);
 
 bool areMotorsRunning(void);
 
+void validateAndFixMotorConfig(void);
+
 void motorInit(void);
 void motorStop(void);
 void motorUpdate(timeUs_t currentTimeUs);

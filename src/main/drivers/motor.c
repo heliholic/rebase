@@ -36,6 +36,7 @@
 #include "drivers/dshot.h"
 #include "drivers/dshot_bitbang.h" // TODO: bitbang should be behind the veil of dshot (it is an implementation)
 #include "drivers/pwm_output.h"
+#include "drivers/timer.h"
 
 #include "drivers/time.h"
 
@@ -46,31 +47,48 @@
 #endif
 
 #include "motor.h"
+#include "motor_resolve.h"
 
 static FAST_DATA_ZERO_INIT motorDevice_t motorDevice;
+
+// Which motors are driven, by what and how fast
+static motorResolveOutput_t motorResolved;
 
 static bool motorProtocolEnabled = false;
 static bool motorProtocolDshot = false;
 
+static bool motorProtocolIsAnalog(uint8_t protocol)
+{
+    switch (protocol) {
+        case MOTOR_PROTOCOL_PWM:
+        case MOTOR_PROTOCOL_ONESHOT125:
+        case MOTOR_PROTOCOL_ONESHOT42:
+        case MOTOR_PROTOCOL_MULTISHOT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void motorShutdown(void)
 {
     uint32_t shutdownDelayUs = 1500;
+    bool analog = false;
 
     motorDevice.vTable->shutdown();
     motorDevice.enabled = false;
     motorDevice.motorEnableTimeMs = 0;
     motorDevice.initialized = false;
 
-    switch (motorConfig()->dev.motorProtocol) {
-        case MOTOR_PROTOCOL_PWM:
-        case MOTOR_PROTOCOL_ONESHOT125:
-        case MOTOR_PROTOCOL_ONESHOT42:
-        case MOTOR_PROTOCOL_MULTISHOT:
-            // Delay 500ms will disarm esc which can prevent motor spin while reboot
-            shutdownDelayUs += 500 * 1000;
-            break;
-        default:
-            break;
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if ((motorDevice.configuredMask & BIT(i)) && motorProtocolIsAnalog(motorConfig(i)->protocol)) {
+            analog = true;
+        }
+    }
+
+    if (analog) {
+        // Delay 500ms will disarm esc which can prevent motor spin while reboot
+        shutdownDelayUs += 500 * 1000;
     }
 
     delayMicroseconds(shutdownDelayUs);
@@ -81,7 +99,7 @@ void motorWriteAll(float *values)
 #ifdef USE_PWM_OUTPUT
     if (motorDevice.enabled) {
 #ifdef USE_DSHOT_BITBANG
-        if (isDshotBitbangActive(&motorConfig()->dev)) {
+        if (isDshotBitbangActive()) {
             // Initialise the output buffers
             if (motorDevice.vTable->updateInit) {
                 motorDevice.vTable->updateInit();
@@ -158,84 +176,51 @@ const motorVTable_t *motorGetVTable(void)
     return motorDevice.vTable;
 }
 
-bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig)
+motorProtocolFamily_e motorGetProtocolFamily(unsigned index)
 {
-    switch (motorConfig->motorProtocol) {
-        case MOTOR_PROTOCOL_PWM:
-        case MOTOR_PROTOCOL_ONESHOT125:
-        case MOTOR_PROTOCOL_ONESHOT42:
-        case MOTOR_PROTOCOL_MULTISHOT:
-        case MOTOR_PROTOCOL_BRUSHED:
-#ifdef USE_DSHOT
-        case MOTOR_PROTOCOL_DSHOT150:
-        case MOTOR_PROTOCOL_DSHOT300:
-        case MOTOR_PROTOCOL_DSHOT600:
-        case MOTOR_PROTOCOL_PROSHOT1000:
-#endif
-#if ENABLE_DRONECAN_ESC
-        case MOTOR_PROTOCOL_DRONECAN:
-#endif
-            return true;
-        default:
-            break;
-    }
-    return false;
+    return index < MAX_SUPPORTED_MOTORS ? motorResolved.family[index] : MOTOR_PROTOCOL_FAMILY_UNKNOWN;
 }
 
-bool checkMotorProtocolDshot(const motorDevConfig_t *motorConfig)
+motorState_e motorGetState(unsigned index)
 {
-#ifdef USE_DSHOT
-    switch (motorConfig->motorProtocol) {
-        case MOTOR_PROTOCOL_DSHOT150:
-        case MOTOR_PROTOCOL_DSHOT300:
-        case MOTOR_PROTOCOL_DSHOT600:
-        case MOTOR_PROTOCOL_PROSHOT1000:
-            return true;
-        default:
-            break;
-    }
-#else
-    UNUSED(motorConfig);
-#endif
-    return false;
+    return index < MAX_SUPPORTED_MOTORS ? motorResolved.state[index] : MOTOR_STATE_ABSENT;
 }
 
-motorProtocolFamily_e motorGetProtocolFamily(void)
+uint16_t motorGetUpdateRate(unsigned index)
 {
-    switch (motorConfig()->dev.motorProtocol) {
-#ifdef USE_PWM_OUTPUT
-        case MOTOR_PROTOCOL_PWM:
-        case MOTOR_PROTOCOL_ONESHOT125:
-        case MOTOR_PROTOCOL_ONESHOT42:
-        case MOTOR_PROTOCOL_MULTISHOT:
-        case MOTOR_PROTOCOL_BRUSHED:
-            return MOTOR_PROTOCOL_FAMILY_PWM;
-#endif
-#ifdef USE_DSHOT
-        case MOTOR_PROTOCOL_DSHOT150:
-        case MOTOR_PROTOCOL_DSHOT300:
-        case MOTOR_PROTOCOL_DSHOT600:
-        case MOTOR_PROTOCOL_PROSHOT1000:
-            return MOTOR_PROTOCOL_FAMILY_DSHOT;
-#endif
-#if ENABLE_DRONECAN_ESC
-        case MOTOR_PROTOCOL_DRONECAN:
-            return MOTOR_PROTOCOL_FAMILY_CAN;
-#endif
-        default:
-            break;
-    }
-    return MOTOR_PROTOCOL_FAMILY_UNKNOWN;
+    return index < MAX_SUPPORTED_MOTORS ? motorResolved.rate[index] : 0;
 }
 
+// What a driver's motors must have in common is set by the lowest of them
+const motorConfig_t *motorLeadConfig(uint32_t motorMask)
+{
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorMask & BIT(i)) {
+            return motorConfig(i);
+        }
+    }
+    return motorConfig(0);
+}
+
+// Read from the configuration, so it holds before the motors are set up too
 bool isMotorProtocolDronecan(void)
 {
 #if ENABLE_DRONECAN_ESC
-    return motorConfig()->dev.motorProtocol == MOTOR_PROTOCOL_DRONECAN;
-#else
-    return false;
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorConfig(i)->protocol == MOTOR_PROTOCOL_DRONECAN) {
+            return true;
+        }
+    }
 #endif
+    return false;
 }
+
+#ifdef USE_DSHOT_BITBANG
+bool isDshotBitbangActive(void)
+{
+    return motorResolved.bitbang;
+}
+#endif
 
 void motorPostInit(void)
 {
@@ -247,11 +232,12 @@ void motorPostInit(void)
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if ((motorDevice.motorMask & BIT(i)) && !motorDevice.vTable->isMotorEnabled(i)) {
             motorDevice.motorMask &= ~BIT(i);
+            motorResolved.state[i] = MOTOR_STATE_FAILED;
         }
     }
 }
 
-// The protocol is usable, and every motor the configuration asks for is set up
+// A motor protocol is in use, and every motor the configuration asks for is set up
 bool isMotorProtocolEnabled(void)
 {
     return motorProtocolEnabled && motorDevice.motorMask == motorDevice.configuredMask;
@@ -269,65 +255,112 @@ bool isMotorProtocolBidirDshot(void)
 
 void motorNullDevInit(motorDevice_t *device);
 
-// A motor is configured when it has a pin. DroneCAN and the simulator
-// address motors by number instead, so there every motor is configured.
-static uint32_t motorConfiguredMask(void)
+static void motorResolveInputInit(motorResolveInput_t *in)
 {
-#ifdef SIMULATOR_BUILD
-    const bool pinless = true;
-#else
-    const bool pinless = isMotorProtocolDronecan();
-#endif
-    uint32_t mask = 0;
+    memset(in, 0, sizeof(*in));
 
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
-        if (pinless || motorConfig()->dev.ioTags[i]) {
-            mask |= BIT(i);
-        }
+        const motorConfig_t *param = motorConfig(i);
+        const ioTag_t tag = motorDevConfig(i)->ioTag;
+        const timerHardware_t *timer = tag ? timerGetConfiguredByTag(tag) : NULL;
+
+        in->motor[i].rate = param->rate;
+        in->motor[i].maxPulse = MAX(param->stopPwmPulse, MAX(param->zeroPwmPulse, param->fullPwmPulse));
+        in->motor[i].protocol = param->protocol;
+        in->motor[i].flags = param->flags;
+        in->motor[i].timer = timer ? timerGetTIMNumber(timer) : MOTOR_TIMER_NONE;
+        in->motor[i].hasPin = (tag != IO_TAG_NONE);
+        in->motor[i].nChannel = timer && (timer->output & TIMER_OUTPUT_N_CHANNEL);
     }
 
-    return mask;
+#ifdef SIMULATOR_BUILD
+    in->pinless = true;
+#endif
+#ifdef USE_DSHOT_BITBANG
+    in->bitbangMode = motorDriverConfig()->useDshotBitbang;
+#if defined(STM32F4) || defined(APM32F4)
+    // The DMA2 errata makes bitbang cost the SPI buses their DMA
+    in->bitbangNeedsBidir = true;
+#endif
+#else
+    in->bitbangMode = DSHOT_BITBANG_OFF;
+#endif
+#ifdef USE_DSHOT_DMAR
+    in->burstMode = motorDriverConfig()->useBurstDshot;
+#else
+    in->burstMode = DSHOT_DMAR_OFF;
+#endif
 }
 
 void motorDevInit(void)
 {
-    motorProtocolEnabled = checkMotorProtocolEnabled(&motorConfig()->dev);
-    motorProtocolDshot = checkMotorProtocolDshot(&motorConfig()->dev);
+    static motorResolveInput_t resolveInput;
+
+    motorResolveInputInit(&resolveInput);
+    motorResolve(&resolveInput, &motorResolved);
+
+    uint32_t configuredMask = 0;
+    uint32_t resolvedMask = 0;
+    motorProtocolFamily_e family = MOTOR_PROTOCOL_FAMILY_UNKNOWN;
+
+    motorProtocolEnabled = false;
+
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if (motorProtocolIsEnabled(motorConfig(i)->protocol)) {
+            motorProtocolEnabled = true;
+        }
+        if (motorResolved.state[i] != MOTOR_STATE_ABSENT) {
+            configuredMask |= BIT(i);
+        }
+        if (motorResolved.state[i] == MOTOR_STATE_OK) {
+            resolvedMask |= BIT(i);
+            family = motorResolved.family[i];
+
+            // Keep a rate the hardware forced down, as the servos do
+            if (motorConfig(i)->rate && motorResolved.rate[i] < motorConfig(i)->rate) {
+                motorConfigMutable(i)->rate = motorResolved.rate[i];
+            }
+        }
+    }
+
+    motorProtocolDshot = (family == MOTOR_PROTOCOL_FAMILY_DSHOT);
 
     const motorVTable_t *vTable = NULL;
     uint32_t motorMask = 0;
 
-    motorDevice.configuredMask = 0;
-
-    if (motorProtocolEnabled) {
-        const uint32_t configuredMask = motorConfiguredMask();
-
-        motorDevice.configuredMask = configuredMask;
-
-        do {
+    switch (family) {
 #if ENABLE_DRONECAN_ESC
-            if (isMotorProtocolDronecan()) {
-                motorMask = dronecanMotorDevInit(configuredMask, &vTable);
-                break;
-            }
+        case MOTOR_PROTOCOL_FAMILY_CAN:
+            motorMask = dronecanMotorDevInit(resolvedMask, &vTable);
+            break;
 #endif
-            if (!isMotorProtocolDshot()) {
 #ifdef USE_PWM_OUTPUT
-                motorMask = motorPwmDevInit(configuredMask, &vTable);
+        case MOTOR_PROTOCOL_FAMILY_PWM:
+            motorMask = motorPwmDevInit(resolvedMask, &vTable);
+            break;
 #endif
-                break;
-            }
 #ifdef USE_DSHOT
+        case MOTOR_PROTOCOL_FAMILY_DSHOT:
 #ifdef USE_DSHOT_BITBANG
-            if (isDshotBitbangActive(&motorConfig()->dev)) {
-                motorMask = dshotBitbangDevInit(configuredMask, &vTable);
+            if (motorResolved.bitbang) {
+                motorMask = dshotBitbangDevInit(resolvedMask, &vTable);
                 break;
             }
 #endif
-            motorMask = dshotPwmDevInit(configuredMask, &vTable);
+            motorMask = dshotPwmDevInit(resolvedMask, &vTable);
+            break;
 #endif
-        } while (0);
+        default:
+            break;
     }
+
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        if ((resolvedMask & BIT(i)) && !(motorMask & BIT(i))) {
+            motorResolved.state[i] = MOTOR_STATE_FAILED;
+        }
+    }
+
+    motorDevice.configuredMask = configuredMask;
 
     // if the VTable has been populated, the device is initialized.
     if (vTable) {
@@ -356,11 +389,12 @@ void motorEnable(void)
     }
 }
 
-float motorEstimateMaxRpm(void)
+float motorEstimateMaxRpm(unsigned index)
 {
     // Empirical testing found this relationship between estimated max RPM without props attached
     // (unloaded) and measured max RPM with props attached (loaded), independent from prop size
-    float unloadedMaxRpm = 0.01f * getBatteryVoltage() * motorConfig()->kv;
+    const uint16_t kv = (index < MAX_SUPPORTED_MOTORS) ? motorConfig(index)->kv : 0;
+    float unloadedMaxRpm = 0.01f * getBatteryVoltage() * kv;
     float loadDerating = -5.44e-6f * unloadedMaxRpm + 0.944f;
 
     return unloadedMaxRpm * loadDerating;

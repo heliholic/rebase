@@ -446,13 +446,13 @@ static int32_t getSensorValue(uint8_t sensor)
 #if defined(USE_DSHOT) || defined(USE_ESC_SENSOR)
     case EX_RPM: {
         // Average RPM across all motors with valid ESC telemetry; units: rpm/10 to fit in 22b range
-        int32_t rpmSum10 = 0;
+        float rpmSum = 0;
         uint8_t validCount = 0;
         uint8_t count = getMotorCount();
         for (uint8_t i = 0; i < count; i++) {
             const escSensorData_t *esc = getEscSensorData(i);
             if (esc && esc->dataAge < ESC_DATA_INVALID) {
-                rpmSum10 += esc->rpm;
+                rpmSum += erpmToRpm(i, esc->rpm);
                 validCount++;
             }
         }
@@ -460,7 +460,7 @@ static int32_t getSensorValue(uint8_t sensor)
             return 0;
         }
 
-        return lrintf(erpmToRpm((uint32_t)rpmSum10) / 10.0f / validCount);
+        return lrintf(rpmSum / 10.0f / validCount);
     }
 #endif // end of USE_DSHOT || USE_ESC_SENSOR
 

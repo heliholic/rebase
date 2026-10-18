@@ -68,7 +68,8 @@ extern "C" {
     PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
     PG_REGISTER(gyroConfig_t, gyroConfig, PG_GYRO_CONFIG);
-    PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+    PG_REGISTER_ARRAY(motorConfig_t, MAX_SUPPORTED_MOTORS, motorConfig, PG_MOTOR_CONFIG);
+    PG_REGISTER_ARRAY(motorDevConfig_t, MAX_SUPPORTED_MOTORS, motorDevConfig, PG_MOTOR_DEV_CONFIG);
     PG_REGISTER(pidConfig_t, pidConfig, PG_PID_CONFIG);
     PG_REGISTER(serialConfig_t, serialConfig, PG_SERIAL_CONFIG);
     PG_REGISTER(serialPinConfig_t, serialPinConfig, PG_SERIAL_PIN_CONFIG);
@@ -304,7 +305,6 @@ const serialPortConfig_t *findSerialPortConfig(serialPortFunction_e) { return NU
 void serialRemovePort(serialPortIdentifier_e) { }
 
 void buildAlignmentFromStandardAlignment(alignment_t *, sensor_align_e) { }
-bool checkMotorProtocolDshot(const motorDevConfig_t *) { return false; }
 void validateAndFixServoConfig(void) { }
 void validateAndFixMixerConfig(void) { }
 

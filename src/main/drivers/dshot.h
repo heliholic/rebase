@@ -134,7 +134,7 @@ void updateDshotTelemetryQuality(dshotTelemetryQuality_t *qualityStats, bool pac
 void initDshotTelemetry(const timeUs_t looptimeUs);
 void updateDshotTelemetry(void);
 
-bool isDshotBitbangActive(const motorDevConfig_t *motorDevConfig);
+bool isDshotBitbangActive(void);
 
 uint16_t getDshotErpm(uint8_t motorIndex);
 float getDshotRpm(uint8_t motorIndex);
@@ -146,7 +146,7 @@ bool isDshotMotorTelemetryActive(uint8_t motorIndex);
 bool isDshotTelemetryActive(void);
 void dshotCleanTelemetryData(void);
 
-float erpmToRpm(uint32_t erpm);
+float erpmToRpm(uint8_t motorIndex, uint32_t erpm);
 
 int16_t getDshotTelemetryMotorInvalidPercent(uint8_t motorIndex);
 bool getDshotSensorData(escSensorData_t *dest, int motorIndex);

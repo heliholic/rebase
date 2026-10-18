@@ -660,7 +660,7 @@ void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clear
             case FSSP_DATAID_RPM        :
                 escData = getEscSensorData(ESC_SENSOR_COMBINED);
                 if (escData != NULL) {
-                    smartPortSendPackage(id, lrintf(erpmToRpm(escData->rpm)));
+                    smartPortSendPackage(id, lrintf(erpmToRpm(0, escData->rpm)));
                     *clearToSend = false;
                 }
                 break;
@@ -674,7 +674,7 @@ void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clear
             case FSSP_DATAID_RPM8       :
                 escData = getEscSensorData(id - FSSP_DATAID_RPM1);
                 if (escData != NULL) {
-                    smartPortSendPackage(id, lrintf(erpmToRpm(escData->rpm)));
+                    smartPortSendPackage(id, lrintf(erpmToRpm(id - FSSP_DATAID_RPM1, escData->rpm)));
                     *clearToSend = false;
                 }
                 break;

@@ -71,7 +71,7 @@ uint8_t getMotorCount(void)
 
 int getMotorOutput(uint8_t motor)
 {
-    return lrintf(motorOutput[motor] * 1000);
+    return (motorOutput[motor] < 0) ? MOTOR_STOP : lrintf(motorOutput[motor] * 1000);
 }
 
 int getMotorOverride(uint8_t motor)
@@ -121,15 +121,86 @@ bool areMotorsRunning(void)
 
 /*** Init functions ***/
 
+void INIT_CODE validateAndFixMotorConfig(void)
+{
+    bool proshot = false;
+
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+        motorConfig_t *motor = motorConfigMutable(i);
+
+        if (motor->protocol >= MOTOR_PROTOCOL_COUNT) {
+            motor->protocol = MOTOR_PROTOCOL_DISABLED;
+        }
+
+        const bool dshot = motorProtocolIsDshot(motor->protocol);
+
+        // Telemetry rides on DShot, and extended telemetry on top of that
+        motor->flags &= MOTOR_FLAGS_ALL;
+        if (motor->flags & MOTOR_FLAG_EDT_FORCE) {
+            motor->flags |= MOTOR_FLAG_EDT;
+        }
+        // Whether the reply can be captured depends on the pin and driver,
+        // which the motor device checks when it sets the motors up
+#ifndef USE_DSHOT_TELEMETRY
+        motor->flags &= ~MOTOR_FLAG_BIDIR;
+#endif
+        if (!dshot || !(motor->flags & MOTOR_FLAG_BIDIR)) {
+            motor->flags &= ~(MOTOR_FLAG_BIDIR | MOTOR_FLAG_EDT | MOTOR_FLAG_EDT_FORCE);
+        }
+
+        const uint16_t pulseMin = motorProtocolMinPulse(motor->protocol);
+        const uint16_t pulseMax = motorProtocolMaxPulse(motor->protocol);
+
+        // The stop pulse may sit anywhere, usually at or below zero throttle
+        motor->stopPwmPulse = constrain(motor->stopPwmPulse, pulseMin, pulseMax);
+        motor->zeroPwmPulse = constrain(motor->zeroPwmPulse, pulseMin, pulseMax);
+        motor->fullPwmPulse = constrain(motor->fullPwmPulse, pulseMin, pulseMax);
+        if (motor->zeroPwmPulse >= motor->fullPwmPulse) {
+            motor->zeroPwmPulse = constrain(DEFAULT_MOTOR_ZERO_PULSE, pulseMin, pulseMax);
+            motor->fullPwmPulse = constrain(DEFAULT_MOTOR_FULL_PULSE, pulseMin, pulseMax);
+        }
+
+        // 0 leaves the rate to the protocol
+        if (motor->rate) {
+            const uint16_t rateMax = motorProtocolMaxRate(motor->protocol, motor->flags & MOTOR_FLAG_BIDIR);
+            motor->rate = constrain(motor->rate, MIN(MOTOR_RATE_MIN, rateMax), rateMax);
+        }
+
+        // Poles come in pairs
+        motor->poles &= ~1;
+
+        motor->kv = MIN(motor->kv, MOTOR_KV_MAX);
+
+        if (motor->protocol == MOTOR_PROTOCOL_PROSHOT1000) {
+            proshot = true;
+        }
+    }
+
+#ifdef USE_DSHOT_BITBANG
+    // Bitbang has no ProShot timing
+    if (proshot && motorDriverConfig()->useDshotBitbang == DSHOT_BITBANG_ON) {
+        motorDriverConfigMutable()->useDshotBitbang = DSHOT_BITBANG_AUTO;
+    }
+#else
+    UNUSED(proshot);
+#endif
+}
+
 void INIT_CODE motorInit(void)
 {
+    // Every motor starts stopped, with no override
+    for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++)
+        motorOutput[i] = MOTOR_STOP;
+
+    resetMotorOverride();
+
     motorDevInit();
 }
 
 void motorStop(void)
 {
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++)
-        motorOutput[i] = 0;
+        motorOutput[i] = MOTOR_STOP;
 
     motorWriteAll(motorOutput);
 
@@ -147,10 +218,16 @@ void motorUpdate(timeUs_t currentTimeUs)
             if (cmp32(currentTimeUs, motorOverrideTimeout) > 0)
                 resetMotorOverride();
         }
-        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++)
-            motorOutput[i] = slewUpLimit(motorOutput[i],
-                constrain(motorOverride[i], MOTOR_OVERRIDE_MIN, MOTOR_OVERRIDE_MAX) / 1000.0f,
-                MOTOR_OVERRIDE_RATE * pidGetDT());
+        // Disarmed, a motor is stopped unless overridden; an override
+        // spins it up from zero throttle
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if (isfinite(motorOverride[i]))
+                motorOutput[i] = slewUpLimit(fmaxf(motorOutput[i], 0),
+                    constrainf(motorOverride[i], 0, 1),
+                    MOTOR_OVERRIDE_RATE * pidGetDT());
+            else
+                motorOutput[i] = MOTOR_STOP;
+        }
     }
 
     motorWriteAll(motorOutput);

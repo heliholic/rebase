@@ -35,6 +35,7 @@
 #include "pwm_output_dshot_shared.h"
 #include "drivers/dshot.h"
 #include "dshot_dpwm.h"
+#include "drivers/motor.h"
 #include "drivers/motor_impl.h"
 
 #include "pg/motor.h"
@@ -82,7 +83,7 @@ FAST_CODE_NOINLINE uint8_t loadDmaBufferProshot(uint32_t *dmaBuffer, int stride,
     return PROSHOT_DMA_BUFFER_SIZE;
 }
 
-uint32_t getDshotHz(motorProtocolTypes_e pwmProtocolType)
+uint32_t getDshotHz(motorProtocol_e pwmProtocolType)
 {
     switch (pwmProtocolType) {
     case(MOTOR_PROTOCOL_PROSHOT1000):
@@ -166,15 +167,18 @@ static const motorVTable_t dshotPwmVTable = {
 
 uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 {
-    const motorDevConfig_t *motorDevConfig = &motorConfig()->dev;
+    // All DShot motors share the protocol and telemetry of the lowest one
+    const motorConfig_t *lead = motorLeadConfig(motorMask);
+    const uint8_t protocol = lead->protocol;
+    const bool bidir = (lead->flags & MOTOR_FLAG_BIDIR);
 
     *vTable = &dshotPwmVTable;
     dshotMotorMask = 0;
 #ifdef USE_DSHOT_TELEMETRY
-    useDshotTelemetry = motorDevConfig->useDshotTelemetry;
+    useDshotTelemetry = bidir;
 #endif
 
-    switch (motorDevConfig->motorProtocol) {
+    switch (protocol) {
     case MOTOR_PROTOCOL_PROSHOT1000:
         loadDmaBuffer = loadDmaBufferProshot;
         break;
@@ -183,25 +187,27 @@ uint32_t dshotPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
     case MOTOR_PROTOCOL_DSHOT150:
         loadDmaBuffer = loadDmaBufferDshot;
 #ifdef USE_DSHOT_DMAR
-        useBurstDshot = motorDevConfig->useBurstDshot == DSHOT_DMAR_ON ||
-            (motorDevConfig->useBurstDshot == DSHOT_DMAR_AUTO && !motorDevConfig->useDshotTelemetry);
+        useBurstDshot = motorDriverConfig()->useBurstDshot == DSHOT_DMAR_ON ||
+            (motorDriverConfig()->useBurstDshot == DSHOT_DMAR_AUTO && !bidir);
 #endif
         break;
     }
 
     for (int motorIndex = 0; motorIndex < MAX_SUPPORTED_MOTORS; motorIndex++) {
         if (motorMask & BIT(motorIndex)) {
-            const ioTag_t tag = motorDevConfig->ioTags[motorIndex];
+            const ioTag_t tag = motorDevConfig(motorIndex)->ioTag;
             const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
             // A motor whose pin has no free timer or DMA stays down; the others carry on
             if (timerHardware) {
+                const bool inverted = (motorConfig(motorIndex)->flags & MOTOR_FLAG_INVERTED);
+
                 IOInit(IOGetByTag(tag), OWNER_MOTOR, RESOURCE_INDEX(motorIndex));
 
                 if (pwmDshotMotorHardwareConfig(timerHardware,
                     motorIndex,
-                    motorDevConfig->motorProtocol,
-                    motorDevConfig->motorInversion ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
+                    protocol,
+                    inverted ? timerHardware->output ^ TIMER_OUTPUT_INVERTED : timerHardware->output)) {
                     dshotMotorMask |= BIT(motorIndex);
                 }
             }

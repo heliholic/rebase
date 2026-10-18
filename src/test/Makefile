@@ -186,10 +186,12 @@ cli_unittest_SRC := \
 		$(USER_DIR)/pg/feature.c \
 		$(USER_DIR)/pg/mixer.c \
 		$(TEST_DIR)/mixer_stubs.c \
-		$(TEST_DIR)/servo_stubs.c
+		$(TEST_DIR)/servo_stubs.c \
+		$(USER_DIR)/drivers/motor_resolve.c
 
 cli_unittest_DEFINES := \
 		USE_CLI= \
+		USE_DSHOT= \
 		SystemCoreClock=1000000
 
 common_filter_unittest_SRC := \
@@ -306,6 +308,12 @@ trig_unittest_SRC := \
 		$(USER_DIR)/common/trig.c
 
 
+motor_resolve_unittest_SRC := \
+		$(USER_DIR)/drivers/motor_resolve.c
+
+motor_resolve_unittest_DEFINES := \
+		USE_DSHOT=
+
 motor_output_unittest_SRC := \
 		$(USER_DIR)/common/atomic.c \
 		$(USER_DIR)/drivers/dshot.c
@@ -323,6 +331,7 @@ msp_serial_unittest_DEFINES := \
 
 config_unittest_SRC := \
 		$(USER_DIR)/config/config.c \
+		$(USER_DIR)/drivers/motor_resolve.c \
 		$(USER_DIR)/common/crc.c \
 		$(USER_DIR)/common/streambuf.c \
 		$(USER_DIR)/fc/feature.c \

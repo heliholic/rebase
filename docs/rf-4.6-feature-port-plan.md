@@ -270,7 +270,7 @@ first arming.
 | Item | RF 4.6 source | Here now |
 | --- | --- | --- |
 | Timer-capture frequency input with pins, pull, edge and minimum frequency | `4dde8fc18e`, `c23d33a321`, `89f40ce7f6`, `643af66566`, `d36438a894` (#152), `5b0cc3f408` (#452) | absent |
-| Per-motor pole count (default 0, input off), RPM low-pass, RPM correction factor | `8872634461`, `56bc02cc9d`, `7ffc8bf4cd` (#333) | absent: one upstream `motorPoleCount` and `kv` |
+| Per-motor pole count (default 0, input off), RPM low-pass, RPM correction factor | `8872634461`, `56bc02cc9d`, `7ffc8bf4cd` (#333) | partial: pole count per motor in `motorConfig` (0 means no RPM, default 14); no RPM low-pass or correction factor |
 | Main and tail gear ratios; headspeed and tail speed | `099f71dec5`, `fbc69ec414` | absent |
 | RPM source per motor: frequency input, bidirectional DSHOT, ESC telemetry, with a fast-source flag | `cd21a7b839` | absent: upstream DSHOT telemetry decode exists |
 | `ARMING_DISABLED_RPM_SIGNAL` | `c4f5feba10` | absent |

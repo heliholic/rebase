@@ -622,13 +622,13 @@ static void resetBuffers(escSerial_t *escSerial)
     escSerial->port.txBufferHead = 0;
 }
 
-static serialPort_t *openEscSerial(const motorDevConfig_t *motorConfig, escSerialPortIndex_e portIndex, serialReceiveCallbackPtr callback, uint16_t output, uint32_t baud, portOptions_e options, uint8_t mode)
+static serialPort_t *openEscSerial(const motorDevConfig_t *motors, escSerialPortIndex_e portIndex, serialReceiveCallbackPtr callback, uint16_t output, uint32_t baud, portOptions_e options, uint8_t mode)
 {
     escSerial_t *escSerial = &(escSerialPorts[portIndex]);
 
     if (mode != PROTOCOL_KISSALL) {
 
-        const ioTag_t tag = motorConfig->ioTags[output];
+        const ioTag_t tag = motors[output].ioTag;
         const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, 0);
 
         if (timerHardware == NULL) {
@@ -709,7 +709,7 @@ static serialPort_t *openEscSerial(const motorDevConfig_t *motorConfig, escSeria
         memset(&escOutputs, 0, sizeof(escOutputs));
         for (volatile uint8_t i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
             if (motorIsMotorEnabled(i) && motorGetIo(i) != IO_NONE) {
-                const ioTag_t tag = motorConfig->ioTags[i];
+                const ioTag_t tag = motors[i].ioTag;
                 if (tag != IO_TAG_NONE) {
                     const timerHardware_t *timerHardware = timerAllocate(tag, OWNER_MOTOR, 0);
                     if (timerHardware) {
@@ -907,7 +907,7 @@ static bool processExitCommand(uint8_t c)
     return false;
 }
 
-bool escEnablePassthrough(serialPort_t *escPassthroughPort, const motorDevConfig_t *motorConfig, uint16_t escIndex, uint8_t mode)
+bool escEnablePassthrough(serialPort_t *escPassthroughPort, const motorDevConfig_t *motors, uint16_t escIndex, uint8_t mode)
 {
     bool exitEsc = false;
     uint8_t motor_output = escIndex;
@@ -936,7 +936,7 @@ bool escEnablePassthrough(serialPort_t *escPassthroughPort, const motorDevConfig
         return false;
     }
 
-    escPort = openEscSerial(motorConfig, ESCSERIAL1, NULL, motor_output, escBaudrate, 0, mode);
+    escPort = openEscSerial(motors, ESCSERIAL1, NULL, motor_output, escBaudrate, 0, mode);
 
     if (!escPort) {
         return false;

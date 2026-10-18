@@ -319,7 +319,7 @@ void updateArmingStatus(void)
 #endif
 
 #ifdef USE_DSHOT_BITBANG
-        if (isDshotBitbangActive(&motorConfig()->dev) && dshotBitbangGetStatus() != DSHOT_BITBANG_STATUS_OK) {
+        if (isDshotBitbangActive() && dshotBitbangGetStatus() != DSHOT_BITBANG_STATUS_OK) {
             setArmingDisabled(ARMING_DISABLED_DSHOT_BITBANG);
         } else {
             unsetArmingDisabled(ARMING_DISABLED_DSHOT_BITBANG);
@@ -440,8 +440,15 @@ void tryArm(void)
             // Try to activate extended DSHOT telemetry only if no esc sensor exists and dshot telemetry is active
             if (!featureIsEnabled(FEATURE_ESC_SENSOR) && useDshotTelemetry) {
                 dshotCleanTelemetryData();
-                if (motorConfig()->dev.useDshotEdt) {
-                    dshotCommandWrite(ALL_MOTORS, getMotorCount(), DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE, DSHOT_CMD_TYPE_INLINE);
+
+                uint32_t edtMotorMask = 0;
+                for (int i = 0; i < getMotorCount(); i++) {
+                    if (motorConfig(i)->flags & MOTOR_FLAG_EDT) {
+                        edtMotorMask |= BIT(i);
+                    }
+                }
+                if (edtMotorMask) {
+                    dshotCommandWriteMask(edtMotorMask, DSHOT_CMD_EXTENDED_TELEMETRY_ENABLE, DSHOT_CMD_TYPE_INLINE);
                 }
             }
 #endif

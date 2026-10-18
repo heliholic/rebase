@@ -39,4 +39,4 @@ typedef enum {
     PROTOCOL_COUNT
 } escProtocol_e;
 
-bool escEnablePassthrough(serialPort_t *escPassthroughPort, const motorDevConfig_t *motorConfig, uint16_t escIndex, uint8_t mode);
+bool escEnablePassthrough(serialPort_t *escPassthroughPort, const motorDevConfig_t *motors, uint16_t escIndex, uint8_t mode);

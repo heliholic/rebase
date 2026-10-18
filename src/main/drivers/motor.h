@@ -27,6 +27,7 @@
 #include "pg/motor.h"
 
 #include "drivers/motor_types.h"
+#include "drivers/motor_resolve.h"
 
 void motorPostInit(void);
 void motorWriteAll(float *values);
@@ -36,10 +37,11 @@ void motorDevInit(void);
 uint32_t motorDeviceMask(void);
 
 const motorVTable_t *motorGetVTable(void);
-bool checkMotorProtocolEnabled(const motorDevConfig_t *motorConfig);
-bool checkMotorProtocolDshot(const motorDevConfig_t *motorConfig);
 
-motorProtocolFamily_e motorGetProtocolFamily(void);
+motorProtocolFamily_e motorGetProtocolFamily(unsigned index);
+motorState_e motorGetState(unsigned index);
+uint16_t motorGetUpdateRate(unsigned index);
+const motorConfig_t *motorLeadConfig(uint32_t motorMask);
 
 bool isMotorProtocolDshot(void);
 bool isMotorProtocolBidirDshot(void);
@@ -48,7 +50,7 @@ bool isMotorProtocolEnabled(void);
 
 void motorDisable(void);
 void motorEnable(void);
-float motorEstimateMaxRpm(void);
+float motorEstimateMaxRpm(unsigned index);
 bool motorIsEnabled(void);
 bool motorIsMotorEnabled(unsigned index);
 bool motorIsMotorIdle(unsigned index);

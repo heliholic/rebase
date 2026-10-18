@@ -122,12 +122,13 @@ terms; treating the whole group as a collection is not. Around 20 call sites of
 currently half in an array PG (`servoParams`, already
 `PG_DECLARE_ARRAY(servoParam_t, MAX_SUPPORTED_SERVOS, ...)`) and half in a
 singleton's nested dev struct, both indexed by the same servo number. Moving
-`ioTag` into `servoParam_t` is the only conversion in this document that needs
-no new group and deletes a `PG_MAX_*` outright.
+`ioTag` into `servoParam_t` needs no new group and deletes a `PG_MAX_*`
+outright.
 
-**`motorConfig.dev.ioTags[PG_MAX_MOTORS]`** is the same shape, but there is no
-per-motor array PG to move into, so it would mean creating one for a single
-member. Weaker on clarity grounds.
+**Motors** no longer have this split. The pins are an array group of their
+own, `motorDevConfig`, beside the per-motor settings in `motorConfig`; both
+are `MAX_SUPPORTED_MOTORS` long, so there is no `PG_MAX_MOTORS`. Only the
+settings every motor's driver shares stay in a singleton, `motorDriverConfig`.
 
 **`adcConfig`** is worth reading as a *contrast*. It has
 `dmaopt[PG_MAX_ADC_DEVICES]` — a genuine per-device collection, tiny — sitting

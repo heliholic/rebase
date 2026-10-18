@@ -47,7 +47,7 @@ extern FAST_DATA_ZERO_INIT loadDmaBufferFn *loadDmaBuffer;
 uint8_t loadDmaBufferDshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
 uint8_t loadDmaBufferProshot(uint32_t *dmaBuffer, int stride, uint16_t packet);
 
-uint32_t getDshotHz(motorProtocolTypes_e pwmProtocolType);
+uint32_t getDshotHz(motorProtocol_e pwmProtocolType);
 
 /* Motor DMA related, moved from pwm_output.h */
 
@@ -156,7 +156,7 @@ typedef struct motorDmaOutput_s {
 motorDmaOutput_t *getMotorDmaOutput(unsigned index);
 
 void pwmWriteDshotInt(uint8_t index, uint16_t value);
-bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t motorIndex, motorProtocolTypes_e pwmProtocolType, uint8_t output);
+bool pwmDshotMotorHardwareConfig(const timerHardware_t *timerHardware, uint8_t motorIndex, motorProtocol_e pwmProtocolType, uint8_t output);
 #ifdef USE_DSHOT_TELEMETRY
 bool pwmTelemetryDecode(void);
 #endif

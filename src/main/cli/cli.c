@@ -1830,7 +1830,7 @@ RAM_CODE static void cliSerialPassthrough(const char *cmdName, char *cmdline)
         motorDisable();
         delay(5);
         for (unsigned i = 0; i < getMotorCount(); i++) {
-            const ioTag_t tag = motorConfig()->dev.ioTags[i];
+            const ioTag_t tag = motorDevConfig(i)->ioTag;
             if (tag) {
                 const timerHardware_t *timerHardware = timerGetConfiguredByTag(tag);
                 if (timerHardware) {
@@ -3828,18 +3828,71 @@ RAM_CODE static void cliEscPassthrough(const char *cmdName, char *cmdline)
         pch = strtok_r(NULL, " ", &saveptr);
     }
 
-    if (!escEnablePassthrough(cliPort, &motorConfig()->dev, escIndex, mode)) {
+    if (!escEnablePassthrough(cliPort, motorDevConfig(0), escIndex, mode)) {
         cliPrintErrorLinef(cmdName, "Error starting ESC connection");
     }
 }
 #endif
 
+static bool motorConfigEqual(const motorConfig_t *a, const motorConfig_t *b)
+{
+    return a->protocol == b->protocol && a->rate == b->rate &&
+        a->stopPwmPulse == b->stopPwmPulse && a->zeroPwmPulse == b->zeroPwmPulse &&
+        a->fullPwmPulse == b->fullPwmPulse &&
+        a->poles == b->poles && a->kv == b->kv && a->flags == b->flags;
+}
+
+#define MOTOR_CONFIG_FORMAT "motor %u %s %u %u %u %u %u %u%s%s%s"
+#define MOTOR_CONFIG_ARGS(index, motor) \
+    (index) + 1, motorProtocolName((motor)->protocol), (motor)->rate, \
+    (motor)->stopPwmPulse, (motor)->zeroPwmPulse, (motor)->fullPwmPulse, (motor)->poles, (motor)->kv, \
+    ((motor)->flags & MOTOR_FLAG_INVERTED) ? " INVERTED" : "", \
+    ((motor)->flags & MOTOR_FLAG_BIDIR) ? " BIDIR" : "", \
+    ((motor)->flags & MOTOR_FLAG_EDT_FORCE) ? " EDT_FORCE" : ((motor)->flags & MOTOR_FLAG_EDT) ? " EDT" : ""
+
+static void printMotor(dumpFlags_t dumpMask, const motorConfig_t *motorConfig, const motorConfig_t *defaultMotorParams, const char *headingStr)
+{
+    headingStr = cliPrintSectionHeading(dumpMask, false, headingStr);
+
+    for (int i = 0; i < getMotorCount(); i++) {
+        const motorConfig_t *motor = &motorConfig[i];
+        bool equalsDefault = false;
+        if (defaultMotorParams) {
+            const motorConfig_t *defaultMotor = &defaultMotorParams[i];
+            equalsDefault = motorConfigEqual(motor, defaultMotor);
+            headingStr = cliPrintSectionHeading(dumpMask, !equalsDefault, headingStr);
+            cliDefaultPrintLinef(dumpMask, equalsDefault, MOTOR_CONFIG_FORMAT, MOTOR_CONFIG_ARGS(i, defaultMotor));
+        }
+        cliDumpPrintLinef(dumpMask, equalsDefault, MOTOR_CONFIG_FORMAT, MOTOR_CONFIG_ARGS(i, motor));
+    }
+}
+
+static const char * const motorStateNames[MOTOR_STATE_COUNT] = {
+    [MOTOR_STATE_ABSENT]        = "absent",
+    [MOTOR_STATE_OK]            = "ok",
+    [MOTOR_STATE_UNSUPPORTED]   = "unsupported protocol",
+    [MOTOR_STATE_NO_TIMER]      = "no timer on pin",
+    [MOTOR_STATE_TIMER_CLASH]   = "timer shared with an incompatible motor",
+    [MOTOR_STATE_GROUP_CLASH]   = "differs from an earlier motor on its driver",
+    [MOTOR_STATE_NO_BIDIR]      = "bidirectional DShot not possible on this pin or driver",
+    [MOTOR_STATE_FAILED]        = "driver failed",
+};
+
 static void printMotorStatus(uint8_t motor)
 {
-    if (hasMotorOverride(motor))
-        cliPrintLinef("motor %d: %d [%d]", motor + 1, getMotorOutput(motor), getMotorOverride(motor));
-    else
-        cliPrintLinef("motor %d: %d", motor + 1, getMotorOutput(motor));
+    const motorState_e state = motorGetState(motor);
+    const char *stateName = (state < MOTOR_STATE_COUNT) ? motorStateNames[state] : "?";
+    char override[16] = "";
+    char rate[16] = "";
+
+    if (hasMotorOverride(motor)) {
+        tfp_sprintf(override, " [%d]", getMotorOverride(motor));
+    }
+    if (motorGetUpdateRate(motor)) {
+        tfp_sprintf(rate, " %uHz", motorGetUpdateRate(motor));
+    }
+
+    cliPrintLinef("motor %d: %d%s %s%s", motor + 1, getMotorOutput(motor), override, stateName, rate);
 }
 
 static void printMotorOverride(uint8_t motor)
@@ -3850,9 +3903,67 @@ static void printMotorOverride(uint8_t motor)
         cliPrintLinef("motor override %d off", motor + 1);
 }
 
+STATIC_UNIT_TESTED bool parseMotorConfig(char **args, int count, motorConfig_t *motor)
+{
+    enum { INDEX = 0, PROTOCOL, RATE, STOP, ZERO, FULL, POLES, KV, FLAGS };
+
+    const int protocol = motorProtocolFromName(args[PROTOCOL]);
+
+    uint16_t flags = 0;
+    for (int i = FLAGS; i < count; i++) {
+        if (strcasecmp(args[i], "INVERTED") == 0) {
+            flags |= MOTOR_FLAG_INVERTED;
+        } else if (strcasecmp(args[i], "BIDIR") == 0) {
+            flags |= MOTOR_FLAG_BIDIR;
+        } else if (strcasecmp(args[i], "EDT") == 0) {
+            flags |= MOTOR_FLAG_EDT;
+        } else if (strcasecmp(args[i], "EDT_FORCE") == 0) {
+            flags |= MOTOR_FLAG_EDT | MOTOR_FLAG_EDT_FORCE;
+        } else {
+            return false;
+        }
+    }
+
+    if (protocol < 0) {
+        return false;
+    }
+
+    const bool dshot = motorProtocolIsDshot(protocol);
+    const bool bidir = (flags & MOTOR_FLAG_BIDIR);
+    const int rate = atoi(args[RATE]);
+    const int rateMax = motorProtocolMaxRate(protocol, bidir);
+    const int stopPulse = atoi(args[STOP]);
+    const int zeroPulse = atoi(args[ZERO]);
+    const int fullPulse = atoi(args[FULL]);
+    const int pulseMin = motorProtocolMinPulse(protocol);
+    const int pulseMax = motorProtocolMaxPulse(protocol);
+    const int poles = atoi(args[POLES]);
+    const int kv = atoi(args[KV]);
+
+    if ((rate != 0 && (rate < MOTOR_RATE_MIN || rate > rateMax)) ||
+        stopPulse < pulseMin || stopPulse > pulseMax ||
+        zeroPulse < pulseMin || fullPulse > pulseMax || zeroPulse >= fullPulse ||
+        poles < 0 || poles > MOTOR_POLES_MAX || (poles & 1) ||
+        kv < 0 || kv > MOTOR_KV_MAX ||
+        (bidir && !dshot) || ((flags & MOTOR_FLAG_EDT) && !bidir)) {
+        return false;
+    }
+
+    motor->protocol = protocol;
+    motor->rate = rate;
+    motor->stopPwmPulse = stopPulse;
+    motor->zeroPwmPulse = zeroPulse;
+    motor->fullPwmPulse = fullPulse;
+    motor->poles = poles;
+    motor->kv = kv;
+    motor->flags = flags;
+
+    return true;
+}
+
 static void cliMotor(const char *cmdName, char *cmdline)
 {
-    enum { FUNC = 0, ARGS_MAX = 4 };
+    enum { FUNC = 0, ARGS_MAX = 11 };
     char *args[ARGS_MAX];
     char *saveptr, *ptr;
     int count = 0;
@@ -3864,9 +3975,7 @@ static void cliMotor(const char *cmdName, char *cmdline)
     }
 
     if (count == 0) {
-        for (int i = 0; i < getMotorCount(); i++) {
-            printMotorStatus(i);
-        }
+        printMotor(DUMP_MASTER, motorConfig(0), NULL, NULL);
     }
     else if (strcasecmp(args[FUNC], "status") == 0) {
         for (int i = 0; i < getMotorCount(); i++) {
@@ -3918,6 +4027,18 @@ static void cliMotor(const char *cmdName, char *cmdline)
         else {
             cliShowInvalidArgumentCountError(cmdName);
         }
+    }
+    else if (count >= 8) {
+        const int index = atoi(args[FUNC]) - 1;
+        motorConfig_t motor;
+
+        if (index < 0 || index >= getMotorCount() || !parseMotorConfig(args, count, &motor)) {
+            cliShowArgumentRangeError(cmdName, NULL, 0, 0);
+            return;
+        }
+
+        *motorConfigMutable(index) = motor;
+        cliPrintLinef(MOTOR_CONFIG_FORMAT, MOTOR_CONFIG_ARGS(index, motorConfig(index)));
     }
     else {
         cliShowParseError(cmdName);
@@ -5765,7 +5886,7 @@ const cliResourceValue_t resourceTable[] = {
 #if defined(USE_BEEPER)
     DEFS( OWNER_BEEPER,        PG_BEEPER_DEV_CONFIG, beeperDevConfig_t, ioTag ),
 #endif
-    DEFA( OWNER_MOTOR,         PG_MOTOR_CONFIG, motorConfig_t, dev.ioTags[0], MAX_SUPPORTED_MOTORS ),
+    DEFW( OWNER_MOTOR,         PG_MOTOR_DEV_CONFIG, motorDevConfig_t, ioTag, MAX_SUPPORTED_MOTORS ),
 #if defined(USE_SERVOS)
     DEFA( OWNER_SERVO,         PG_SERVO_CONFIG, servoConfig_t, dev.ioTags[0], MAX_SUPPORTED_SERVOS ),
 #endif
@@ -7066,6 +7187,10 @@ static void printConfig(const char *cmdName, char *cmdline, bool doDiff)
             printServo(dumpMask, servoParamsCopy(0), servoParams(0), "servo");
 #endif
 
+#ifdef USE_MOTOR
+            printMotor(dumpMask, motorConfigCopy(0), motorConfig(0), "motor");
+#endif
+
             printMixerInputs(dumpMask, mixerInputsCopy(0), mixerInputs(0), "mixer input");
 
             printMixerRules(dumpMask, mixerRulesCopy(0), mixerRules(0), "mixer rule");
@@ -7369,10 +7494,12 @@ const clicmd_t cmdTable[] = {
     CLI_COMMAND_DEF("mode_color", "configure mode and special colors", NULL, cliModeColor),
 #endif
     CLI_COMMAND_DEF("motor",  "configure motors",
+                    "<index> <protocol> <rate> <stop> <zero> <full> <poles> <kv> [INVERTED] [BIDIR] [EDT|EDT_FORCE]\r\n\t"
                     "status\r\n\t"
                     "override\r\n\t"
                     "override off\r\n\t"
-                    "override <index> <value>|off",
+                    "override <index>|all <value>|off\r\n\t"
+                    "rate 0 is the protocol default; a DRONECAN motor is ESC index <index>-1",
                     cliMotor),
 #ifdef USE_USB_MSC
 #ifdef USE_RTC_TIME

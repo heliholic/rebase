@@ -66,9 +66,6 @@
 // Chip Unique ID on X32M7xx
 extern uint32_t systemUniqueId[3];
 
-#define DSHOT_BITBANGED_TIMER_ATIM1 DSHOT_BITBANGED_TIMER_TIM1
-#define DSHOT_BITBANGED_TIMER_ATIM2 DSHOT_BITBANGED_TIMER_TIM8
-
 #define U_ID_0 (systemUniqueId[0])
 #define U_ID_1 (systemUniqueId[1])
 #define U_ID_2 (systemUniqueId[2])

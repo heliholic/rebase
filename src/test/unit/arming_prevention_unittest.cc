@@ -74,7 +74,7 @@ extern "C" {
     PG_REGISTER(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG);
     PG_REGISTER(telemetryConfig_t, telemetryConfig, PG_TELEMETRY_CONFIG);
     PG_REGISTER(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG);
-    PG_REGISTER(motorConfig_t, motorConfig, PG_MOTOR_CONFIG);
+    PG_REGISTER_ARRAY(motorConfig_t, MAX_SUPPORTED_MOTORS, motorConfig, PG_MOTOR_CONFIG);
     PG_REGISTER(imuConfig_t, imuConfig, PG_IMU_CONFIG);
     PG_REGISTER(gpsConfig_t, gpsConfig, PG_GPS_CONFIG);
     PG_REGISTER(positionConfig_t, positionConfig, PG_POSITION);

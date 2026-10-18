@@ -220,7 +220,7 @@ static uint8_t mspPassthroughArgument;
 #if defined(USE_ESCSERIAL) && defined(USE_SERIAL_4WAY_BLHELI_INTERFACE)
 RAM_CODE static void mspEscPassthroughFn(serialPort_t *serialPort)
 {
-    escEnablePassthrough(serialPort, &motorConfig()->dev, mspPassthroughArgument, mspPassthroughMode);
+    escEnablePassthrough(serialPort, motorDevConfig(0), mspPassthroughArgument, mspPassthroughMode);
 }
 #endif
 
@@ -664,7 +664,13 @@ RAM_CODE static bool mspCommonProcessOutCommand(int16_t cmdMSP, sbuf_t *dst, msp
         }
 #endif
 
-        if (!checkMotorProtocolEnabled(&motorConfig()->dev)) {
+        bool motorProtocolEnabled = false;
+        for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+            if (motorProtocolIsEnabled(motorConfig(i)->protocol)) {
+                motorProtocolEnabled = true;
+            }
+        }
+        if (!motorProtocolEnabled) {
             configurationProblems |= BIT(PROBLEM_MOTOR_PROTOCOL_DISABLED);
         }
 
@@ -993,7 +999,7 @@ case MSP_NAME:
             if (featureIsEnabled(FEATURE_ESC_SENSOR)) {
                 escSensorData_t *escData = getEscSensorData(i);
                 if (!rpmDataAvailable) {  // We want DSHOT telemetry RPM data (if available) to have precedence
-                    rpm = lrintf(erpmToRpm(escData->rpm));
+                    rpm = lrintf(erpmToRpm(i, escData->rpm));
                     rpmDataAvailable = true;
                 }
                 escTemperature = escData->temperature;
@@ -1121,12 +1127,12 @@ case MSP_NAME:
 
     case MSP_MOTOR_CONFIG:
         sbufWriteU16(dst, 0); // was minthrottle until after 4.5
-        sbufWriteU16(dst, motorConfig()->maxthrottle);
-        sbufWriteU16(dst, motorConfig()->mincommand);
+        sbufWriteU16(dst, 0); // was maxthrottle, now per motor
+        sbufWriteU16(dst, 0); // was mincommand, now per motor
 
         // API 1.42
         sbufWriteU8(dst, getMotorCount());
-        sbufWriteU8(dst, motorConfig()->motorPoleCount);
+        sbufWriteU8(dst, 0); // was motorPoleCount, now per motor
 #ifdef USE_DSHOT_TELEMETRY
         sbufWriteU8(dst, useDshotTelemetry);
 #else
@@ -1446,12 +1452,12 @@ case MSP_NAME:
     case MSP_ADVANCED_CONFIG:
         sbufWriteU8(dst, 1);  // was gyroConfig()->gyro_sync_denom - removed in API 1.43
         sbufWriteU8(dst, pidConfig()->pid_process_denom);
-        sbufWriteU8(dst, motorConfig()->dev.useContinuousUpdate);
-        sbufWriteU8(dst, motorConfig()->dev.motorProtocol);
-        sbufWriteU16(dst, motorConfig()->dev.motorPwmRate);
+        sbufWriteU8(dst, 0); // was useContinuousUpdate, now set by the protocol
+        sbufWriteU8(dst, 0); // was motorProtocol, now per motor
+        sbufWriteU16(dst, 0); // was motorPwmRate, now per motor
         sbufWriteU16(dst, 0); // was motorConfig()->motorIdle
         sbufWriteU8(dst, 0); // DEPRECATED: gyro_use_32kHz
-        sbufWriteU8(dst, motorConfig()->dev.motorInversion);
+        sbufWriteU8(dst, 0); // was motorInversion, now per motor
         sbufWriteU8(dst, 0); // deprecated gyro_to_use
         sbufWriteU8(dst, gyroConfig()->gyro_high_fsr);
         sbufWriteU8(dst, gyroConfig()->gyroMovementCalibrationThreshold);
@@ -2127,17 +2133,13 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
 
     case MSP_SET_MOTOR_CONFIG:
         sbufReadU16(src);   // minthrottle deprecated in 4.6
-        motorConfigMutable()->maxthrottle = sbufReadU16(src);
-        motorConfigMutable()->mincommand = sbufReadU16(src);
+        sbufReadU16(src);   // was maxthrottle, now per motor
+        sbufReadU16(src);   // was mincommand, now per motor
 
         // version 1.42
         if (sbufBytesRemaining(src) >= 2) {
-            motorConfigMutable()->motorPoleCount = sbufReadU8(src);
-#if defined(USE_DSHOT_TELEMETRY)
-            motorConfigMutable()->dev.useDshotTelemetry = sbufReadU8(src);
-#else
-            sbufReadU8(src);
-#endif
+            sbufReadU8(src);    // was motorPoleCount, now per motor
+            sbufReadU8(src);    // was useDshotTelemetry, now per motor
         }
         break;
 
@@ -2209,9 +2211,9 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
     case MSP_SET_ADVANCED_CONFIG:
         sbufReadU8(src); // was gyroConfigMutable()->gyro_sync_denom - removed in API 1.43
         pidConfigMutable()->pid_process_denom = sbufReadU8(src);
-        motorConfigMutable()->dev.useContinuousUpdate = sbufReadU8(src);
-        motorConfigMutable()->dev.motorProtocol = sbufReadU8(src);
-        motorConfigMutable()->dev.motorPwmRate = sbufReadU16(src);
+        sbufReadU8(src); // was useContinuousUpdate, now set by the protocol
+        sbufReadU8(src); // was motorProtocol, now per motor
+        sbufReadU16(src); // was motorPwmRate, now per motor
         if (sbufBytesRemaining(src) >= 2) {
             sbufReadU16(src); // was motorConfigMutable()->motorIdle
         }
@@ -2219,7 +2221,7 @@ RAM_CODE static mspResult_e mspProcessInCommand(mspDescriptor_t srcDesc, int16_t
             sbufReadU8(src); // DEPRECATED: gyro_use_32khz
         }
         if (sbufBytesRemaining(src)) {
-            motorConfigMutable()->dev.motorInversion = sbufReadU8(src);
+            sbufReadU8(src); // was motorInversion, now per motor
         }
         if (sbufBytesRemaining(src) >= 8) {
             sbufReadU8(src); // deprecated gyro_to_use

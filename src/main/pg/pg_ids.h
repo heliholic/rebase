@@ -27,7 +27,7 @@ enum {
 //  PG_GIMBAL_CONFIG                   =    3,
 //  PG_MOTOR_MIXER                     =    4,
     PG_BLACKBOX_CONFIG                 =    5,
-    PG_MOTOR_CONFIG                    =    6,
+//  PG_MOTOR_CONFIG                    =    6,
     PG_SENSOR_SELECTION_CONFIG         =    7,
     PG_SENSOR_ALIGNMENT_CONFIG         =    8,
     PG_SENSOR_TRIMS                    =    9,
@@ -153,6 +153,9 @@ enum {
     PG_DRONECAN_CONFIG                 =  565,
 //  PG_DISPLAY_PORT_FBOSD_CONFIG       =  566,
     PG_DRONECAN_DNA_CONFIG             =  567,
+    PG_MOTOR_CONFIG                    =  572,
+    PG_MOTOR_DEV_CONFIG                =  573,
+    PG_MOTOR_DRIVER_CONFIG             =  574,
 
 //  PG_OSD_FONT_CONFIG                 = 2047,
 //  PG_OSD_VIDEO_CONFIG                = 2046,

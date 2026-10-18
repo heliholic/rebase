@@ -154,7 +154,7 @@ void spiInitBusDMA(void)
      * access concurrently with APB peripherals (eg SPI busses). Bitbang DSHOT uses DMA2 to write to GPIO ports. If this
      * is enabled, then don't enable DMA on an SPI bus using DMA2
      */
-    const bool dshotBitbangActive = isDshotBitbangActive(&motorConfig()->dev);
+    const bool dshotBitbangActive = isDshotBitbangActive();
 #endif
 
     for (device = 0; device < SPIDEV_COUNT; device++) {

@@ -57,7 +57,7 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ## Parameter groups
 
-76 groups, 14 nested structures, 19 enumerations.
+78 groups, 13 nested structures, 17 enumerations.
 
 | Group | PGN | Hash | Type | Size | Header |
 | --- | ---: | --- | --- | ---: | --- |
@@ -98,7 +98,9 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | `mixerInputs` | 15 | `0x7838A8CF` | [`mixerInput_t`](#mixerinput_t) | 6 &times; `MIXER_INPUT_COUNT` | `pg/mixer.h` |
 | `mixerRules` | 21 | `0x2C09DFA2` | [`mixerRule_t`](#mixerrule_t) | 8 &times; `MIXER_RULE_COUNT` | `pg/mixer.h` |
 | `modeActivationConditions` | 41 | `0x55454DC6` | [`modeActivationCondition_t`](#modeactivationcondition_t) | 6 &times; `MAX_MODE_ACTIVATION_CONDITION_COUNT` | `pg/modes.h` |
-| `motorConfig` | 6 | `0xF83A5DC8` | [`motorConfig_t`](#motorconfig_t) | 32 | `pg/motor.h` |
+| `motorConfig` | 572 | `0x147BD35D` | [`motorConfig_t`](#motorconfig_t) | 14 &times; `MAX_SUPPORTED_MOTORS` | `pg/motor.h` |
+| `motorDevConfig` | 573 | `0xBCE3B674` | [`motorDevConfig_t`](#motordevconfig_t) | 1 &times; `MAX_SUPPORTED_MOTORS` | `pg/motor.h` |
+| `motorDriverConfig` | 574 | `0xB62FA5B8` | [`motorDriverConfig_t`](#motordriverconfig_t) | 3 | `pg/motor.h` |
 | `mspConfig` | 557 | `0xAC040DC9` | [`mspConfig_t`](#mspconfig_t) | 1 | `pg/msp.h` |
 | `opticalflowConfig` | 560 | `0x258240D2` | [`opticalflowConfig_t`](#opticalflowconfig_t) | 8 | `pg/opticalflow.h` |
 | `pidConfig` | 504 | `0x77A9E9E6` | [`pidConfig_t`](#pidconfig_t) | 2 | `pg/pid.h` |
@@ -704,18 +706,42 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 
 ### motorConfig_t
 
-- `motorConfig` &mdash; PGN 6 (`PG_MOTOR_CONFIG`), hash `0xF83A5DC8`
+- `motorConfig` &mdash; PGN 572 (`PG_MOTOR_CONFIG`), hash `0x147BD35D` &mdash; array of `MAX_SUPPORTED_MOTORS` elements
 
-`sizeof` = 32 bytes.
+`sizeof` = 14 bytes.
 
 | Offset | Size | Type | Member |
 | ---: | ---: | --- | --- |
-| 0 | 24 | [`motorDevConfig_t`](#motordevconfig_t) | `dev` |
-| 24 | 2 | `uint16_t` | `maxthrottle` |
-| 26 | 2 | `uint16_t` | `mincommand` |
-| 28 | 2 | `uint16_t` | `kv` |
-| 30 | 1 | `uint8_t` | `motorPoleCount` |
-| 31 | 1 | &mdash; | *(tail padding)* |
+| 0 | 1 | [`motorProtocol_e`](#motorprotocol_e) | `protocol` |
+| 1 | 1 | `uint8_t` | `poles` |
+| 2 | 2 | `uint16_t` | `kv` |
+| 4 | 2 | `uint16_t` | `rate` |
+| 6 | 2 | `uint16_t` | `stopPwmPulse` |
+| 8 | 2 | `uint16_t` | `zeroPwmPulse` |
+| 10 | 2 | `uint16_t` | `fullPwmPulse` |
+| 12 | 2 | `uint16_t` | `flags` |
+
+### motorDevConfig_t
+
+- `motorDevConfig` &mdash; PGN 573 (`PG_MOTOR_DEV_CONFIG`), hash `0xBCE3B674` &mdash; array of `MAX_SUPPORTED_MOTORS` elements
+
+`sizeof` = 1 byte.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 1 | `ioTag_t` | `ioTag` |
+
+### motorDriverConfig_t
+
+- `motorDriverConfig` &mdash; PGN 574 (`PG_MOTOR_DRIVER_CONFIG`), hash `0xB62FA5B8`
+
+`sizeof` = 3 bytes.
+
+| Offset | Size | Type | Member |
+| ---: | ---: | --- | --- |
+| 0 | 1 | [`dshotDmar_e`](#dshotdmar_e) | `useBurstDshot` |
+| 1 | 1 | [`dshotBitbangMode_e`](#dshotbitbangmode_e) | `useDshotBitbang` |
+| 2 | 1 | `uint8_t` | `useDshotBitbangTimer` |
 
 ### mspConfig_t
 
@@ -1310,25 +1336,6 @@ anonymous `struct`/`union` are indented under it and share its offsets.
 | ---: | ---: | --- | --- |
 | 0 | 6 | `uint8_t` | `color[6]` |
 
-### motorDevConfig_t
-
-`sizeof` = 24 bytes.
-
-| Offset | Size | Type | Member |
-| ---: | ---: | --- | --- |
-| 0 | 2 | `uint16_t` | `motorPwmRate` |
-| 2 | 1 | `uint8_t` | `motorProtocol` |
-| 3 | 1 | `bool` | `motorInversion` |
-| 4 | 1 | `bool` | `useContinuousUpdate` |
-| 5 | 1 | [`dshotDmar_e`](#dshotdmar_e) | `useBurstDshot` |
-| 6 | 1 | [`dshotTelemetry_e`](#dshottelemetry_e) | `useDshotTelemetry` |
-| 7 | 1 | [`dshotEdt_e`](#dshotedt_e) | `useDshotEdt` |
-| 8 | 12 | `ioTag_t` | `ioTags[12]` |
-| 20 | 1 | `uint8_t` | `motorTransportProtocol` |
-| 21 | 1 | [`dshotBitbangMode_e`](#dshotbitbangmode_e) | `useDshotBitbang` |
-| 22 | 1 | [`dshotBitbangedTimer_e`](#dshotbitbangedtimer_e) | `useDshotBitbangedTimer` |
-| 23 | 1 | &mdash; | *(tail padding)* |
-
 ### pidf_t
 
 `sizeof` = 6 bytes.
@@ -1482,16 +1489,6 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `DSHOT_BITBANG_ON` | 1 |
 | `DSHOT_BITBANG_AUTO` | 2 |
 
-### dshotBitbangedTimer_e
-
-`sizeof` = 1 byte.
-
-| Enumerator | Value |
-| --- | ---: |
-| `DSHOT_BITBANGED_TIMER_AUTO` | 0 |
-| `DSHOT_BITBANGED_TIMER_TIM1` | 1 |
-| `DSHOT_BITBANGED_TIMER_TIM8` | 2 |
-
 ### dshotDmar_e
 
 `sizeof` = 1 byte.
@@ -1501,25 +1498,6 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `DSHOT_DMAR_OFF` | 0 |
 | `DSHOT_DMAR_ON` | 1 |
 | `DSHOT_DMAR_AUTO` | 2 |
-
-### dshotEdt_e
-
-`sizeof` = 1 byte.
-
-| Enumerator | Value |
-| --- | ---: |
-| `DSHOT_EDT_OFF` | 0 |
-| `DSHOT_EDT_ON` | 1 |
-| `DSHOT_EDT_FORCE` | 2 |
-
-### dshotTelemetry_e
-
-`sizeof` = 1 byte.
-
-| Enumerator | Value |
-| --- | ---: |
-| `DSHOT_TELEMETRY_OFF` | 0 |
-| `DSHOT_TELEMETRY_ON` | 1 |
 
 ### failsafeProcedure_e
 
@@ -1560,6 +1538,25 @@ An enum stored in a PG is `PG_ENUM` (packed), so its width is the same in every 
 | `LED_PROFILE_BEACON` | 1 |
 | `LED_PROFILE_STATUS` | 2 |
 | `LED_PROFILE_COUNT` | 3 |
+
+### motorProtocol_e
+
+`sizeof` = 1 byte.
+
+| Enumerator | Value |
+| --- | ---: |
+| `MOTOR_PROTOCOL_DISABLED` | 0 |
+| `MOTOR_PROTOCOL_PWM` | 1 |
+| `MOTOR_PROTOCOL_ONESHOT125` | 2 |
+| `MOTOR_PROTOCOL_ONESHOT42` | 3 |
+| `MOTOR_PROTOCOL_MULTISHOT` | 4 |
+| `MOTOR_PROTOCOL_BRUSHED` | 5 |
+| `MOTOR_PROTOCOL_DSHOT150` | 6 |
+| `MOTOR_PROTOCOL_DSHOT300` | 7 |
+| `MOTOR_PROTOCOL_DSHOT600` | 8 |
+| `MOTOR_PROTOCOL_PROSHOT1000` | 9 |
+| `MOTOR_PROTOCOL_DRONECAN` | 10 |
+| `MOTOR_PROTOCOL_COUNT` | 11 |
 
 ### opticalflowType_e
 

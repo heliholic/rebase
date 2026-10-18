@@ -43,6 +43,7 @@ typedef struct {
     float pulseScale;
     float pulseOffset;
     bool forceOverflow;
+    bool synced;
     bool enabled;
     IO_t io;
 } pwmOutputPort_t;
