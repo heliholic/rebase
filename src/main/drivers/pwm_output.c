@@ -42,6 +42,44 @@
 
 #ifdef USE_PWM_OUTPUT
 
+#ifdef USE_TIMER_AF
+
+// The timer tick rate for a PWM output at the given rate: as fine as the
+// period allows, preferring a whole number of MHz. Motors and servos that
+// share a timer pick the same one for the same rate.
+static uint32_t pwmTimebaseForRate(uint32_t timerClock, uint32_t rate)
+{
+    uint32_t timebase;
+
+    if (rate > 500) {
+        const uint32_t timerRate = rate * 64000;
+        const uint32_t timerDiv = (timerClock + timerRate - 1) / timerRate;
+        timebase = timerClock / timerDiv;
+    }
+    else if (rate > 154 && timerClock % 10000000 == 0) {
+        timebase = 10000000;
+    }
+    else if (rate > 124 && timerClock % 8000000 == 0) {
+        timebase = 8000000;
+    }
+    else if (rate > 77 && timerClock % 5000000 == 0) {
+        timebase = 5000000;
+    }
+    else if (rate > 62 && timerClock % 4000000 == 0) {
+        timebase = 4000000;
+    }
+    else if (rate > 31 && timerClock % 2000000 == 0) {
+        timebase = 2000000;
+    }
+    else {
+        timebase = 1000000;
+    }
+
+    return timebase;
+}
+
+#endif // USE_TIMER_AF
+
 #ifdef USE_MOTOR
 
 FAST_DATA_ZERO_INIT pwmOutputPort_t pwmMotors[MAX_SUPPORTED_MOTORS];
@@ -187,15 +225,24 @@ uint32_t motorPwmDevInit(uint32_t motorMask, const motorVTable_t **vTable)
 
                 IOConfigGPIOAF(pwmMotors[motorIndex].io, IOCFG_AF_PP, timerHardware->alternateFunction);
 
-                /* standard PWM outputs */
-                // margin of safety is 4 periods when unsynced
-                const unsigned pwmRateHz = continuous ? motorGetUpdateRate(motorIndex) : ceilf(1 / ((sMin + sLen) * 4));
-
                 const uint32_t clock = timerClock(timerHardware);
-                /* used to find the desired timer frequency for max resolution */
-                const unsigned prescaler = ((clock / pwmRateHz) + 0xffff) / 0x10000; /* rounding up */
-                const uint32_t hz = clock / prescaler;
-                const unsigned period = continuous ? hz / pwmRateHz : 0xffff;
+                uint32_t hz;
+                unsigned period;
+
+                if (continuous) {
+                    // The same timebase a servo on this timer would choose
+                    const unsigned pwmRateHz = motorGetUpdateRate(motorIndex);
+                    hz = pwmTimebaseForRate(clock, pwmRateHz);
+                    period = hz / pwmRateHz;
+                }
+                else {
+                    // margin of safety is 4 periods when unsynced
+                    const unsigned pwmRateHz = ceilf(1 / ((sMin + sLen) * 4));
+                    /* used to find the desired timer frequency for max resolution */
+                    const unsigned prescaler = ((clock / pwmRateHz) + 0xffff) / 0x10000; /* rounding up */
+                    hz = clock / prescaler;
+                    period = 0xffff;
+                }
 
                 /*
                     if brushed then it is the entire length of the period.
@@ -256,7 +303,8 @@ void servoDevInit(void)
     for (int index = 0; index < MAX_SUPPORTED_SERVOS; index++) {
         const ioTag_t tag = ioTags[index];
         const IO_t io = IOGetByTag(tag);
-        if (tag) {
+        // A servo on a timer a motor needs for another timebase stays down
+        if (tag && !motorIsServoRefused(index)) {
             const timerHardware_t *timer = timerAllocate(tag, OWNER_SERVO, RESOURCE_INDEX(index));
             if (timer) {
                 servos[index].io = io;
@@ -280,6 +328,11 @@ void servoDevInit(void)
                 }
             }
 
+            // On a motor's timer, the rate of the motors and servos together
+            if (motorGetServoRate(index)) {
+                update_rate = motorGetServoRate(index);
+            }
+
             rates[index] = constrain(update_rate, SERVO_RATE_MIN, SERVO_RATE_MAX);
         }
     }
@@ -288,33 +341,9 @@ void servoDevInit(void)
         if (servos[index].io) {
             const uint32_t timer_clock = timerClock(timers[index]);
             const uint32_t update_rate = rates[index];
-            uint32_t timebase;
+            const uint32_t timebase = pwmTimebaseForRate(timer_clock, update_rate);
 
             servoParamsMutable(index)->rate = update_rate;
-
-            if (update_rate > 500) {
-                const uint32_t timer_rate = update_rate * 64000;
-                const uint32_t timer_div = (timer_clock + timer_rate - 1) / timer_rate;
-                timebase = timer_clock / timer_div;
-            }
-            else if (update_rate > 154 && timer_clock % 10000000 == 0) {
-                timebase = 10000000;
-            }
-            else if (update_rate > 124 && timer_clock % 8000000 == 0) {
-                timebase = 8000000;
-            }
-            else if (update_rate > 77 && timer_clock % 5000000 == 0) {
-                timebase = 5000000;
-            }
-            else if (update_rate > 62 && timer_clock % 4000000 == 0) {
-                timebase = 4000000;
-            }
-            else if (update_rate > 31 && timer_clock % 2000000 == 0) {
-                timebase = 2000000;
-            }
-            else {
-                timebase = 1000000;
-            }
 
             servos[index].pulseScale = timebase / 1e6f;
             servos[index].pulseOffset = 0;

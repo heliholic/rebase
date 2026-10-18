@@ -25,7 +25,8 @@
  *
  * Motors on one hardware timer share its timebase, so they must use
  * protocols with the same timebase, and they run at one update rate: the
- * slowest any of them asks for. Every bitbang motor shares the one pacer
+ * slowest any of them asks for. A servo can join a timer only with motors
+ * that free-run like it does, and then shares their rate too. Every bitbang motor shares the one pacer
  * timer, and the same port DMA, so those must agree on protocol, telemetry
  * and polarity too. When two motors cannot coexist, the lower-numbered one
  * wins and the other is left undriven.
@@ -49,6 +50,9 @@
 // and MultiShot would go negative below this
 #define MOTOR_SYNCED_PULSE_MIN      750
 #define MOTOR_SYNCED_PULSE_MAX      2250
+
+// A servo's period must be 5% longer than its longest pulse
+#define SERVO_PERIOD_MARGIN_US      950000
 
 // A brushed motor takes the pulse range as 0-100% duty
 #define MOTOR_BRUSHED_PULSE_MIN     1000
@@ -334,6 +338,11 @@ static uint16_t motorRequestedRate(const motorResolveMotor_t *motor)
     return rate;
 }
 
+static uint16_t servoRequestedRate(const motorResolveServo_t *servo)
+{
+    return servo->maxPulse ? MIN(servo->rate, SERVO_PERIOD_MARGIN_US / servo->maxPulse) : servo->rate;
+}
+
 void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
 {
     memset(out, 0, sizeof(*out));
@@ -424,7 +433,30 @@ void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
         }
     }
 
-    // A group runs at the slowest rate any of its motors asks for
+    // A servo on a motor's timer joins its group if the motors free-run, and
+    // is refused otherwise
+    int8_t servoGroup[MAX_SUPPORTED_SERVOS];
+    for (int s = 0; s < MAX_SUPPORTED_SERVOS; s++) {
+        const motorResolveServo_t *servo = &in->servo[s];
+        servoGroup[s] = -1;
+        if (!in->pinless && servo->timer != MOTOR_TIMER_NONE) {
+            for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
+                if (out->state[i] == MOTOR_STATE_OK && motorUsesTimer(in, out, i) && in->motor[i].timer == servo->timer) {
+                    const int group = out->group[i];
+                    if (motorProtocolIsContinuous(in->motor[group].protocol)) {
+                        servoGroup[s] = group;
+                        out->rate[group] = MIN(out->rate[group], servoRequestedRate(servo));
+                    }
+                    else {
+                        out->refusedServos |= BIT(s);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // A group runs at the slowest rate any of its motors or servos asks for
     for (int i = 0; i < MAX_SUPPORTED_MOTORS; i++) {
         if (out->state[i] == MOTOR_STATE_OK) {
             const int group = out->group[i];
@@ -439,5 +471,8 @@ void motorResolve(const motorResolveInput_t *in, motorResolveOutput_t *out)
             out->family[i] = MOTOR_PROTOCOL_FAMILY_UNKNOWN;
             out->rate[i] = 0;
         }
+    }
+    for (int s = 0; s < MAX_SUPPORTED_SERVOS; s++) {
+        out->servoRate[s] = (servoGroup[s] >= 0) ? out->rate[servoGroup[s]] : 0;
     }
 }

@@ -29,6 +29,7 @@
 #include "drivers/motor_types.h"
 
 STATIC_ASSERT(MAX_SUPPORTED_MOTORS <= 32, motor_masks_hold_every_motor);
+STATIC_ASSERT(MAX_SUPPORTED_SERVOS <= 32, servo_masks_hold_every_servo);
 
 #define MOTOR_TIMER_NONE    (-1)
 
@@ -56,7 +57,14 @@ typedef struct {
 } motorResolveMotor_t;
 
 typedef struct {
+    uint16_t rate;              // requested update rate in Hz
+    uint16_t maxPulse;          // longest pulse in us
+    int8_t   timer;             // timer number of the pin, MOTOR_TIMER_NONE if none
+} motorResolveServo_t;
+
+typedef struct {
     motorResolveMotor_t motor[MAX_SUPPORTED_MOTORS];
+    motorResolveServo_t servo[MAX_SUPPORTED_SERVOS];
     bool    pinless;            // the simulator: motors need neither pin nor timer
     uint8_t bitbangMode;        // dshotBitbangMode_e; OFF where bitbang is not built in
     uint8_t burstMode;          // dshotDmar_e; OFF where burst DMA is not built in
@@ -68,6 +76,8 @@ typedef struct {
     uint8_t  state[MAX_SUPPORTED_MOTORS];   // motorState_e
     uint8_t  group[MAX_SUPPORTED_MOTORS];   // lowest motor sharing its timebase
     uint16_t rate[MAX_SUPPORTED_MOTORS];    // update rate of its group in Hz, 0 if not applicable
+    uint16_t servoRate[MAX_SUPPORTED_SERVOS];   // rate of a servo on a motor's timer, 0 if its timer has none
+    uint32_t refusedServos;                 // servos on a timer a motor needs another timebase on
     bool     bitbang;                       // DShot motors use the bitbang driver
 } motorResolveOutput_t;
 

@@ -48,7 +48,17 @@ protected:
             in.motor[i].protocol = MOTOR_PROTOCOL_DISABLED;
             in.motor[i].timer = MOTOR_TIMER_NONE;
         }
+        for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
+            in.servo[i].timer = MOTOR_TIMER_NONE;
+        }
         in.bitbangMode = DSHOT_BITBANG_OFF;
+    }
+
+    void servo(int index, int8_t timer, uint16_t rate, uint16_t maxPulse = 2200)
+    {
+        in.servo[index].timer = timer;
+        in.servo[index].rate = rate;
+        in.servo[index].maxPulse = maxPulse;
     }
 
     void motor(int index, uint8_t protocol, int8_t timer, uint16_t rate = 0, uint16_t flags = 0)
@@ -339,4 +349,52 @@ TEST_F(MotorResolveTest, DshotMotorsAlike)
     EXPECT_EQ(MOTOR_STATE_GROUP_CLASH, out.state[1]);
     EXPECT_EQ(MOTOR_STATE_GROUP_CLASH, out.state[2]);
     EXPECT_EQ(MOTOR_STATE_OK, out.state[3]);
+}
+
+TEST_F(MotorResolveTest, ServoJoinsFreeRunningMotor)
+{
+    motor(0, MOTOR_PROTOCOL_PWM, 3, 200);
+    servo(0, 3, 333);
+    servo(1, 3, 150);
+    servo(2, 4, 333);
+    motorResolve(&in, &out);
+
+    // Motor and servos on timer 3 run at the slowest of them
+    EXPECT_EQ(150, out.rate[0]);
+    EXPECT_EQ(150, out.servoRate[0]);
+    EXPECT_EQ(150, out.servoRate[1]);
+    // A servo on a timer without motors is left to itself
+    EXPECT_EQ(0, out.servoRate[2]);
+    EXPECT_EQ(0u, out.refusedServos);
+}
+
+TEST_F(MotorResolveTest, ServoPeriodHoldsLongestPulse)
+{
+    motor(0, MOTOR_PROTOCOL_PWM, 3);
+    servo(0, 3, 5000, 2500);
+    motorResolve(&in, &out);
+
+    // 5% above the longest servo pulse
+    EXPECT_EQ(380, out.rate[0]);
+    EXPECT_EQ(380, out.servoRate[0]);
+}
+
+TEST_F(MotorResolveTest, ServoRefusedBySyncedMotor)
+{
+    motor(0, MOTOR_PROTOCOL_DSHOT600, 3);
+    motor(1, MOTOR_PROTOCOL_ONESHOT125, 4);
+    servo(0, 3, 333);
+    servo(1, 4, 333);
+    servo(2, 5, 333);
+    motorResolve(&in, &out);
+
+    EXPECT_EQ(BIT(0) | BIT(1), out.refusedServos);
+    EXPECT_EQ(0, out.servoRate[0]);
+    // The motors keep their own rates
+    EXPECT_EQ(MOTOR_RATE_MAX, out.rate[0]);
+
+    // A bitbang motor leaves its pin's timer to the servo
+    in.bitbangMode = DSHOT_BITBANG_ON;
+    motorResolve(&in, &out);
+    EXPECT_EQ(BIT(1), out.refusedServos);
 }

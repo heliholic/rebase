@@ -40,6 +40,8 @@
 
 #include "drivers/time.h"
 
+#include "pg/servo.h"
+
 #include "sensors/battery.h"
 
 #if ENABLE_DRONECAN_ESC
@@ -225,6 +227,18 @@ uint16_t motorGetUpdateRate(unsigned index)
     return index < MAX_SUPPORTED_MOTORS ? motorResolved.rate[index] : 0;
 }
 
+// A servo whose timer a motor needs for another timebase is not driven
+bool motorIsServoRefused(unsigned servoIndex)
+{
+    return servoIndex < MAX_SUPPORTED_SERVOS && (motorResolved.refusedServos & BIT(servoIndex));
+}
+
+// The rate a servo on a motor's timer must run at, 0 if its timer has no motor
+uint16_t motorGetServoRate(unsigned servoIndex)
+{
+    return servoIndex < MAX_SUPPORTED_SERVOS ? motorResolved.servoRate[servoIndex] : 0;
+}
+
 // What a driver's motors must have in common is set by the lowest of them
 const motorConfig_t *motorLeadConfig(uint32_t motorMask)
 {
@@ -276,10 +290,12 @@ void motorPostInit(void)
     }
 }
 
-// A motor protocol is in use, and every motor the configuration asks for is set up
+// A motor protocol is in use, every motor the configuration asks for is set
+// up, and no servo had to give way to a motor
 bool isMotorProtocolEnabled(void)
 {
-    return motorProtocolEnabled && motorDevice.motorMask == motorDevice.configuredMask;
+    return motorProtocolEnabled && motorDevice.motorMask == motorDevice.configuredMask &&
+        motorResolved.refusedServos == 0;
 }
 
 bool isMotorProtocolDshot(void)
@@ -308,6 +324,21 @@ static void motorResolveInputInit(motorResolveInput_t *in)
         in->motor[i].timer = timer ? timerGetTIMNumber(timer) : MOTOR_TIMER_NONE;
         in->motor[i].hasPin = (tag != IO_TAG_NONE);
         in->motor[i].nChannel = timer && (timer->output & TIMER_OUTPUT_N_CHANNEL);
+    }
+
+    for (int i = 0; i < MAX_SUPPORTED_SERVOS; i++) {
+        in->servo[i].timer = MOTOR_TIMER_NONE;
+#ifdef USE_SERVOS
+        const servoParam_t *param = servoParams(i);
+        const ioTag_t tag = servoConfig()->dev.ioTags[i];
+        const timerHardware_t *timer = tag ? timerGetConfiguredByTag(tag) : NULL;
+
+        in->servo[i].rate = param->rate;
+        in->servo[i].maxPulse = param->mid + param->max;
+        if (timer) {
+            in->servo[i].timer = timerGetTIMNumber(timer);
+        }
+#endif
     }
 
 #ifdef SIMULATOR_BUILD

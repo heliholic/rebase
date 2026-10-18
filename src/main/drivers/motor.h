@@ -44,6 +44,9 @@ motorState_e motorGetState(unsigned index);
 uint16_t motorGetUpdateRate(unsigned index);
 const motorConfig_t *motorLeadConfig(uint32_t motorMask);
 
+bool motorIsServoRefused(unsigned servoIndex);
+uint16_t motorGetServoRate(unsigned servoIndex);
+
 bool isMotorProtocolDshot(void);
 bool isMotorProtocolBidirDshot(void);
 bool isMotorProtocolDronecan(void);

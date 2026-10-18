@@ -353,6 +353,7 @@ uint16_t motorGetUpdateRate(unsigned index)
 }
 
 bool isMotorProtocolDshot(void) { return false; }
+bool motorIsServoRefused(unsigned) { return false; }
 void motorDisable(void) { }
 void motorEnable(void) { }
 void dshotCommandWrite(uint8_t, uint8_t, uint8_t, dshotCommandType_e) { }

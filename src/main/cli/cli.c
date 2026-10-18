@@ -2271,7 +2271,9 @@ static void printServo(dumpFlags_t dumpMask, const servoParam_t *servoParams, co
 
 static void printServoStatus(uint8_t index)
 {
-    if (hasServoOverride(index))
+    if (motorIsServoRefused(index))
+        cliPrintLinef("servo %d: timer used by a motor", index + 1);
+    else if (hasServoOverride(index))
         cliPrintLinef("servo %d: %dus [%d]", index + 1, getServoOutput(index), getServoOverride(index));
     else
         cliPrintLinef("servo %d: %dus", index + 1, getServoOutput(index));
